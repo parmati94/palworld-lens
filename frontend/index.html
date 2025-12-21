@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palworld Save Viewer</title>
+    <title>Palworld Server Viewer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -26,7 +26,7 @@
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-blue-400">🎮 Palworld Save Viewer</h1>
+                    <h1 class="text-2xl font-bold text-blue-400">🎮 Palworld Server Viewer</h1>
                     <p class="text-sm text-gray-400 mt-1" x-show="saveInfo.loaded">
                         <span x-text="saveInfo.world_name"></span>
                         <span class="mx-2">•</span>
@@ -107,12 +107,6 @@
                     class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
                     Base Pals
                 </button>
-                <button 
-                    @click="currentTab = 'guilds'" 
-                    :class="currentTab === 'guilds' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
-                    Guilds (<span x-text="guilds.length"></span>)
-                </button>
             </div>
         </div>
 
@@ -137,16 +131,35 @@
                 </div>
             </div>
             
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 class="text-xl font-bold mb-4">Save Information</h2>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Save Path:</span>
-                        <span class="text-gray-300 font-mono text-xs" x-text="saveInfo.level_path"></span>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h2 class="text-xl font-bold mb-4">Save Information</h2>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Save Path:</span>
+                            <span class="text-gray-300 font-mono text-xs" x-text="saveInfo.level_path"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Last Updated:</span>
+                            <span class="text-gray-300" x-text="formatDate(saveInfo.last_updated)"></span>
+                        </div>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Last Updated:</span>
-                        <span class="text-gray-300" x-text="formatDate(saveInfo.last_updated)"></span>
+                </div>
+                
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <h2 class="text-xl font-bold mb-4">Bases Overview</h2>
+                    <div class="space-y-3 max-h-48 overflow-y-auto">
+                        <template x-for="guild in basePals" :key="guild.guild_id">
+                            <div class="border-b border-gray-700 pb-2 last:border-0">
+                                <div class="text-sm font-medium text-green-400 mb-1" x-text="guild.guild_name"></div>
+                                <template x-for="base in guild.bases" :key="base.base_id">
+                                    <div class="text-xs text-gray-400 pl-3 flex justify-between">
+                                        <span x-text="base.base_name"></span>
+                                        <span class="text-purple-400" x-text="base.pals.length + ' pals'"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -209,13 +222,31 @@
 
         <!-- All Pals Tab -->
         <div x-show="currentTab === 'pals' && saveInfo.loaded">
-            <!-- Search/Filter -->
-            <div class="mb-4">
+            <!-- Search/Filter and Controls -->
+            <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <input 
                     type="text" 
                     x-model="palSearch" 
                     placeholder="Search pals by name or ID..."
-                    class="w-full md:w-96 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
+                    class="w-full sm:w-96 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
+                
+                <!-- Page Size Selector -->
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-gray-400">Show:</span>
+                    <template x-for="size in [10, 25, 50, 100]" :key="size">
+                        <button 
+                            @click="changePageSize(size)"
+                            :class="pageSize === size ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                            class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                            x-text="size">
+                        </button>
+                    </template>
+                </div>
+            </div>
+            
+            <!-- Results Info -->
+            <div class="mb-3 text-sm text-gray-400">
+                <span>Showing <span class="text-white font-medium" x-text="((currentPage - 1) * pageSize + 1)"></span> - <span class="text-white font-medium" x-text="Math.min(currentPage * pageSize, filteredPals.length)"></span> of <span class="text-white font-medium" x-text="filteredPals.length"></span> pals</span>
             </div>
             
             <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
@@ -232,7 +263,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-700">
-                            <template x-for="pal in filteredPals" :key="pal.instance_id">
+                            <template x-for="pal in paginatedPals" :key="pal.instance_id">
                                 <tr class="hover:bg-gray-750">
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-3">
@@ -251,9 +282,8 @@
                                                     class="absolute -top-1 -right-1 w-5 h-5">
                                             </div>
                                             <!-- Pal Info -->
-                                            <div>
+                                            <div class="flex items-center">
                                                 <div class="font-medium" x-text="pal.nickname || pal.display_name"></div>
-                                                <div class="text-xs text-gray-400" x-text="pal.character_id"></div>
                                             </div>
                                         </div>
                                     </td>
@@ -280,13 +310,48 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-400">
-                                        <span x-text="getPlayerName(pal.owner_uid) || 'None'"></span>
+                                        <span x-text="pal.owner_uid || 'None'"></span>
                                     </td>
                                 </tr>
                             </template>
                         </tbody>
                     </table>
                 </div>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div x-show="totalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+                <!-- Previous Button -->
+                <button 
+                    @click="changePage(currentPage - 1)"
+                    :disabled="currentPage === 1"
+                    :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
+                    class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Page Numbers -->
+                <template x-for="page in pageNumbers" :key="page">
+                    <button 
+                        @click="changePage(page)"
+                        :class="currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
+                        class="px-4 py-2 border border-gray-700 rounded-lg font-medium transition-colors"
+                        x-text="page">
+                    </button>
+                </template>
+                
+                <!-- Next Button -->
+                <button 
+                    @click="changePage(currentPage + 1)"
+                    :disabled="currentPage === totalPages"
+                    :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
+                    class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -392,9 +457,8 @@
                                                                     class="absolute -top-1 -right-1 w-3 h-3">
                                                             </div>
                                                             <!-- Pal Info -->
-                                                            <div>
+                                                            <div class="flex items-center">
                                                                 <div class="font-medium text-sm" x-text="pal.nickname || pal.display_name"></div>
-                                                                <div class="text-xs text-gray-500" x-text="pal.character_id"></div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -440,36 +504,14 @@
             </template>
         </div>
 
-        <!-- Guilds Tab -->
-        <div x-show="currentTab === 'guilds' && saveInfo.loaded">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <template x-for="guild in guilds" :key="guild.guild_id">
-                    <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                        <h3 class="text-xl font-bold mb-2 text-green-400" x-text="guild.guild_name"></h3>
-                        <div class="text-sm text-gray-400 mb-4">
-                            <div>Guild ID: <span class="font-mono text-xs" x-text="guild.guild_id"></span></div>
-                            <div>Members: <span x-text="guild.members.length"></span></div>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <div class="text-sm font-medium text-gray-300">Members:</div>
-                            <template x-for="memberUid in guild.members" :key="memberUid">
-                                <div class="text-sm text-gray-400 pl-4">
-                                    • <span x-text="getPlayerName(memberUid) || memberUid.substring(0, 8)"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
+
 
     </main>
 
     <!-- Footer -->
     <footer class="bg-gray-800 border-t border-gray-700 mt-12">
         <div class="container mx-auto px-4 py-6 text-center text-sm text-gray-400">
-            <p>Palworld Save Viewer v1.0 • Read-only viewer • No editing functionality</p>
+            <p>Palworld Server Viewer v1.0 • Read-only viewer • No editing functionality</p>
         </div>
     </footer>
 
@@ -479,12 +521,13 @@
                 currentTab: 'overview',
                 saveInfo: { loaded: false },
                 players: [],
-                guilds: [],
                 pals: [],
                 basePals: [],
                 loading: false,
                 error: null,
                 palSearch: '',
+                currentPage: 1,
+                pageSize: 10,
                 
                 async init() {
                     await this.loadAllData();
@@ -493,6 +536,11 @@
                     setInterval(() => {
                         this.loadAllData(true);
                     }, 30000);
+                    
+                    // Reset to page 1 when search changes
+                    this.$watch('palSearch', () => {
+                        this.currentPage = 1;
+                    });
                 },
                 
                 async loadAllData(silent = false) {
@@ -507,15 +555,13 @@
                         
                         if (this.saveInfo.loaded) {
                             // Load all data in parallel
-                            const [playersRes, guildsRes, palsRes, basePalsRes] = await Promise.all([
+                            const [playersRes, palsRes, basePalsRes] = await Promise.all([
                                 fetch('/api/players'),
-                                fetch('/api/guilds'),
                                 fetch('/api/pals'),
                                 fetch('/api/base-pals')
                             ]);
                             
                             this.players = (await playersRes.json()).players;
-                            this.guilds = (await guildsRes.json()).guilds;
                             this.pals = (await palsRes.json()).pals;
                             this.basePals = (await basePalsRes.json()).bases;
                             
@@ -553,8 +599,8 @@
                 },
                 
                 getGuildName(guildId) {
-                    const guild = this.guilds.find(g => g.guild_id === guildId);
-                    return guild ? guild.guild_name : 'None';
+                    // Return guild ID or None if not found
+                    return guildId || 'None';
                 },
                 
                 formatDate(dateStr) {
@@ -571,6 +617,50 @@
                         (pal.nickname && pal.nickname.toLowerCase().includes(search)) ||
                         (pal.character_id && pal.character_id.toLowerCase().includes(search))
                     );
+                },
+                
+                get paginatedPals() {
+                    const start = (this.currentPage - 1) * this.pageSize;
+                    const end = start + this.pageSize;
+                    return this.filteredPals.slice(start, end);
+                },
+                
+                get totalPages() {
+                    return Math.ceil(this.filteredPals.length / this.pageSize);
+                },
+                
+                changePage(page) {
+                    if (page >= 1 && page <= this.totalPages) {
+                        this.currentPage = page;
+                    }
+                },
+                
+                changePageSize(size) {
+                    this.pageSize = size;
+                    this.currentPage = 1; // Reset to first page when changing page size
+                },
+                
+                get pageNumbers() {
+                    const pages = [];
+                    const total = this.totalPages;
+                    const current = this.currentPage;
+                    
+                    // Always show first page
+                    pages.push(1);
+                    
+                    // Show pages around current page
+                    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+                        if (!pages.includes(i)) {
+                            pages.push(i);
+                        }
+                    }
+                    
+                    // Always show last page
+                    if (total > 1 && !pages.includes(total)) {
+                        pages.push(total);
+                    }
+                    
+                    return pages;
                 }
             }
         }

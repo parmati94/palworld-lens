@@ -1,4 +1,4 @@
-"""FastAPI backend for Palworld Save Viewer"""
+"""FastAPI backend for Palworld Server Viewer"""
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle events"""
-    logger.info("🚀 Starting Palworld Save Viewer")
+    logger.info("🚀 Starting Palworld Server Viewer")
     logger.info(f"📂 Save mount path: {config.SAVE_MOUNT_PATH}")
     
     # Try to load save on startup
@@ -30,10 +30,10 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    logger.info("👋 Shutting down Palworld Save Viewer")
+    logger.info("👋 Shutting down Palworld Server Viewer")
 
 app = FastAPI(
-    title="Palworld Save Viewer",
+    title="Palworld Server Viewer",
     description="Read-only viewer for Palworld save files",
     version="1.0.0",
     lifespan=lifespan
@@ -51,7 +51,7 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "Palworld Save Viewer API", "version": "1.0.0"}
+    return {"message": "Palworld Server Viewer API", "version": "1.0.0"}
 
 @app.get("/api/health")
 async def health_check():

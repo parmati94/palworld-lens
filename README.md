@@ -1,4 +1,4 @@
-# Palworld Save Viewer
+# Palworld Server Viewer
 
 A lightweight, read-only viewer for Palworld save files. Built to be mobile-friendly and containerized.
 
@@ -40,12 +40,6 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
    ```
 
 3. **Start the viewer:**
-   ```bash
-   chmod +x start.sh
-   ./start.sh
-   ```
-   
-   Or manually:
    ```bash
    docker-compose up -d --build
    ```
@@ -98,9 +92,7 @@ environment:
 - **Hunger and SAN monitoring** (color-coded warnings)
 - Health bars for each pal
 
-### Guilds Tab
-- Guild information
-- Member lists
+
 
 ## 🛠️ Development
 
@@ -129,6 +121,11 @@ environment:
    ```
 
 ## 🐛 Troubleshooting
+
+### Container Management
+- **Stop the viewer:** `docker-compose down`
+- **View logs:** `docker-compose logs -f`
+- **Rebuild:** `docker-compose up -d --build`
 
 ### Save not loading?
 - Check that `Level.sav` exists in the mounted directory
