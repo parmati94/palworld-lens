@@ -1,0 +1,978 @@
+{
+  "EPalWazaID::AcidRain": {
+    "localized_name": "Кислотный дождь",
+    "description": "Создаёт кислотное облако, обрушивая кислотный дождь на головы врагов."
+  },
+  "EPalWazaID::AirBlade": {
+    "localized_name": "Воздушные клинки",
+    "description": "Выпускает острые воздушные лезвия веером."
+  },
+  "EPalWazaID::AirCanon": {
+    "localized_name": "Воздушная пушка",
+    "description": "Выстреливает стремительно летящий сгусток воздуха."
+  },
+  "EPalWazaID::Apocalypse": {
+    "localized_name": "Апокалипсис",
+    "description": "Создает вокруг врага множество вихрей тёмной энергии."
+  },
+  "EPalWazaID::AquaJet": {
+    "localized_name": "Акваджет",
+    "description": "Выпускает в сторону врага скоростной водяной снаряд."
+  },
+  "EPalWazaID::BeamSlicer": {
+    "localized_name": "Режущий луч",
+    "description": "Опаляет пространство перед собой лучом, наполненным силой дракона. Спустя короткое время поражённая область взрывается."
+  },
+  "EPalWazaID::BlastCanon": {
+    "localized_name": "Взрывная пушка",
+    "description": "Выстреливает во врага снарядом, наполненным силой дракона. При попадании тот рассеивается и взрывается, охватывая большую зону перед собой."
+  },
+  "EPalWazaID::BlizzardLance": {
+    "localized_name": "Айсберг",
+    "description": "Создаёт под ногами врагов острые ледяные лезвия."
+  },
+  "EPalWazaID::BubbleShot": {
+    "localized_name": "Пузырьковый выстрел",
+    "description": "Выпускает множество пузырей, медленно преследующих врагов."
+  },
+  "EPalWazaID::BubbleShower": {
+    "localized_name": "Ядовитый душ",
+    "description": "Концентрирует силу и рассыпает во все стороны ядовитые сферы."
+  },
+  "EPalWazaID::ChargeCanon": {
+    "localized_name": "Заряженный выстрел",
+    "description": "Выпускает в сторону врага энергетический снаряд, наполненный силой дракона. При попадании снаряд вызывает масштабный взрыв."
+  },
+  "EPalWazaID::Commet": {
+    "localized_name": "Комета",
+    "description": "Сбрасывает метеорит вертикально вниз, создавая ударную волну вокруг точки падения."
+  },
+  "EPalWazaID::CommetRain": {
+    "localized_name": "Метеоритный дождь",
+    "description": "Сбрасывает бесчисленное множество метеоритов, создавая ударную волну вокруг."
+  },
+  "EPalWazaID::CrossThunder": {
+    "localized_name": "Перекрёстная молния",
+    "description": "Вызывает молнии, расходящиеся в двух направлениях, словно перекрывая врагу путь с обеих сторон."
+  },
+  "EPalWazaID::CrossWind": {
+    "localized_name": "Перекрестие ветра",
+    "description": "Создает перед врагом ветряные клинки, скрещивает их между собой и атакует."
+  },
+  "EPalWazaID::DarkArrow": {
+    "localized_name": "Стрелы тьмы",
+    "description": "Обстреливает врагов стремительным потоком стрел, преследующих цели с помощью силы тьмы."
+  },
+  "EPalWazaID::DarkBall": {
+    "localized_name": "Темный шар",
+    "description": "Выпускает тёмный шар, неспешно преследующий врага."
+  },
+  "EPalWazaID::DarkCanon": {
+    "localized_name": "Тёмная пушка",
+    "description": "Выпускает в сторону врага высокоскоростной энергетический снаряд, заряженный силой тьмы."
+  },
+  "EPalWazaID::DarkLaser": {
+    "localized_name": "Темный лазер",
+    "description": "Заряжает тёмную энергию и выпускает во врага мощный луч."
+  },
+  "EPalWazaID::DarkLegion": {
+    "localized_name": "Тёмный висп",
+    "description": "Выпускает несколько тёмных сфер, преследующих врага."
+  },
+  "EPalWazaID::DarkPulse": {
+    "localized_name": "Распространение тьмы",
+    "description": "Выпускает быстрые сгустки тьмы, расходящиеся веером."
+  },
+  "EPalWazaID::DarkWave": {
+    "localized_name": "Теневой взрыв",
+    "description": "Стремительно высвобождает силу тьмы, нанося удар по области вокруг."
+  },
+  "EPalWazaID::DiamondFall": {
+    "localized_name": "Алмазный водопад",
+    "description": "Создаёт над головами врагов глыбы льда и обрушивает их вниз одну за другой."
+  },
+  "EPalWazaID::DiversionLaser": {
+    "localized_name": "Гидроатака под давлением",
+    "description": "Выстреливает вперед высоконапорной струёй воды. Через некоторое время струя разделяется надвое."
+  },
+  "EPalWazaID::DoubleIcicleThrow": {
+    "localized_name": "Двойной шип вьюги",
+    "description": "Создаёт две огромные глыбы льда и запускает их во врага одну за другой. При попадании они наносят урон по области вокруг цели."
+  },
+  "EPalWazaID::DragonBreath": {
+    "localized_name": "Дыхание дракона",
+    "description": "Выдыхает наполненное силой дракона пламя вперёд, нанося врагам непрерывный урон."
+  },
+  "EPalWazaID::DragonCanon": {
+    "localized_name": "Драконья пушка",
+    "description": "Выпускает во врага энергетический снаряд, наполненный силой дракона."
+  },
+  "EPalWazaID::DragonMeteor": {
+    "localized_name": "Драконий метеор",
+    "description": "Призывает множество маленьких метеоритов и запускает их во врага."
+  },
+  "EPalWazaID::DragonWave": {
+    "localized_name": "Драконий взрыв",
+    "description": "Стремительно высвобождает силу дракона, обрушивая ее на область вокруг."
+  },
+  "EPalWazaID::ElecWave": {
+    "localized_name": "Шоковая волна",
+    "description": "Мгновенно выпускает электрический заряд, нанося урон по области вокруг."
+  },
+  "EPalWazaID::Eruption": {
+    "localized_name": "Вулканический дождь",
+    "description": "Выпускает в небо множество вулканических снарядов. Спустя некоторое время они обрушиваются дождём на область вокруг него."
+  },
+  "EPalWazaID::FireBall": {
+    "localized_name": "Огненный шар",
+    "description": "Создаёт над головой огромную огненную сферу и запускает её в сторону врага. При столкновении сфера взрывается, нанося урон по большой площади."
+  },
+  "EPalWazaID::FireBlast": {
+    "localized_name": "Огненный выстрел",
+    "description": "Выпускает в сторону врага огненный снаряд, летящий по прямой."
+  },
+  "EPalWazaID::FireSeed": {
+    "localized_name": "Расщеплённый огонь",
+    "description": "Выпускает огненную сферу, которая, пролетев немного, разрывается и выпускает вперёд мелкие огненные сферы."
+  },
+  "EPalWazaID::FlameFunnel": {
+    "localized_name": "Огненная воронка",
+    "description": "Создаёт несколько сфер, наполненных пламенной энергией, из которых выпускает бесчисленное множество огненных сгустков, летящих во врага."
+  },
+  "EPalWazaID::FlameWall": {
+    "localized_name": "Огненная стена",
+    "description": "Создаёт в месте, где находится враг, стену пылающего пламени. Она остаётся на поле некоторое время и наносит урон всем, кто к ней прикоснётся."
+  },
+  "EPalWazaID::Flamethrower": {
+    "localized_name": "Огненное дыхание",
+    "description": "Извергает пламя в сторону врага, нанося непрерывный урон."
+  },
+  "EPalWazaID::FlareArrow": {
+    "localized_name": "Огненная стрела",
+    "description": "Выпускает три огненные стрелы, которые наводятся на врага."
+  },
+  "EPalWazaID::FlareTornado": {
+    "localized_name": "Огненный шторм",
+    "description": "Создаёт пылающие вихри по обе стороны и направляет их на врага."
+  },
+  "EPalWazaID::FlareTwister": {
+    "localized_name": "Пылающие смерчи",
+    "description": "ru_Text"
+  },
+  "EPalWazaID::FrostBreath": {
+    "localized_name": "Ледяное дыхание",
+    "description": "Выпускает во врага ледяной поток, нанося непрерывный урон."
+  },
+  "EPalWazaID::GhostFlame": {
+    "localized_name": "Духовное пламя",
+    "description": "Выпускает три злопамятных духа, которые настойчиво преследуют врага."
+  },
+  "EPalWazaID::GrassTornado": {
+    "localized_name": "Травяной торнадо",
+    "description": "Создаёт вихри по обе стороны и направляет их на врага."
+  },
+  "EPalWazaID::GravityShot": {
+    "localized_name": "Темный выстрел",
+    "description": "Выпускает снаряд тёмной энергии, летящий с постепенным ускорением."
+  },
+  "EPalWazaID::HolyBlast": {
+    "localized_name": "Священный взрыв",
+    "description": "Вызывает световой взрыв под ногами врага, накрывающий область вокруг."
+  },
+  "EPalWazaID::Human_Punch": {
+    "localized_name": "Удар",
+    "description": "Веря в собственный кулак, наносит удар."
+  },
+  "EPalWazaID::HydroPump": {
+    "localized_name": "Гидроструя",
+    "description": "Выпускает мощнейший поток воды, поражая широкую зону перед собой."
+  },
+  "EPalWazaID::HydroSlicer": {
+    "localized_name": "Гидрорезак",
+    "description": "Окатывает область перед собой сжатой водяной струей. Через некоторое время из поражённой области начинают вырываться фонтаны воды."
+  },
+  "EPalWazaID::HyperBeam": {
+    "localized_name": "Палобласт",
+    "description": "Накапливает разрушительную энергию и выпускает по области перед собой сверхмощный луч."
+  },
+  "EPalWazaID::IceAge": {
+    "localized_name": "Морозный всплеск",
+    "description": "Из-под ног врага вырываются ледяные столпы, распространяющиеся на область вокруг."
+  },
+  "EPalWazaID::IceBlade": {
+    "localized_name": "Ледяной резак",
+    "description": "Создаёт серповидный клинок изо льда и направляет его вперёд."
+  },
+  "EPalWazaID::IceMissile": {
+    "localized_name": "Ледяная ракета",
+    "description": "Создаёт в воздухе острые льдины и запускает их во врага."
+  },
+  "EPalWazaID::IceWall": {
+    "localized_name": "Ледяная стена",
+    "description": "Создаёт ледяную стену, вырастающую из земли. Она остаётся на некоторое время и разрушается после получения определённого количества урона."
+  },
+  "EPalWazaID::IcicleLine": {
+    "localized_name": "Ледяной след",
+    "description": "Призывает движущиеся по прямой в трех направлениях ледяные столпы."
+  },
+  "EPalWazaID::IciclePierce": {
+    "localized_name": "Ледяные пули",
+    "description": "Создаёт в воздухе несколько острых льдин и запускает их во врага."
+  },
+  "EPalWazaID::IcicleThrow": {
+    "localized_name": "Шип метели",
+    "description": "Создаёт гигантскую льдину и с силой запускает её во врага. При попадании наносит урон по области вокруг цели."
+  },
+  "EPalWazaID::Inferno": {
+    "localized_name": "Инферно",
+    "description": "Приводит почву вокруг врага в нестабильность. Вскоре после этого происходит взрыв."
+  },
+  "EPalWazaID::LightningStrike": {
+    "localized_name": "Грозовой удар",
+    "description": "Призывает молнию, используя себя как громоотвод, и вызывает на месте мощный электрический взрыв."
+  },
+  "EPalWazaID::LineGeyser": {
+    "localized_name": "Полоса брызг",
+    "description": "Вызывает движущиеся по прямой водяные столпы."
+  },
+  "EPalWazaID::LineThunder": {
+    "localized_name": "Грозовая линия",
+    "description": "Выпускает молнию, стремящуюся по прямой."
+  },
+  "EPalWazaID::LockonLaser": {
+    "localized_name": "Лазерный захват",
+    "description": "Прицеливается во врага, после чего выпускает сверхбыстрый грозовой лазер."
+  },
+  "EPalWazaID::MudShot": {
+    "localized_name": "Грязевой выстрел",
+    "description": "Выстреливает липкой грязью по врагу."
+  },
+  "EPalWazaID::PoisonFog": {
+    "localized_name": "Ядовитый туман",
+    "description": "Создаёт облако ядовитого тумана, отравляя врагов перед собой."
+  },
+  "EPalWazaID::PoisonShot": {
+    "localized_name": "Ядовитый выстрел",
+    "description": "Выпускает во врага ядовитый сгусток слизи."
+  },
+  "EPalWazaID::PowerBall": {
+    "localized_name": "Силовая бомба",
+    "description": "Накапливает мощный заряд энергии и выпускает огромную энергетическую сферу."
+  },
+  "EPalWazaID::PowerShot": {
+    "localized_name": "Силовой выстрел",
+    "description": "Накапливает энергию и выпускает энергетический снаряд."
+  },
+  "EPalWazaID::PredatorBeam": {
+    "localized_name": "Луч хищника",
+    "description": null
+  },
+  "EPalWazaID::PredatorLockon": {
+    "localized_name": "Захват хищника",
+    "description": null
+  },
+  "EPalWazaID::PredatorWave": {
+    "localized_name": "Волна хищника",
+    "description": null
+  },
+  "EPalWazaID::Psychokinesis": {
+    "localized_name": "Психогравитация",
+    "description": "Парализует врагов вокруг телекинезом и обрушивает их на землю с высоты."
+  },
+  "EPalWazaID::RadiantBarrage": {
+    "localized_name": "Сияющий залп",
+    "description": "Выпускает светящийся шар, медленно преследующий врага. При приближении к цели шар распадается на множество световых снарядов и обрушивается на противника."
+  },
+  "EPalWazaID::RaidCutter": {
+    "localized_name": "Рейдовые лезвия",
+    "description": "Запускает бесчисленное множество лезвий ветра, летящих во врага."
+  },
+  "EPalWazaID::Railbolt": {
+    "localized_name": "Цепь молний",
+    "description": "Накапливает электрическую энергию до предела и одновременно выпускает во врага несколько мощных разрядов."
+  },
+  "EPalWazaID::RangeThunder": {
+    "localized_name": "Вездесущая гроза",
+    "description": "Вызывает грозовые разряды, расходящиеся по прямым во все стороны."
+  },
+  "EPalWazaID::ReflectiveShuriken": {
+    "localized_name": "Отражающий лист",
+    "description": "Бросает ветряные клинки, которые отскакивают от врагов и деревьев, нанося повторные удары. Клинки могут отскакивать до 4 раз."
+  },
+  "EPalWazaID::RipTide": {
+    "localized_name": "Цунами",
+    "description": "Создаёт волны, накатывающие на врага со всех сторон. В конце волны взрываются в центре, поднимая водяной столп."
+  },
+  "EPalWazaID::RockBeat": {
+    "localized_name": "Каменный пульс",
+    "description": "Сотрясает землю, поднимая гигантские каменные глыбы."
+  },
+  "EPalWazaID::RockLance": {
+    "localized_name": "Каменные копья",
+    "description": "Создает под ногами врагов острые каменные копья."
+  },
+  "EPalWazaID::RootAttack": {
+    "localized_name": "Терновые лозы",
+    "description": "Острые корни вырастают из земли и пронзают врагов под ногами."
+  },
+  "EPalWazaID::RootLance": {
+    "localized_name": "Кольцевая лоза",
+    "description": "Под ногами врага и вокруг него пронзают землю острые корни."
+  },
+  "EPalWazaID::SandTornado": {
+    "localized_name": "Песчаный вихрь",
+    "description": "Создаёт песчаные вихри по обе стороны и направляет их на врагов."
+  },
+  "EPalWazaID::SandTwister": {
+    "localized_name": "Песчаные смерчи",
+    "description": "Создаёт множество песчаных смерчей, которые непрерывно вращаются по кругу."
+  },
+  "EPalWazaID::SeaGush": {
+    "localized_name": "Водяные столпы",
+    "description": "Создаёт множество водяных столпов под ногами врага и вокруг него."
+  },
+  "EPalWazaID::SeedMachinegun": {
+    "localized_name": "Семенной пулемет",
+    "description": "Обстреливает врагов перед собой множеством твёрдых семян."
+  },
+  "EPalWazaID::SeedMine": {
+    "localized_name": "Семенная мина",
+    "description": "Выстреливает опасными семенами. При попадании во врага они лопаются и взрываются."
+  },
+  "EPalWazaID::SelfDestruct": {
+    "localized_name": "Самоподрыв",
+    "description": "Взрывается, жертвуя собой. После использования оказывается в нокауте."
+  },
+  "EPalWazaID::SelfDestruct_Bee": {
+    "localized_name": "Тише, пчёлка!",
+    "description": "Взрывается, жертвуя собой. Героический приём ценой собственной жизни."
+  },
+  "EPalWazaID::SelfExplosion": {
+    "localized_name": "Мегатонный самоподрыв",
+    "description": "Вызывает мощный взрыв, жертвуя собой. Умирая, превращается в сияющую звезду на ночном небе."
+  },
+  "EPalWazaID::ShadowBall": {
+    "localized_name": "Кошмарная сфера",
+    "description": "Создаёт огромный шар тьмы и стремительно запускает его во врага."
+  },
+  "EPalWazaID::ShokeiLaser": {
+    "localized_name": "Лазерная экзекуция",
+    "description": "Прицелившись, несколько раз стреляет во врага из сверхскоростного грозового лазера."
+  },
+  "EPalWazaID::SolarBeam": {
+    "localized_name": "Солнечный взрыв",
+    "description": "Заряжает силу солнца и выпускает мощный луч в сторону врага."
+  },
+  "EPalWazaID::SpecialCutter": {
+    "localized_name": "Мультиклинок",
+    "description": "Выпускает в сторону врага три лезвия ветра, летящих по прямой с невероятной скоростью."
+  },
+  "EPalWazaID::SpreadPulse": {
+    "localized_name": "Искровой выстрел",
+    "description": "Выпускает расходящиеся веером грозовые сферы."
+  },
+  "EPalWazaID::StarMine": {
+    "localized_name": "Звездные мины",
+    "description": "Создаёт вокруг врага звёзды, которые взрываются при прикосновении или спустя некоторое время самостоятельно."
+  },
+  "EPalWazaID::StoneShotgun": {
+    "localized_name": "Каменный залп",
+    "description": "Выпускает вперёд поток мелких камней."
+  },
+  "EPalWazaID::ThreeCommet": {
+    "localized_name": "Падение астероидов",
+    "description": "Сбрасывает серию метеоритов, создавая ударную волну вокруг точки падения."
+  },
+  "EPalWazaID::ThreeThunder": {
+    "localized_name": "Тройная молния",
+    "description": "Обрушивает на головы врагов 3 удара молнии."
+  },
+  "EPalWazaID::ThrowRock": {
+    "localized_name": "Камнемёт",
+    "description": "Поднимает с земли булыжник и бросает его во врага."
+  },
+  "EPalWazaID::ThunderBall": {
+    "localized_name": "Шаровая молния",
+    "description": "Выпускает шаровую молнию, медленно преследующую врага."
+  },
+  "EPalWazaID::ThunderFunnel": {
+    "localized_name": "Плазмомет",
+    "description": "Создаёт два шара, наполненных грозовой энергией, которые выпускают во врага бесчисленные электрические сферы."
+  },
+  "EPalWazaID::ThunderRain": {
+    "localized_name": "Грозовой дождь",
+    "description": "Призывает грозу, которая через некоторое время обрушивает на врагов множество ударов молнии."
+  },
+  "EPalWazaID::ThunderSpear": {
+    "localized_name": "Грозовое копье",
+    "description": "С большой скоростью запускает во врага грозовое копьё, летящее по прямой."
+  },
+  "EPalWazaID::ThunderStorm": {
+    "localized_name": "Грозовая буря",
+    "description": "Создаёт гигантский грозовой смерч, медленно движущийся к врагу."
+  },
+  "EPalWazaID::Thunderbolt": {
+    "localized_name": "Удар молнии",
+    "description": "Накапливает электричество и поражает врага мощным разрядом."
+  },
+  "EPalWazaID::Tremor": {
+    "localized_name": "Камнепад",
+    "description": "Сотрясает землю и обрушивает на область вокруг каменные глыбы."
+  },
+  "EPalWazaID::TriSpark": {
+    "localized_name": "Тройной разряд",
+    "description": "Одновременно выпускает быстрые грозовые сферы, летящие по прямой, и более медленные, которые преследуют врага."
+  },
+  "EPalWazaID::Unique_Alpaca_Tackle": {
+    "localized_name": "Пушистый таран",
+    "description": "Уникальное умение Мелпака. Окутанный аурой очарования, делает рывок вперёд."
+  },
+  "EPalWazaID::Unique_AmaterasuWolf_Dark_DarkCharge": {
+    "localized_name": "Рывок адского пламени",
+    "description": "Уникальное умение Кицун Нокт. Окутывает себя фиолетовым пламенем и стремительно бросается вперёд."
+  },
+  "EPalWazaID::Unique_AmaterasuWolf_FireCharge": {
+    "localized_name": "Фуринкадзан",
+    "description": "Уникальное умение Кицун. Окутывает себя синим пламенем и стремительно бросается вперёд."
+  },
+  "EPalWazaID::Unique_Anubis_GroundPunch": {
+    "localized_name": "Сокрушение земли",
+    "description": "Уникальное умение Анубис. Прыгает высоко в воздух и с силой бьёт кулаком о землю. Ударная волна наносит урон по большой площади."
+  },
+  "EPalWazaID::Unique_Anubis_LowRoundKick": {
+    "localized_name": "Удар с разворота",
+    "description": "Уникальное умение Анубис. Круговым ударом ноги наносит урон по большой площади."
+  },
+  "EPalWazaID::Unique_Anubis_Tackle": {
+    "localized_name": "Мощный разряд",
+    "description": "Уникальное умение Анубис. Быстро устремляется к врагу и наносит мощный удар, высвобождая энергию."
+  },
+  "EPalWazaID::Unique_Baphomet_SwallowKite": {
+    "localized_name": "Коготь адского пламени",
+    "description": "Уникальное умение вида Инсинерам. Приближаясь к врагу, наносит восходящий удар когтями левой лапы и подскакивает, а затем тут же обрушивает быстрый удар когтями правой лапы."
+  },
+  "EPalWazaID::Unique_BirdDragon_FireBreath": {
+    "localized_name": "Летящее дыхание",
+    "description": "Уникальное умение Ванвирм. Изрыгая пламя, продвигается вперёд."
+  },
+  "EPalWazaID::Unique_BirdDragon_Ice_IceBreath": {
+    "localized_name": "Летящая буря",
+    "description": "Уникальное умение Ванвирм Крист. Изрыгая морозное дыхание, продвигается вперёд."
+  },
+  "EPalWazaID::Unique_BlackCentaur_TwoSpearRushes": {
+    "localized_name": "Молниеносные копья",
+    "description": "Уникальное умение Некромус. Совершает рывок вперёд, нанося чередующиеся удары копьями, охваченными вихрем."
+  },
+  "EPalWazaID::Unique_BlackGriffon_TackleLaser": {
+    "localized_name": "Священное бедствие",
+    "description": "Уникальное умение Шэдоубик. Во время рывка создаёт сферы света, которые автоматически наводятся на врага и выпускают множество лазерных лучей."
+  },
+  "EPalWazaID::Unique_BlackGriffon_TackleLaser2": {
+    "localized_name": "Священное бедствие II",
+    "description": "Уникальное умение вида Шэдоубик. Во время рывка выпускает из светящегося кольца на теле множество синих лучей, которые автоматически захватывают и преследуют врага."
+  },
+  "EPalWazaID::Unique_BlackMetalDragon_FirePunch": {
+    "localized_name": "Удар с изрыганием",
+    "description": "Уникальное умение Астегон. Наносит два удара перед собой, затем изрыгает вниз дыхание, наполненное силой дракона."
+  },
+  "EPalWazaID::Unique_BluePlatypus_Toboggan": {
+    "localized_name": "Серфинг-слэм",
+    "description": null
+  },
+  "EPalWazaID::Unique_BluePlatypus_Toboggan_Fire": {
+    "localized_name": "Пламенный таран",
+    "description": null
+  },
+  "EPalWazaID::Unique_BlueThunderHorse_FlashDash": {
+    "localized_name": "Скачок молнии",
+    "description": "Уникальное умение Азурмейн. Перемещается со скоростью молнии, сметая всё на своём пути."
+  },
+  "EPalWazaID::Unique_Boar_Tackle": {
+    "localized_name": "Бешеный таран",
+    "description": "Уникальное умение Рашоа. Прицелившись, неистово бросается на врага."
+  },
+  "EPalWazaID::Unique_CaptainPenguin_Black_BodySlide_Electric": {
+    "localized_name": "Грозовое скольжение",
+    "description": "Уникальное умение Пенкинг Лакс. Прижимается брюхом к земле и, испуская электрический заряд всем телом, скользит вперёд, врезаясь во врага."
+  },
+  "EPalWazaID::Unique_CaptainPenguin_BodySlide": {
+    "localized_name": "Капитанское скольжение",
+    "description": "Уникальное умение Пенкинг. Прижимается брюхом к земле и, источая холод всем телом, скользит вперёд, врезаясь во врага."
+  },
+  "EPalWazaID::Unique_ChickenPal_ChickenPeck": {
+    "localized_name": "Куриный натиск",
+    "description": "Уникальное умение Чикипи. Подпрыгивает к врагу и наносит атаку острым клювом."
+  },
+  "EPalWazaID::Unique_DarkAlien_JumpScractch": {
+    "localized_name": "Когти тьмы",
+    "description": "Уникальное умение вида Зеноведа. Быстро бросается к врагу и разрезает его левой рукой."
+  },
+  "EPalWazaID::Unique_DarkCrow_TelePoke": {
+    "localized_name": "Фантомный штурм",
+    "description": "Уникальное умение Когнито. Мгновенно телепортируется к врагу и наносит удар клювом."
+  },
+  "EPalWazaID::Unique_DarkMechaDragon_BeamSlash": {
+    "localized_name": "Энергетическое рассечение",
+    "description": "Уникальное умение Зенолорд. Создаёт в правой руке мощный энергетический меч и, двигаясь на высокой скорости, наносит два режущих удара."
+  },
+  "EPalWazaID::Unique_DarkMechaDragon_ConvergentBeam": {
+    "localized_name": "Астральный луч",
+    "description": "Уникальное умение Зенолорд. Концентрирует наполненную тьмой энергию и одним мощным лучом выпускает её по прямой."
+  },
+  "EPalWazaID::Unique_DarkMechaDragon_FunnelLaser": {
+    "localized_name": "Омега-лазер",
+    "description": "Уникальное умение Зенолорд. Призывает из субпространства лучи разрушения и выпускает их во всех направлениях, сжигая всё, что попадает в его поле зрения."
+  },
+  "EPalWazaID::Unique_DarkMechaDragon_SetFunnel": {
+    "localized_name": "Спутниковый бит",
+    "description": "Уникальное умение Зенолорд. Создаёт четыре спутниковых крыла с функцией автоматической атаки. После следующей атаки крылья самостоятельно отслеживают и атакуют врагов."
+  },
+  "EPalWazaID::Unique_DarkMechaDragon_WarpComet": {
+    "localized_name": "Космические метеоры",
+    "description": "Уникальное умение Зенолорд. Взмывает в небо со скоростью света и обрушивает на врагов град метеоров. Затем сам превращается в комету и устремляется вперёд, вызывая мощный взрыв в точке удара."
+  },
+  "EPalWazaID::Unique_DarkScorpion_Pierce": {
+    "localized_name": "Прыгучее жало",
+    "description": "Уникальное умение вида Менастинг. Высоко подпрыгивает и мощным ударом хвоста пронзает врага. В хвосте содержится яд."
+  },
+  "EPalWazaID::Unique_Deer_PushupHorn": {
+    "localized_name": "Роговой апперкот",
+    "description": "Уникальное умение вида Иктирдир. Делает рывок к противнику, атакуя его рогами. При использовании во время езды верхом можно управлять направлением рывка."
+  },
+  "EPalWazaID::Unique_DrillGame_ShellAttack": {
+    "localized_name": "Ураганный панцирь",
+    "description": "Уникальное умение Дигтос. Вращается на высокой скорости. Стачивает врагов буром, нанося им серию повреждений."
+  },
+  "EPalWazaID::Unique_Eagle_GlidingNail": {
+    "localized_name": "Парящие когти",
+    "description": "Уникальное умение Эрмург. Выставив вперёд когтистые лапы, совершает стремительный воздушный рывок."
+  },
+  "EPalWazaID::Unique_ElecPanda_ElecScratch": {
+    "localized_name": "Грозовые когти",
+    "description": "Уникальное умение Гриззболт. Бросается на врага, разрывая его электрическими когтями. После двух атак прыжками вонзает когти в землю, создавая электрическую волну, поражающую большую область."
+  },
+  "EPalWazaID::Unique_ElecPanda_GatlingAttack": {
+    "localized_name": "Громовой танк",
+    "description": "Уникальное умение вида Гриззболт. Откуда-то достаёт миниган и начинает бешено палить. В завершение немного заряжается и выпускает один мощный снаряд."
+  },
+  "EPalWazaID::Unique_FairyDragon_FairyTornado": {
+    "localized_name": "Мистический ураган",
+    "description": "Уникальное умение вида Элфидран. Выпускает два вихря, наполненных мистической силой, которые преследуют врага."
+  },
+  "EPalWazaID::Unique_FeatherOstrich_Tossin": {
+    "localized_name": "Террабросок",
+    "description": "Уникальное умение вида Дазему. Мгновенно ускоряется и делает стремительный рывок вперед."
+  },
+  "EPalWazaID::Unique_FengyunDeeper_CloudTempest": {
+    "localized_name": "Буря в облаках",
+    "description": "Уникальное умение Фенглоп. Используя силу атмосферы, окружает себя мощным ветряным потоком и выполняет рывок вперёд."
+  },
+  "EPalWazaID::Unique_FengyunDeeper_Electric_ThunderTempest": {
+    "localized_name": "Грозовой шторм",
+    "description": "Уникальное умение Фенглоп Лакс. Используя силу атмосферы, окружает себя грозовым облаком и выполняет рывок вперёд."
+  },
+  "EPalWazaID::Unique_FireKirin_Dark_DarkTossin": {
+    "localized_name": "Тёмный заряд",
+    "description": "Уникальное умение Пирин Нокт. Окутанный тёмным пламенем, он бросается вперёд. На траектории движения остаётся горящий след."
+  },
+  "EPalWazaID::Unique_FireKirin_Tackle": {
+    "localized_name": "Огненный заряд",
+    "description": "Уникальное умение Пирин. Окутанный пламенем, он бросается вперёд. На траектории движения остаётся горящий след."
+  },
+  "EPalWazaID::Unique_FlameBuffalo_FlameHorn": {
+    "localized_name": "Пылающий рог",
+    "description": "Уникальное умение Арсокс. Прицеливается во врага и стремительно врывается в атаку, поднимая рога для сокрушительного удара."
+  },
+  "EPalWazaID::Unique_FlowerDinosaur_Whip": {
+    "localized_name": "Ботанический хлыст",
+    "description": "Уникальное умение вида Диноссум. Бьёт своим огромным хвостом по земле перед собой, вызывая линейную ударную волну."
+  },
+  "EPalWazaID::Unique_Garm_Bite": {
+    "localized_name": "Дикие клыки",
+    "description": "Уникальное умение Дайэхаул. Быстро бросается на врага и наносит укусы."
+  },
+  "EPalWazaID::Unique_GhostAnglerfish_Fire_SweepBait_Fire": {
+    "localized_name": "Взмах пламенным фонарём",
+    "description": "Уникальное умение Ганглер Игнис. Широким взмахом пылающего фонаря на голове выкашивает врагов перед собой."
+  },
+  "EPalWazaID::Unique_GhostAnglerfish_SweepBait": {
+    "localized_name": "Взмах фонарём",
+    "description": "Уникальное умение Ганглер. Широким взмахом длинного фонаря на голове выкашивает врагов перед собой."
+  },
+  "EPalWazaID::Unique_GhostBeast_Tossin": {
+    "localized_name": "Призрачный рывок",
+    "description": "Уникальное умение Мараит. Медленно бежит, швыряя во врагов сгустки трепещущего пламени."
+  },
+  "EPalWazaID::Unique_GoldenHorse_StoneDash": {
+    "localized_name": "Сокрушительный рывок",
+    "description": "Уникальное умение Гилдейн. Мчится вперёд, швыряя булыжники влево и вправо."
+  },
+  "EPalWazaID::Unique_Gorilla_GroundPunch": {
+    "localized_name": "Гориллакомбо",
+    "description": "Уникальное умение Горират. Бьёт по земле дважды, затем взмывает в воздух и наносит сокрушительный удар кулаком."
+  },
+  "EPalWazaID::Unique_GrassPanda_Electric_ElectricPunch": {
+    "localized_name": "Бласт-панч",
+    "description": "Уникальное умение Моссанда Лакс. Размахивает правой рукой и бьёт перед собой электрическим кулаком."
+  },
+  "EPalWazaID::Unique_GrassPanda_MusclePunch": {
+    "localized_name": "Мощный удар",
+    "description": "Уникальное умение Моссанда. Вращает правую руку и наносит мощный удар кулаком перед собой."
+  },
+  "EPalWazaID::Unique_GrassRabbitMan_GrassRoundKick": {
+    "localized_name": "Вращающийся пинок",
+    "description": "Уникальное умение Вердаш. Делает скачок вперед, выполняя в прыжке быстрый круговой удар ногой, сметающий врагов вокруг."
+  },
+  "EPalWazaID::Unique_Grassmammoth_Earthquake": {
+    "localized_name": "Сотрясение земли",
+    "description": "Уникальное умение вида Мамморест. Сотрясает землю своим огромным телом, нанося урон по области вокруг себя."
+  },
+  "EPalWazaID::Unique_GrimGirl_BrutalMachete": {
+    "localized_name": "Град ударов ненависти",
+    "description": "Уникальное умение Сплаттерина. Мгновенно перемещается и наносит рубящую атаку. Затем телепортируется над врагом и вонзает в него оружие, вызывая волну тьмы."
+  },
+  "EPalWazaID::Unique_HawkBird_Storm": {
+    "localized_name": "Атака торнадо",
+    "description": "Уникальное умение Найтвинг. Создаёт перед собой торнадо и, паря в воздухе, атакует врага."
+  },
+  "EPalWazaID::Unique_HerculesBeetle_BeetleTackle": {
+    "localized_name": "Гигарог",
+    "description": "Уникальное умение Ворсект. Пронзает врага четырьмя крепкими рогами."
+  },
+  "EPalWazaID::Unique_Horus_FlareBird": {
+    "localized_name": "Полет Феникса",
+    "description": "Уникальное умение Фалерис. Вызывает раскалённый вихрь, а затем, окутанный адским пламенем, совершает стремительный рывок, скользя вперёд."
+  },
+  "EPalWazaID::Unique_Horus_PerfectStorm": {
+    "localized_name": "Ярость огненного Феникса",
+    "description": "Уникальное умение Фалерис. Вызывает несколько раскалённых торнадо, затем совершает стремительный рывок, скользя в воздухе. Торнадо сходятся в центре, сливаясь в один гигантский торнадо."
+  },
+  "EPalWazaID::Unique_Horus_Water_AquaStorm": {
+    "localized_name": "Волна Феникса",
+    "description": "Уникальное умение Фалерис Аква. Создаёт мощный водяной вихрь, затем, окутанный водой, совершает стремительный рывок, планируя в воздухе."
+  },
+  "EPalWazaID::Unique_IceCrocodile_SpitAttack": {
+    "localized_name": "Хаотичные залпы",
+    "description": "Уникальное умение Манчилл. Он выплевывает одну за другой три гранаты, которые не переварились и замерзли в его желудке. Иногда может выплюнуть что-то ещё более опасное…?"
+  },
+  "EPalWazaID::Unique_IceDeer_IceHorn": {
+    "localized_name": "Натиск ледяных рогов",
+    "description": "Уникальное умение Рейндрикс. Рывком бросается вперед, поднимая врагов своими величественными ледяными рогами."
+  },
+  "EPalWazaID::Unique_IceHorse_IceBladeAttack": {
+    "localized_name": "Кристальные крылья",
+    "description": "Уникальное умение Палов вида Фросталлион. Конденсирует холод, окутывая крылья льдом, и в стремительном рывке разрывает врага ледяными лезвиями своих крыльев."
+  },
+  "EPalWazaID::Unique_IceNarwhal_JumpingHorn": {
+    "localized_name": "Рывок вверх",
+    "description": "Уникальное умение вида Валаска. Совершает стремительный рывок вперёд, на мгновение уходит под землю, а затем вырывается вверх и наносит удар. В момент выныривания происходит ледяной взрыв."
+  },
+  "EPalWazaID::Unique_JetDragon_JumpBeam": {
+    "localized_name": "Лучевая комета",
+    "description": "Уникальное умение Джетрагон. Озаряя крылья светом, выпускает в сторону врага множество лучей, каждый из которых взрывается при попадании."
+  },
+  "EPalWazaID::Unique_KingAlpaca_BodyPress": {
+    "localized_name": "Королевский таран",
+    "description": "Уникальное умение вида Кингпака. Высоко подпрыгивает вверх, после чего давит врага своим массивным телом."
+  },
+  "EPalWazaID::Unique_KingBahamut_AirCrash": {
+    "localized_name": "Сокрушительный удар",
+    "description": "Уникальное умение вида Блазамут Рю. Высоко подпрыгивает, накапливает силу в полёте и обрушивает на врага сокрушительный удар."
+  },
+  "EPalWazaID::Unique_KingBahamut_ArmSmash": {
+    "localized_name": "Сотрясающий хлопок",
+    "description": "Уникальное умение вида Блазамут. Поднимает и раздувает руки, после чего ударяет их одну о другую, вызывая масштабный взрыв вокруг."
+  },
+  "EPalWazaID::Unique_Kirin_LightningTackle": {
+    "localized_name": "Электрический вихрь",
+    "description": "Уникальное умение Юнивольт. Совершает рывок в сторону врага, обрушивая молнии вокруг себя."
+  },
+  "EPalWazaID::Unique_LeafMomonga_SomerSault": {
+    "localized_name": "Перевёрнутый листок",
+    "description": "Уникальное умение Хербил. После короткой подготовки стремительно врывается в врага, выполняя воздушное сальто."
+  },
+  "EPalWazaID::Unique_LegendDeer_RadiantPurge_Otomo": {
+    "localized_name": "Свет очищения",
+    "description": "Уникальное умение Харталис. Взмывает в небеса, концентрируя колоссальную энергию, и обрушивает её на землю. Опустившийся световой шар очищает всё на земле."
+  },
+  "EPalWazaID::Unique_LegendDeer_RadiantWingRush": {
+    "localized_name": "Божественные крылья",
+    "description": "Уникальное умение Харталис. Отпрыгивает назад, создавая за спиной крылья света, и обрушивается на врага стремительным рывком с небес."
+  },
+  "EPalWazaID::Unique_LegendDeer_WarpPillarBurst": {
+    "localized_name": "Священный дождь",
+    "description": "Уникальное умение Харталис. Исчезает на мгновение, после чего вокруг него с неба обрушивается множество столбов света."
+  },
+  "EPalWazaID::Unique_LilyQueen_LilyHealing": {
+    "localized_name": "Защита плодородия",
+    "description": "Уникальное умение вида Лилин. Используя силу исцеления, восстанавливает HP всех союзников в радиусе действия."
+  },
+  "EPalWazaID::Unique_LilyQueen_WindBarrier": {
+    "localized_name": "Ветряной барьер",
+    "description": "ru_Text"
+  },
+  "EPalWazaID::Unique_Manticore_InfernoStrike": {
+    "localized_name": "Вулканический клык",
+    "description": "Уникальное умение вида Блейзхаул. Разгоняясь, безжалостно бросается к врагу, вызывая мощный огненный взрыв."
+  },
+  "EPalWazaID::Unique_MoonQueen_IceMoonBlade": {
+    "localized_name": "Вспышка голубой луны",
+    "description": "Уникальное умение вида Селена. Выпускает три быстрых клинка подряд, наполненных силой лунного света."
+  },
+  "EPalWazaID::Unique_MoonQueen_MoonBeam": {
+    "localized_name": "Лунный луч",
+    "description": "Уникальное умение вида Селена. Накапливает энергию в луне на спине и выпускает вперёд луч в форме полумесяца."
+  },
+  "EPalWazaID::Unique_MoonQueen_MoonBlade": {
+    "localized_name": "Клинок бледной луны",
+    "description": "Уникальное умение вида Селена. Дважды выпускает быстрые лезвия, наполненные силой лунного света."
+  },
+  "EPalWazaID::Unique_MysteryMask_LifeSteal": {
+    "localized_name": "Кража души",
+    "description": "Уникальное умение Омаскул. Внезапно появляется рядом с врагом, хватает его обеими руками и поглощает его HP."
+  },
+  "EPalWazaID::Unique_NaughtyCat_CatPress": {
+    "localized_name": "Кошачий пресс",
+    "description": "Уникальное умение Гринтэйл. С самоуверенной ухмылкой подпрыгивает вверх и всей тушей обрушивается на врага."
+  },
+  "EPalWazaID::Unique_NightBlueHorse_DeathStep": {
+    "localized_name": "Летальный шаг",
+    "description": "Уникальное умение Старрион. Сбивает врага с толку колышущимися шагами и выпускает рубящий удар острым рогом."
+  },
+  "EPalWazaID::Unique_NightLady_FlameNightmare": {
+    "localized_name": "Огненный вальс",
+    "description": "Уникальное умение Бэллануар Либеро. Плавно кружась, создаёт расширяющееся кольцо пламени и выпускает таинственные огни, преследующие врага."
+  },
+  "EPalWazaID::Unique_NightLady_WarpBeam": {
+    "localized_name": "Цветение кошмарных лучей",
+    "description": "Уникальное умение Бэллануар Либеро. Внезапно исчезает, а при появлении выпускает множество лучей, которые рассеиваются, словно распускающийся цветок."
+  },
+  "EPalWazaID::Unique_NightLady_WarpBeam_Straight": {
+    "localized_name": "Кошмарные лучи",
+    "description": "Уникальное умение Бэллануар. Внезапно исчезает, а при появлении выпускает множество лучей."
+  },
+  "EPalWazaID::Unique_OctopursGirl_InkJet": {
+    "localized_name": "Дымовой рывок",
+    "description": "Уникальное умение Глуппи. Выпускает перед собой дым, маскируясь, и таранит противника головой, пока тот его не видит."
+  },
+  "EPalWazaID::Unique_PinkCat_CatPunch": {
+    "localized_name": "Град ударов",
+    "description": "Уникальное умение Каттива. Преследует врага, нанося серию ударов обеими руками."
+  },
+  "EPalWazaID::Unique_Plesiosaur_LongBreath": {
+    "localized_name": "Длинное дыхание",
+    "description": "Уникальное умение Бралоха. Постепенно испускает дыхание стихии травы, проходящее от основания длинной шеи к самому её кончику."
+  },
+  "EPalWazaID::Unique_PoseidonOrca_TorrentLaser": {
+    "localized_name": "Гидрозвуковой лазер",
+    "description": "Уникальное умение Нептилиус. Немного приподнимается в воздух, концентрируя воду у рта. Затем выпускает три мощных водных потока, разрубающих всё на своём пути по вертикали и горизонтали. В местах удара образуются трещины, из которых вырываются фонтаны воды, нанося дополнительный урон."
+  },
+  "EPalWazaID::Unique_PurpleSpider_SpiderRaid": {
+    "localized_name": "Паучья охота",
+    "description": "Уникальное умение Тарантрисс. Выплевывает клубок паутины, который опутывает врага при попадании. Затем стремительно бросается к цели и добивает её тремя ударами когтями."
+  },
+  "EPalWazaID::Unique_QueenBee_SpinLance": {
+    "localized_name": "Вращающийся посох",
+    "description": "Уникальное умение Элизаби. Собирает силу в жезле и, вращаясь, высвобождает её."
+  },
+  "EPalWazaID::Unique_RedArmorBird_TriplePeck": {
+    "localized_name": "Неистовый клюв",
+    "description": "Уникальное умение Рагнахавк. Взмахивая крыльями, устремляется вперёд, атакуя клювом по центру, справа и слева. Удары воспламеняют воздух и вызывают небольшие взрывы."
+  },
+  "EPalWazaID::Unique_RobinHood_BowSnipe": {
+    "localized_name": "Снайперский выстрел",
+    "description": "Уникальное умение вида Робинквилл. Натягивает тетиву лука, прицеливается во врага и совершает выстрел."
+  },
+  "EPalWazaID::Unique_Ronin_Iai": {
+    "localized_name": "Иай-гири",
+    "description": "Уникальное умение вида Буси. Приняв стойку с катаной, мгновенно появляется перед врагом и наносит молниеносный удар клинком."
+  },
+  "EPalWazaID::Unique_SaintCentaur_OneSpearRushes": {
+    "localized_name": "Удар копьём",
+    "description": "Уникальное умение Паладиус. Облачается в священную силу и бросается вперёд, выставив вперёд копьё в левой руке. Во время натиска отражает любые атаки щитом в правой."
+  },
+  "EPalWazaID::Unique_SakuraSaurus_SideTackle": {
+    "localized_name": "Таран телом",
+    "description": "Уникальное умение вида Брончерри. Принимает боковую стойку и совершает таран, отбрасывающий врага."
+  },
+  "EPalWazaID::Unique_ScorpionMan_Uppercut": {
+    "localized_name": "Апперкот",
+    "description": "Уникальное умение вида Скорпио. Молниеносно сближается с врагом и с силой наносит удар клешнями."
+  },
+  "EPalWazaID::Unique_SheepBall_Roll": {
+    "localized_name": "Мокобок",
+    "description": "Уникальное умение SheepBall. Катится за врагом, пытаясь атаковать. После удара дезориентирован и временно не может двигаться."
+  },
+  "EPalWazaID::Unique_SifuDog_Counter": {
+    "localized_name": "Защитная стойка",
+    "description": "Уникальное умение вида Ванфу. Принимает боевую стойку айки. Пока находится в ней, блокирует входящие атаки, затем стремительно сближается с врагом и наносит мощный удар ладонью."
+  },
+  "EPalWazaID::Unique_SnowTigerBeastman_SnowImpact": {
+    "localized_name": "Ледяной разгром",
+    "description": "Уникальное умение <characterName id=|SnowTigerBeastman| />. Издаёт мощный рёв и подпрыгивает, затем с силой вбивает обе руки в землю, порождая огромную ледяную трещину. Продолжая вливать силу в почву, завершает атаку сокрушительным взрывом льда."
+  },
+  "EPalWazaID::Unique_SnowTigerBeastman_TrampleSlash": {
+    "localized_name": "Яростный ледяной коготь",
+    "description": "Уникальное умение <characterName id=|SnowTigerBeastman| />. С силой топчет землю, порождая перед собой ледяной разлом. Затем стремительно сближается с врагом и наносит рассекающий удар правой лапой."
+  },
+  "EPalWazaID::Unique_SoldierBee_NeedleLance": {
+    "localized_name": "Жалящее копьё",
+    "description": "Уникальное умение Бигард. Делает стремительный рывок к врагу и завершает атаку добивающим ударом копьём."
+  },
+  "EPalWazaID::Unique_StuffedShark_HiddenWeapon": {
+    "localized_name": "Спусковой угар",
+    "description": "Уникальное умение вида Финсайдер. Изо рта достаёт две водяные пушки и поочерёдно выпускает по 6 водяных снарядов влево и вправо. В конце объединяет обе пушки и делает один мощный выстрел."
+  },
+  "EPalWazaID::Unique_TentacleTurtle_HydroSpin": {
+    "localized_name": "Гидровращение",
+    "description": "Уникальное умение вида Туртакл. Использует реактивную водяную струю для ускорения и стремительно вращаясь, устремляется к врагу."
+  },
+  "EPalWazaID::Unique_ThunderBird_ThunderStorm": {
+    "localized_name": "Пикирующая молния",
+    "description": "Уникальное умение Райберд. Сначала поражает молнией врага. Затем скользит вперёд, обрушивая молнии по сторонам."
+  },
+  "EPalWazaID::Unique_ThunderDog_InazumaShorai": {
+    "localized_name": "Призыв молнии",
+    "description": "Уникальное умение Райхаунд. Вызывает череду молний перед собой и стремительно прорывается между ними."
+  },
+  "EPalWazaID::Unique_ThunderDragonMan_NumerousSwordAttack": {
+    "localized_name": "Поликеравнос",
+    "description": "Уникальное умение вида Орсерк. Призывает множество грозовых копий и метает их во врага. Первое копьё накапливает электрическую энергию и взрывается спустя несколько секунд."
+  },
+  "EPalWazaID::Unique_ThunderDragonMan_ThunderSwordAttack": {
+    "localized_name": "Керавнос",
+    "description": "Уникальное умение Орсерк. Взмывает ввысь, призывает грозовое копьё и метает его во врага."
+  },
+  "EPalWazaID::Unique_TropicalOstrich_DashKick": {
+    "localized_name": "Пинок с разбега",
+    "description": "Уникальное умение Палумба. Разгоняется в рывке и наносит мощный прыжковый пинок врагу."
+  },
+  "EPalWazaID::Unique_Umihebi_Fire_FireWindingTackle": {
+    "localized_name": "Магмовый змей",
+    "description": "Уникальное умение Йормунтайд Игнис. С рёвом бросается на врага, извиваясь телом, окутанным пламенем."
+  },
+  "EPalWazaID::Unique_Umihebi_WindingTackle": {
+    "localized_name": "Морской змей",
+    "description": "Уникальное умение Йормунтайд. С рёвом бросается на врага, извиваясь телом, окутанным водой."
+  },
+  "EPalWazaID::Unique_VolcanicMonster_Ice_IceAttack": {
+    "localized_name": "Морозный взрыв",
+    "description": "Уникальное умение Рептиро Крист. Поднимает передние ноги и с силой ударяет по земле, вызывая выброс снега в месте, где находятся враги. Во время выброса вокруг с неба обрушиваются снежные комья."
+  },
+  "EPalWazaID::Unique_VolcanicMonster_MagmaAttack": {
+    "localized_name": "Вулканический взрыв",
+    "description": "Уникальное умение Рептиро. Поднимает передние ноги и с силой ударяет по земле, вызывая извержение в месте, где находятся враги. Во время извержения на область вокруг обрушивается дождь из вулканических снарядов."
+  },
+  "EPalWazaID::Unique_WeaselDragon_FlyingTackle": {
+    "localized_name": "Ракетный удар",
+    "description": "Уникальное умение вида Чиллет. Немного накопив силу, делает рывок вперёд. Всегда испытывает страх перед приземлением, поэтому закрывает глаза."
+  },
+  "EPalWazaID::Unique_Werewolf_Ice_SnowScratch": {
+    "localized_name": "Снежный коготь",
+    "description": "Уникальное умение WereWolf_Ice. Прыгает вперёд и наносит два быстрых удара когтями. Эти атаки пронизаны ледяной энергией."
+  },
+  "EPalWazaID::Unique_Werewolf_Scratch": {
+    "localized_name": "Коготь в прыжке",
+    "description": "Уникальное умение WereWolf. Прыгает вперёд и наносит два быстрых удара когтями. Эти атаки пронизаны тёмной энергией."
+  },
+  "EPalWazaID::Unique_WhiteDeer_HolyPillar": {
+    "localized_name": "Священная нова",
+    "description": "Уникальное умение Селесдир. Вызывает обширный взрыв святого света перед собой, а затем продолжает движение, излучая свет вокруг себя."
+  },
+  "EPalWazaID::Unique_WhiteShieldDragon_ShieldTackle": {
+    "localized_name": "Натиск эгиды",
+    "description": "Уникальное умение Силвегис. Разворачивает перед собой щит, снижающий урон от любых атак, и, совершая рывок, сокрушает врагов на своём пути."
+  },
+  "EPalWazaID::Unique_WhiteTiger_Ground_IronScratch": {
+    "localized_name": "Каменные когти",
+    "description": "Уникальное умение Криолинкс Терра. Дважды разрывает врага когтями, а затем наносит мощный удар всем телом. Во время взмаха когтями выпускает вперёд веер из трёх каменных снарядов."
+  },
+  "EPalWazaID::Unique_WhiteTiger_IceScratch": {
+    "localized_name": "Бурановый коготь",
+    "description": "Уникальное умение Криолинкс. Наносит два удара когтями, а затем мощно разрезает врага всем телом. Во время каждого взмаха когтями выпускает вперёд веер из трёх ледяных шипов."
+  },
+  "EPalWazaID::Unique_WingGolem_RoundCutter": {
+    "localized_name": "Земляной резак",
+    "description": "Уникальное умение вида Теранайт. Сделав мощный замах, бросает своё кольцо из-за спины. Кольцо летит по круговой траектории."
+  },
+  "EPalWazaID::Unique_YakushimaBoss001_Small_DemonEyeCharge": {
+    "localized_name": "Натиск глазного яблока",
+    "description": "Уникальное умение Демонический глаз. Совершает рывок к врагу. Отскакивает при столкновении с землёй или стенами."
+  },
+  "EPalWazaID::Unique_YakushimaMonster001_SlimePress_Dark": {
+    "localized_name": "Слизневый пресс (тьма)",
+    "description": "Уникальное умение Фиолетовый слизень. Прыгает в сторону врага и атакует его."
+  },
+  "EPalWazaID::Unique_YakushimaMonster001_SlimePress_Fire": {
+    "localized_name": "Слизневый пресс (огонь)",
+    "description": "Уникальное умение Красный слизень. Прыгает в сторону врага и атакует его."
+  },
+  "EPalWazaID::Unique_YakushimaMonster001_SlimePress_Leaf": {
+    "localized_name": "Слизневый пресс (трава)",
+    "description": "Уникальное умение Зеленый слизень. Прыгает в сторону врага и атакует его."
+  },
+  "EPalWazaID::Unique_YakushimaMonster001_SlimePress_Normal": {
+    "localized_name": "Слизневый пресс (нейтральный)",
+    "description": "Уникальное умение Светящийся слизень. Прыгает в сторону врага и атакует его."
+  },
+  "EPalWazaID::Unique_YakushimaMonster001_SlimePress_Rainbow": {
+    "localized_name": "Слизневый пресс (радуга)",
+    "description": "Уникальное умение Радужный слизень. Прыгает в сторону врага и атакует его."
+  },
+  "EPalWazaID::Unique_YakushimaMonster001_SlimePress_Water": {
+    "localized_name": "Слизневый пресс (вода)",
+    "description": "Уникальное умение Синий слизень. Прыгает в сторону врага и атакует его."
+  },
+  "EPalWazaID::Unique_YakushimaMonster002_SwordCharge": {
+    "localized_name": "Рывок с мечом",
+    "description": "Уникальное умение Зачарованный меч. Атакует врага выпадом."
+  },
+  "EPalWazaID::Unique_YakushimaMonster003_BatCharge": {
+    "localized_name": "Налёт летучих мышей",
+    "description": "Уникальное умение Пещерная летучая мышь. Атакует врага всем телом. Отскакивает при столкновении с землёй или стеной."
+  },
+  "EPalWazaID::Unique_Yakushima_EyeTossin": {
+    "localized_name": "Натиск пристального взгляда",
+    "description": "Уникальное умение Глаз Ктулху. Несколько раз стремительно бросается на врага."
+  },
+  "EPalWazaID::Unique_Yakushima_MouthTossin": {
+    "localized_name": "Быстрый натиск",
+    "description": "Уникальное умение Глаз Ктулху: несколько раз стремительно атакует врага."
+  },
+  "EPalWazaID::Unique_Yakushima_SummonServant": {
+    "localized_name": "Призыв прислужников",
+    "description": "Уникальное умение Глаз Ктулху. Призывает четырёх прислужников. Прислужники бросаются на врага и наносят урон при столкновении. Исчезают при получении урона или со временем."
+  },
+  "EPalWazaID::Unique_Yeti_Grass_GrassBall": {
+    "localized_name": "Боулинг на траве",
+    "description": "Уникальное умение Вумпо Ботан. Катит вперёд шар из травы, а когда тот становится достаточно большим, швыряет его во врага и вызывает взрыв."
+  },
+  "EPalWazaID::Unique_Yeti_SnowBall": {
+    "localized_name": "Снежный боулинг",
+    "description": "Уникальное умение Вумпо. Катит снежный шар и, когда он становится большим, бросает и взрывает его."
+  },
+  "EPalWazaID::WallSplash": {
+    "localized_name": "Водяная стена",
+    "description": "Создаёт стены из водяных столпов под ногами врага."
+  },
+  "EPalWazaID::WaterBall": {
+    "localized_name": "Водяная бомба",
+    "description": "Создаёт над головой огромный водяной шар и выпускает его во врага."
+  },
+  "EPalWazaID::WaterGun": {
+    "localized_name": "Водяной выстрел",
+    "description": "Выпускает водяной снаряд, летящий по прямой в сторону цели."
+  },
+  "EPalWazaID::Weapon_Use": {
+    "localized_name": "Применить оружие",
+    "description": "Атакует имеющимся оружием."
+  },
+  "EPalWazaID::WindCutter": {
+    "localized_name": "Ветряной клинок",
+    "description": "Выпускает стремительное ветряное лезвие, летящее по прямой в сторону врага."
+  },
+  "EPalWazaID::WindEdge": {
+    "localized_name": "Веер клинков",
+    "description": "Выпускает веер острых ветряных кинжалов."
+  }
+}

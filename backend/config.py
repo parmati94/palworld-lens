@@ -1,0 +1,45 @@
+"""Configuration management"""
+import os
+from pathlib import Path
+from typing import Optional
+
+class Config:
+    """Application configuration"""
+    
+    # Save file paths
+    SAVE_MOUNT_PATH: str = os.getenv("SAVE_MOUNT_PATH", "/app/saves")
+    
+    # Server configuration
+    PORT: int = int(os.getenv("PORT", "8000"))
+    HOST: str = os.getenv("HOST", "0.0.0.0")
+    
+    # Auto-reload settings
+    AUTO_RELOAD_INTERVAL: int = int(os.getenv("AUTO_RELOAD_INTERVAL", "30"))
+    
+    # Data paths
+    DATA_PATH: Path = Path(__file__).parent.parent / "data"
+    
+    @classmethod
+    def get_save_path(cls) -> Path:
+        """Get the path to mounted save directory"""
+        return Path(cls.SAVE_MOUNT_PATH)
+    
+    @classmethod
+    def get_level_sav_path(cls) -> Optional[Path]:
+        """Get path to Level.sav file"""
+        save_path = cls.get_save_path()
+        level_sav = save_path / "Level.sav"
+        if level_sav.exists():
+            return level_sav
+        return None
+    
+    @classmethod
+    def get_players_dir(cls) -> Optional[Path]:
+        """Get path to Players directory"""
+        save_path = cls.get_save_path()
+        players_dir = save_path / "Players"
+        if players_dir.exists() and players_dir.is_dir():
+            return players_dir
+        return None
+
+config = Config()

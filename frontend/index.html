@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palworld Save Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        
+        /* Smooth transitions */
+        * { transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen" x-data="app()" x-cloak>
+    
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-blue-400">🎮 Palworld Save Viewer</h1>
+                    <p class="text-sm text-gray-400 mt-1" x-show="saveInfo.loaded">
+                        <span x-text="saveInfo.world_name"></span>
+                        <span class="mx-2">•</span>
+                        <span x-text="saveInfo.player_count"></span> Players
+                        <span class="mx-2">•</span>
+                        <span x-text="saveInfo.pal_count"></span> Pals
+                    </p>
+                </div>
+                
+                <div class="flex gap-2">
+                    <button 
+                        @click="reloadSave()" 
+                        :disabled="loading"
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center gap-2">
+                        <svg x-show="!loading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <svg x-show="loading" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span x-text="loading ? 'Reloading...' : 'Reload Save'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        
+        <!-- Loading State -->
+        <div x-show="!saveInfo.loaded && !error" class="text-center py-12">
+            <svg class="animate-spin h-12 w-12 mx-auto text-blue-400 mb-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-400">Loading save data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error" class="bg-red-900/20 border border-red-500 rounded-lg p-6 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h3 class="text-red-400 font-bold mb-1">Error Loading Save</h3>
+                    <p class="text-gray-300" x-text="error"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div x-show="saveInfo.loaded" class="mb-6">
+            <div class="flex gap-2 overflow-x-auto pb-2">
+                <button 
+                    @click="currentTab = 'overview'" 
+                    :class="currentTab === 'overview' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                    Overview
+                </button>
+                <button 
+                    @click="currentTab = 'players'" 
+                    :class="currentTab === 'players' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                    Players (<span x-text="players.length"></span>)
+                </button>
+                <button 
+                    @click="currentTab = 'pals'" 
+                    :class="currentTab === 'pals' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                    All Pals (<span x-text="pals.length"></span>)
+                </button>
+                <button 
+                    @click="currentTab = 'bases'" 
+                    :class="currentTab === 'bases' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                    Base Pals
+                </button>
+                <button 
+                    @click="currentTab = 'guilds'" 
+                    :class="currentTab === 'guilds' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                    Guilds (<span x-text="guilds.length"></span>)
+                </button>
+            </div>
+        </div>
+
+        <!-- Overview Tab -->
+        <div x-show="currentTab === 'overview' && saveInfo.loaded">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="text-gray-400 text-sm mb-1">Players</div>
+                    <div class="text-3xl font-bold text-blue-400" x-text="saveInfo.player_count"></div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="text-gray-400 text-sm mb-1">Guilds</div>
+                    <div class="text-3xl font-bold text-green-400" x-text="saveInfo.guild_count"></div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="text-gray-400 text-sm mb-1">Total Pals</div>
+                    <div class="text-3xl font-bold text-purple-400" x-text="saveInfo.pal_count"></div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="text-gray-400 text-sm mb-1">World</div>
+                    <div class="text-xl font-bold text-yellow-400 truncate" x-text="saveInfo.world_name"></div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-xl font-bold mb-4">Save Information</h2>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Save Path:</span>
+                        <span class="text-gray-300 font-mono text-xs" x-text="saveInfo.level_path"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Last Updated:</span>
+                        <span class="text-gray-300" x-text="formatDate(saveInfo.last_updated)"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Tab -->
+        <div x-show="currentTab === 'players' && saveInfo.loaded">
+            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Player</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Level</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">HP</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Hunger</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">SAN</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Guild</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            <template x-for="player in players" :key="player.uid">
+                                <tr class="hover:bg-gray-750">
+                                    <td class="px-4 py-3">
+                                        <div class="font-medium" x-text="player.player_name"></div>
+                                        <div class="text-xs text-gray-400" x-text="player.uid.substring(0, 8)"></div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="text-blue-400 font-bold" x-text="player.level"></span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span x-text="player.hp + ' / ' + player.max_hp"></span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[100px]">
+                                                <div class="bg-green-500 h-2 rounded-full" :style="`width: ${player.hunger}%`"></div>
+                                            </div>
+                                            <span class="text-xs" x-text="Math.round(player.hunger) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[100px]">
+                                                <div :class="player.sanity > 50 ? 'bg-blue-500' : 'bg-red-500'" class="h-2 rounded-full" :style="`width: ${player.sanity}%`"></div>
+                                            </div>
+                                            <span class="text-xs" x-text="Math.round(player.sanity) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">
+                                        <span x-text="getGuildName(player.guild_id)"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Pals Tab -->
+        <div x-show="currentTab === 'pals' && saveInfo.loaded">
+            <!-- Search/Filter -->
+            <div class="mb-4">
+                <input 
+                    type="text" 
+                    x-model="palSearch" 
+                    placeholder="Search pals by name or ID..."
+                    class="w-full md:w-96 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500">
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Pal</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Level</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">HP</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Hunger</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">SAN</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            <template x-for="pal in filteredPals" :key="pal.instance_id">
+                                <tr class="hover:bg-gray-750">
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-3">
+                                            <!-- Pal Image -->
+                                            <div class="relative flex-shrink-0">
+                                                <img 
+                                                    :src="`/img/${pal.image_id}.webp`" 
+                                                    :alt="pal.display_name"
+                                                    :onerror="`this.src='/img/unknown.webp'`"
+                                                    class="w-12 h-12 rounded-lg bg-gray-800 object-cover">
+                                                <!-- Alpha/Boss indicator -->
+                                                <img 
+                                                    x-show="pal.is_alpha" 
+                                                    :src="pal.is_boss ? '/img/alpha.webp' : '/img/lucky.webp'"
+                                                    :alt="pal.is_boss ? 'Alpha' : 'Lucky'"
+                                                    class="absolute -top-1 -right-1 w-5 h-5">
+                                            </div>
+                                            <!-- Pal Info -->
+                                            <div>
+                                                <div class="font-medium" x-text="pal.nickname || pal.display_name"></div>
+                                                <div class="text-xs text-gray-400" x-text="pal.character_id"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="text-purple-400 font-bold" x-text="pal.level"></span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span x-text="pal.hp + ' / ' + pal.max_hp"></span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[100px]">
+                                                <div :class="pal.hunger > 50 ? 'bg-green-500' : (pal.hunger > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-2 rounded-full" :style="`width: ${pal.hunger}%`"></div>
+                                            </div>
+                                            <span class="text-xs" x-text="Math.round(pal.hunger) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[100px]">
+                                                <div :class="pal.sanity > 50 ? 'bg-blue-500' : (pal.sanity > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-2 rounded-full" :style="`width: ${pal.sanity}%`"></div>
+                                            </div>
+                                            <span class="text-xs" x-text="Math.round(pal.sanity) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">
+                                        <span x-text="getPlayerName(pal.owner_uid) || 'None'"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Base Pals Tab -->
+        <div x-show="currentTab === 'bases' && saveInfo.loaded">
+            <template x-for="(guild, guildIndex) in basePals" :key="guild.guild_id">
+                <div class="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-4" x-data="{ expanded: false, currentBaseIndex: 0 }">
+                    <!-- Guild Header (Clickable) -->
+                    <div class="flex items-center justify-between cursor-pointer" @click="expanded = !expanded">
+                        <div>
+                            <h2 class="text-xl font-bold text-green-400" x-text="guild.guild_name"></h2>
+                            <div class="text-sm text-gray-400">
+                                <span x-text="guild.bases.length"></span> bases with <span x-text="guild.bases.reduce((total, base) => total + base.pals.length, 0)"></span> pals total
+                            </div>
+                        </div>
+                        <div class="text-gray-400">
+                            <svg x-show="!expanded" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <svg x-show="expanded" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Guild Content (Expandable) -->
+                    <div x-show="expanded" x-transition class="mt-6">
+                        <!-- Base Navigation -->
+                        <div x-show="guild.bases.length > 1" class="flex items-center justify-between mb-4 bg-gray-700 rounded-lg p-3">
+                            <button 
+                                @click="currentBaseIndex = Math.max(0, currentBaseIndex - 1)"
+                                :disabled="currentBaseIndex === 0"
+                                :class="currentBaseIndex === 0 ? 'text-gray-500 cursor-not-allowed' : 'text-cyan-400 hover:text-cyan-300'"
+                                class="flex items-center gap-1 px-3 py-1 rounded">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                Previous
+                            </button>
+                            
+                            <div class="flex items-center gap-2">
+                                <template x-for="(base, index) in guild.bases" :key="base.base_id">
+                                    <button 
+                                        @click="currentBaseIndex = index"
+                                        :class="index === currentBaseIndex ? 'bg-cyan-600 text-white' : 'bg-gray-600 text-gray-300 hover:bg-gray-500'"
+                                        class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                                        x-text="base.base_name">
+                                    </button>
+                                </template>
+                            </div>
+                            
+                            <button 
+                                @click="currentBaseIndex = Math.min(guild.bases.length - 1, currentBaseIndex + 1)"
+                                :disabled="currentBaseIndex === guild.bases.length - 1"
+                                :class="currentBaseIndex === guild.bases.length - 1 ? 'text-gray-500 cursor-not-allowed' : 'text-cyan-400 hover:text-cyan-300'"
+                                class="flex items-center gap-1 px-3 py-1 rounded">
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Current Base Display -->
+                        <template x-for="(base, baseIndex) in guild.bases" :key="base.base_id">
+                            <div x-show="baseIndex === currentBaseIndex" class="bg-gray-750 rounded-lg border border-gray-600 p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-lg font-semibold text-cyan-400" x-text="base.base_name"></h3>
+                                    <div class="text-sm text-gray-400">
+                                        <span x-text="base.pals.length"></span> pals at this base
+                                    </div>
+                                </div>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-gray-600">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase">Pal</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase">Level</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase">HP</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase">Hunger</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase">SAN</th>
+                                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase">Gender</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-600">
+                                            <template x-for="pal in base.pals" :key="pal.instance_id">
+                                                <tr class="hover:bg-gray-700">
+                                                    <td class="px-3 py-2">
+                                                        <div class="flex items-center gap-2">
+                                                            <!-- Pal Image -->
+                                                            <div class="relative flex-shrink-0">
+                                                                <img 
+                                                                    :src="`/img/${pal.image_id}.webp`" 
+                                                                    :alt="pal.display_name"
+                                                                    :onerror="`this.src='/img/unknown.webp'`"
+                                                                    class="w-8 h-8 rounded bg-gray-800 object-cover">
+                                                                <!-- Alpha/Boss indicator -->
+                                                                <img 
+                                                                    x-show="pal.is_alpha" 
+                                                                    :src="pal.is_boss ? '/img/alpha.webp' : '/img/lucky.webp'"
+                                                                    :alt="pal.is_boss ? 'Alpha' : 'Lucky'"
+                                                                    class="absolute -top-1 -right-1 w-3 h-3">
+                                                            </div>
+                                                            <!-- Pal Info -->
+                                                            <div>
+                                                                <div class="font-medium text-sm" x-text="pal.nickname || pal.display_name"></div>
+                                                                <div class="text-xs text-gray-500" x-text="pal.character_id"></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-3 py-2">
+                                                        <span class="text-purple-400 font-bold text-sm" x-text="pal.level"></span>
+                                                    </td>
+                                                    <td class="px-3 py-2 text-sm">
+                                                        <div>
+                                                            <span class="text-xs" x-text="pal.hp + ' / ' + pal.max_hp"></span>
+                                                            <div class="w-20 bg-gray-700 rounded-full h-1 mt-1">
+                                                                <div class="bg-red-500 h-1 rounded-full" :style="`width: ${(pal.hp/pal.max_hp)*100}%`"></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-3 py-2">
+                                                        <div>
+                                                            <span class="text-xs font-medium" :class="pal.hunger > 50 ? 'text-green-400' : (pal.hunger > 20 ? 'text-yellow-400' : 'text-red-400')" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                            <div class="w-20 bg-gray-700 rounded-full h-1.5 mt-1">
+                                                                <div :class="pal.hunger > 50 ? 'bg-green-500' : (pal.hunger > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-1.5 rounded-full" :style="`width: ${pal.hunger}%`"></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-3 py-2">
+                                                        <div>
+                                                            <span class="text-xs font-medium" :class="pal.sanity > 50 ? 'text-blue-400' : (pal.sanity > 20 ? 'text-yellow-400' : 'text-red-400')" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                            <div class="w-20 bg-gray-700 rounded-full h-1.5 mt-1">
+                                                                <div :class="pal.sanity > 50 ? 'bg-blue-500' : (pal.sanity > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-1.5 rounded-full" :style="`width: ${pal.sanity}%`"></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-3 py-2 text-xs text-gray-400">
+                                                        <span x-text="pal.gender"></span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Guilds Tab -->
+        <div x-show="currentTab === 'guilds' && saveInfo.loaded">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <template x-for="guild in guilds" :key="guild.guild_id">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                        <h3 class="text-xl font-bold mb-2 text-green-400" x-text="guild.guild_name"></h3>
+                        <div class="text-sm text-gray-400 mb-4">
+                            <div>Guild ID: <span class="font-mono text-xs" x-text="guild.guild_id"></span></div>
+                            <div>Members: <span x-text="guild.members.length"></span></div>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="text-sm font-medium text-gray-300">Members:</div>
+                            <template x-for="memberUid in guild.members" :key="memberUid">
+                                <div class="text-sm text-gray-400 pl-4">
+                                    • <span x-text="getPlayerName(memberUid) || memberUid.substring(0, 8)"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 mt-12">
+        <div class="container mx-auto px-4 py-6 text-center text-sm text-gray-400">
+            <p>Palworld Save Viewer v1.0 • Read-only viewer • No editing functionality</p>
+        </div>
+    </footer>
+
+    <script>
+        function app() {
+            return {
+                currentTab: 'overview',
+                saveInfo: { loaded: false },
+                players: [],
+                guilds: [],
+                pals: [],
+                basePals: [],
+                loading: false,
+                error: null,
+                palSearch: '',
+                
+                async init() {
+                    await this.loadAllData();
+                    
+                    // Auto-reload every 30 seconds if configured
+                    setInterval(() => {
+                        this.loadAllData(true);
+                    }, 30000);
+                },
+                
+                async loadAllData(silent = false) {
+                    if (!silent) {
+                        this.loading = true;
+                    }
+                    
+                    try {
+                        // Load save info
+                        const infoRes = await fetch('/api/info');
+                        this.saveInfo = await infoRes.json();
+                        
+                        if (this.saveInfo.loaded) {
+                            // Load all data in parallel
+                            const [playersRes, guildsRes, palsRes, basePalsRes] = await Promise.all([
+                                fetch('/api/players'),
+                                fetch('/api/guilds'),
+                                fetch('/api/pals'),
+                                fetch('/api/base-pals')
+                            ]);
+                            
+                            this.players = (await playersRes.json()).players;
+                            this.guilds = (await guildsRes.json()).guilds;
+                            this.pals = (await palsRes.json()).pals;
+                            this.basePals = (await basePalsRes.json()).bases;
+                            
+                            this.error = null;
+                        }
+                    } catch (err) {
+                        this.error = err.message || 'Failed to load data';
+                        console.error('Error loading data:', err);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                async reloadSave() {
+                    this.loading = true;
+                    try {
+                        const res = await fetch('/api/reload', { method: 'POST' });
+                        const data = await res.json();
+                        
+                        if (data.success) {
+                            await this.loadAllData();
+                        } else {
+                            this.error = 'Failed to reload save';
+                        }
+                    } catch (err) {
+                        this.error = err.message || 'Failed to reload save';
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                getPlayerName(uid) {
+                    const player = this.players.find(p => p.uid === uid);
+                    return player ? player.player_name : null;
+                },
+                
+                getGuildName(guildId) {
+                    const guild = this.guilds.find(g => g.guild_id === guildId);
+                    return guild ? guild.guild_name : 'None';
+                },
+                
+                formatDate(dateStr) {
+                    if (!dateStr) return 'N/A';
+                    return new Date(dateStr).toLocaleString();
+                },
+                
+                get filteredPals() {
+                    if (!this.palSearch) return this.pals;
+                    
+                    const search = this.palSearch.toLowerCase();
+                    return this.pals.filter(pal => 
+                        (pal.name && pal.name.toLowerCase().includes(search)) ||
+                        (pal.nickname && pal.nickname.toLowerCase().includes(search)) ||
+                        (pal.character_id && pal.character_id.toLowerCase().includes(search))
+                    );
+                }
+            }
+        }
+    </script>
+</body>
+</html>
