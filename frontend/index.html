@@ -282,9 +282,8 @@
                                                     class="absolute -top-1 -right-1 w-5 h-5">
                                             </div>
                                             <!-- Pal Info -->
-                                            <div>
+                                            <div class="flex items-center">
                                                 <div class="font-medium" x-text="pal.nickname || pal.display_name"></div>
-                                                <div class="text-xs text-gray-400" x-text="pal.character_id"></div>
                                             </div>
                                         </div>
                                     </td>
@@ -311,7 +310,7 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-400">
-                                        <span x-text="getPlayerName(pal.owner_uid) || 'None'"></span>
+                                        <span x-text="pal.owner_uid || 'None'"></span>
                                     </td>
                                 </tr>
                             </template>
@@ -458,9 +457,8 @@
                                                                     class="absolute -top-1 -right-1 w-3 h-3">
                                                             </div>
                                                             <!-- Pal Info -->
-                                                            <div>
+                                                            <div class="flex items-center">
                                                                 <div class="font-medium text-sm" x-text="pal.nickname || pal.display_name"></div>
-                                                                <div class="text-xs text-gray-500" x-text="pal.character_id"></div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -529,7 +527,7 @@
                 error: null,
                 palSearch: '',
                 currentPage: 1,
-                pageSize: 25,
+                pageSize: 10,
                 
                 async init() {
                     await this.loadAllData();
