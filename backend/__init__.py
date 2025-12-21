@@ -1,1 +1,1 @@
-"""Palworld Save Viewer - Backend"""
+"""Palworld Server Viewer - Backend"""
