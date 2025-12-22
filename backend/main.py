@@ -854,19 +854,6 @@ async def get_pals():
         logger.error(f"Error getting pals: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/base-pals")
-async def get_base_pals():
-    """Get pals at guild bases (with hunger/SAN stats)"""
-    if not parser.loaded:
-        raise HTTPException(status_code=400, detail="No save file loaded")
-    
-    try:
-        base_pals = parser.get_base_pals()
-        return {"bases": base_pals, "count": len(base_pals)}
-    except Exception as e:
-        logger.error(f"Error getting base pals: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/api/debug/player-mapping")
 async def get_player_mapping():
     """Debug endpoint to show player UID mapping"""

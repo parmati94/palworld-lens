@@ -56,6 +56,10 @@ class PalInfo(BaseModel):
     work_suitability_display: List[Dict[str, Any]] = []  # Rich work suitability data with names, icons, levels
     is_lucky: bool = False
     is_boss: bool = False
+    # Base assignment fields (only set for pals at bases)
+    base_id: Optional[str] = None
+    guild_id: Optional[str] = None
+    base_name: Optional[str] = None
     
     @computed_field
     def display_name(self) -> str:
@@ -103,20 +107,3 @@ class GuildInfo(BaseModel):
     members: List[str] = []
     base_locations: List[Dict[str, Any]] = []
 
-class BaseInfo(BaseModel):
-    """Base information with assigned pals"""
-    base_id: str
-    base_name: str
-    pals: List[PalInfo] = []
-
-class GuildBasePalsInfo(BaseModel):
-    """Guild with bases and their pals"""
-    guild_id: str
-    guild_name: str
-    bases: List[BaseInfo] = []
-
-class BasePalsInfo(BaseModel):
-    """Pals at a guild base (legacy - kept for compatibility)"""
-    guild_id: str
-    guild_name: str
-    pals: List[PalInfo] = []
