@@ -6,7 +6,8 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 - 📱 **Mobile-First Design** - Responsive UI built with Tailwind CSS
 - 🔄 **Auto-Load & Reload** - Automatically loads saves on startup with manual reload button
-- 👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
+- � **Real-Time Updates** - Auto-watch save files for live updates (toggleable)
+- �👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
@@ -66,8 +67,11 @@ Edit `docker-compose.yml` environment variables:
 ```yaml
 environment:
   - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves
-  - AUTO_RELOAD_INTERVAL=30            # Auto-reload interval in seconds
+  - ENABLE_AUTO_WATCH=true             # Enable automatic file watching for live updates on backend.  Can still be toggled on/off on UI as long as this is set to true.
+  - LOG_LEVEL=INFO                     # Logging level: DEBUG, INFO, WARNING, ERROR
 ```
+
+**Auto-Watch**: When enabled, the viewer automatically detects save file changes and pushes updates to the browser in real-time via Server-Sent Events (SSE). The toggle can be controlled from the frontend UI.
 
 ## 📊 Viewing Options
 
@@ -149,6 +153,10 @@ environment:
 - `GET /api/pals` - List all pals
 - `GET /api/base-pals` - Pals organized by base
 - `POST /api/reload` - Reload save files
+- `GET /api/watch` - Server-Sent Events stream for real-time updates
+- `GET /api/watch/status` - Check auto-watch status
+- `POST /api/watch/start` - Start file watcher
+- `POST /api/watch/stop` - Stop file watcher
 - `GET /api/health` - Health check
 
 ## 🙏 Credits
@@ -163,11 +171,11 @@ MIT License - Feel free to use and modify!
 
 ## 🔮 Future Ideas
 
-- WebSocket support for live updates
 - Export data to JSON/CSV
 - Statistics and graphs
 - Pal breeding calculator
 - Map visualization
+- Historical data tracking
 
 ---
 

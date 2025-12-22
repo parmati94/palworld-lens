@@ -20,11 +20,12 @@ logger = get_logger(__name__)
 # Global watcher instance and SSE clients
 watcher: Optional[SaveWatcher] = None
 sse_clients: list[asyncio.Queue] = []
+watch_active: bool = False  # Track if watching is currently active
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle events"""
-    global watcher
+    global watcher, watch_active
     
     logger.info("🚀 Starting Palworld Server Viewer")
     logger.info(f"📂 Save mount path: {config.SAVE_MOUNT_PATH}")
@@ -58,9 +59,10 @@ async def lifespan(app: FastAPI):
         # Get the current event loop to pass to watcher
         loop = asyncio.get_event_loop()
         watcher = SaveWatcher(config.get_save_path(), on_save_change, loop)
-        watcher.start()
+        if watcher.start():
+            watch_active = True
     else:
-        logger.info("⏸️  Auto-watch disabled (ENABLE_AUTO_WATCH=false)")
+        logger.info("⏸️  Auto-watch disabled by default (ENABLE_AUTO_WATCH=false)")
     
     yield
     
@@ -108,11 +110,11 @@ async def get_save_info():
 @app.get("/api/watch")
 async def watch_save_changes(request: Request):
     """Server-Sent Events endpoint for real-time save updates"""
-    # Return error if auto-watch is disabled
-    if not config.ENABLE_AUTO_WATCH:
+    # Return error if auto-watch is not currently active
+    if not watch_active:
         raise HTTPException(
             status_code=503,
-            detail="Auto-watch is disabled. Set ENABLE_AUTO_WATCH=true to enable real-time updates."
+            detail="Auto-watch is not currently active. Enable it from the frontend toggle."
         )
     
     client_queue = asyncio.Queue(maxsize=10)
@@ -207,6 +209,101 @@ async def reload_save():
             raise HTTPException(status_code=500, detail="Failed to reload save")
     except Exception as e:
         logger.error(f"Reload failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/watch/status")
+async def get_watch_status():
+    """Get the current auto-watch status"""
+    return {
+        "active": watch_active,
+        "allowed": config.ENABLE_AUTO_WATCH,
+        "message": "Auto-watch is controlled by ENABLE_AUTO_WATCH environment variable" if not config.ENABLE_AUTO_WATCH else None
+    }
+
+@app.post("/api/watch/start")
+async def start_watch():
+    """Start the file watcher"""
+    global watcher, watch_active
+    
+    # Check if auto-watch is allowed by env var
+    if not config.ENABLE_AUTO_WATCH:
+        raise HTTPException(
+            status_code=403,
+            detail="Auto-watch is disabled by ENABLE_AUTO_WATCH environment variable. Set it to 'true' to enable this feature."
+        )
+    
+    # Check if already watching
+    if watch_active and watcher:
+        logger.info("⚠️  Auto-watch already active, skipping duplicate start")
+        return {
+            "success": True,
+            "message": "Auto-watch is already active",
+            "active": True
+        }
+    
+    # Stop existing watcher if it exists (cleanup)
+    if watcher:
+        logger.debug("Cleaning up existing watcher before starting new one")
+        watcher.stop()
+        watcher = None
+    
+    # Create and start watcher
+    try:
+        async def on_save_change():
+            """Callback when save file changes"""
+            logger.info("🔄 Save file changed, reloading...")
+            if parser.reload():
+                logger.info("✅ Save reloaded successfully")
+                # Notify all SSE clients
+                for client_queue in sse_clients:
+                    try:
+                        client_queue.put_nowait({"event": "reload"})
+                    except asyncio.QueueFull:
+                        pass  # Skip if queue is full
+            else:
+                logger.error("❌ Failed to reload save")
+        
+        loop = asyncio.get_event_loop()
+        watcher = SaveWatcher(config.get_save_path(), on_save_change, loop)
+        
+        if watcher.start():
+            watch_active = True
+            logger.info("👀 Auto-watch started via API")
+            return {
+                "success": True,
+                "message": "Auto-watch started successfully",
+                "active": True
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to start file watcher")
+    except Exception as e:
+        logger.error(f"Failed to start watcher: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/watch/stop")
+async def stop_watch():
+    """Stop the file watcher"""
+    global watcher, watch_active
+    
+    if not watch_active or not watcher:
+        return {
+            "success": True,
+            "message": "Auto-watch is already stopped",
+            "active": False
+        }
+    
+    try:
+        watcher.stop()
+        watcher = None
+        watch_active = False
+        logger.info("🛑 Auto-watch stopped via API")
+        return {
+            "success": True,
+            "message": "Auto-watch stopped successfully",
+            "active": False
+        }
+    except Exception as e:
+        logger.error(f"Failed to stop watcher: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/debug/world-keys")

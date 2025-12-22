@@ -52,6 +52,12 @@ class SaveFileHandler(FileSystemEventHandler):
             await self.callback()
         except asyncio.CancelledError:
             pass
+    
+    def cancel_pending_tasks(self):
+        """Cancel any pending debounce tasks"""
+        if self._debounce_task and not self._debounce_task.done():
+            self._debounce_task.cancel()
+            logger.debug("Cancelled pending debounce task")
 
 
 class SaveWatcher:
@@ -86,7 +92,11 @@ class SaveWatcher:
         """Stop watching the save directory"""
         if self.observer:
             logger.info("🛑 Stopping save file watcher")
+            # Cancel any pending debounce tasks first
+            if self.handler:
+                self.handler.cancel_pending_tasks()
             self.observer.stop()
             self.observer.join()
             self.observer = None
             self.handler = None
+            logger.debug("Save file watcher fully stopped")

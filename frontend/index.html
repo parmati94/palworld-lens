@@ -36,7 +36,48 @@
                     </p>
                 </div>
                 
-                <div class="flex gap-2">
+                <div class="flex gap-3 items-center">
+                    <!-- Auto-Watch Toggle -->
+                    <div class="flex items-center gap-2 bg-gray-700 rounded-lg px-3 py-2" x-data="{ showTooltip: false }">
+                        <div class="relative">
+                            <button 
+                                @click="toggleAutoWatch()" 
+                                :disabled="!autoWatchAllowed || watchToggling"
+                                :class="{
+                                    'bg-green-600': autoWatchActive,
+                                    'bg-gray-600': !autoWatchActive && autoWatchAllowed,
+                                    'bg-gray-800 cursor-not-allowed': !autoWatchAllowed,
+                                    'opacity-50': watchToggling
+                                }"
+                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                                @mouseenter="showTooltip = !autoWatchAllowed"
+                                @mouseleave="showTooltip = false">
+                                <span 
+                                    :class="autoWatchActive ? 'translate-x-6' : 'translate-x-1'"
+                                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform">
+                                </span>
+                            </button>
+                            
+                            <!-- Tooltip for disabled state -->
+                            <div 
+                                x-show="showTooltip && !autoWatchAllowed"
+                                class="absolute top-full mt-2 right-0 w-64 bg-gray-800 border border-yellow-500 text-yellow-200 text-xs rounded-lg p-3 shadow-lg z-50"
+                                style="display: none;">
+                                <div class="font-semibold mb-1">⚠️ Auto-Watch Disabled</div>
+                                <div class="text-gray-300">Set <code class="bg-gray-700 px-1 rounded">ENABLE_AUTO_WATCH=true</code> in your environment to enable this feature.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-gray-200">Auto-Watch</span>
+                            <span class="text-xs" :class="{
+                                'text-green-400': autoWatchActive,
+                                'text-gray-400': !autoWatchActive && autoWatchAllowed,
+                                'text-yellow-400': !autoWatchAllowed
+                            }" x-text="autoWatchAllowed ? (autoWatchActive ? 'Active' : 'Inactive') : 'Not Allowed'"></span>
+                        </div>
+                    </div>
+                    
                     <button 
                         @click="reloadSave()" 
                         :disabled="loading"
@@ -531,12 +572,40 @@
                 currentPage: 1,
                 pageSize: 10,
                 eventSource: null,
-                autoUpdateEnabled: true,
+                autoWatchActive: false,
+                autoWatchAllowed: true,
+                watchToggling: false,
                 
                 async init() {
-                    // Start SSE connection for real-time updates
-                    // SSE will send initial data via 'init' event
-                    this.connectSSE();
+                    // Check auto-watch status
+                    await this.checkWatchStatus();
+                    
+                    // Load saved preference from localStorage
+                    const savedPreference = localStorage.getItem('autoWatchEnabled');
+                    const preferEnabled = savedPreference === null ? true : savedPreference === 'true';
+                    
+                    console.log('🔍 Init state:', { 
+                        preferEnabled, 
+                        autoWatchAllowed: this.autoWatchAllowed, 
+                        autoWatchActive: this.autoWatchActive 
+                    });
+                    
+                    // If auto-watch is already active on backend, connect to it regardless of user preference
+                    // (the backend was configured to start it, so we should use it)
+                    if (this.autoWatchActive) {
+                        console.log('📡 Auto-watch already active on backend, connecting SSE...');
+                        this.connectSSE();
+                    }
+                    // Otherwise, check user preference
+                    else if (preferEnabled && this.autoWatchAllowed) {
+                        console.log('📞 Starting auto-watch per user preference...');
+                        await this.startAutoWatch();
+                    } 
+                    // Fall back to manual loading
+                    else {
+                        console.log('📂 Loading data manually (preferEnabled:', preferEnabled, 'allowed:', this.autoWatchAllowed, ')');
+                        this.loadAllData();
+                    }
                     
                     // Reset to page 1 when search changes
                     this.$watch('palSearch', () => {
@@ -544,9 +613,88 @@
                     });
                 },
                 
+                async checkWatchStatus() {
+                    try {
+                        const res = await fetch('/api/watch/status');
+                        const data = await res.json();
+                        this.autoWatchActive = data.active;
+                        this.autoWatchAllowed = data.allowed;
+                        console.log('👀 Watch status:', data);
+                    } catch (err) {
+                        console.error('Failed to check watch status:', err);
+                        this.autoWatchAllowed = false;
+                    }
+                },
+                
+                async toggleAutoWatch() {
+                    if (!this.autoWatchAllowed) {
+                        return; // Can't toggle if not allowed
+                    }
+                    
+                    this.watchToggling = true;
+                    
+                    try {
+                        if (this.autoWatchActive) {
+                            await this.stopAutoWatch();
+                        } else {
+                            await this.startAutoWatch();
+                        }
+                    } catch (err) {
+                        console.error('Failed to toggle auto-watch:', err);
+                        this.error = err.message || 'Failed to toggle auto-watch';
+                    } finally {
+                        this.watchToggling = false;
+                    }
+                },
+                
+                async startAutoWatch() {
+                    try {
+                        const res = await fetch('/api/watch/start', { method: 'POST' });
+                        if (!res.ok) {
+                            const error = await res.json();
+                            throw new Error(error.detail || 'Failed to start auto-watch');
+                        }
+                        const data = await res.json();
+                        this.autoWatchActive = data.active;
+                        
+                        // Save preference
+                        localStorage.setItem('autoWatchEnabled', 'true');
+                        
+                        // Connect SSE
+                        this.connectSSE();
+                        
+                        console.log('✅ Auto-watch started');
+                    } catch (err) {
+                        console.error('Failed to start auto-watch:', err);
+                        throw err;
+                    }
+                },
+                
+                async stopAutoWatch() {
+                    try {
+                        const res = await fetch('/api/watch/stop', { method: 'POST' });
+                        const data = await res.json();
+                        this.autoWatchActive = data.active;
+                        
+                        // Save preference
+                        localStorage.setItem('autoWatchEnabled', 'false');
+                        
+                        // Close SSE connection
+                        if (this.eventSource) {
+                            this.eventSource.close();
+                            this.eventSource = null;
+                        }
+                        
+                        console.log('🛑 Auto-watch stopped');
+                    } catch (err) {
+                        console.error('Failed to stop auto-watch:', err);
+                        throw err;
+                    }
+                },
+                
                 connectSSE() {
-                    if (!this.autoUpdateEnabled) {
-                        console.log('Auto-update disabled, skipping SSE connection');
+                    if (!this.autoWatchActive) {
+                        console.log('Auto-watch not active, skipping SSE connection');
                         return;
                     }
                     
@@ -582,19 +730,18 @@
                         });
                         
                         this.eventSource.onerror = (error) => {
-                            console.error('❌ SSE: Connection error or auto-watch disabled');
-                            // If SSE fails (e.g., auto-watch disabled), fall back to manual loading
+                            console.error('❌ SSE: Connection error');
+                            // If SSE fails, close it and fall back to manual loading
                             this.eventSource.close();
                             this.eventSource = null;
-                            console.log('⚠️  Auto-watch unavailable, loading data manually');
+                            console.log('⚠️  SSE connection failed, loading data manually');
                             this.loadAllData();
                         };
                         
                         console.log('✅ SSE: Connected to real-time updates');
                     } catch (err) {
                         console.error('Failed to connect SSE:', err);
-                        // Fallback to old polling method
-                        this.startPolling();
+                        this.loadAllData();
                     }
                 },
                 
