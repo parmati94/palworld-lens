@@ -1,9 +1,6 @@
 services:
   viewer:
-    image: palworld-server-viewer:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: parmati/palworld-server-viewer:latest
     container_name: palworld-server-viewer
     ports:
       - "5175:80"

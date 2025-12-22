@@ -6,8 +6,8 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 - 📱 **Mobile-First Design** - Responsive UI built with Tailwind CSS
 - 🔄 **Auto-Load & Reload** - Automatically loads saves on startup with manual reload button
-- � **Real-Time Updates** - Auto-watch save files for live updates (toggleable)
-- �👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
+-   **Real-Time Updates** - Auto-watch save files for live updates (toggleable)
+-  👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
@@ -21,11 +21,11 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 - Docker & Docker Compose
 - Palworld save files
 
-### Setup
+### Option 1: Using Pre-built Image (Recommended)
 
-1. **Clone or navigate to the directory:**
+1. **Download the docker-compose.yml:**
    ```bash
-   cd /path/to/palworld-server-viewer
+   wget https://raw.githubusercontent.com/parmati94/palworld-server-viewer/main/docker-compose.yml
    ```
 
 2. **Configure your save path in `docker-compose.yml`:**
@@ -37,15 +37,48 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
    Example:
    ```yaml
    volumes:
-     - /home/paul/.gamedata/palworld/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D:/app/saves:ro
+     - /home/<user>/.gamedata/palworld/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D:/app/saves:ro
    ```
 
 3. **Start the viewer:**
    ```bash
-   docker-compose up -d --build
+   docker-compose up -d
    ```
+   The image will be automatically pulled from Docker Hub on first run.
 
 4. **Access the viewer:**
+   Open your browser to `http://localhost:5175`
+
+### Option 2: Building from Source
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/parmati94/palworld-server-viewer.git
+   cd palworld-server-viewer
+   ```
+
+2. **Build the Docker image:**
+   ```bash
+   docker build -t palworld-server-viewer:local .
+   ```
+
+3. **Configure your save path in `docker-compose.yml`:**
+   ```yaml
+   volumes:
+     - /path/to/your/SaveGames/0/WORLD-ID:/app/saves:ro
+   ```
+   
+   And update the image line to use your local build:
+   ```yaml
+   image: palworld-server-viewer:local
+   ```
+
+4. **Start the viewer:**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Access the viewer:**
    Open your browser to `http://localhost:5175`
 
 ## 📂 Directory Structure Expected
