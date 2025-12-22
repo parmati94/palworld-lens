@@ -75,8 +75,6 @@
                     <!-- Auto-Watch Toggle -->
                     <div class="flex items-center gap-2 bg-gray-700 rounded-lg px-3 py-2" x-data="{ showTooltip: false }">
                         <div class="relative">
-                            <!-- Pulsing active indicator -->
-                            <div x-show="autoWatchActive" class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full pulse-active"></div>
                             <button 
                                 @click="toggleAutoWatch()" 
                                 :disabled="!autoWatchAllowed || watchToggling"
@@ -106,7 +104,11 @@
                         </div>
                         
                         <div class="flex flex-col">
-                            <span class="text-sm font-medium text-gray-200">Auto-Watch</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-medium text-gray-200">Auto-Watch</span>
+                                <!-- Pulsing active indicator -->
+                                <div x-show="autoWatchActive" class="w-2 h-2 bg-green-500 rounded-full pulse-active"></div>
+                            </div>
                             <span class="text-xs" :class="{
                                 'text-green-400': autoWatchActive,
                                 'text-gray-400': !autoWatchActive && autoWatchAllowed,

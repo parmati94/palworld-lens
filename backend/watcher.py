@@ -26,9 +26,10 @@ class SaveFileHandler(FileSystemEventHandler):
         if event.is_directory:
             return
         
-        # Ignore events during startup period (first 3 seconds)
+        # Ignore events during startup period (first 5 seconds to handle Docker volume sync)
         import time
-        if self._start_time and (time.time() - self._start_time) < 3.0:
+        if self._start_time and (time.time() - self._start_time) < 5.0:
+            logger.debug(f"Ignoring event during startup grace period: {event.src_path}")
             return
             
         # Check if it's Level.sav or a Player file

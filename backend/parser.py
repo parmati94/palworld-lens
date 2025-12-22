@@ -25,6 +25,7 @@ class SaveFileParser:
         self.world_data: Optional[Dict] = None
         self.loaded = False
         self.last_load_time: Optional[datetime] = None
+        self.world_name: Optional[str] = None  # Cached world name from LevelMeta.sav
         self.pal_names: Dict[str, str] = {}
         self.pal_max_stomach: Dict[str, int] = {}  # Maps pal character_id to max stomach
         self.player_uid_to_instance: Dict[str, str] = {}  # Maps PlayerUId to instance_id
@@ -93,6 +94,22 @@ class SaveFileParser:
             
             self.gvas_data = gvas_file.properties
             self.world_data = self.gvas_data.get("worldSaveData", {}).get("value", {})
+            
+            # Read and cache world name from LevelMeta.sav (only once per load)
+            try:
+                level_meta_path = self.level_sav_path.parent / "LevelMeta.sav"
+                if level_meta_path.exists():
+                    with open(level_meta_path, "rb") as f:
+                        meta_data = f.read()
+                    raw_meta_gvas, _ = decompress_sav_to_gvas(meta_data)
+                    meta_gvas_file = GvasFile.read(raw_meta_gvas, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES)
+                    save_data = meta_gvas_file.properties.get("SaveData", {}).get("value", {})
+                    world_name_data = save_data.get("WorldName", {})
+                    if isinstance(world_name_data, dict) and "value" in world_name_data:
+                        self.world_name = world_name_data["value"]
+                        logger.debug(f"Cached world name from LevelMeta.sav: {self.world_name}")
+            except Exception as e:
+                logger.debug(f"Could not cache world name from LevelMeta.sav: {e}")
             
             self.loaded = True
             self.last_load_time = datetime.now()
@@ -341,22 +358,8 @@ class SaveFileParser:
         if not self.loaded:
             return SaveInfo(world_name="Not Loaded", loaded=False)
         
-        # Try to get world name from LevelMeta.sav
-        world_name = "My World"
-        try:
-            level_meta_path = self.level_sav_path.parent / "LevelMeta.sav"
-            if level_meta_path.exists():
-                with open(level_meta_path, "rb") as f:
-                    meta_data = f.read()
-                raw_gvas, _ = decompress_sav_to_gvas(meta_data)
-                gvas_file = GvasFile.read(raw_gvas, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES)
-                save_data = gvas_file.properties.get("SaveData", {}).get("value", {})
-                world_name_data = save_data.get("WorldName", {})
-                if isinstance(world_name_data, dict) and "value" in world_name_data:
-                    world_name = world_name_data["value"]
-                    logger.debug(f"Found world name in LevelMeta.sav: {world_name}")
-        except Exception as e:
-            logger.debug(f"Could not read world name from LevelMeta.sav: {e}")
+        # Use cached world name if available, otherwise default
+        world_name = self.world_name or "My World"
         
         # Simplify - just count the data
         char_data = self._get_character_data()
