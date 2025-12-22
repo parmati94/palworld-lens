@@ -66,7 +66,6 @@ Edit `docker-compose.yml` environment variables:
 ```yaml
 environment:
   - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves
-  - PORT=8000                          # Backend port (internal)
   - AUTO_RELOAD_INTERVAL=30            # Auto-reload interval in seconds
 ```
 
@@ -110,7 +109,7 @@ environment:
 
 3. **Run the backend:**
    ```bash
-   python -m uvicorn backend.main:app --reload --port 8000
+   python -m uvicorn backend.main:app --reload
    ```
 
 4. **Serve frontend:**

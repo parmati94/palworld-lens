@@ -1,13 +1,38 @@
 """Logging configuration"""
 import logging
+import os
 import colorlog
 
-def setup_logging(level=logging.INFO):
+
+class ExternalLibraryFilter(logging.Filter):
+    """Filter out noisy logs from external libraries"""
+    
+    def filter(self, record):
+        msg = record.getMessage()
+        # Filter out inotify event spam from watchdog
+        if 'in-event' in msg.lower():
+            return False
+        return True
+
+
+def setup_logging(level=None):
     """Setup colorful logging"""
+    # Get log level from env var, default to INFO
+    if level is None:
+        level_str = os.getenv("LOG_LEVEL", "INFO").upper()
+        level = getattr(logging, level_str, logging.INFO)
+    
+    # Get root logger
+    logger = logging.getLogger()
+    
+    # Remove all existing handlers
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
     handler = colorlog.StreamHandler()
     handler.setFormatter(
         colorlog.ColoredFormatter(
-            "%(log_color)s%(levelname)-8s%(reset)s %(blue)s%(message)s",
+            "%(log_color)s%(levelname)-8s%(reset)s %(message)s",
             datefmt=None,
             reset=True,
             log_colors={
@@ -22,9 +47,14 @@ def setup_logging(level=logging.INFO):
         )
     )
     
-    logger = logging.getLogger()
+    # Add filter to suppress ievent spam from watchdog
+    handler.addFilter(ExternalLibraryFilter())
+    
     logger.addHandler(handler)
     logger.setLevel(level)
+    
+    # Suppress watchdog's verbose inotify logs
+    logging.getLogger('watchdog.observers.inotify_buffer').setLevel(logging.WARNING)
     
     return logger
 

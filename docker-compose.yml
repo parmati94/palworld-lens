@@ -14,8 +14,8 @@ services:
       - ./saves:/app/saves:ro
     environment:
       - SAVE_MOUNT_PATH=/app/saves
-      - PORT=8000
-      - AUTO_RELOAD_INTERVAL=30
+      - ENABLE_AUTO_WATCH=true
+      - LOG_LEVEL=INFO  # Options: DEBUG, INFO, WARNING, ERROR
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]

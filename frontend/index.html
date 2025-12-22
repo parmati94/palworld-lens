@@ -523,24 +523,98 @@
                 players: [],
                 pals: [],
                 basePals: [],
+                guilds: [],
+                bases: [],
                 loading: false,
                 error: null,
                 palSearch: '',
                 currentPage: 1,
                 pageSize: 10,
+                eventSource: null,
+                autoUpdateEnabled: true,
                 
                 async init() {
-                    await this.loadAllData();
-                    
-                    // Auto-reload every 30 seconds if configured
-                    setInterval(() => {
-                        this.loadAllData(true);
-                    }, 30000);
+                    // Start SSE connection for real-time updates
+                    // SSE will send initial data via 'init' event
+                    this.connectSSE();
                     
                     // Reset to page 1 when search changes
                     this.$watch('palSearch', () => {
                         this.currentPage = 1;
                     });
+                },
+                
+                connectSSE() {
+                    if (!this.autoUpdateEnabled) {
+                        console.log('Auto-update disabled, skipping SSE connection');
+                        return;
+                    }
+                    
+                    try {
+                        this.eventSource = new EventSource('/api/watch');
+                        
+                        this.eventSource.addEventListener('init', (event) => {
+                            console.log('📡 SSE: Received initial data');
+                            const data = JSON.parse(event.data);
+                            this.updateFromSSE(data);
+                        });
+                        
+                        this.eventSource.addEventListener('update', (event) => {
+                            console.log('🔄 SSE: Save updated!');
+                            const data = JSON.parse(event.data);
+                            this.updateFromSSE(data);
+                        });
+                        
+                        this.eventSource.addEventListener('ping', () => {
+                            // Keepalive ping, do nothing
+                        });
+                        
+                        this.eventSource.addEventListener('error', (event) => {
+                            console.error('❌ SSE: Error event', event);
+                            if (event.data) {
+                                try {
+                                    const error = JSON.parse(event.data);
+                                    this.error = error.error;
+                                } catch (e) {
+                                    console.error('Failed to parse SSE error', e);
+                                }
+                            }
+                        });
+                        
+                        this.eventSource.onerror = (error) => {
+                            console.error('❌ SSE: Connection error or auto-watch disabled');
+                            // If SSE fails (e.g., auto-watch disabled), fall back to manual loading
+                            this.eventSource.close();
+                            this.eventSource = null;
+                            console.log('⚠️  Auto-watch unavailable, loading data manually');
+                            this.loadAllData();
+                        };
+                        
+                        console.log('✅ SSE: Connected to real-time updates');
+                    } catch (err) {
+                        console.error('Failed to connect SSE:', err);
+                        // Fallback to old polling method
+                        this.startPolling();
+                    }
+                },
+                
+                updateFromSSE(data) {
+                    this.saveInfo = data.info;
+                    this.players = data.players || [];
+                    this.pals = data.pals || [];
+                    this.basePals = data.bases || [];
+                    this.guilds = data.guilds || [];
+                    this.bases = data.bases || [];
+                    this.loading = false;
+                    this.error = null;
+                },
+                
+                startPolling() {
+                    // Fallback: Auto-reload every 30 seconds
+                    console.log('⏰ Starting fallback polling (30s interval)');
+                    setInterval(() => {
+                        this.loadAllData(true);
+                    }, 30000);
                 },
                 
                 async loadAllData(silent = false) {

@@ -1,5 +1,6 @@
 """Save file parser - wraps palworld-save-tools library"""
 import json
+import logging
 from pathlib import Path
 from typing import Optional, Dict, List, Any
 from datetime import datetime
@@ -43,7 +44,7 @@ class SaveFileParser:
                     for pal_id, pal_info in data.items():
                         if isinstance(pal_info, dict):
                             self.pal_names[pal_id] = pal_info.get("localized_name", pal_id)
-                logger.info(f"Loaded {len(self.pal_names)} pal names")
+                logger.debug(f"Loaded {len(self.pal_names)} pal names")
             else:
                 logger.warning(f"Pal names file not found: {pals_json}")
         except Exception as e:
@@ -61,7 +62,7 @@ class SaveFileParser:
                     for pal_id, pal_info in data.items():
                         if isinstance(pal_info, dict) and "max_full_stomach" in pal_info:
                             self.pal_max_stomach[pal_id] = pal_info["max_full_stomach"]
-                logger.info(f"Loaded max stomach data for {len(self.pal_max_stomach)} pals")
+                logger.debug(f"Loaded max stomach data for {len(self.pal_max_stomach)} pals")
             else:
                 logger.warning(f"Pal data file not found: {pals_json}")
         except Exception as e:
@@ -193,7 +194,7 @@ class SaveFileParser:
                                 # Store in mapping
                                 self.player_uid_to_containers[player_uid] = {"name": player_name, "containers": container_ids, "instance_id": individual_id}
                                 self.player_names[player_uid] = player_name
-                                logger.info(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
+                                logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
                 except Exception as e:
                     logger.warning(f"Failed to read player .sav {player_sav.name}: {e}")
         
@@ -263,9 +264,9 @@ class SaveFileParser:
                                                             if player_uid in self.player_uid_to_containers:
                                                                 self.player_uid_to_containers[player_uid]["containers"].append(container_id_str)
                                                                 player_name = self.player_uid_to_containers[player_uid]["name"]
-                                                                logger.info(f"  -> Added base worker container for {player_name}")
+                                                                logger.debug(f"  -> Added base worker container for {player_name}")
         
-        logger.info(f"Built player mapping: {len(self.player_names)} total players with containers")
+        logger.info(f"Mapped {len(self.player_names)} players with containers")
     
     def _build_pal_ownership(self):
         """Build mapping from pal instance_id to owner by reading player .sav files and their containers"""
@@ -317,7 +318,7 @@ class SaveFileParser:
                                 if pal_ids:
                                     container_map[container_id] = pal_ids
         
-        logger.info(f"Found {len(container_map)} containers with pals")
+        logger.debug(f"Found {len(container_map)} containers with pals")
         
         # Map pals to players using the container lists we already built
         for player_uid, player_data in self.player_uid_to_containers.items():
@@ -331,9 +332,9 @@ class SaveFileParser:
                         self.pal_to_owner[pal_id] = player_name
                         pal_count += 1
             
-            logger.info(f"Player {player_name}: {pal_count} pals in {len(player_containers)} containers")
+            logger.debug(f"Player {player_name}: {pal_count} pals in {len(player_containers)} containers")
         
-        logger.info(f"Built pal ownership: {len(self.pal_to_owner)} pals mapped to owners")
+        logger.info(f"Loaded {len(self.pal_to_owner)} pals across all players")
     
     def get_save_info(self) -> SaveInfo:
         """Get basic save file information"""

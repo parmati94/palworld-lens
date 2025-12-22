@@ -9,12 +9,8 @@ class Config:
     # Save file paths
     SAVE_MOUNT_PATH: str = os.getenv("SAVE_MOUNT_PATH", "/app/saves")
     
-    # Server configuration
-    PORT: int = int(os.getenv("PORT", "8000"))
-    HOST: str = os.getenv("HOST", "0.0.0.0")
-    
-    # Auto-reload settings
-    AUTO_RELOAD_INTERVAL: int = int(os.getenv("AUTO_RELOAD_INTERVAL", "30"))
+    # Auto-watch settings
+    ENABLE_AUTO_WATCH: bool = os.getenv("ENABLE_AUTO_WATCH", "true").lower() in ("true", "1", "yes")
     
     # Data paths
     DATA_PATH: Path = Path(__file__).parent.parent / "data"

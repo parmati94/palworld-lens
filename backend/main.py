@@ -1,20 +1,31 @@
 """FastAPI backend for Palworld Server Viewer"""
-from fastapi import FastAPI, HTTPException
+import asyncio
+import json
+from typing import Optional
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from sse_starlette.sse import EventSourceResponse
 
 from backend.config import config
 from backend.logging_config import setup_logging, get_logger
 from backend.parser import parser
+from backend.watcher import SaveWatcher
 
-# Setup logging
+# Setup colored logging
 setup_logging()
 logger = get_logger(__name__)
+
+# Global watcher instance and SSE clients
+watcher: Optional[SaveWatcher] = None
+sse_clients: list[asyncio.Queue] = []
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle events"""
+    global watcher
+    
     logger.info("🚀 Starting Palworld Server Viewer")
     logger.info(f"📂 Save mount path: {config.SAVE_MOUNT_PATH}")
     
@@ -28,7 +39,34 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning("⚠️  No save files found in mounted directory")
     
+    # Start file watcher if enabled
+    if config.ENABLE_AUTO_WATCH:
+        async def on_save_change():
+            """Callback when save file changes"""
+            logger.info("🔄 Save file changed, reloading...")
+            if parser.reload():
+                logger.info("✅ Save reloaded successfully")
+                # Notify all SSE clients
+                for client_queue in sse_clients:
+                    try:
+                        client_queue.put_nowait({"event": "reload"})
+                    except asyncio.QueueFull:
+                        pass  # Skip if queue is full
+            else:
+                logger.error("❌ Failed to reload save")
+        
+        # Get the current event loop to pass to watcher
+        loop = asyncio.get_event_loop()
+        watcher = SaveWatcher(config.get_save_path(), on_save_change, loop)
+        watcher.start()
+    else:
+        logger.info("⏸️  Auto-watch disabled (ENABLE_AUTO_WATCH=false)")
+    
     yield
+    
+    # Stop watcher
+    if watcher:
+        watcher.stop()
     
     logger.info("👋 Shutting down Palworld Server Viewer")
 
@@ -66,6 +104,93 @@ async def health_check():
 async def get_save_info():
     """Get basic save file information"""
     return parser.get_save_info()
+
+@app.get("/api/watch")
+async def watch_save_changes(request: Request):
+    """Server-Sent Events endpoint for real-time save updates"""
+    # Return error if auto-watch is disabled
+    if not config.ENABLE_AUTO_WATCH:
+        raise HTTPException(
+            status_code=503,
+            detail="Auto-watch is disabled. Set ENABLE_AUTO_WATCH=true to enable real-time updates."
+        )
+    
+    client_queue = asyncio.Queue(maxsize=10)
+    sse_clients.append(client_queue)
+    
+    async def event_generator():
+        try:
+            # Send initial data
+            try:
+                players = parser.get_players()
+                pals = parser.get_pals()
+                guilds = parser.get_guilds()
+                bases = parser.get_base_pals()
+                save_info = parser.get_save_info()
+                
+                initial_data = {
+                    "info": save_info.model_dump() if hasattr(save_info, 'model_dump') else save_info,
+                    "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
+                    "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
+                    "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
+                    "bases": [b.model_dump() if hasattr(b, 'model_dump') else b for b in bases],
+                }
+                yield {
+                    "event": "init",
+                    "data": json.dumps(initial_data, default=str)
+                }
+            except Exception as e:
+                logger.error(f"Error sending initial data: {e}")
+                yield {
+                    "event": "error",
+                    "data": json.dumps({"error": str(e)})
+                }
+                return
+            
+            # Listen for updates
+            while True:
+                if await request.is_disconnected():
+                    logger.debug("SSE client disconnected")
+                    break
+                
+                try:
+                    # Wait for update notification (with timeout to check disconnect)
+                    update = await asyncio.wait_for(client_queue.get(), timeout=30.0)
+                    
+                    # Send updated data
+                    players = parser.get_players()
+                    pals = parser.get_pals()
+                    guilds = parser.get_guilds()
+                    bases = parser.get_base_pals()
+                    save_info = parser.get_save_info()
+                    
+                    updated_data = {
+                        "info": save_info.model_dump() if hasattr(save_info, 'model_dump') else save_info,
+                        "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
+                        "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
+                        "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
+                        "bases": [b.model_dump() if hasattr(b, 'model_dump') else b for b in bases],
+                    }
+                    yield {
+                        "event": "update",
+                        "data": json.dumps(updated_data, default=str)
+                    }
+                except asyncio.TimeoutError:
+                    # Send keepalive
+                    yield {
+                        "event": "ping",
+                        "data": ""
+                    }
+                except Exception as e:
+                    logger.error(f"Error in SSE stream: {e}")
+                    break
+        finally:
+            # Remove client queue when disconnected
+            if client_queue in sse_clients:
+                sse_clients.remove(client_queue)
+            logger.debug(f"SSE client removed. Active clients: {len(sse_clients)}")
+    
+    return EventSourceResponse(event_generator())
 
 @app.post("/api/reload")
 @app.get("/api/reload")
@@ -693,8 +818,8 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "backend.main:app",
-        host=config.HOST,
-        port=config.PORT,
+        host="127.0.0.1",
+        port=8000,
         reload=False,
         log_level="info"
     )
