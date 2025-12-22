@@ -341,7 +341,22 @@ class SaveFileParser:
         if not self.loaded:
             return SaveInfo(world_name="Not Loaded", loaded=False)
         
-        world_name = "Unknown World"
+        # Try to get world name from LevelMeta.sav
+        world_name = "My World"
+        try:
+            level_meta_path = self.level_sav_path.parent / "LevelMeta.sav"
+            if level_meta_path.exists():
+                with open(level_meta_path, "rb") as f:
+                    meta_data = f.read()
+                raw_gvas, _ = decompress_sav_to_gvas(meta_data)
+                gvas_file = GvasFile.read(raw_gvas, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES)
+                save_data = gvas_file.properties.get("SaveData", {}).get("value", {})
+                world_name_data = save_data.get("WorldName", {})
+                if isinstance(world_name_data, dict) and "value" in world_name_data:
+                    world_name = world_name_data["value"]
+                    logger.debug(f"Found world name in LevelMeta.sav: {world_name}")
+        except Exception as e:
+            logger.debug(f"Could not read world name from LevelMeta.sav: {e}")
         
         # Simplify - just count the data
         char_data = self._get_character_data()
