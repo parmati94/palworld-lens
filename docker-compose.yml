@@ -1,7 +1,7 @@
 services:
-  viewer:
-    image: parmati/palworld-server-viewer:latest
-    container_name: palworld-server-viewer
+  palworld-lens:
+    image: parmati/palworld-lens:latest
+    container_name: palworld-lens
     ports:
       - "5175:80"
     volumes:

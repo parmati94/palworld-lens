@@ -1,4 +1,4 @@
-"""Data models for the viewer"""
+"""Data models for the application"""
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, computed_field
 from enum import Enum

@@ -1,1 +1,1 @@
-"""Palworld Server Viewer - Backend"""
+"""Palworld Lens - Backend"""
