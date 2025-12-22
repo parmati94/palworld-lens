@@ -1,4 +1,4 @@
-"""FastAPI backend for Palworld Server Viewer"""
+"""FastAPI backend for Palworld Lens"""
 import asyncio
 import json
 from typing import Optional
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     """Lifecycle events"""
     global watcher, watch_active
     
-    logger.info("🚀 Starting Palworld Server Viewer")
+    logger.info("🚀 Starting Palworld Lens")
     logger.info(f"📂 Save mount path: {config.SAVE_MOUNT_PATH}")
     
     # Try to load save on startup
@@ -70,10 +70,10 @@ async def lifespan(app: FastAPI):
     if watcher:
         watcher.stop()
     
-    logger.info("👋 Shutting down Palworld Server Viewer")
+    logger.info("👋 Shutting down Palworld Lens")
 
 app = FastAPI(
-    title="Palworld Server Viewer",
+    title="Palworld Lens",
     description="Read-only viewer for Palworld save files",
     version="1.0.0",
     lifespan=lifespan
@@ -91,7 +91,7 @@ app.add_middleware(
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "Palworld Server Viewer API", "version": "1.0.0"}
+    return {"message": "Palworld Lens API", "version": "1.0.0"}
 
 @app.get("/api/health")
 async def health_check():

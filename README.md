@@ -1,4 +1,4 @@
-# Palworld Server Viewer
+# Palworld Lens
 
 A lightweight, read-only viewer for Palworld save files. Built to be mobile-friendly and containerized.
 
@@ -25,7 +25,7 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 1. **Download the docker-compose.yml:**
    ```bash
-   wget https://raw.githubusercontent.com/parmati94/palworld-server-viewer/main/docker-compose.yml
+   wget https://raw.githubusercontent.com/parmati94/palworld-lens/main/docker-compose.yml
    ```
 
 2. **Configure your save path in `docker-compose.yml`:**
@@ -53,13 +53,13 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/parmati94/palworld-server-viewer.git
-   cd palworld-server-viewer
+   git clone https://github.com/parmati94/palworld-lens.git
+   cd palworld-lens
    ```
 
 2. **Build the Docker image:**
    ```bash
-   docker build -t palworld-server-viewer:local .
+   docker build -t palworld-lens:local .
    ```
 
 3. **Configure your save path in `docker-compose.yml`:**
@@ -70,7 +70,7 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
    
    And update the image line to use your local build:
    ```yaml
-   image: palworld-server-viewer:local
+   image: palworld-lens:local
    ```
 
 4. **Start the viewer:**
@@ -147,7 +147,7 @@ docker-compose -f docker-compose.dev.yml down
 
 **How it works:**
 - **Build arg `DEV_MODE=true`**: Enables uvicorn's `--reload` flag for backend hot-reloading
-- **Image tags**: Dev builds tag as `palworld-server-viewer:dev`, production as `palworld-server-viewer:latest`
+- **Image tags**: Dev builds tag as `palworld-lens:dev`, production as `palworld-lens:latest`
 - **Auto-watch disabled**: Set to `false` in dev to allow instant uvicorn reloads (SSE connections prevent fast reloads)
 - **Frontend changes**: Instantly reflected - just refresh your browser
 - **Backend changes**: Auto-reloaded by uvicorn within 1-2 seconds

@@ -1,12 +1,12 @@
 services:
   viewer:
-    image: palworld-server-viewer:dev
+    image: palworld-lens:dev
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - DEV_MODE=true
-    container_name: palworld-server-viewer-dev
+    container_name: palworld-lens-dev
     ports:
       - "5175:80"
     volumes:
