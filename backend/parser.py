@@ -11,7 +11,7 @@ from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PR
 
 from backend.config import config
 from backend.logging_config import get_logger
-from backend.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, GuildBasePalsInfo, BaseInfo, SkillInfo
+from backend.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, SkillInfo
 
 logger = get_logger(__name__)
 
@@ -474,12 +474,15 @@ class SaveFileParser:
         # Pal count is total characters minus players
         pal_count = len(char_data) - player_count
         
+        # Count actual player guilds (not all guild-like groups)
+        actual_guilds = self.get_guilds()
+        
         return SaveInfo(
             world_name=world_name,
             loaded=True,
             level_path=str(self.level_sav_path) if self.level_sav_path else None,
             player_count=player_count,
-            guild_count=len(guild_data),
+            guild_count=len(actual_guilds),
             pal_count=pal_count,
             last_updated=self.last_load_time.isoformat() if self.last_load_time else None
         )
@@ -744,10 +747,176 @@ class SaveFileParser:
         
         return guilds
     
+    def _get_base_assignments(self) -> Dict[str, Dict[str, str]]:
+        """Get base assignment mapping for pals at bases.
+        
+        Returns dict mapping instance_id -> {base_id, guild_id, base_name}
+        """
+        if not self.loaded:
+            return {}
+        
+        # Get base data and extract WorkerDirector container IDs
+        base_camp_param = self.world_data.get("BaseCampSaveData", {})
+        base_data = base_camp_param.get("value", [])
+        
+        base_to_container = {}
+        base_to_guild = {}
+        base_to_name = {}
+        
+        for entry in base_data:
+            if not isinstance(entry, dict):
+                continue
+            
+            # Get base ID
+            key_data = entry.get("key")
+            if isinstance(key_data, dict):
+                base_id = key_data.get("value")
+            else:
+                base_id = str(key_data) if key_data else None
+            
+            if not base_id:
+                continue
+            
+            base_id = str(base_id)
+            
+            value_data = entry.get("value", {})
+            if not isinstance(value_data, dict):
+                continue
+            
+            # Get name and guild from RawData
+            raw_data = value_data.get("RawData", {})
+            if isinstance(raw_data, dict) and "value" in raw_data:
+                raw_val = raw_data["value"]
+                if isinstance(raw_val, dict):
+                    # Get name and clean up Japanese template names
+                    name = raw_val.get("name")
+                    if isinstance(name, dict):
+                        name = name.get("value")
+                    
+                    name_str = str(name) if name else ""
+                    
+                    # Store raw name - we'll assign sequential numbers later
+                    if "新規生成拠点テンプレート名" in name_str:
+                        base_to_name[base_id] = "template"
+                    elif not name_str.strip():
+                        base_to_name[base_id] = "unnamed"
+                    else:
+                        base_to_name[base_id] = name_str
+                    
+                    # Get guild
+                    guild_id = raw_val.get("group_id_belong_to")
+                    if isinstance(guild_id, dict):
+                        guild_id = guild_id.get("value") or guild_id.get("id")
+                    if guild_id:
+                        base_to_guild[base_id] = str(guild_id)
+            
+            # Get WorkerDirector container ID
+            worker_director = value_data.get("WorkerDirector", {})
+            if isinstance(worker_director, dict) and "value" in worker_director:
+                wd_value = worker_director["value"]
+                if isinstance(wd_value, dict) and "RawData" in wd_value:
+                    wd_raw = wd_value["RawData"]
+                    if isinstance(wd_raw, dict) and "value" in wd_raw:
+                        wd_raw_val = wd_raw["value"]
+                        if isinstance(wd_raw_val, dict):
+                            container_id = wd_raw_val.get("container_id")
+                            if isinstance(container_id, dict):
+                                container_id = container_id.get("value") or container_id.get("id")
+                            if container_id:
+                                base_to_container[base_id] = str(container_id)
+        
+        # Assign sequential base names within each guild
+        guild_bases = {}
+        for base_id in base_to_container.keys():
+            guild_id = base_to_guild.get(base_id)
+            if guild_id:
+                if guild_id not in guild_bases:
+                    guild_bases[guild_id] = []
+                guild_bases[guild_id].append(base_id)
+        
+        for guild_id, base_ids in guild_bases.items():
+            for i, base_id in enumerate(base_ids):
+                original_name = base_to_name.get(base_id, f"Base {base_id[:8]}")
+                if original_name in ["template", "unnamed"] or original_name.startswith("Base "):
+                    base_to_name[base_id] = f"Base {i + 1}"
+        
+        # Now map container IDs to pals
+        char_save_param = self.world_data.get("CharacterSaveParameterMap", {})
+        char_data = char_save_param.get("value", [])
+        
+        assignments = {}
+        
+        for entry in char_data:
+            if not isinstance(entry, dict):
+                continue
+            
+            value_data = entry.get("value", {})
+            if not isinstance(value_data, dict):
+                continue
+            
+            raw_data = value_data.get("RawData", {}).get("value", {})
+            if not isinstance(raw_data, dict):
+                continue
+            
+            save_param = raw_data.get("object", {}).get("SaveParameter", {}).get("value", {})
+            if not isinstance(save_param, dict):
+                continue
+            
+            # Skip players
+            is_player = save_param.get("IsPlayer", {})
+            if isinstance(is_player, dict):
+                is_player = is_player.get("value", False)
+            if is_player:
+                continue
+            
+            # Get instance ID
+            key_data = entry.get("key", {})
+            if isinstance(key_data, dict):
+                instance_id = key_data.get("InstanceId", {}).get("value")
+            else:
+                instance_id = str(key_data)
+            
+            if not instance_id:
+                continue
+            
+            # Get pal's container ID from SlotId
+            slot_id = save_param.get("SlotId", {})
+            if isinstance(slot_id, dict):
+                slot_id_value = slot_id.get("value", {})
+                if isinstance(slot_id_value, dict):
+                    pal_container_struct = slot_id_value.get("ContainerId", {})
+                    if isinstance(pal_container_struct, dict):
+                        pal_container_value = pal_container_struct.get("value", {})
+                        if isinstance(pal_container_value, dict):
+                            pal_container_id_struct = pal_container_value.get("ID", {})
+                            if isinstance(pal_container_id_struct, dict):
+                                pal_container_id = pal_container_id_struct.get("value")
+                                
+                                if pal_container_id:
+                                    pal_container_id = str(pal_container_id)
+                                    
+                                    # Find which base this container belongs to
+                                    for base_id, container_id in base_to_container.items():
+                                        if container_id == pal_container_id:
+                                            guild_id = base_to_guild.get(base_id)
+                                            base_name = base_to_name.get(base_id, f"Base {base_id[:8]}")
+                                            
+                                            assignments[str(instance_id)] = {
+                                                "base_id": base_id,
+                                                "guild_id": guild_id,
+                                                "base_name": base_name
+                                            }
+                                            break
+        
+        return assignments
+    
     def get_pals(self) -> List[PalInfo]:
         """Get list of all pals (non-player characters)"""
         if not self.loaded:
             return []
+        
+        # Get base assignments for pals at bases
+        base_assignments = self._get_base_assignments()
         
         char_data = self._get_character_data()
         pals = []
@@ -892,6 +1061,9 @@ class SaveFileParser:
             # Create rich work suitability display data
             work_suitability_display = self._get_work_suitability_display(work_suitability)
             
+            # Get base assignment if this pal is at a base
+            assignment = base_assignments.get(str(instance_id), {})
+            
             pal = PalInfo(
                 instance_id=str(instance_id),
                 character_id=str(char_id),
@@ -922,358 +1094,14 @@ class SaveFileParser:
                 work_suitability=work_suitability,
                 work_suitability_display=work_suitability_display,
                 is_lucky=get_val("IsRarePal", False),
-                is_boss=is_boss
+                is_boss=is_boss,
+                base_id=assignment.get("base_id"),
+                guild_id=assignment.get("guild_id"),
+                base_name=assignment.get("base_name")
             )
             pals.append(pal)
         
         return pals
     
-    def get_base_pals(self) -> List[GuildBasePalsInfo]:
-        """Get pals at guild bases using WorkerDirector container IDs"""
-        if not self.loaded:
-            return []
-        
-        guilds = self.get_guilds()
-        
-        # Get base data and extract WorkerDirector container IDs
-        base_camp_param = self.world_data.get("BaseCampSaveData", {})
-        base_data = base_camp_param.get("value", [])
-        
-        base_to_container = {}
-        base_to_guild = {}
-        base_to_name = {}
-        
-        for entry in base_data:
-            if not isinstance(entry, dict):
-                continue
-            
-            # Get base ID
-            key_data = entry.get("key")
-            if isinstance(key_data, dict):
-                base_id = key_data.get("value")
-            else:
-                base_id = str(key_data) if key_data else None
-            
-            if not base_id:
-                continue
-            
-            base_id = str(base_id)
-            
-            value_data = entry.get("value", {})
-            if not isinstance(value_data, dict):
-                continue
-            
-            # Get name and guild from RawData
-            raw_data = value_data.get("RawData", {})
-            if isinstance(raw_data, dict) and "value" in raw_data:
-                raw_val = raw_data["value"]
-                if isinstance(raw_val, dict):
-                    # Get name and clean up Japanese template names
-                    name = raw_val.get("name")
-                    if isinstance(name, dict):
-                        name = name.get("value")
-                    
-                    name_str = str(name) if name else ""
-                    
-                    # For now, just store the raw name - we'll assign sequential numbers later
-                    if "新規生成拠点テンプレート名" in name_str:
-                        # This is a template name, we'll replace it with sequential numbering
-                        base_to_name[base_id] = "template"
-                    elif not name_str.strip():
-                        base_to_name[base_id] = "unnamed"
-                    else:
-                        base_to_name[base_id] = name_str
-                    
-                    # Get guild
-                    guild_id = raw_val.get("group_id_belong_to")
-                    if isinstance(guild_id, dict):
-                        guild_id = guild_id.get("value") or guild_id.get("id")
-                    if guild_id:
-                        base_to_guild[base_id] = str(guild_id)
-            
-            # Get WorkerDirector container ID
-            worker_director = value_data.get("WorkerDirector", {})
-            if isinstance(worker_director, dict) and "value" in worker_director:
-                wd_value = worker_director["value"]
-                if isinstance(wd_value, dict) and "RawData" in wd_value:
-                    wd_raw = wd_value["RawData"]
-                    if isinstance(wd_raw, dict) and "value" in wd_raw:
-                        wd_raw_val = wd_raw["value"]
-                        if isinstance(wd_raw_val, dict):
-                            container_id = wd_raw_val.get("container_id")
-                            if isinstance(container_id, dict):
-                                container_id = container_id.get("value") or container_id.get("id")
-                            if container_id:
-                                base_to_container[base_id] = str(container_id)
-        
-        # Now find all pals that belong to these containers
-        char_save_param = self.world_data.get("CharacterSaveParameterMap", {})
-        char_data = char_save_param.get("value", [])
-        
-        base_to_pals = {base_id: [] for base_id in base_to_container.keys()}
-        
-        for entry in char_data:
-            if not isinstance(entry, dict):
-                continue
-            
-            value_data = entry.get("value", {})
-            if not isinstance(value_data, dict):
-                continue
-            
-            raw_data = value_data.get("RawData", {}).get("value", {})
-            if not isinstance(raw_data, dict):
-                continue
-            
-            save_param = raw_data.get("object", {}).get("SaveParameter", {}).get("value", {})
-            if not isinstance(save_param, dict):
-                continue
-            
-            # Skip players
-            is_player = save_param.get("IsPlayer", {})
-            if isinstance(is_player, dict):
-                is_player = is_player.get("value", False)
-            if is_player:
-                continue
-            
-            # Get pal's container ID from SlotId
-            slot_id = save_param.get("SlotId", {})
-            if isinstance(slot_id, dict):
-                # Path: SlotId.value.ContainerId.value.ID.value
-                slot_id_value = slot_id.get("value", {})
-                if isinstance(slot_id_value, dict):
-                    pal_container_struct = slot_id_value.get("ContainerId", {})
-                    if isinstance(pal_container_struct, dict):
-                        pal_container_value = pal_container_struct.get("value", {})
-                        if isinstance(pal_container_value, dict):
-                            pal_container_id_struct = pal_container_value.get("ID", {})
-                            if isinstance(pal_container_id_struct, dict):
-                                pal_container_id = pal_container_id_struct.get("value")
-                                
-                                if pal_container_id:
-                                    pal_container_id = str(pal_container_id)
-                                    
-                                    # Find which base this container belongs to
-                                    for base_id, container_id in base_to_container.items():
-                                        if container_id == pal_container_id:
-                                            # Extract pal info
-                                            char_id = save_param.get("CharacterID", {})
-                                            if isinstance(char_id, dict):
-                                                char_id = char_id.get("value", "Unknown")
-                                            
-                                            # Get instance_id from key
-                                            key_data = entry.get("key", {})
-                                            if isinstance(key_data, dict):
-                                                instance_id = key_data.get("InstanceId", {}).get("value")
-                                            else:
-                                                instance_id = str(key_data)
-                                            
-                                            if not instance_id:
-                                                continue
-                                            
-                                            # Helper function for extracting nested values
-                                            def get_val(key, default=None):
-                                                val = save_param.get(key)
-                                                if val is None:
-                                                    return default
-                                                if isinstance(val, dict) and "value" in val:
-                                                    val = val["value"]
-                                                    if isinstance(val, dict) and "value" in val:
-                                                        val = val["value"]
-                                                return val if val is not None else default
-                                            
-                                            # Get pal name - handle BOSS_ prefix for localization
-                                            lookup_id = char_id.replace("BOSS_", "") if char_id.startswith("BOSS_") else char_id
-                                            pal_name = self.pal_names.get(lookup_id, char_id)
-                                            
-                                            # Get gender
-                                            gender_data = save_param.get("Gender", {})
-                                            if isinstance(gender_data, dict):
-                                                gender_val = gender_data.get("value", {})
-                                                if isinstance(gender_val, dict):
-                                                    gender = gender_val.get("value", "Unknown")
-                                                else:
-                                                    gender = str(gender_val) if gender_val else "Unknown"
-                                            else:
-                                                gender = str(gender_data) if gender_data else "Unknown"
-                                            
-                                            # Clean up gender display (remove EPalGenderType:: prefix)
-                                            if gender.startswith("EPalGenderType::"):
-                                                gender = gender.replace("EPalGenderType::", "")
-                                            
-                                            # Get hunger and calculate percentage based on pal's max stomach
-                                            hunger_raw = get_val("FullStomach", 150.0)
-                                            if not isinstance(hunger_raw, (int, float)) or hunger_raw != hunger_raw:  # Check for NaN
-                                                hunger_raw = 150.0
-                                            
-                                            # Get pal-specific max stomach, default to 150 if not found
-                                            # Handle boss pals by removing BOSS_ prefix for lookup
-                                            lookup_id = char_id
-                                            if char_id.startswith("BOSS_"):
-                                                lookup_id = char_id[5:]  # Remove "BOSS_" prefix
-                                            max_stomach = self.pal_max_stomach.get(lookup_id, 150)
-                                            # Calculate hunger as percentage: (current / max) * 100, capped at 100%
-                                            hunger = min((hunger_raw / max_stomach) * 100, 100.0)
-                                            
-                                            # Get sanity - these are raw values typically 0-100
-                                            sanity = get_val("SanityValue", 100.0)
-                                            if not isinstance(sanity, (int, float)) or sanity != sanity:  # Check for NaN
-                                                sanity = 100.0
-                                            
-                                            # Determine if this is a boss pal (either from save data or BOSS_ prefix)
-                                            is_boss = get_val("IsBoss", False) or char_id.startswith("BOSS_")
-                                            
-                                            # Extract active skills from EquipWaza
-                                            active_skills = []
-                                            equip_waza = save_param.get("EquipWaza", {})
-                                            if isinstance(equip_waza, dict) and "value" in equip_waza:
-                                                waza_values = equip_waza["value"]
-                                                if isinstance(waza_values, dict) and "values" in waza_values:
-                                                    for skill in waza_values["values"]:
-                                                        skill_id = str(skill)
-                                                        # Look up full skill data
-                                                        skill_data = self.active_skill_data.get(skill_id, {})
-                                                        if skill_data:
-                                                            active_skills.append(SkillInfo(
-                                                                name=skill_data["name"],
-                                                                description=skill_data["description"]
-                                                            ))
-                                                        else:
-                                                            # Fallback for unknown skills
-                                                            skill_name = skill_id.replace("EPalWazaID::", "")
-                                                            active_skills.append(SkillInfo(
-                                                                name=skill_name,
-                                                                description=""
-                                                            ))
-                                            
-                                            # Extract passive skills from PassiveSkillList
-                                            passive_skills = []
-                                            passive_list = save_param.get("PassiveSkillList", {})
-                                            if isinstance(passive_list, dict) and "value" in passive_list:
-                                                passive_values = passive_list["value"]
-                                                if isinstance(passive_values, dict) and "values" in passive_values:
-                                                    for skill in passive_values["values"]:
-                                                        skill_id = str(skill)
-                                                        # Look up full skill data
-                                                        skill_data = self.passive_skill_data.get(skill_id, {})
-                                                        if skill_data:
-                                                            passive_skills.append(SkillInfo(
-                                                                name=skill_data["name"],
-                                                                description=skill_data["description"]
-                                                            ))
-                                                        else:
-                                                            # Fallback for unknown skills
-                                                            passive_skills.append(SkillInfo(
-                                                                name=skill_id,
-                                                                description=""
-                                                            ))
-                                            
-                                            # Get element types and work suitability from species data
-                                            element_types = []
-                                            work_suitability = {}
-                                            lookup_id = char_id.replace("BOSS_", "") if char_id.startswith("BOSS_") else char_id
-                                            species_data = self.pal_species_data.get(lookup_id, {})
-                                            if species_data:
-                                                element_types = species_data.get("element_types", [])
-                                                work_suitability = species_data.get("work_suitability", {})
-                                            
-                                            # Create rich work suitability display data
-                                            work_suitability_display = self._get_work_suitability_display(work_suitability)
-                                            
-                                            pal = PalInfo(
-                                                instance_id=str(instance_id),
-                                                character_id=str(char_id),
-                                                name=str(pal_name),
-                                                nickname=get_val("NickName"),
-                                                level=get_val("Level", 1),
-                                                exp=get_val("Exp", 0),
-                                                owner_uid=None,  # Base pals don't have owners
-                                                gender=gender,
-                                                hp=get_val("HP", 100),
-                                                max_hp=get_val("MaxHP", 100),
-                                                mp=get_val("MP"),
-                                                max_mp=get_val("MaxMP"),
-                                                hunger=hunger,
-                                                sanity=sanity,
-                                                rank=get_val("Rank", 1),
-                                                rank_hp=get_val("Rank_HP", 0),
-                                                rank_attack=get_val("Rank_Attack", 0),
-                                                rank_defense=get_val("Rank_Defense", 0),
-                                                rank_craftspeed=get_val("Rank_CraftSpeed", 0),
-                                                talent_hp=get_val("Talent_HP", 0),
-                                                talent_melee=get_val("Talent_Melee", 0),
-                                                talent_shot=get_val("Talent_Shot", 0),
-                                                talent_defense=get_val("Talent_Defense", 0),
-                                                active_skills=active_skills,
-                                                passive_skills=passive_skills,
-                                                element_types=element_types,
-                                                work_suitability=work_suitability,
-                                                work_suitability_display=work_suitability_display,
-                                                is_lucky=get_val("IsRarePal", False),
-                                                is_boss=is_boss
-                                            )
-                                            base_to_pals[base_id].append(pal)
-                                            break
-        
-        # Group bases by guild and assign sequential names
-        guild_bases = {}
-        for base_id, pals in base_to_pals.items():
-            if not pals:
-                continue
-            
-            guild_id = base_to_guild.get(base_id)
-            if not guild_id:
-                continue
-            
-            if guild_id not in guild_bases:
-                guild_bases[guild_id] = []
-            
-            # Get original name
-            original_name = base_to_name.get(base_id, f"Base {base_id[:8]}")
-            
-            guild_bases[guild_id].append({
-                "base_id": base_id,
-                "original_name": original_name,
-                "pals": pals
-            })
-        
-        # Assign sequential base names within each guild
-        for guild_id, bases_data in guild_bases.items():
-            for i, base_data in enumerate(bases_data):
-                # If it's a template name or unnamed, use sequential numbering
-                if base_data["original_name"] in ["template", "unnamed"] or base_data["original_name"].startswith("Base "):
-                    base_data["base_name"] = f"Base {i + 1}"
-                else:
-                    base_data["base_name"] = base_data["original_name"]
-        
-        # Build final result with bases separated
-        result = []
-        guild_map = {str(g.guild_id): g for g in guilds}
-        
-        for guild_id, bases_data in guild_bases.items():
-            guild = guild_map.get(guild_id)
-            if not guild:
-                continue
-            
-            # Create BaseInfo for each base
-            base_infos = []
-            for base_data in bases_data:
-                if base_data["pals"]:
-                    base_info = BaseInfo(
-                        base_id=base_data["base_id"],
-                        base_name=base_data["base_name"],
-                        pals=base_data["pals"]
-                    )
-                    base_infos.append(base_info)
-            
-            if base_infos:
-                guild_bases_info = GuildBasePalsInfo(
-                    guild_id=guild.guild_id,
-                    guild_name=guild.guild_name,
-                    bases=base_infos
-                )
-                result.append(guild_bases_info)
-        
-        return result
-
 # Global parser instance
 parser = SaveFileParser()

@@ -1,7 +1,6 @@
-version: '3.8'
-
 services:
   viewer:
+    image: palworld-server-viewer:latest
     build:
       context: .
       dockerfile: Dockerfile

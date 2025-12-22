@@ -397,6 +397,14 @@
                                         </svg>
                                     </div>
                                 </th>
+                                <th @click="sortBy('base')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center gap-1">
+                                        <span>Base</span>
+                                        <svg x-show="sortColumn === 'base'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
                                 <th @click="sortBy('owner')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>Owner</span>
@@ -459,6 +467,9 @@
                                             </div>
                                             <span class="text-xs" x-text="Math.round(pal.sanity) + '%'"></span>
                                         </div>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-400">
+                                        <span x-text="pal.base_name || '-'"></span>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-400">
                                         <span x-text="pal.owner_uid || 'None'"></span>
@@ -869,7 +880,6 @@
                 saveInfo: { loaded: false },
                 players: [],
                 pals: [],
-                basePals: [],
                 guilds: [],
                 bases: [],
                 loading: false,
@@ -1073,7 +1083,6 @@
                     this.saveInfo = data.info;
                     this.players = data.players || [];
                     this.pals = data.pals || [];
-                    this.basePals = data.bases || [];
                     this.guilds = data.guilds || [];
                     this.bases = data.bases || [];
                     this.loading = false;
@@ -1100,15 +1109,15 @@
                         
                         if (this.saveInfo.loaded) {
                             // Load all data in parallel
-                            const [playersRes, palsRes, basePalsRes] = await Promise.all([
+                            const [playersRes, palsRes, guildsRes] = await Promise.all([
                                 fetch('/api/players'),
                                 fetch('/api/pals'),
-                                fetch('/api/base-pals')
+                                fetch('/api/guilds')
                             ]);
                             
                             this.players = (await playersRes.json()).players;
                             this.pals = (await palsRes.json()).pals;
-                            this.basePals = (await basePalsRes.json()).bases;
+                            this.guilds = (await guildsRes.json()).guilds;
                             
                             this.error = null;
                         }
@@ -1141,6 +1150,46 @@
                 getPlayerName(uid) {
                     const player = this.players.find(p => p.uid === uid);
                     return player ? player.player_name : null;
+                },
+                
+                get basePals() {
+                    // Organize pals that are at bases into guild -> bases -> pals structure
+                    const basesPals = this.pals.filter(p => p.base_id);
+                    
+                    // Group by guild_id
+                    const guildMap = {};
+                    for (const pal of basesPals) {
+                        if (!guildMap[pal.guild_id]) {
+                            const guild = this.guilds.find(g => g.guild_id === pal.guild_id);
+                            guildMap[pal.guild_id] = {
+                                guild_id: pal.guild_id,
+                                guild_name: guild ? guild.guild_name : 'Unnamed Guild',
+                                bases: {}
+                            };
+                        }
+                        
+                        // Group by base_id within guild
+                        if (!guildMap[pal.guild_id].bases[pal.base_id]) {
+                            guildMap[pal.guild_id].bases[pal.base_id] = {
+                                base_id: pal.base_id,
+                                base_name: pal.base_name,
+                                pals: []
+                            };
+                        }
+                        
+                        guildMap[pal.guild_id].bases[pal.base_id].pals.push(pal);
+                    }
+                    
+                    // Convert to array format expected by template and sort bases by name
+                    return Object.values(guildMap).map(guild => ({
+                        ...guild,
+                        bases: Object.values(guild.bases).sort((a, b) => {
+                            // Extract number from "Base N" format for proper numeric sorting
+                            const numA = parseInt(a.base_name.match(/\d+/)?.[0] || '0');
+                            const numB = parseInt(b.base_name.match(/\d+/)?.[0] || '0');
+                            return numA - numB;
+                        })
+                    }));
                 },
                 
                 getGuildName(guildId) {
@@ -1211,6 +1260,10 @@
                                 // owner_uid is actually the player name, not a UID
                                 aVal = (a.owner_uid || 'No Owner').toLowerCase();
                                 bVal = (b.owner_uid || 'No Owner').toLowerCase();
+                                break;
+                            case 'base':
+                                aVal = (a.base_name || 'None').toLowerCase();
+                                bVal = (b.base_name || 'None').toLowerCase();
                                 break;
                             default:
                                 return 0;

@@ -1,50 +1,61 @@
-FROM python:3.11-slim
+# ===== BUILDER STAGE =====
+FROM docker.io/library/python:3.11-slim AS builder
 
-# Install nginx, supervisor, curl, git, and build tools (needed for compiling pyooz)
-RUN apt-get update && apt-get install -y \
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ===== RUNTIME STAGE =====
+FROM docker.io/library/python:3.11-slim
+
+# Build argument for development mode (default: false)
+ARG DEV_MODE=false
+
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
     curl \
-    git \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy application code
-COPY backend/ /app/backend/
+# Copy data files (always needed)
 COPY data/ /app/data/
+
+# Copy application code only in production mode
+# In dev mode, these will be mounted as volumes
+RUN if [ "$DEV_MODE" = "false" ]; then \
+    mkdir -p /app/backend /usr/share/nginx/html; \
+    fi
+
+COPY backend/ /app/backend/
 COPY frontend/ /usr/share/nginx/html/
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create supervisor configuration
-RUN echo "[supervisord]\n\
-nodaemon=true\n\
-user=root\n\
-\n\
-[program:nginx]\n\
-command=/usr/sbin/nginx -g 'daemon off;'\n\
-stdout_logfile=/dev/stdout\n\
-stdout_logfile_maxbytes=0\n\
-stderr_logfile=/dev/stderr\n\
-stderr_logfile_maxbytes=0\n\
-autorestart=true\n\
-\n\
-[program:backend]\n\
-command=python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000\n\
-directory=/app\n\
-stdout_logfile=/dev/stdout\n\
-stdout_logfile_maxbytes=0\n\
-stderr_logfile=/dev/stderr\n\
-stderr_logfile_maxbytes=0\n\
-autorestart=true" > /etc/supervisor/conf.d/supervisord.conf
+# Copy supervisor configurations and select the right one based on dev mode
+COPY supervisor/ /tmp/supervisor/
+RUN if [ "$DEV_MODE" = "true" ]; then \
+    cp /tmp/supervisor/supervisord.dev.conf /etc/supervisor/conf.d/supervisord.conf; \
+    else \
+    cp /tmp/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf; \
+    fi \
+    && rm -rf /tmp/supervisor
 
 # Create saves directory
 RUN mkdir -p /app/saves
