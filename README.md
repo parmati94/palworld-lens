@@ -40,13 +40,13 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
      - /home/<user>/.gamedata/palworld/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D:/app/saves:ro
    ```
 
-3. **Start the viewer:**
+3. **Start the application:**
    ```bash
    docker-compose up -d
    ```
    The image will be automatically pulled from Docker Hub on first run.
 
-4. **Access the viewer:**
+4. **Access the application:**
    Open your browser to `http://localhost:5175`
 
 ### Option 2: Building from Source
@@ -73,12 +73,12 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
    image: palworld-lens:local
    ```
 
-4. **Start the viewer:**
+4. **Start the application:**
    ```bash
    docker-compose up -d
    ```
 
-5. **Access the viewer:**
+5. **Access the application:**
    Open your browser to `http://localhost:5175`
 
 ## 📂 Directory Structure Expected
@@ -157,7 +157,7 @@ No container rebuilds needed for code changes during development!
 ## 🐛 Troubleshooting
 
 ### Container Management
-- **Stop the viewer:** `docker-compose down`
+- **Stop the application:** `docker-compose down`
 - **View logs:** `docker-compose logs -f`
 - **Rebuild:** `docker-compose up -d --build`
 
@@ -192,7 +192,7 @@ No container rebuilds needed for code changes during development!
 
 ## 🙏 Credits
 
-This viewer uses the [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-tools) library for parsing save files.
+This application uses the [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-tools) library for parsing save files.
 
 Based on concepts from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal) but streamlined for read-only viewing.
 
