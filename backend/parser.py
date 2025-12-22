@@ -474,12 +474,15 @@ class SaveFileParser:
         # Pal count is total characters minus players
         pal_count = len(char_data) - player_count
         
+        # Count actual player guilds (not all guild-like groups)
+        actual_guilds = self.get_guilds()
+        
         return SaveInfo(
             world_name=world_name,
             loaded=True,
             level_path=str(self.level_sav_path) if self.level_sav_path else None,
             player_count=player_count,
-            guild_count=len(guild_data),
+            guild_count=len(actual_guilds),
             pal_count=pal_count,
             last_updated=self.last_load_time.isoformat() if self.last_load_time else None
         )

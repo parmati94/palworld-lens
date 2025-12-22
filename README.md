@@ -99,29 +99,27 @@ environment:
 
 ## 🛠️ Development
 
-### Local Development (without Docker)
+For development, use the provided `docker-compose.dev.yml` which builds with `DEV_MODE=true` for hot-reloading:
 
-1. **Install Python dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+# Start development environment
+docker-compose -f docker-compose.dev.yml up --build
 
-2. **Set environment variables:**
-   ```bash
-   export SAVE_MOUNT_PATH=/path/to/saves
-   ```
+# View logs
+docker-compose -f docker-compose.dev.yml logs -f
 
-3. **Run the backend:**
-   ```bash
-   python -m uvicorn backend.main:app --reload
-   ```
+# Stop
+docker-compose -f docker-compose.dev.yml down
+```
 
-4. **Serve frontend:**
-   Open `frontend/index.html` in a browser, or use a simple HTTP server:
-   ```bash
-   cd frontend
-   python -m http.server 8080
-   ```
+**How it works:**
+- **Build arg `DEV_MODE=true`**: Enables uvicorn's `--reload` flag for backend hot-reloading
+- **Image tags**: Dev builds tag as `palworld-server-viewer:dev`, production as `palworld-server-viewer:latest`
+- **Auto-watch disabled**: Set to `false` in dev to allow instant uvicorn reloads (SSE connections prevent fast reloads)
+- **Frontend changes**: Instantly reflected - just refresh your browser
+- **Backend changes**: Auto-reloaded by uvicorn within 1-2 seconds
+
+No container rebuilds needed for code changes during development!
 
 ## 🐛 Troubleshooting
 

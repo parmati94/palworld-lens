@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Build argument for development mode (default: false)
+ARG DEV_MODE=false
+
 # Install nginx, supervisor, curl, git, and build tools (needed for compiling pyooz)
 RUN apt-get update && apt-get install -y \
     nginx \
@@ -16,35 +19,28 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY backend/ /app/backend/
+# Copy data files (always needed)
 COPY data/ /app/data/
+
+# Copy application code only in production mode
+# In dev mode, these will be mounted as volumes
+RUN if [ "$DEV_MODE" = "false" ]; then \
+    mkdir -p /app/backend /usr/share/nginx/html; \
+    fi
+
+COPY backend/ /app/backend/
 COPY frontend/ /usr/share/nginx/html/
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create supervisor configuration
-RUN echo "[supervisord]\n\
-nodaemon=true\n\
-user=root\n\
-\n\
-[program:nginx]\n\
-command=/usr/sbin/nginx -g 'daemon off;'\n\
-stdout_logfile=/dev/stdout\n\
-stdout_logfile_maxbytes=0\n\
-stderr_logfile=/dev/stderr\n\
-stderr_logfile_maxbytes=0\n\
-autorestart=true\n\
-\n\
-[program:backend]\n\
-command=python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000\n\
-directory=/app\n\
-stdout_logfile=/dev/stdout\n\
-stdout_logfile_maxbytes=0\n\
-stderr_logfile=/dev/stderr\n\
-stderr_logfile_maxbytes=0\n\
-autorestart=true" > /etc/supervisor/conf.d/supervisord.conf
+# Copy supervisor configurations and select the right one based on dev mode
+COPY supervisor/ /tmp/supervisor/
+RUN if [ "$DEV_MODE" = "true" ]; then \
+    cp /tmp/supervisor/supervisord.dev.conf /etc/supervisor/conf.d/supervisord.conf; \
+    else \
+    cp /tmp/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf; \
+    fi
 
 # Create saves directory
 RUN mkdir -p /app/saves
