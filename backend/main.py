@@ -127,7 +127,6 @@ async def watch_save_changes(request: Request):
                 players = parser.get_players()
                 pals = parser.get_pals()
                 guilds = parser.get_guilds()
-                bases = parser.get_base_pals()
                 save_info = parser.get_save_info()
                 
                 initial_data = {
@@ -135,7 +134,6 @@ async def watch_save_changes(request: Request):
                     "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
                     "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                     "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
-                    "bases": [b.model_dump() if hasattr(b, 'model_dump') else b for b in bases],
                 }
                 yield {
                     "event": "init",
@@ -163,7 +161,6 @@ async def watch_save_changes(request: Request):
                     players = parser.get_players()
                     pals = parser.get_pals()
                     guilds = parser.get_guilds()
-                    bases = parser.get_base_pals()
                     save_info = parser.get_save_info()
                     
                     updated_data = {
@@ -171,7 +168,6 @@ async def watch_save_changes(request: Request):
                         "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
                         "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                         "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
-                        "bases": [b.model_dump() if hasattr(b, 'model_dump') else b for b in bases],
                     }
                     yield {
                         "event": "update",
