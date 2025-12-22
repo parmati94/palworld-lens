@@ -900,33 +900,23 @@
                     // Load work suitability mappings
                     await this.loadWorkSuitability();
                     
-                    // Check auto-watch status
+                    // Check auto-watch status from backend
                     await this.checkWatchStatus();
                     
-                    // Load saved preference from localStorage
-                    const savedPreference = localStorage.getItem('autoWatchEnabled');
-                    const preferEnabled = savedPreference === null ? true : savedPreference === 'true';
-                    
                     console.log('🔍 Init state:', { 
-                        preferEnabled, 
                         autoWatchAllowed: this.autoWatchAllowed, 
                         autoWatchActive: this.autoWatchActive 
                     });
                     
-                    // If auto-watch is already active on backend, connect to it regardless of user preference
-                    // (the backend was configured to start it, so we should use it)
+                    // If auto-watch is already active on backend, connect to it
                     if (this.autoWatchActive) {
                         console.log('📡 Auto-watch already active on backend, connecting SSE...');
                         this.connectSSE();
                     }
-                    // Otherwise, check user preference
-                    else if (preferEnabled && this.autoWatchAllowed) {
-                        console.log('📞 Starting auto-watch per user preference...');
-                        await this.startAutoWatch();
-                    } 
-                    // Fall back to manual loading
+                    // If allowed but not active, respect the backend state (don't auto-start)
+                    // User must manually enable it via the toggle
                     else {
-                        console.log('📂 Loading data manually (preferEnabled:', preferEnabled, 'allowed:', this.autoWatchAllowed, ')');
+                        console.log('📂 Loading data manually (auto-watch not active on backend)');
                         this.loadAllData();
                     }
                     
