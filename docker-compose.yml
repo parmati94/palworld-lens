@@ -2,16 +2,14 @@ version: '3.8'
 
 services:
   viewer:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: palworld-save-viewer
+    image: palworld-server-viewer:latest
+    container_name: palworld-server-viewer
     ports:
       - "5175:80"
     volumes:
       # ⚠️ REPLACE THIS PATH with your actual Palworld save directory
       # Example: - /home/<user>/palworld/Pal/Saved/SaveGames/0/YOUR-WORLD-ID:/app/saves:ro
-      - ./saves:/app/saves:ro
+      - /home/paul/.gamedata/palworld/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D:/app/saves:ro
     environment:
       - SAVE_MOUNT_PATH=/app/saves
       - ENABLE_AUTO_WATCH=true
