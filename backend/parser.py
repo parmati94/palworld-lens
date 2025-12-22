@@ -1,5 +1,6 @@
 """Save file parser - wraps palworld-save-tools library"""
 import json
+import logging
 from pathlib import Path
 from typing import Optional, Dict, List, Any
 from datetime import datetime
@@ -24,6 +25,7 @@ class SaveFileParser:
         self.world_data: Optional[Dict] = None
         self.loaded = False
         self.last_load_time: Optional[datetime] = None
+        self.world_name: Optional[str] = None  # Cached world name from LevelMeta.sav
         self.pal_names: Dict[str, str] = {}
         self.pal_max_stomach: Dict[str, int] = {}  # Maps pal character_id to max stomach
         self.player_uid_to_instance: Dict[str, str] = {}  # Maps PlayerUId to instance_id
@@ -43,7 +45,7 @@ class SaveFileParser:
                     for pal_id, pal_info in data.items():
                         if isinstance(pal_info, dict):
                             self.pal_names[pal_id] = pal_info.get("localized_name", pal_id)
-                logger.info(f"Loaded {len(self.pal_names)} pal names")
+                logger.debug(f"Loaded {len(self.pal_names)} pal names")
             else:
                 logger.warning(f"Pal names file not found: {pals_json}")
         except Exception as e:
@@ -61,7 +63,7 @@ class SaveFileParser:
                     for pal_id, pal_info in data.items():
                         if isinstance(pal_info, dict) and "max_full_stomach" in pal_info:
                             self.pal_max_stomach[pal_id] = pal_info["max_full_stomach"]
-                logger.info(f"Loaded max stomach data for {len(self.pal_max_stomach)} pals")
+                logger.debug(f"Loaded max stomach data for {len(self.pal_max_stomach)} pals")
             else:
                 logger.warning(f"Pal data file not found: {pals_json}")
         except Exception as e:
@@ -92,6 +94,22 @@ class SaveFileParser:
             
             self.gvas_data = gvas_file.properties
             self.world_data = self.gvas_data.get("worldSaveData", {}).get("value", {})
+            
+            # Read and cache world name from LevelMeta.sav (only once per load)
+            try:
+                level_meta_path = self.level_sav_path.parent / "LevelMeta.sav"
+                if level_meta_path.exists():
+                    with open(level_meta_path, "rb") as f:
+                        meta_data = f.read()
+                    raw_meta_gvas, _ = decompress_sav_to_gvas(meta_data)
+                    meta_gvas_file = GvasFile.read(raw_meta_gvas, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES)
+                    save_data = meta_gvas_file.properties.get("SaveData", {}).get("value", {})
+                    world_name_data = save_data.get("WorldName", {})
+                    if isinstance(world_name_data, dict) and "value" in world_name_data:
+                        self.world_name = world_name_data["value"]
+                        logger.debug(f"Cached world name from LevelMeta.sav: {self.world_name}")
+            except Exception as e:
+                logger.debug(f"Could not cache world name from LevelMeta.sav: {e}")
             
             self.loaded = True
             self.last_load_time = datetime.now()
@@ -193,7 +211,7 @@ class SaveFileParser:
                                 # Store in mapping
                                 self.player_uid_to_containers[player_uid] = {"name": player_name, "containers": container_ids, "instance_id": individual_id}
                                 self.player_names[player_uid] = player_name
-                                logger.info(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
+                                logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
                 except Exception as e:
                     logger.warning(f"Failed to read player .sav {player_sav.name}: {e}")
         
@@ -263,9 +281,9 @@ class SaveFileParser:
                                                             if player_uid in self.player_uid_to_containers:
                                                                 self.player_uid_to_containers[player_uid]["containers"].append(container_id_str)
                                                                 player_name = self.player_uid_to_containers[player_uid]["name"]
-                                                                logger.info(f"  -> Added base worker container for {player_name}")
+                                                                logger.debug(f"  -> Added base worker container for {player_name}")
         
-        logger.info(f"Built player mapping: {len(self.player_names)} total players with containers")
+        logger.info(f"Mapped {len(self.player_names)} players with containers")
     
     def _build_pal_ownership(self):
         """Build mapping from pal instance_id to owner by reading player .sav files and their containers"""
@@ -317,7 +335,7 @@ class SaveFileParser:
                                 if pal_ids:
                                     container_map[container_id] = pal_ids
         
-        logger.info(f"Found {len(container_map)} containers with pals")
+        logger.debug(f"Found {len(container_map)} containers with pals")
         
         # Map pals to players using the container lists we already built
         for player_uid, player_data in self.player_uid_to_containers.items():
@@ -331,16 +349,17 @@ class SaveFileParser:
                         self.pal_to_owner[pal_id] = player_name
                         pal_count += 1
             
-            logger.info(f"Player {player_name}: {pal_count} pals in {len(player_containers)} containers")
+            logger.debug(f"Player {player_name}: {pal_count} pals in {len(player_containers)} containers")
         
-        logger.info(f"Built pal ownership: {len(self.pal_to_owner)} pals mapped to owners")
+        logger.info(f"Loaded {len(self.pal_to_owner)} pals across all players")
     
     def get_save_info(self) -> SaveInfo:
         """Get basic save file information"""
         if not self.loaded:
             return SaveInfo(world_name="Not Loaded", loaded=False)
         
-        world_name = "Unknown World"
+        # Use cached world name if available, otherwise default
+        world_name = self.world_name or "My World"
         
         # Simplify - just count the data
         char_data = self._get_character_data()
