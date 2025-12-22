@@ -11,7 +11,7 @@ from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PR
 
 from backend.config import config
 from backend.logging_config import get_logger
-from backend.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, GuildBasePalsInfo, BaseInfo
+from backend.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, GuildBasePalsInfo, BaseInfo, SkillInfo
 
 logger = get_logger(__name__)
 
@@ -30,8 +30,15 @@ class SaveFileParser:
         self.pal_max_stomach: Dict[str, int] = {}  # Maps pal character_id to max stomach
         self.player_uid_to_instance: Dict[str, str] = {}  # Maps PlayerUId to instance_id
         self.player_names: Dict[str, str] = {}  # Maps PlayerUId to player names
+        self.pal_species_data: Dict[str, Dict] = {}  # Maps character_id to full species data
+        self.active_skill_names: Dict[str, str] = {}  # Maps EPalWazaID to localized name
+        self.passive_skill_names: Dict[str, str] = {}  # Maps passive skill ID to localized name
+        self.work_suitability_names: Dict[str, str] = {}  # Maps work suitability ID to localized name
+        self.active_skill_data: Dict[str, Dict] = {}  # Maps EPalWazaID to full skill data (name + description)
+        self.passive_skill_data: Dict[str, Dict] = {}  # Maps passive skill ID to full skill data (name + description)
         self._load_pal_names()
         self._load_pal_data()
+        self._load_skill_names()
     
     def _load_pal_names(self):
         """Load pal name mappings from JSON"""
@@ -59,6 +66,8 @@ class SaveFileParser:
             if pals_json.exists():
                 with open(pals_json, 'r') as f:
                     data = json.load(f)
+                    # Store full species data
+                    self.pal_species_data = data
                     # Extract max_full_stomach for each pal
                     for pal_id, pal_info in data.items():
                         if isinstance(pal_info, dict) and "max_full_stomach" in pal_info:
@@ -68,6 +77,99 @@ class SaveFileParser:
                 logger.warning(f"Pal data file not found: {pals_json}")
         except Exception as e:
             logger.warning(f"Could not load pal data: {e}")
+    
+    def _load_skill_names(self):
+        """Load localized skill names and descriptions from JSON"""
+        try:
+            # Load active skill data
+            active_skills_json = config.DATA_PATH / "json" / "l10n" / "en" / "active_skills.json"
+            if active_skills_json.exists():
+                with open(active_skills_json, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for skill_id, skill_data in data.items():
+                        if isinstance(skill_data, dict):
+                            # Store full data (name + description)
+                            self.active_skill_data[skill_id] = {
+                                "name": skill_data.get("localized_name", skill_id),
+                                "description": skill_data.get("description", "")
+                            }
+                            # Keep backward compatibility with name-only dict
+                            if "localized_name" in skill_data:
+                                self.active_skill_names[skill_id] = skill_data["localized_name"]
+                logger.debug(f"Loaded {len(self.active_skill_names)} active skill names")
+            
+            # Load passive skill data
+            passive_skills_json = config.DATA_PATH / "json" / "l10n" / "en" / "passive_skills.json"
+            if passive_skills_json.exists():
+                with open(passive_skills_json, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for skill_id, skill_data in data.items():
+                        if isinstance(skill_data, dict):
+                            # Store full data (name + description)
+                            self.passive_skill_data[skill_id] = {
+                                "name": skill_data.get("localized_name", skill_id),
+                                "description": skill_data.get("description", "")
+                            }
+                            # Keep backward compatibility with name-only dict
+                            if "localized_name" in skill_data:
+                                self.passive_skill_names[skill_id] = skill_data["localized_name"]
+                logger.debug(f"Loaded {len(self.passive_skill_names)} passive skill names")
+
+            # Load work suitability data
+            work_suitability_json = config.DATA_PATH / "json" / "l10n" / "en" / "work_suitability.json"
+            if work_suitability_json.exists():
+                with open(work_suitability_json, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for work_id, work_data in data.items():
+                        if isinstance(work_data, dict) and "localized_name" in work_data:
+                            self.work_suitability_names[work_id] = work_data["localized_name"]
+                logger.debug(f"Loaded {len(self.work_suitability_names)} work suitability names")
+        except Exception as e:
+            logger.warning(f"Could not load skill names: {e}")
+    
+    def _get_work_suitability_display(self, work_suitability: Dict[str, int]) -> List[Dict[str, Any]]:
+        """Convert work suitability dict to rich display data with names, icons, and color-coded levels"""
+        # Map work types to their icon numbers (based on research icons)
+        work_icon_mapping = {
+            "EmitFlame": "00",       # Kindling
+            "Watering": "01",        # Watering  
+            "Seeding": "02",         # Planting
+            "GenerateElectricity": "03", # Generating Electricity
+            "Handcraft": "04",       # Handiwork
+            "Collection": "05",      # Gathering
+            "Deforest": "06",        # Lumbering
+            "Mining": "07",          # Mining
+            "ProductMedicine": "08", # Medicine Production
+            "Cool": "09",            # Cooling
+            "Transport": "10",       # Transporting (box icon)
+            "MonsterFarm": "11",     # Farming
+        }
+        
+        # Level color mapping (1=common, 5=very rare)
+        level_colors = {
+            1: "#9ca3af",  # gray-400
+            2: "#22c55e",  # green-500
+            3: "#3b82f6",  # blue-500
+            4: "#8b5cf6",  # violet-500
+            5: "#f59e0b",  # amber-500
+        }
+        
+        display_data = []
+        for work_type, level in work_suitability.items():
+            if level > 0:
+                display_name = self.work_suitability_names.get(work_type, work_type)
+                icon_num = work_icon_mapping.get(work_type, "00")
+                color = level_colors.get(level, "#9ca3af")
+                
+                display_data.append({
+                    "type": work_type,
+                    "name": display_name,
+                    "level": level,
+                    "icon": f"t_icon_research_palwork_{icon_num}_0",
+                    "color": color
+                })
+        
+        return display_data
         
     def load(self) -> bool:
         """Load save files from mounted directory"""
@@ -718,6 +820,78 @@ class SaveFileParser:
             # Determine if this is a boss pal (either from save data or BOSS_ prefix)
             is_boss = get_val("IsBoss", False) or char_id.startswith("BOSS_")
             
+            # DEBUG: Log all fields for ChickiPi to understand data structure
+            if "ChickiPi" in char_id:
+                logger.info(f"=== DEBUG ChickiPi Data ===")
+                logger.info(f"CharacterID: {char_id}")
+                logger.info(f"IsBoss field: {get_val('IsBoss', 'NOT_FOUND')}")
+                logger.info(f"IsRarePal field: {get_val('IsRarePal', 'NOT_FOUND')}")
+                logger.info(f"Rank: {get_val('Rank', 'NOT_FOUND')}")
+                logger.info(f"Level: {get_val('Level', 'NOT_FOUND')}")
+                # Log other potential alpha indicators
+                for field in ['IsAlpha', 'AlphaPal', 'IsSpecial', 'SpecialPal', 'BossType', 'PalType', 'PalVariant']:
+                    logger.info(f"{field}: {get_val(field, 'NOT_FOUND')}")
+                # Log all available keys to see what we're working with
+                logger.info(f"Available keys: {list(char_info.keys())[:20]}...")  # First 20 keys
+                logger.info(f"=== END ChickiPi Data ===")
+            
+            
+            # Extract active skills from EquipWaza
+            active_skills = []
+            equip_waza = char_info.get("EquipWaza", {})
+            if isinstance(equip_waza, dict) and "value" in equip_waza:
+                waza_values = equip_waza["value"]
+                if isinstance(waza_values, dict) and "values" in waza_values:
+                    for skill in waza_values["values"]:
+                        skill_id = str(skill)
+                        # Look up full skill data
+                        skill_data = self.active_skill_data.get(skill_id, {})
+                        if skill_data:
+                            active_skills.append(SkillInfo(
+                                name=skill_data["name"],
+                                description=skill_data["description"]
+                            ))
+                        else:
+                            # Fallback for unknown skills
+                            skill_name = skill_id.replace("EPalWazaID::", "")
+                            active_skills.append(SkillInfo(
+                                name=skill_name,
+                                description=""
+                            ))
+            
+            # Extract passive skills from PassiveSkillList
+            passive_skills = []
+            passive_list = char_info.get("PassiveSkillList", {})
+            if isinstance(passive_list, dict) and "value" in passive_list:
+                passive_values = passive_list["value"]
+                if isinstance(passive_values, dict) and "values" in passive_values:
+                    for skill in passive_values["values"]:
+                        skill_id = str(skill)
+                        # Look up full skill data
+                        skill_data = self.passive_skill_data.get(skill_id, {})
+                        if skill_data:
+                            passive_skills.append(SkillInfo(
+                                name=skill_data["name"],
+                                description=skill_data["description"]
+                            ))
+                        else:
+                            # Fallback for unknown skills
+                            passive_skills.append(SkillInfo(
+                                name=skill_id,
+                                description=""
+                            ))
+            
+            # Get element types and work suitability from species data
+            element_types = []
+            work_suitability = {}
+            species_data = self.pal_species_data.get(lookup_id, {})
+            if species_data:
+                element_types = species_data.get("element_types", [])
+                work_suitability = species_data.get("work_suitability", {})
+            
+            # Create rich work suitability display data
+            work_suitability_display = self._get_work_suitability_display(work_suitability)
+            
             pal = PalInfo(
                 instance_id=str(instance_id),
                 character_id=str(char_id),
@@ -738,6 +912,15 @@ class SaveFileParser:
                 rank_attack=get_val("Rank_Attack", 0),
                 rank_defense=get_val("Rank_Defense", 0),
                 rank_craftspeed=get_val("Rank_CraftSpeed", 0),
+                talent_hp=get_val("Talent_HP", 0),
+                talent_melee=get_val("Talent_Melee", 0),
+                talent_shot=get_val("Talent_Shot", 0),
+                talent_defense=get_val("Talent_Defense", 0),
+                active_skills=active_skills,
+                passive_skills=passive_skills,
+                element_types=element_types,
+                work_suitability=work_suitability,
+                work_suitability_display=work_suitability_display,
                 is_lucky=get_val("IsRarePal", False),
                 is_boss=is_boss
             )
@@ -939,6 +1122,63 @@ class SaveFileParser:
                                             # Determine if this is a boss pal (either from save data or BOSS_ prefix)
                                             is_boss = get_val("IsBoss", False) or char_id.startswith("BOSS_")
                                             
+                                            # Extract active skills from EquipWaza
+                                            active_skills = []
+                                            equip_waza = save_param.get("EquipWaza", {})
+                                            if isinstance(equip_waza, dict) and "value" in equip_waza:
+                                                waza_values = equip_waza["value"]
+                                                if isinstance(waza_values, dict) and "values" in waza_values:
+                                                    for skill in waza_values["values"]:
+                                                        skill_id = str(skill)
+                                                        # Look up full skill data
+                                                        skill_data = self.active_skill_data.get(skill_id, {})
+                                                        if skill_data:
+                                                            active_skills.append(SkillInfo(
+                                                                name=skill_data["name"],
+                                                                description=skill_data["description"]
+                                                            ))
+                                                        else:
+                                                            # Fallback for unknown skills
+                                                            skill_name = skill_id.replace("EPalWazaID::", "")
+                                                            active_skills.append(SkillInfo(
+                                                                name=skill_name,
+                                                                description=""
+                                                            ))
+                                            
+                                            # Extract passive skills from PassiveSkillList
+                                            passive_skills = []
+                                            passive_list = save_param.get("PassiveSkillList", {})
+                                            if isinstance(passive_list, dict) and "value" in passive_list:
+                                                passive_values = passive_list["value"]
+                                                if isinstance(passive_values, dict) and "values" in passive_values:
+                                                    for skill in passive_values["values"]:
+                                                        skill_id = str(skill)
+                                                        # Look up full skill data
+                                                        skill_data = self.passive_skill_data.get(skill_id, {})
+                                                        if skill_data:
+                                                            passive_skills.append(SkillInfo(
+                                                                name=skill_data["name"],
+                                                                description=skill_data["description"]
+                                                            ))
+                                                        else:
+                                                            # Fallback for unknown skills
+                                                            passive_skills.append(SkillInfo(
+                                                                name=skill_id,
+                                                                description=""
+                                                            ))
+                                            
+                                            # Get element types and work suitability from species data
+                                            element_types = []
+                                            work_suitability = {}
+                                            lookup_id = char_id.replace("BOSS_", "") if char_id.startswith("BOSS_") else char_id
+                                            species_data = self.pal_species_data.get(lookup_id, {})
+                                            if species_data:
+                                                element_types = species_data.get("element_types", [])
+                                                work_suitability = species_data.get("work_suitability", {})
+                                            
+                                            # Create rich work suitability display data
+                                            work_suitability_display = self._get_work_suitability_display(work_suitability)
+                                            
                                             pal = PalInfo(
                                                 instance_id=str(instance_id),
                                                 character_id=str(char_id),
@@ -959,6 +1199,15 @@ class SaveFileParser:
                                                 rank_attack=get_val("Rank_Attack", 0),
                                                 rank_defense=get_val("Rank_Defense", 0),
                                                 rank_craftspeed=get_val("Rank_CraftSpeed", 0),
+                                                talent_hp=get_val("Talent_HP", 0),
+                                                talent_melee=get_val("Talent_Melee", 0),
+                                                talent_shot=get_val("Talent_Shot", 0),
+                                                talent_defense=get_val("Talent_Defense", 0),
+                                                active_skills=active_skills,
+                                                passive_skills=passive_skills,
+                                                element_types=element_types,
+                                                work_suitability=work_suitability,
+                                                work_suitability_display=work_suitability_display,
                                                 is_lucky=get_val("IsRarePal", False),
                                                 is_boss=is_boss
                                             )

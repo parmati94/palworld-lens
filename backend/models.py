@@ -3,6 +3,11 @@ from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, computed_field
 from enum import Enum
 
+class SkillInfo(BaseModel):
+    """Skill information with name and description"""
+    name: str
+    description: Optional[str] = None
+
 class PalGender(str, Enum):
     """Pal gender"""
     MALE = "Male"
@@ -44,8 +49,11 @@ class PalInfo(BaseModel):
     talent_melee: int = 0
     talent_shot: int = 0
     talent_defense: int = 0
-    passive_skills: List[str] = []
-    active_skills: List[str] = []
+    passive_skills: List[SkillInfo] = []
+    active_skills: List[SkillInfo] = []
+    element_types: List[str] = []
+    work_suitability: Dict[str, int] = {}
+    work_suitability_display: List[Dict[str, Any]] = []  # Rich work suitability data with names, icons, levels
     is_lucky: bool = False
     is_boss: bool = False
     
@@ -58,8 +66,8 @@ class PalInfo(BaseModel):
     
     @computed_field
     def is_alpha(self) -> bool:
-        """Returns true if this is an alpha pal (boss or lucky)"""
-        return self.is_boss or self.is_lucky
+        """Returns true if this is an alpha pal (boss only, not lucky - wild pals can't be both)"""
+        return self.is_boss and not self.is_lucky
     
     @computed_field
     def image_id(self) -> str:
