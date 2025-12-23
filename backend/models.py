@@ -2,6 +2,13 @@
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, computed_field
 from enum import Enum
+from backend.constants import (
+    CONDITION_DISPLAY_NAMES,
+    CONDITION_DESCRIPTIONS,
+    WORK_SUITABILITY_NAMES,
+    WORK_ICON_MAPPING,
+    WORK_LEVEL_COLORS,
+)
 
 class SkillInfo(BaseModel):
     """Skill information with name and description"""
@@ -56,13 +63,57 @@ class PalInfo(BaseModel):
     active_skills: List[SkillInfo] = []
     element_types: List[str] = []
     work_suitability: Dict[str, int] = {}
-    work_suitability_display: List[Dict[str, Any]] = []  # Rich work suitability data with names, icons, levels
     is_lucky: bool = False
     is_boss: bool = False
     # Base assignment fields (only set for pals at bases)
     base_id: Optional[str] = None
     guild_id: Optional[str] = None
     base_name: Optional[str] = None
+    # Condition/status fields
+    condition: Optional[str] = None  # WorkerSick condition (e.g., "Sick", "Sprain", "Bulimia", etc.)
+    hunger_type: Optional[str] = None  # HungerType status (e.g., "Hunger")
+    
+    @computed_field
+    def condition_display(self) -> Optional[str]:
+        """Get user-friendly condition name for UI"""
+        if not self.condition:
+            return None
+        
+        # Return mapped value if exists, otherwise return the raw condition name
+        # This allows unknown conditions to still display
+        return CONDITION_DISPLAY_NAMES.get(self.condition, self.condition)
+    
+    @computed_field
+    def condition_description(self) -> Optional[str]:
+        """Get detailed description of condition including effects and cure"""
+        # Handle hunger type
+        if self.hunger_type == "Hunger":
+            return "Pal needs food urgently"
+        
+        if not self.condition:
+            return None
+        
+        return CONDITION_DESCRIPTIONS.get(self.condition, self.condition)
+    
+    @computed_field
+    def work_suitability_display(self) -> List[Dict[str, Any]]:
+        """Convert work suitability dict to rich display data with names, icons, and color-coded levels"""
+        display_data = []
+        for work_type, level in self.work_suitability.items():
+            if level > 0:
+                display_name = WORK_SUITABILITY_NAMES.get(work_type, work_type)
+                icon_num = WORK_ICON_MAPPING.get(work_type, "00")
+                color = WORK_LEVEL_COLORS.get(level, "#9ca3af")
+                
+                display_data.append({
+                    "type": work_type,
+                    "name": display_name,
+                    "level": level,
+                    "icon": f"t_icon_research_palwork_{icon_num}_0",
+                    "color": color
+                })
+        
+        return display_data
     
     @computed_field
     def display_name(self) -> str:

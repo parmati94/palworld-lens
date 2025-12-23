@@ -12,6 +12,7 @@ from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PR
 from backend.config import config
 from backend.logging_config import get_logger
 from backend.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, SkillInfo
+from backend.constants import WORK_ICON_MAPPING, WORK_LEVEL_COLORS
 
 logger = get_logger(__name__)
 
@@ -126,50 +127,6 @@ class SaveFileParser:
                 logger.debug(f"Loaded {len(self.work_suitability_names)} work suitability names")
         except Exception as e:
             logger.warning(f"Could not load skill names: {e}")
-    
-    def _get_work_suitability_display(self, work_suitability: Dict[str, int]) -> List[Dict[str, Any]]:
-        """Convert work suitability dict to rich display data with names, icons, and color-coded levels"""
-        # Map work types to their icon numbers (based on research icons)
-        work_icon_mapping = {
-            "EmitFlame": "00",       # Kindling
-            "Watering": "01",        # Watering  
-            "Seeding": "02",         # Planting
-            "GenerateElectricity": "03", # Generating Electricity
-            "Handcraft": "04",       # Handiwork
-            "Collection": "05",      # Gathering
-            "Deforest": "06",        # Lumbering
-            "Mining": "07",          # Mining
-            "ProductMedicine": "08", # Medicine Production
-            "Cool": "09",            # Cooling
-            "Transport": "10",       # Transporting (box icon)
-            "MonsterFarm": "11",     # Farming
-        }
-        
-        # Level color mapping (1=common, 5=very rare)
-        level_colors = {
-            1: "#9ca3af",  # gray-400
-            2: "#22c55e",  # green-500
-            3: "#3b82f6",  # blue-500
-            4: "#8b5cf6",  # violet-500
-            5: "#f59e0b",  # amber-500
-        }
-        
-        display_data = []
-        for work_type, level in work_suitability.items():
-            if level > 0:
-                display_name = self.work_suitability_names.get(work_type, work_type)
-                icon_num = work_icon_mapping.get(work_type, "00")
-                color = level_colors.get(level, "#9ca3af")
-                
-                display_data.append({
-                    "type": work_type,
-                    "name": display_name,
-                    "level": level,
-                    "icon": f"t_icon_research_palwork_{icon_num}_0",
-                    "color": color
-                })
-        
-        return display_data
         
     def load(self) -> bool:
         """Load save files from mounted directory"""
@@ -1081,11 +1038,33 @@ class SaveFileParser:
                 element_types = species_data.get("element_types", [])
                 work_suitability = species_data.get("work_suitability", {})
             
-            # Create rich work suitability display data
-            work_suitability_display = self._get_work_suitability_display(work_suitability)
-            
             # Get base assignment if this pal is at a base
             assignment = base_assignments.get(str(instance_id), {})
+            
+            # Extract condition/status data
+            condition = None
+            worker_sick = char_info.get("WorkerSick", {})
+            if isinstance(worker_sick, dict) and "value" in worker_sick:
+                sick_value = worker_sick["value"]
+                if isinstance(sick_value, dict) and "value" in sick_value:
+                    condition_full = sick_value["value"]
+                    # Extract just the condition name (e.g., "EPalBaseCampWorkerSickType::Bulimia" -> "Bulimia")
+                    if isinstance(condition_full, str) and "::" in condition_full:
+                        condition = condition_full.split("::")[-1]
+                        # Don't set condition if it's "None"
+                        if condition == "None":
+                            condition = None
+            
+            # Extract hunger type
+            hunger_type = None
+            hunger_type_data = char_info.get("HungerType", {})
+            if isinstance(hunger_type_data, dict) and "value" in hunger_type_data:
+                hunger_value = hunger_type_data["value"]
+                if isinstance(hunger_value, dict) and "value" in hunger_value:
+                    hunger_full = hunger_value["value"]
+                    # Extract just the type name (e.g., "EPalStatusHungerType::Hunger" -> "Hunger")
+                    if isinstance(hunger_full, str) and "::" in hunger_full:
+                        hunger_type = hunger_full.split("::")[-1]
             
             pal = PalInfo(
                 instance_id=str(instance_id),
@@ -1115,12 +1094,13 @@ class SaveFileParser:
                 passive_skills=passive_skills,
                 element_types=element_types,
                 work_suitability=work_suitability,
-                work_suitability_display=work_suitability_display,
                 is_lucky=get_val("IsRarePal", False),
                 is_boss=is_boss,
                 base_id=assignment.get("base_id"),
                 guild_id=assignment.get("guild_id"),
-                base_name=assignment.get("base_name")
+                base_name=assignment.get("base_name"),
+                condition=condition,
+                hunger_type=hunger_type
             )
             pals.append(pal)
         

@@ -102,6 +102,7 @@ environment:
   - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves
   - ENABLE_AUTO_WATCH=true             # Enable automatic file watching for live updates on backend.  Can still be toggled on/off on UI as long as this is set to true.
   - LOG_LEVEL=INFO                     # Logging level: DEBUG, INFO, WARNING, ERROR
+  - TZ=America/New_York                # Your local timezone (e.g., America/Los_Angeles, Europe/London, Asia/Tokyo, etc.)
 ```
 
 **Auto-Watch**: When enabled, the viewer automatically detects save file changes and pushes updates to the browser in real-time via Server-Sent Events (SSE). The toggle can be controlled from the frontend UI.
