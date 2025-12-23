@@ -72,6 +72,30 @@ def _extract_hp(char_info: Dict, key: str, default: float = 100) -> int:
     return default
 
 
+def _get_lookup_id(char_id: str, data_loader: DataLoader) -> str:
+    """Get the appropriate lookup ID for a character, handling BOSS_ prefix intelligently.
+    
+    Some BOSS_ characters (like BOSS_Ninja, humanoid NPCs) have their own entries in pals.json.
+    Others (like BOSS_CatBat for alpha pals) don't and need the prefix removed.
+    
+    Args:
+        char_id: Character ID from save file
+        data_loader: DataLoader instance with pal data loaded
+        
+    Returns:
+        Lookup ID to use for pal_names and pal_species_data
+    """
+    # First, check if the character ID with BOSS_ prefix exists
+    if char_id.startswith("BOSS_") or char_id.startswith("Boss_"):
+        # Try with the BOSS_ prefix first
+        if char_id in data_loader.pal_names or char_id in data_loader.pal_species_data:
+            return char_id
+        # If not found, remove the prefix
+        return char_id[5:]
+    
+    return char_id
+
+
 def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str, str]) -> List[PalInfo]:
     """Build list of all pals from save data
     
@@ -95,12 +119,8 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         
         char_id = get_val(char_info, "CharacterID", "Unknown")
         
-        # Get friendly name - handle BOSS_ and Boss_ prefix
-        lookup_id = char_id
-        if char_id.startswith("BOSS_"):
-            lookup_id = char_id[5:]  # Remove "BOSS_"
-        elif char_id.startswith("Boss_"):
-            lookup_id = char_id[5:]  # Remove "Boss_"
+        # Get lookup ID - checks if BOSS_ version exists before stripping prefix
+        lookup_id = _get_lookup_id(char_id, data_loader)
         pal_name = data_loader.pal_names.get(lookup_id, char_id)
         
         # Get gender using official enum

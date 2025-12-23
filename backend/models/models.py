@@ -164,6 +164,25 @@ class PlayerInfo(BaseModel):
     guild_id: Optional[str] = None
     last_online: Optional[str] = None
     location: Optional[Dict[str, float]] = None
+    # Stat points allocation
+    stat_points_hp: int = 0
+    stat_points_stamina: int = 0
+    stat_points_attack: int = 0
+    stat_points_weight: int = 0
+    stat_points_capture: int = 0
+    stat_points_work_speed: int = 0
+    # Extra stat points (from statues/ancient tech)
+    ex_stat_points_hp: int = 0
+    ex_stat_points_stamina: int = 0
+    ex_stat_points_attack: int = 0
+    ex_stat_points_weight: int = 0
+    ex_stat_points_work_speed: int = 0
+    # Calculated stats
+    calculated_max_hp: Optional[int] = None
+    calculated_stamina: Optional[int] = None
+    calculated_attack: Optional[int] = None
+    calculated_weight: Optional[int] = None
+    calculated_work_speed: Optional[int] = None
 
 class GuildInfo(BaseModel):
     """Guild information"""
