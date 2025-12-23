@@ -129,10 +129,17 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         # Get element types and work suitability
         element_types = []
         work_suitability = {}
+        work_suitability_names = {}
         species_data = data_loader.pal_species_data.get(lookup_id, {})
         if species_data:
+            from backend.models.models import map_element_display_names
             element_types = species_data.get("element_types", [])
+            # Map element IDs to localized display names
+            element_types = map_element_display_names(element_types, data_loader.element_display_names)
             work_suitability = species_data.get("work_suitability", {})
+            # Map work type IDs to display names
+            for work_type in work_suitability.keys():
+                work_suitability_names[work_type] = data_loader.work_suitability_names.get(work_type, work_type)
         
         # Get base assignment
         assignment = base_assignments.get(str(instance_id), {})
@@ -197,6 +204,7 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             passive_skills=passive_skills,
             element_types=element_types,
             work_suitability=work_suitability,
+            work_suitability_names=work_suitability_names,
             is_lucky=get_val(char_info, "IsRarePal", False),
             is_boss=is_boss,
             base_id=assignment.get("base_id"),

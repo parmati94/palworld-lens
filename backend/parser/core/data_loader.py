@@ -22,10 +22,12 @@ class DataLoader:
         self.work_suitability_names: Dict[str, str] = {}
         self.active_skill_data: Dict[str, Dict] = {}
         self.passive_skill_data: Dict[str, Dict] = {}
+        self.element_display_names: Dict[str, str] = {}
         
         self._load_pal_names()
         self._load_pal_data()
         self._load_skill_names()
+        self._load_element_names()
     
     def _load_pal_names(self):
         """Load pal name mappings from JSON"""
@@ -104,3 +106,19 @@ class DataLoader:
                 logger.debug(f"Loaded {len(self.work_suitability_names)} work suitability names")
         except Exception as e:
             logger.warning(f"Could not load skill names: {e}")
+    
+    def _load_element_names(self):
+        """Load element display name mappings from JSON"""
+        try:
+            elements_json = config.DATA_PATH / "json" / "l10n" / "en" / "elements.json"
+            if elements_json.exists():
+                with open(elements_json, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for element_id, element_data in data.items():
+                        if isinstance(element_data, dict) and "localized_name" in element_data:
+                            self.element_display_names[element_id] = element_data["localized_name"]
+                logger.debug(f"Loaded {len(self.element_display_names)} element display names")
+            else:
+                logger.warning(f"Element names file not found: {elements_json}")
+        except Exception as e:
+            logger.warning(f"Could not load element names: {e}")

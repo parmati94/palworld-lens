@@ -30,23 +30,7 @@ CONDITION_DESCRIPTIONS: Dict[str, str] = {
     "GutWrenching": "Severe digestive issues. Cure: High Grade Medical Supplies"
 }
 
-# Work Suitability Mappings
-WORK_SUITABILITY_NAMES: Dict[str, str] = {
-    "Collection": "Gathering",
-    "Cool": "Cooling",
-    "Deforest": "Lumbering",
-    "EmitFlame": "Kindling",
-    "GenerateElectricity": "Generating Electricity",
-    "Handcraft": "Handiwork",
-    "Mining": "Mining",
-    "MonsterFarm": "Farming",
-    "OilExtraction": "Crude Oil Extraction",
-    "ProductMedicine": "Medicine Production",
-    "Seeding": "Planting",
-    "Transport": "Transporting",
-    "Watering": "Watering",
-}
-
+# Work Suitability Mappings (names come from JSON - see data_loader.work_suitability_names)
 WORK_ICON_MAPPING: Dict[str, str] = {
     "EmitFlame": "00",       # Kindling
     "Watering": "01",        # Watering  

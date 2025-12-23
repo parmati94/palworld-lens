@@ -5,10 +5,23 @@ from enum import Enum
 from backend.core.constants import (
     CONDITION_DISPLAY_NAMES,
     CONDITION_DESCRIPTIONS,
-    WORK_SUITABILITY_NAMES,
     WORK_ICON_MAPPING,
     WORK_LEVEL_COLORS,
 )
+
+
+def map_element_display_names(elements: List[str], element_map: Dict[str, str]) -> List[str]:
+    """Map element type IDs to their localized display names
+    
+    Args:
+        elements: List of element type IDs (e.g., ['Leaf', 'Earth'])
+        element_map: Dictionary mapping element IDs to display names
+        
+    Returns:
+        List of localized display names (e.g., ['Grass', 'Ground'])
+    """
+    return [element_map.get(element, element) for element in elements]
+
 
 class SkillInfo(BaseModel):
     """Skill information with name and description"""
@@ -62,7 +75,8 @@ class PalInfo(BaseModel):
     passive_skills: List[SkillInfo] = []
     active_skills: List[SkillInfo] = []
     element_types: List[str] = []
-    work_suitability: Dict[str, int] = {}
+    work_suitability: Dict[str, int] = {}  # Maps work type ID to level
+    work_suitability_names: Dict[str, str] = {}  # Maps work type ID to display name
     is_lucky: bool = False
     is_boss: bool = False
     # Base assignment fields (only set for pals at bases)
@@ -101,7 +115,7 @@ class PalInfo(BaseModel):
         display_data = []
         for work_type, level in self.work_suitability.items():
             if level > 0:
-                display_name = WORK_SUITABILITY_NAMES.get(work_type, work_type)
+                display_name = self.work_suitability_names.get(work_type, work_type)
                 icon_num = WORK_ICON_MAPPING.get(work_type, "00")
                 color = WORK_LEVEL_COLORS.get(level, "#9ca3af")
                 
