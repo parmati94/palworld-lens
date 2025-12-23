@@ -50,7 +50,6 @@ def _extract_hp(char_info: Dict, key: str, default: float = 100) -> int:
                     milli_hp = value_data["value"]
                     # Convert from milli-HP to actual HP
                     actual_hp = int(milli_hp / 1000) if isinstance(milli_hp, (int, float)) else default
-                    logger.info(f"✓ Extracted {key}: {milli_hp} milli-HP -> {actual_hp} HP")
                     return actual_hp
         # Fallback: check for 'Value' directly (simpler structure)
         elif "Value" in hp_data:
@@ -58,7 +57,6 @@ def _extract_hp(char_info: Dict, key: str, default: float = 100) -> int:
             if isinstance(value_data, dict) and "value" in value_data:
                 milli_hp = value_data["value"]
                 actual_hp = int(milli_hp / 1000) if isinstance(milli_hp, (int, float)) else default
-                logger.info(f"✓ Extracted {key}: {milli_hp} milli-HP -> {actual_hp} HP")
                 return actual_hp
     
     # Final fallback to get_val
