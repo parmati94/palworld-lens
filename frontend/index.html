@@ -57,6 +57,127 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
         
+        /* Passive skill gradient backgrounds with patterns */
+        
+        /* Animated gradient for pal modal header */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .pal-header-gradient {
+            position: relative;
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+            overflow: hidden;
+        }
+        
+        /* Subtle shimmer overlay instead of grid dots */
+        .pal-header-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.03) 25%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(255, 255, 255, 0.03) 75%,
+                transparent 100%
+            );
+            animation: shimmer 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        /* GOLD GRADIENTS - Rank 2-3 */
+        .passive-bg-gold {
+            background: linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #d97706 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .passive-bg-gold::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 0, 0, 0.1) 10px,
+                rgba(0, 0, 0, 0.1) 20px
+            );
+            pointer-events: none;
+        }
+        .passive-bg-gold:hover {
+            background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #b45309 100%);
+        }
+        
+        /* LEGENDARY GRADIENTS - Rank 4 */
+        .passive-bg-legendary {
+            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #06b6d4 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+        }
+        .passive-bg-legendary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 8px,
+                rgba(255, 255, 255, 0.1) 8px,
+                rgba(255, 255, 255, 0.1) 16px
+            );
+            pointer-events: none;
+        }
+        .passive-bg-legendary:hover {
+            background: linear-gradient(135deg, #0891b2 0%, #7c3aed 50%, #0891b2 100%);
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.6);
+        }
+        
+        /* NEGATIVE GRADIENTS - Bad passives */
+        .passive-bg-negative {
+            background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #991b1b 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .passive-bg-negative::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                135deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 0, 0, 0.2) 10px,
+                rgba(0, 0, 0, 0.2) 20px
+            );
+            pointer-events: none;
+        }
+        .passive-bg-negative:hover {
+            background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #7f1d1d 100%);
+        }
+        
         /* Title glow effect */
         .header-title {
             text-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(34, 211, 238, 0.2);
@@ -67,7 +188,6 @@
         /* Custom tooltip styling */
         [data-tooltip] {
             position: relative;
-            cursor: help;
         }
         
         /* Default tooltip - goes up */
@@ -820,7 +940,8 @@
                 <template x-if="selectedPal">
                     <div>
                         <!-- Header -->
-                        <div class="relative bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-xl">
+                        <div class="relative p-6 rounded-t-xl pal-header-gradient"
+                             :style="`background: ${getPalHeaderGradient(selectedPal.element_types)}; background-size: 200% 200%;`">
                             <button @click="closePalModal()" 
                                     class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -830,11 +951,11 @@
                             
                             <div class="flex items-start gap-4">
                                 <!-- Pal Image -->
-                                <div class="relative">
+                                <div class="relative z-10">
                                     <img :src="`/img/${selectedPal.image_id}.webp`" 
                                          :alt="selectedPal.display_name"
                                          :onerror="`this.src='/img/unknown.webp'`"
-                                         class="w-32 h-32 rounded-lg bg-gray-900/50 object-cover border-2 border-white/20">
+                                         class="w-32 h-32 rounded-lg bg-gray-800 object-cover border-2 border-white/20">
                                     <img x-show="selectedPal.is_alpha" 
                                          src="/img/alpha.webp" 
                                          class="absolute -top-2 -right-2 w-10 h-10"
@@ -993,12 +1114,22 @@
                                 <div class="space-y-2">
                                     <template x-for="skill in selectedPal.active_skills" :key="skill.name || skill">
                                         <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200 group">
-                                            <div class="flex justify-between items-start gap-3">
-                                                <span class="text-sm font-semibold text-gray-200 flex-shrink-0" x-text="skill.name || skill"></span>
-                                                <span x-show="skill.description && skill.description.trim()" 
-                                                      class="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-right" 
-                                                      x-text="skill.description">
-                                                </span>
+                                            <div class="flex justify-between items-center gap-3">
+                                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                                    <span class="text-sm font-semibold text-gray-200 flex-shrink-0" x-text="skill.name || skill"></span>
+                                                    <span x-show="skill.description && skill.description.trim()" 
+                                                          class="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 truncate" 
+                                                          x-text="skill.description"></span>
+                                                </div>
+                                                <!-- Element + Power Badge -->
+                                                <div x-show="skill.element && skill.power" 
+                                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0 min-w-[4rem]"
+                                                     :style="`background-color: ${getElementColor(skill.element)}`">
+                                                    <img :src="`img/${getElementIconWhite(skill.element)}`" 
+                                                         :alt="skill.element" 
+                                                         class="w-4 h-4">
+                                                    <span class="text-sm font-bold text-white" x-text="skill.power"></span>
+                                                </div>
                                             </div>
                                         </div>
                                     </template>
@@ -1010,13 +1141,25 @@
                                 <h3 class="text-lg font-bold text-gray-200 mb-3">Passive Skills</h3>
                                 <div class="space-y-2">
                                     <template x-for="skill in selectedPal.passive_skills" :key="skill.name || skill">
-                                        <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200 group">
-                                            <div class="flex justify-between items-start gap-3">
-                                                <span class="text-sm font-semibold text-gray-200 flex-shrink-0" x-text="skill.name || skill"></span>
-                                                <span x-show="skill.description && skill.description.trim()" 
-                                                      class="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-right" 
-                                                      x-text="skill.description">
-                                                </span>
+                                        <div class="rounded-lg p-3 transition-all duration-200 group relative"
+                                             :class="getPassiveBackgroundClass(skill.rank)">
+                                            <div class="flex justify-between items-center gap-3 relative z-10">
+                                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                                    <span class="text-sm font-semibold flex-shrink-0" 
+                                                          :class="getPassiveTextClass(skill.rank)"
+                                                          x-text="skill.name || skill"></span>
+                                                    <span x-show="skill.description && skill.description.trim()" 
+                                                          class="text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 truncate" 
+                                                          :class="getPassiveDescriptionClass(skill.rank)"
+                                                          x-text="skill.description"></span>
+                                                </div>
+                                                <!-- Rank indicator -->
+                                                <div x-show="skill.rank !== null && skill.rank !== undefined" 
+                                                     class="flex items-center flex-shrink-0">
+                                                    <img :src="getRankIcon(skill.rank)" 
+                                                         :alt="'Rank ' + skill.rank" 
+                                                         class="w-6 h-6">
+                                                </div>
                                             </div>
                                         </div>
                                     </template>
@@ -1496,6 +1639,137 @@
                         'Normal': 'neutral.webp'
                     };
                     return iconMap[element] || 'neutral.webp';
+                },
+                
+                // White element icon helper for active skills
+                getElementIconWhite(element) {
+                    const iconMap = {
+                        'Fire': 'fire_white.webp',
+                        'Water': 'water_white.webp',
+                        'Grass': 'grass_white.webp',
+                        'Electric': 'electric_white.webp',
+                        'Ice': 'ice_white.webp',
+                        'Ground': 'ground_white.webp',
+                        'Dark': 'dark_white.webp',
+                        'Dragon': 'dragon_white.webp',
+                        'Normal': 'neutral_white.webp'
+                    };
+                    return iconMap[element] || 'neutral_white.webp';
+                },
+                
+                // Element color helper for active skill badges
+                getElementColor(element) {
+                    const colorMap = {
+                        'Fire': '#ef4444',      // red-500
+                        'Water': '#3b82f6',     // blue-500
+                        'Grass': '#22c55e',     // green-500
+                        'Electric': '#eab308',  // yellow-500
+                        'Ice': '#06b6d4',       // cyan-500
+                        'Ground': '#a16207',    // yellow-700
+                        'Dark': '#7c3aed',      // violet-600
+                        'Dragon': '#9333ea',    // purple-600
+                        'Normal': '#6b7280'     // gray-500
+                    };
+                    return colorMap[element] || '#6b7280';
+                },
+                
+                // Generate element-themed gradient for pal header
+                getPalHeaderGradient(elements) {
+                    if (!elements || elements.length === 0) {
+                        return 'linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6)';
+                    }
+                    
+                    const elementColors = {
+                        'Fire': ['#dc2626', '#f97316', '#dc2626'],      // red-600 to orange-500
+                        'Water': ['#0284c7', '#06b6d4', '#0284c7'],     // sky-600 to cyan-500
+                        'Grass': ['#16a34a', '#22c55e', '#16a34a'],     // green-600 to green-500
+                        'Electric': ['#ca8a04', '#eab308', '#ca8a04'],  // yellow-600 to yellow-500
+                        'Ice': ['#0891b2', '#67e8f9', '#0891b2'],       // cyan-600 to cyan-300
+                        'Ground': ['#92400e', '#d97706', '#92400e'],    // yellow-800 to amber-600
+                        'Dark': ['#5b21b6', '#7c3aed', '#5b21b6'],      // violet-800 to violet-600
+                        'Dragon': ['#7c3aed', '#a855f7', '#7c3aed'],    // violet-600 to purple-500
+                        'Normal': ['#4b5563', '#6b7280', '#4b5563']     // gray-600 to gray-500
+                    };
+                    
+                    const primaryElement = elements[0];
+                    const colors = elementColors[primaryElement] || elementColors['Normal'];
+                    
+                    if (elements.length > 1) {
+                        // Dual element - blend both colors
+                        const secondaryElement = elements[1];
+                        const secondaryColors = elementColors[secondaryElement] || elementColors['Normal'];
+                        return `linear-gradient(135deg, ${colors[0]}, ${colors[1]}, ${secondaryColors[1]}, ${colors[2]})`;
+                    }
+                    
+                    return `linear-gradient(135deg, ${colors[0]}, ${colors[1]}, ${colors[2]})`;
+                },
+                
+                // Rank icon helper for passive skills
+                getRankIcon(rank) {
+                    if (rank < 0) {
+                        // Use negative rank icons: rank_-1.webp, rank_-2.webp, rank_-3.webp
+                        return `img/rank_${rank}.webp`;
+                    } else {
+                        // Use rank_1 through rank_4, ignore rank_0
+                        const iconRank = Math.max(1, Math.min(rank, 4));
+                        return `img/rank_${iconRank}.webp`;
+                    }
+                },
+                
+                // Rank color filter for passive skills
+                getRankFilter(rank) {
+                    if (rank < 0) {
+                        // Negative ranks: red
+                        return 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)';
+                    } else if (rank === 1) {
+                        // Rank 1: grey
+                        return 'brightness(0) saturate(100%) invert(75%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(92%) contrast(88%)';
+                    } else if (rank === 2 || rank === 3) {
+                        // Rank 2-3: gold
+                        return 'brightness(0) saturate(100%) invert(77%) sepia(72%) saturate(441%) hue-rotate(360deg) brightness(102%) contrast(104%)';
+                    } else if (rank >= 4) {
+                        // Rank 4+: purple
+                        return 'brightness(0) saturate(100%) invert(32%) sepia(90%) saturate(2476%) hue-rotate(262deg) brightness(91%) contrast(101%)';
+                    }
+                    return 'none';
+                },
+                
+                // Passive skill background styling with gradients and patterns
+                getPassiveBackgroundClass(rank) {
+                    if (rank < 0) {
+                        // Negative: red gradient with downward stripes
+                        return 'passive-bg-negative';
+                    } else if (rank === 1) {
+                        // Rank 1: muted grey (default)
+                        return 'bg-gray-700/50 hover:bg-gray-700/60';
+                    } else if (rank === 2 || rank === 3) {
+                        // Rank 2-3: gold gradient with diagonal stripes
+                        return 'passive-bg-gold';
+                    } else if (rank >= 4) {
+                        // Rank 4: cyan-purple gradient with pattern
+                        return 'passive-bg-legendary';
+                    }
+                    return 'bg-gray-700/50 hover:bg-gray-700/60';
+                },
+                
+                // Passive skill text color
+                getPassiveTextClass(rank) {
+                    if (rank >= 2 && rank <= 3) {
+                        // Gold background needs dark text
+                        return 'text-gray-900';
+                    }
+                    // All others use white text
+                    return 'text-gray-200';
+                },
+                
+                // Passive skill description color
+                getPassiveDescriptionClass(rank) {
+                    if (rank >= 2 && rank <= 3) {
+                        // Gold background needs darker description
+                        return 'text-gray-700';
+                    }
+                    // All others use lighter description
+                    return 'text-gray-400';
                 }
             }
         }

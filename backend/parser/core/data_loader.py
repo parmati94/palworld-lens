@@ -20,13 +20,16 @@ class DataLoader:
         self.active_skill_names: Dict[str, str] = {}
         self.passive_skill_names: Dict[str, str] = {}
         self.work_suitability_names: Dict[str, str] = {}
-        self.active_skill_data: Dict[str, Dict] = {}
-        self.passive_skill_data: Dict[str, Dict] = {}
+        self.active_skill_data: Dict[str, Dict] = {}  # l10n data (name, description)
+        self.passive_skill_data: Dict[str, Dict] = {}  # l10n data (name, description)
+        self.active_skill_full_data: Dict[str, Dict] = {}  # Full data (element, power, etc.)
+        self.passive_skill_full_data: Dict[str, Dict] = {}  # Full data (rank, effects, etc.)
         self.element_display_names: Dict[str, str] = {}
         
         self._load_pal_names()
         self._load_pal_data()
         self._load_skill_names()
+        self._load_full_skill_data()
         self._load_element_names()
     
     def _load_pal_names(self):
@@ -106,6 +109,29 @@ class DataLoader:
                 logger.debug(f"Loaded {len(self.work_suitability_names)} work suitability names")
         except Exception as e:
             logger.warning(f"Could not load skill names: {e}")
+    
+    def _load_full_skill_data(self):
+        """Load full skill data from game data JSON (element, power, rank, etc.)"""
+        try:
+            # Load full active skill data (element, power, cooldown, etc.)
+            active_skills_json = config.DATA_PATH / "json" / "active_skills.json"
+            if active_skills_json.exists():
+                with open(active_skills_json, 'r', encoding='utf-8') as f:
+                    self.active_skill_full_data = json.load(f)
+                logger.debug(f"Loaded full data for {len(self.active_skill_full_data)} active skills")
+            else:
+                logger.warning(f"Active skills data file not found: {active_skills_json}")
+            
+            # Load full passive skill data (rank, effects, etc.)
+            passive_skills_json = config.DATA_PATH / "json" / "passive_skills.json"
+            if passive_skills_json.exists():
+                with open(passive_skills_json, 'r', encoding='utf-8') as f:
+                    self.passive_skill_full_data = json.load(f)
+                logger.debug(f"Loaded full data for {len(self.passive_skill_full_data)} passive skills")
+            else:
+                logger.warning(f"Passive skills data file not found: {passive_skills_json}")
+        except Exception as e:
+            logger.warning(f"Could not load full skill data: {e}")
     
     def _load_element_names(self):
         """Load element display name mappings from JSON"""

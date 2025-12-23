@@ -11,9 +11,12 @@ from backend.core.constants import (
 
 
 class SkillInfo(BaseModel):
-    """Skill information with name and description"""
+    """Skill information with name, description, and game data"""
     name: str
     description: Optional[str] = None
+    element: Optional[str] = None  # For active skills - element type
+    power: Optional[int] = None  # For active skills - attack power
+    rank: Optional[int] = None  # For passive skills - rank (-3 to 4, no 0)
 
 class PalGender(str, Enum):
     """Pal gender"""

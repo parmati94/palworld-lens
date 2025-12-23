@@ -78,25 +78,41 @@ def map_work_suitability_names(work_types: List[str], work_map: Dict[str, str]) 
 # Object Creation Helpers (IDs → Model objects with lookups)
 # ============================================================================
 
-def map_active_skills(skill_ids: List[str], skill_data_map: Dict[str, Dict]) -> List:
-    """Transform active skill IDs to SkillInfo objects with names and descriptions
+def map_active_skills(
+    skill_ids: List[str],
+    skill_data_map: Dict[str, Dict],
+    full_data_map: Dict[str, Dict],
+    element_map: Dict[str, str]
+) -> List:
+    """Transform active skill IDs to SkillInfo objects with names, descriptions, element, and power
     
     Args:
         skill_ids: List of skill IDs from save data
-        skill_data_map: Dictionary of skill data from DataLoader.active_skill_data
+        skill_data_map: Dictionary of l10n skill data from DataLoader.active_skill_data
+        full_data_map: Dictionary of full skill data from DataLoader.active_skill_full_data
+        element_map: Dictionary mapping element IDs to display names (for Leaf→Grass, etc.)
         
     Returns:
-        List of SkillInfo objects with localized names and descriptions
+        List of SkillInfo objects with localized names, descriptions, element types, and power
     """
     from backend.models.models import SkillInfo
     
     skills = []
     for skill_id in skill_ids:
         skill_data = skill_data_map.get(skill_id, {})
+        full_data = full_data_map.get(skill_id, {})
+        
         if skill_data:
+            # Get element from full data and map it to display name (Leaf→Grass, Earth→Ground)
+            element = full_data.get("element")
+            if element:
+                element = element_map.get(element, element)
+            
             skills.append(SkillInfo(
                 name=skill_data["name"],
-                description=skill_data["description"]
+                description=skill_data["description"],
+                element=element,
+                power=full_data.get("power")
             ))
         else:
             # Fallback for unmapped skills - strip enum prefix
@@ -105,25 +121,33 @@ def map_active_skills(skill_ids: List[str], skill_data_map: Dict[str, Dict]) -> 
     return skills
 
 
-def map_passive_skills(skill_ids: List[str], skill_data_map: Dict[str, Dict]) -> List:
-    """Transform passive skill IDs to SkillInfo objects with names and descriptions
+def map_passive_skills(
+    skill_ids: List[str],
+    skill_data_map: Dict[str, Dict],
+    full_data_map: Dict[str, Dict]
+) -> List:
+    """Transform passive skill IDs to SkillInfo objects with names, descriptions, and rank
     
     Args:
         skill_ids: List of skill IDs from save data
-        skill_data_map: Dictionary of skill data from DataLoader.passive_skill_data
+        skill_data_map: Dictionary of l10n skill data from DataLoader.passive_skill_data
+        full_data_map: Dictionary of full skill data from DataLoader.passive_skill_full_data
         
     Returns:
-        List of SkillInfo objects with localized names and descriptions
+        List of SkillInfo objects with localized names, descriptions, and rank
     """
     from backend.models.models import SkillInfo
     
     skills = []
     for skill_id in skill_ids:
         skill_data = skill_data_map.get(skill_id, {})
+        full_data = full_data_map.get(skill_id, {})
+        
         if skill_data:
             skills.append(SkillInfo(
                 name=skill_data["name"],
-                description=skill_data["description"]
+                description=skill_data["description"],
+                rank=full_data.get("rank")
             ))
         else:
             # Fallback for unmapped skills

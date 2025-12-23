@@ -98,7 +98,12 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             waza_values = equip_waza["value"]
             if isinstance(waza_values, dict) and "values" in waza_values:
                 active_skill_ids = [str(skill) for skill in waza_values["values"]]
-        active_skills = map_active_skills(active_skill_ids, data_loader.active_skill_data)
+        active_skills = map_active_skills(
+            active_skill_ids,
+            data_loader.active_skill_data,
+            data_loader.active_skill_full_data,
+            data_loader.element_display_names
+        )
         
         # Extract passive skills
         passive_skill_ids = []
@@ -107,7 +112,11 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             passive_values = passive_list["value"]
             if isinstance(passive_values, dict) and "values" in passive_values:
                 passive_skill_ids = [str(skill) for skill in passive_values["values"]]
-        passive_skills = map_passive_skills(passive_skill_ids, data_loader.passive_skill_data)
+        passive_skills = map_passive_skills(
+            passive_skill_ids,
+            data_loader.passive_skill_data,
+            data_loader.passive_skill_full_data
+        )
         
         # Get element types and work suitability
         element_types = []
