@@ -10,19 +10,6 @@ from backend.core.constants import (
 )
 
 
-def map_element_display_names(elements: List[str], element_map: Dict[str, str]) -> List[str]:
-    """Map element type IDs to their localized display names
-    
-    Args:
-        elements: List of element type IDs (e.g., ['Leaf', 'Earth'])
-        element_map: Dictionary mapping element IDs to display names
-        
-    Returns:
-        List of localized display names (e.g., ['Grass', 'Ground'])
-    """
-    return [element_map.get(element, element) for element in elements]
-
-
 class SkillInfo(BaseModel):
     """Skill information with name and description"""
     name: str

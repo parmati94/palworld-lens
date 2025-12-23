@@ -3,7 +3,13 @@ import logging
 from typing import List, Dict
 
 from backend.core.enums import EPalGenderType, EPalBaseCampWorkerSickType, EPalStatusHungerType
-from backend.models.models import PalInfo, SkillInfo
+from backend.models.models import PalInfo
+from backend.parser.utils.mappers import (
+    map_element_display_names,
+    map_work_suitability_names,
+    map_active_skills,
+    map_passive_skills
+)
 from backend.parser.extractors.characters import get_character_data
 from backend.parser.extractors.bases import get_base_assignments
 from backend.parser.utils.helpers import get_val
@@ -86,45 +92,22 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         is_boss = get_val(char_info, "IsBoss", False) or char_id.startswith("BOSS_")
         
         # Extract active skills
-        active_skills = []
+        active_skill_ids = []
         equip_waza = char_info.get("EquipWaza", {})
         if isinstance(equip_waza, dict) and "value" in equip_waza:
             waza_values = equip_waza["value"]
             if isinstance(waza_values, dict) and "values" in waza_values:
-                for skill in waza_values["values"]:
-                    skill_id = str(skill)
-                    skill_data = data_loader.active_skill_data.get(skill_id, {})
-                    if skill_data:
-                        active_skills.append(SkillInfo(
-                            name=skill_data["name"],
-                            description=skill_data["description"]
-                        ))
-                    else:
-                        skill_name = skill_id.replace("EPalWazaID::", "")
-                        active_skills.append(SkillInfo(
-                            name=skill_name,
-                            description=""
-                        ))
+                active_skill_ids = [str(skill) for skill in waza_values["values"]]
+        active_skills = map_active_skills(active_skill_ids, data_loader.active_skill_data)
         
         # Extract passive skills
-        passive_skills = []
+        passive_skill_ids = []
         passive_list = char_info.get("PassiveSkillList", {})
         if isinstance(passive_list, dict) and "value" in passive_list:
             passive_values = passive_list["value"]
             if isinstance(passive_values, dict) and "values" in passive_values:
-                for skill in passive_values["values"]:
-                    skill_id = str(skill)
-                    skill_data = data_loader.passive_skill_data.get(skill_id, {})
-                    if skill_data:
-                        passive_skills.append(SkillInfo(
-                            name=skill_data["name"],
-                            description=skill_data["description"]
-                        ))
-                    else:
-                        passive_skills.append(SkillInfo(
-                            name=skill_id,
-                            description=""
-                        ))
+                passive_skill_ids = [str(skill) for skill in passive_values["values"]]
+        passive_skills = map_passive_skills(passive_skill_ids, data_loader.passive_skill_data)
         
         # Get element types and work suitability
         element_types = []
@@ -132,14 +115,15 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         work_suitability_names = {}
         species_data = data_loader.pal_species_data.get(lookup_id, {})
         if species_data:
-            from backend.models.models import map_element_display_names
             element_types = species_data.get("element_types", [])
             # Map element IDs to localized display names
             element_types = map_element_display_names(element_types, data_loader.element_display_names)
             work_suitability = species_data.get("work_suitability", {})
             # Map work type IDs to display names
-            for work_type in work_suitability.keys():
-                work_suitability_names[work_type] = data_loader.work_suitability_names.get(work_type, work_type)
+            work_suitability_names = map_work_suitability_names(
+                list(work_suitability.keys()),
+                data_loader.work_suitability_names
+            )
         
         # Get base assignment
         assignment = base_assignments.get(str(instance_id), {})
