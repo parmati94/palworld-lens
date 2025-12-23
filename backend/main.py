@@ -8,10 +8,10 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from sse_starlette.sse import EventSourceResponse
 
-from backend.config import config
-from backend.logging_config import setup_logging, get_logger
+from backend.core.config import config
+from backend.core.logging_config import setup_logging, get_logger
 from backend.parser import parser
-from backend.watcher import SaveWatcher
+from backend.utils.watcher import SaveWatcher
 
 # Setup colored logging
 setup_logging()

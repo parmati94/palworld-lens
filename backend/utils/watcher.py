@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Optional, Callable
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileModifiedEvent
-from backend.logging_config import get_logger
+from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

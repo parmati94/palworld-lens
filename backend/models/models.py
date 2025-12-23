@@ -2,11 +2,21 @@
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, computed_field
 from enum import Enum
+from backend.core.constants import (
+    CONDITION_DISPLAY_NAMES,
+    CONDITION_DESCRIPTIONS,
+    WORK_ICON_MAPPING,
+    WORK_LEVEL_COLORS,
+)
+
 
 class SkillInfo(BaseModel):
-    """Skill information with name and description"""
+    """Skill information with name, description, and game data"""
     name: str
     description: Optional[str] = None
+    element: Optional[str] = None  # For active skills - element type
+    power: Optional[int] = None  # For active skills - attack power
+    rank: Optional[int] = None  # For passive skills - rank (-3 to 4, no 0)
 
 class PalGender(str, Enum):
     """Pal gender"""
@@ -55,14 +65,67 @@ class PalInfo(BaseModel):
     passive_skills: List[SkillInfo] = []
     active_skills: List[SkillInfo] = []
     element_types: List[str] = []
-    work_suitability: Dict[str, int] = {}
-    work_suitability_display: List[Dict[str, Any]] = []  # Rich work suitability data with names, icons, levels
+    work_suitability: Dict[str, int] = {}  # Maps work type ID to level
+    work_suitability_names: Dict[str, str] = {}  # Maps work type ID to display name
     is_lucky: bool = False
     is_boss: bool = False
     # Base assignment fields (only set for pals at bases)
     base_id: Optional[str] = None
     guild_id: Optional[str] = None
     base_name: Optional[str] = None
+    # Condition/status fields
+    condition: Optional[str] = None  # WorkerSick condition (e.g., "Sick", "Sprain", "Bulimia", etc.)
+    hunger_type: Optional[str] = None  # HungerType status (e.g., "Hunger")
+    
+    # Calculated stats fields (computed from base stats + level + IVs + ranks)
+    calculated_attack: Optional[int] = None
+    calculated_defense: Optional[int] = None
+    calculated_hp: Optional[int] = None
+    calculated_work_speed: Optional[int] = None
+    friendship_points: Optional[int] = None
+    trust_level: Optional[int] = None
+    
+    @computed_field
+    def condition_display(self) -> Optional[str]:
+        """Get user-friendly condition name for UI"""
+        if not self.condition:
+            return None
+        
+        # Return mapped value if exists, otherwise return the raw condition name
+        # This allows unknown conditions to still display
+        return CONDITION_DISPLAY_NAMES.get(self.condition, self.condition)
+    
+    @computed_field
+    def condition_description(self) -> Optional[str]:
+        """Get detailed description of condition including effects and cure"""
+        # Handle hunger type
+        if self.hunger_type == "Hunger":
+            return "Pal needs food urgently"
+        
+        if not self.condition:
+            return None
+        
+        return CONDITION_DESCRIPTIONS.get(self.condition, self.condition)
+    
+    @computed_field
+    def work_suitability_display(self) -> List[Dict[str, Any]]:
+        """Convert work suitability dict to rich display data with names, icons, and color-coded levels"""
+        display_data = []
+        for work_type, level in self.work_suitability.items():
+            if level > 0:
+                display_name = self.work_suitability_names.get(work_type, work_type)
+                icon_num = WORK_ICON_MAPPING.get(work_type, "00")
+                color = WORK_LEVEL_COLORS.get(level, "#9ca3af")
+                
+                display_data.append({
+                    "type": work_type,
+                    "name": display_name,
+                    "level": level,
+                    "icon": f"t_icon_research_palwork_{icon_num}_0",
+                    "color": color
+                })
+        
+        return display_data
     
     @computed_field
     def display_name(self) -> str:
@@ -79,9 +142,9 @@ class PalInfo(BaseModel):
     @computed_field
     def image_id(self) -> str:
         """Get the image filename for this pal"""
-        # Remove boss prefix for image lookup
+        # Remove boss prefix for image lookup (handle both BOSS_ and Boss_)
         base_id = self.character_id
-        if base_id.startswith("BOSS_"):
+        if base_id.startswith("BOSS_") or base_id.startswith("Boss_"):
             base_id = base_id[5:]
         return base_id.lower()
 

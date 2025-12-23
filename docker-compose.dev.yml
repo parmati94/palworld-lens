@@ -19,6 +19,7 @@ services:
       - SAVE_MOUNT_PATH=/app/saves
       - ENABLE_AUTO_WATCH=false  # Disable in dev to allow fast uvicorn reloads
       - LOG_LEVEL=DEBUG
+      - TZ=America/New_York  # Set to your local timezone (e.g., America/Los_Angeles, Europe/London, etc.)
       # Development-specific settings
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
