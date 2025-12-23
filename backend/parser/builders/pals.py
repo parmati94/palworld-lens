@@ -2,12 +2,13 @@
 import logging
 from typing import List, Dict
 
-from backend.models import PalInfo, SkillInfo
+from backend.core.enums import EPalGenderType, EPalBaseCampWorkerSickType, EPalStatusHungerType
+from backend.models.models import PalInfo, SkillInfo
 from backend.parser.extractors.characters import get_character_data
 from backend.parser.extractors.bases import get_base_assignments
 from backend.parser.utils.helpers import get_val
 from backend.parser.core.data_loader import DataLoader
-from backend.logging_config import get_logger
+from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -39,19 +40,29 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         lookup_id = char_id.replace("BOSS_", "") if char_id.startswith("BOSS_") else char_id
         pal_name = data_loader.pal_names.get(lookup_id, char_id)
         
-        # Get gender
+        # Get gender using official enum
         gender_data = char_info.get("Gender", {})
+        gender = "Unknown"
         if isinstance(gender_data, dict):
             gender_val = gender_data.get("value", {})
             if isinstance(gender_val, dict):
-                gender = gender_val.get("value", "Unknown")
+                gender_raw = gender_val.get("value", "Unknown")
             else:
-                gender = str(gender_val) if gender_val else "Unknown"
+                gender_raw = str(gender_val) if gender_val else "Unknown"
         else:
-            gender = str(gender_data) if gender_data else "Unknown"
+            gender_raw = str(gender_data) if gender_data else "Unknown"
         
-        if gender.startswith("EPalGenderType::"):
-            gender = gender.replace("EPalGenderType::", "")
+        # Parse enum value
+        if gender_raw.startswith("EPalGenderType::"):
+            gender_raw = gender_raw.replace("EPalGenderType::", "")
+        
+        # Map to display name using enum
+        if gender_raw == "Male" or gender_raw == str(EPalGenderType.MALE):
+            gender = "Male"
+        elif gender_raw == "Female" or gender_raw == str(EPalGenderType.FEMALE):
+            gender = "Female"
+        else:
+            gender = "Unknown"
         
         # Get owner
         owner_name = pal_to_owner.get(str(instance_id))
@@ -126,7 +137,7 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         # Get base assignment
         assignment = base_assignments.get(str(instance_id), {})
         
-        # Extract condition/status
+        # Extract condition/status using official enum
         condition = None
         worker_sick = char_info.get("WorkerSick", {})
         if isinstance(worker_sick, dict) and "value" in worker_sick:
@@ -134,11 +145,12 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             if isinstance(sick_value, dict) and "value" in sick_value:
                 condition_full = sick_value["value"]
                 if isinstance(condition_full, str) and "::" in condition_full:
-                    condition = condition_full.split("::")[-1]
-                    if condition == "None":
-                        condition = None
+                    sick_enum_name = condition_full.split("::")[-1]
+                    # Map to official enum values
+                    if sick_enum_name != "None":
+                        condition = sick_enum_name
         
-        # Extract hunger type
+        # Extract hunger type using official enum
         hunger_type = None
         hunger_type_data = char_info.get("HungerType", {})
         if isinstance(hunger_type_data, dict) and "value" in hunger_type_data:
@@ -146,7 +158,16 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             if isinstance(hunger_value, dict) and "value" in hunger_value:
                 hunger_full = hunger_value["value"]
                 if isinstance(hunger_full, str) and "::" in hunger_full:
-                    hunger_type = hunger_full.split("::")[-1]
+                    hunger_enum_name = hunger_full.split("::")[-1]
+                    # Map enum name to official values
+                    if hunger_enum_name == "Hunger" or hunger_enum_name == str(EPalStatusHungerType.HUNGER):
+                        hunger_type = "Hunger"
+                    elif hunger_enum_name == "Starvation" or hunger_enum_name == str(EPalStatusHungerType.STARVATION):
+                        hunger_type = "Starvation"
+                    elif hunger_enum_name == "Default" or hunger_enum_name == str(EPalStatusHungerType.DEFAULT):
+                        hunger_type = "Default"
+                    else:
+                        hunger_type = hunger_enum_name
         
         pal = PalInfo(
             instance_id=str(instance_id),

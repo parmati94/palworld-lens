@@ -6,7 +6,7 @@ all parsing operations across the different submodules.
 import logging
 from typing import List, Dict, Optional
 
-from backend.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo
+from backend.models.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo
 from backend.parser.core.gvas_handler import GvasHandler
 from backend.parser.core.data_loader import DataLoader
 from backend.parser.extractors.characters import get_character_data
@@ -14,7 +14,7 @@ from backend.parser.utils.relationships import build_player_mapping, build_pal_o
 from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
 from backend.parser.builders.guilds import build_guilds
-from backend.logging_config import get_logger
+from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

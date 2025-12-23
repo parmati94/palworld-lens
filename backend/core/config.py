@@ -13,7 +13,7 @@ class Config:
     ENABLE_AUTO_WATCH: bool = os.getenv("ENABLE_AUTO_WATCH", "true").lower() in ("true", "1", "yes")
     
     # Data paths
-    DATA_PATH: Path = Path(__file__).parent.parent / "data"
+    DATA_PATH: Path = Path(__file__).parent.parent.parent / "data"
     
     @classmethod
     def get_save_path(cls) -> Path:

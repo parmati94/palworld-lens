@@ -1,7 +1,13 @@
-"""Constants and mappings used throughout the application"""
+"""Constants and mappings used throughout the application
+
+Mappings aligned with official Palworld enums from:
+https://gist.github.com/DRayX/ffcb68e23956e4ccda566173146a19c4
+
+See backend.core.enums for the actual enum definitions.
+"""
 from typing import Dict
 
-# Condition/Status Mappings
+# Condition/Status Mappings (aligned with EPalBaseCampWorkerSickType)
 CONDITION_DISPLAY_NAMES: Dict[str, str] = {
     "Sick": "Sick/Cold",        # UNVERIFIED - inferred from game UI
     "Sprain": "Sprain",          # UNVERIFIED - inferred from game UI

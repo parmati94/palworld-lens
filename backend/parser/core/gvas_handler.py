@@ -8,8 +8,8 @@ from palworld_save_tools.gvas import GvasFile
 from palworld_save_tools.palsav import decompress_sav_to_gvas
 from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES
 
-from backend.config import config
-from backend.logging_config import get_logger
+from backend.core.config import config
+from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

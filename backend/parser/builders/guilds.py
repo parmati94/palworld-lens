@@ -2,10 +2,10 @@
 import logging
 from typing import List, Dict
 
-from backend.models import GuildInfo
+from backend.models.models import GuildInfo
 from backend.parser.extractors.guilds import get_guild_data
 from backend.parser.utils.helpers import get_val
-from backend.logging_config import get_logger
+from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 

@@ -779,7 +779,15 @@
                                                         </div>
                                                     </td>
                                                     <td class="px-3 py-2 text-xs text-gray-400">
-                                                        <span x-text="pal.gender"></span>
+                                                        <template x-if="pal.gender === 'Male'">
+                                                            <img src="img/male.webp" alt="Male" class="w-4 h-4 inline-block" title="Male">
+                                                        </template>
+                                                        <template x-if="pal.gender === 'Female'">
+                                                            <img src="img/female.webp" alt="Female" class="w-4 h-4 inline-block" title="Female">
+                                                        </template>
+                                                        <template x-if="pal.gender !== 'Male' && pal.gender !== 'Female'">
+                                                            <span class="text-gray-500 text-xs" x-text="pal.gender"></span>
+                                                        </template>
                                                     </td>
                                                 </tr>
                                             </template>
@@ -848,7 +856,17 @@
                                     </div>
                                     <div class="flex items-center gap-4 text-white/90">
                                         <span class="text-lg">Level <span x-text="selectedPal.level" class="font-bold"></span></span>
-                                        <span class="text-sm" x-text="selectedPal.gender"></span>
+                                        <div class="flex items-center gap-1">
+                                            <template x-if="selectedPal.gender === 'Male'">
+                                                <img src="img/male.webp" alt="Male" class="w-5 h-5" title="Male">
+                                            </template>
+                                            <template x-if="selectedPal.gender === 'Female'">
+                                                <img src="img/female.webp" alt="Female" class="w-5 h-5" title="Female">
+                                            </template>
+                                            <template x-if="selectedPal.gender !== 'Male' && selectedPal.gender !== 'Female'">
+                                                <span class="text-sm text-gray-400" x-text="selectedPal.gender"></span>
+                                            </template>
+                                        </div>
                                         <template x-if="selectedPal.rank > 1">
                                             <div class="flex items-center gap-1">
                                                 <template x-for="i in 4" :key="i">

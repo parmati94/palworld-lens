@@ -9,7 +9,7 @@ from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PR
 
 from backend.parser.extractors.characters import get_player_data
 from backend.parser.utils.helpers import get_val
-from backend.logging_config import get_logger
+from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 
