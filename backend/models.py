@@ -18,10 +18,13 @@ class SaveInfo(BaseModel):
     world_name: str
     loaded: bool
     level_path: Optional[str] = None
+    level_meta_path: Optional[str] = None
     player_count: int = 0
     guild_count: int = 0
     pal_count: int = 0
     last_updated: Optional[str] = None
+    file_size: Optional[int] = None
+    level_meta_size: Optional[int] = None
 
 class PalInfo(BaseModel):
     """Pal information"""

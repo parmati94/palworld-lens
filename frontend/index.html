@@ -135,6 +135,12 @@
                         </div>
                     </div>
                     
+                    <!-- Last Loaded Time Display -->
+                    <div x-show="saveInfo.last_updated" class="flex flex-col items-end justify-center px-4 py-2 bg-gray-700/50 rounded-lg border border-gray-600 min-w-[180px]">
+                        <div class="text-xs text-gray-400">Last Loaded</div>
+                        <div class="text-sm font-medium text-gray-200 whitespace-nowrap" x-text="formatDate(saveInfo.last_updated)"></div>
+                    </div>
+                    
                     <button 
                         @click="reloadSave()" 
                         :disabled="loading"
@@ -242,22 +248,28 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-bold mb-4">Save Information</h2>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Save Path:</span>
-                            <span class="text-gray-300 font-mono text-xs" x-text="saveInfo.level_path"></span>
+                    <h2 class="text-xl font-bold mb-4">Save Files</h2>
+                    <div class="space-y-3 max-h-48 overflow-y-auto">
+                        <div>
+                            <div class="text-xs text-gray-500 mb-1">Level.sav</div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-300 font-mono text-xs truncate flex-1 mr-2" x-text="saveInfo.level_path"></span>
+                                <span class="text-blue-400 font-semibold whitespace-nowrap" x-text="formatFileSize(saveInfo.file_size)"></span>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Last Updated:</span>
-                            <span class="text-gray-300" x-text="formatDate(saveInfo.last_updated)"></span>
+                        <div class="border-t border-gray-700 pt-3">
+                            <div class="text-xs text-gray-500 mb-1">LevelMeta.sav</div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-300 font-mono text-xs truncate flex-1 mr-2" x-text="saveInfo.level_meta_path"></span>
+                                <span class="text-blue-400 font-semibold whitespace-nowrap" x-text="formatFileSize(saveInfo.level_meta_size)"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
                     <h2 class="text-xl font-bold mb-4">Bases Overview</h2>
-                    <div class="space-y-3 max-h-48 overflow-y-auto">
+                    <div class="space-y-3 max-h-48 overflow-y-auto pr-2">
                         <template x-for="guild in basePals" :key="guild.guild_id">
                             <div class="border-b border-gray-700 pb-2 last:border-0">
                                 <div class="text-sm font-medium text-green-400 mb-1" x-text="guild.guild_name"></div>
@@ -1095,6 +1107,7 @@
                     this.bases = data.bases || [];
                     this.loading = false;
                     this.error = null;
+                    console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
                 },
                 
                 startPolling() {
@@ -1211,6 +1224,14 @@
                 formatDate(dateStr) {
                     if (!dateStr) return 'N/A';
                     return new Date(dateStr).toLocaleString();
+                },
+                
+                formatFileSize(bytes) {
+                    if (!bytes) return 'N/A';
+                    const sizes = ['B', 'KB', 'MB', 'GB'];
+                    if (bytes === 0) return '0 B';
+                    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                    return Math.round(bytes / Math.pow(1024, i) * 10) / 10 + ' ' + sizes[i];
                 },
                 
                 sortBy(column) {

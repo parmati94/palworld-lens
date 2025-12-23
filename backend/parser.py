@@ -477,14 +477,37 @@ class SaveFileParser:
         # Count actual player guilds (not all guild-like groups)
         actual_guilds = self.get_guilds()
         
+        # Get file sizes for both Level.sav and LevelMeta.sav
+        file_size = None
+        level_meta_path = None
+        level_meta_size = None
+        
+        if self.level_sav_path and self.level_sav_path.exists():
+            try:
+                file_size = self.level_sav_path.stat().st_size
+            except Exception as e:
+                logger.debug(f"Could not get Level.sav size: {e}")
+            
+            # Get LevelMeta.sav info
+            level_meta_file = self.level_sav_path.parent / "LevelMeta.sav"
+            if level_meta_file.exists():
+                level_meta_path = str(level_meta_file)
+                try:
+                    level_meta_size = level_meta_file.stat().st_size
+                except Exception as e:
+                    logger.debug(f"Could not get LevelMeta.sav size: {e}")
+        
         return SaveInfo(
             world_name=world_name,
             loaded=True,
             level_path=str(self.level_sav_path) if self.level_sav_path else None,
+            level_meta_path=level_meta_path,
             player_count=player_count,
             guild_count=len(actual_guilds),
             pal_count=pal_count,
-            last_updated=self.last_load_time.isoformat() if self.last_load_time else None
+            last_updated=self.last_load_time.isoformat() if self.last_load_time else None,
+            file_size=file_size,
+            level_meta_size=level_meta_size
         )
     
     def _get_character_data(self) -> Dict[str, Dict]:
