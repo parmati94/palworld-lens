@@ -1,7 +1,7 @@
 """Data loading from JSON files"""
 import json
 import logging
-from typing import Dict
+from typing import Dict, Optional
 from pathlib import Path
 
 from backend.core.config import config
@@ -25,12 +25,14 @@ class DataLoader:
         self.active_skill_full_data: Dict[str, Dict] = {}  # Full data (element, power, etc.)
         self.passive_skill_full_data: Dict[str, Dict] = {}  # Full data (rank, effects, etc.)
         self.element_display_names: Dict[str, str] = {}
+        self.trust_thresholds: list = []  # List of (required_points, trust_level) tuples
         
         self._load_pal_names()
         self._load_pal_data()
         self._load_skill_names()
         self._load_full_skill_data()
         self._load_element_names()
+        self._load_trust_thresholds()
     
     def _load_pal_names(self):
         """Load pal name mappings from JSON"""
@@ -148,3 +150,42 @@ class DataLoader:
                 logger.warning(f"Element names file not found: {elements_json}")
         except Exception as e:
             logger.warning(f"Could not load element names: {e}")
+    
+    def _load_trust_thresholds(self):
+        """Load Trust Level thresholds from friendship.json"""
+        try:
+            friendship_json = config.DATA_PATH / "json" / "friendship.json"
+            if friendship_json.exists():
+                with open(friendship_json, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # Convert to sorted list of (threshold, level) tuples
+                thresholds = []
+                for key, value in data.items():
+                    if key.startswith("Friendship_Rank_") and not key.endswith("Minus1") and not key.endswith("Minus2"):
+                        rank = value.get("rank", 0)
+                        required = value.get("required_point", 0)
+                        if rank >= 0 and required >= 0:
+                            thresholds.append((required, rank))
+                
+                # Sort by threshold ascending
+                thresholds.sort(key=lambda x: x[0])
+                self.trust_thresholds = thresholds
+                logger.debug(f"Loaded {len(thresholds)} trust level thresholds")
+            else:
+                logger.warning(f"Trust thresholds file not found: {friendship_json}")
+        except Exception as e:
+            logger.warning(f"Could not load trust thresholds: {e}")
+    
+    def get_species_scaling(self, character_id: str) -> Optional[Dict[str, int]]:
+        """Get species scaling values from pals.json"""
+        try:
+            species_data = self.pal_species_data.get(character_id)
+            if species_data and "scaling" in species_data:
+                scaling = species_data["scaling"]
+                return scaling
+            else:
+                logger.warning(f"No scaling data found for character_id: {character_id}")
+        except Exception as e:
+            logger.warning(f"Error getting species scaling for {character_id}: {e}")
+        return None

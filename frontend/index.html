@@ -592,7 +592,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('hp')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('hp')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors w-[180px]">
                                     <div class="flex items-center gap-1">
                                         <span>HP</span>
                                         <svg x-show="sortColumn === 'hp'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -600,7 +600,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('hunger')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('hunger')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors w-[180px]">
                                     <div class="flex items-center gap-1">
                                         <span>Hunger</span>
                                         <svg x-show="sortColumn === 'hunger'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -608,7 +608,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('sanity')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('sanity')" class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors w-[180px]">
                                     <div class="flex items-center gap-1">
                                         <span>SAN</span>
                                         <svg x-show="sortColumn === 'sanity'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -668,23 +668,28 @@
                                     <td class="px-4 py-3">
                                         <span class="text-purple-400 font-bold" x-text="pal.level"></span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm">
-                                        <span x-text="pal.hp + ' / ' + pal.max_hp"></span>
-                                    </td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2">
-                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[100px]">
-                                                <div :class="pal.hunger > 50 ? 'bg-green-500' : (pal.hunger > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-2 rounded-full" :style="`width: ${pal.hunger}%`"></div>
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                <div class="bg-green-500 h-2 rounded-full" :style="`width: ${Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)}%`"></div>
                                             </div>
-                                            <span class="text-xs" x-text="Math.round(pal.hunger) + '%'"></span>
+                                            <span class="text-xs text-green-400" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2">
-                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[100px]">
-                                                <div :class="pal.sanity > 50 ? 'bg-blue-500' : (pal.sanity > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-2 rounded-full" :style="`width: ${pal.sanity}%`"></div>
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                <div class="bg-orange-500 h-2 rounded-full" :style="`width: ${pal.hunger}%`"></div>
                                             </div>
-                                            <span class="text-xs" x-text="Math.round(pal.sanity) + '%'"></span>
+                                            <span class="text-xs text-orange-400" x-text="Math.round(pal.hunger) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                <div class="bg-blue-500 h-2 rounded-full" :style="`width: ${pal.sanity}%`"></div>
+                                            </div>
+                                            <span class="text-xs text-blue-400" x-text="Math.round(pal.sanity) + '%'"></span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-3 text-sm text-gray-400">
@@ -855,25 +860,25 @@
                                                     </td>
                                                     <td class="px-3 py-2 text-sm">
                                                         <div>
-                                                            <span class="text-xs" x-text="pal.hp + ' / ' + pal.max_hp"></span>
-                                                            <div class="w-20 bg-gray-700 rounded-full h-1 mt-1">
-                                                                <div class="bg-red-500 h-1 rounded-full" :style="`width: ${(pal.hp/pal.max_hp)*100}%`"></div>
+                                                            <span class="text-xs font-medium text-green-400" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                                            <div class="w-20 bg-gray-700 rounded-full h-1.5 mt-1">
+                                                                <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)}%`"></div>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td class="px-3 py-2">
                                                         <div>
-                                                            <span class="text-xs font-medium" :class="pal.hunger > 50 ? 'text-green-400' : (pal.hunger > 20 ? 'text-yellow-400' : 'text-red-400')" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                            <span class="text-xs font-medium text-orange-400" x-text="Math.round(pal.hunger) + '%'"></span>
                                                             <div class="w-20 bg-gray-700 rounded-full h-1.5 mt-1">
-                                                                <div :class="pal.hunger > 50 ? 'bg-green-500' : (pal.hunger > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-1.5 rounded-full" :style="`width: ${pal.hunger}%`"></div>
+                                                                <div class="bg-orange-500 h-1.5 rounded-full" :style="`width: ${pal.hunger}%`"></div>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td class="px-3 py-2">
                                                         <div>
-                                                            <span class="text-xs font-medium" :class="pal.sanity > 50 ? 'text-blue-400' : (pal.sanity > 20 ? 'text-yellow-400' : 'text-red-400')" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                            <span class="text-xs font-medium text-blue-400" x-text="Math.round(pal.sanity) + '%'"></span>
                                                             <div class="w-20 bg-gray-700 rounded-full h-1.5 mt-1">
-                                                                <div :class="pal.sanity > 50 ? 'bg-blue-500' : (pal.sanity > 20 ? 'bg-yellow-500' : 'bg-red-500')" class="h-1.5 rounded-full" :style="`width: ${pal.sanity}%`"></div>
+                                                                <div class="bg-blue-500 h-1.5 rounded-full" :style="`width: ${pal.sanity}%`"></div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -1035,16 +1040,16 @@
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
                                         <div class="text-xs text-gray-400 mb-1">HP</div>
-                                        <div class="text-lg font-bold text-red-400" x-text="`${selectedPal.hp}/${selectedPal.max_hp}`"></div>
+                                        <div class="text-lg font-bold text-green-400" x-text="Math.round(Math.min((selectedPal.hp/(selectedPal.calculated_hp || selectedPal.max_hp))*100, 100)) + '%'"></div>
                                         <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
-                                            <div class="bg-red-500 h-1.5 rounded-full" :style="`width: ${(selectedPal.hp / selectedPal.max_hp) * 100}%`"></div>
+                                            <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${Math.min((selectedPal.hp/(selectedPal.calculated_hp || selectedPal.max_hp))*100, 100)}%`"></div>
                                         </div>
                                     </div>
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
                                         <div class="text-xs text-gray-400 mb-1">Hunger</div>
-                                        <div class="text-lg font-bold text-green-400" x-text="`${Math.round(selectedPal.hunger)}%`"></div>
+                                        <div class="text-lg font-bold text-orange-400" x-text="`${Math.round(selectedPal.hunger)}%`"></div>
                                         <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
-                                            <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${selectedPal.hunger}%`"></div>
+                                            <div class="bg-orange-500 h-1.5 rounded-full" :style="`width: ${selectedPal.hunger}%`"></div>
                                         </div>
                                     </div>
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
@@ -1061,29 +1066,44 @@
                                 </div>
                             </div>
                             
-                            <!-- IVs/Talents -->
+                            <!-- Calculated Stats -->
                             <div>
-                                <h3 class="text-lg font-bold text-gray-200 mb-3">Individual Values (IVs)</h3>
+                                <h3 class="text-lg font-bold text-gray-200 mb-3">Calculated Stats</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <!-- Attack Stat -->
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
-                                        <div class="text-xs text-gray-400 mb-1">HP</div>
-                                        <div class="text-xl font-bold" :class="selectedPal.talent_hp >= 90 ? 'text-green-400' : (selectedPal.talent_hp >= 50 ? 'text-yellow-400' : 'text-gray-400')" 
-                                             x-text="selectedPal.talent_hp"></div>
+                                        <div class="text-xs text-gray-400 mb-1">⚔️ Attack</div>
+                                        <div class="text-xl font-bold text-orange-400" x-text="selectedPal.calculated_attack || 'N/A'"></div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span>Shot IV: </span><span x-text="selectedPal.talent_shot"></span>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- Defense Stat -->
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
-                                        <div class="text-xs text-gray-400 mb-1">Attack (Melee)</div>
-                                        <div class="text-xl font-bold" :class="selectedPal.talent_melee >= 90 ? 'text-green-400' : (selectedPal.talent_melee >= 50 ? 'text-yellow-400' : 'text-gray-400')" 
-                                             x-text="selectedPal.talent_melee"></div>
+                                        <div class="text-xs text-gray-400 mb-1">🛡️ Defense</div>
+                                        <div class="text-xl font-bold text-blue-400" x-text="selectedPal.calculated_defense || 'N/A'"></div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span>Defense IV: </span><span x-text="selectedPal.talent_defense"></span>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- HP Stat -->
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
-                                        <div class="text-xs text-gray-400 mb-1">Attack (Shot)</div>
-                                        <div class="text-xl font-bold" :class="selectedPal.talent_shot >= 90 ? 'text-green-400' : (selectedPal.talent_shot >= 50 ? 'text-yellow-400' : 'text-gray-400')" 
-                                             x-text="selectedPal.talent_shot"></div>
+                                        <div class="text-xs text-gray-400 mb-1">❤️ Max HP</div>
+                                        <div class="text-xl font-bold text-red-400" x-text="selectedPal.calculated_hp || 'N/A'"></div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span>HP IV: </span><span x-text="selectedPal.talent_hp"></span>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- Work Speed -->
                                     <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
-                                        <div class="text-xs text-gray-400 mb-1">Defense</div>
-                                        <div class="text-xl font-bold" :class="selectedPal.talent_defense >= 90 ? 'text-green-400' : (selectedPal.talent_defense >= 50 ? 'text-yellow-400' : 'text-gray-400')" 
-                                             x-text="selectedPal.talent_defense"></div>
+                                        <div class="text-xs text-gray-400 mb-1">🔧 Work Speed</div>
+                                        <div class="text-xl font-bold text-green-400" x-text="selectedPal.calculated_work_speed || 'N/A'"></div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span>Craft Rank: </span><span x-text="selectedPal.rank_craftspeed || 0"></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

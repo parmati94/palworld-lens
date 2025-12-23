@@ -77,6 +77,14 @@ class PalInfo(BaseModel):
     condition: Optional[str] = None  # WorkerSick condition (e.g., "Sick", "Sprain", "Bulimia", etc.)
     hunger_type: Optional[str] = None  # HungerType status (e.g., "Hunger")
     
+    # Calculated stats fields (computed from base stats + level + IVs + ranks)
+    calculated_attack: Optional[int] = None
+    calculated_defense: Optional[int] = None
+    calculated_hp: Optional[int] = None
+    calculated_work_speed: Optional[int] = None
+    friendship_points: Optional[int] = None
+    trust_level: Optional[int] = None
+    
     @computed_field
     def condition_display(self) -> Optional[str]:
         """Get user-friendly condition name for UI"""
@@ -134,9 +142,9 @@ class PalInfo(BaseModel):
     @computed_field
     def image_id(self) -> str:
         """Get the image filename for this pal"""
-        # Remove boss prefix for image lookup
+        # Remove boss prefix for image lookup (handle both BOSS_ and Boss_)
         base_id = self.character_id
-        if base_id.startswith("BOSS_"):
+        if base_id.startswith("BOSS_") or base_id.startswith("Boss_"):
             base_id = base_id[5:]
         return base_id.lower()
 
