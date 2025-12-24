@@ -39,7 +39,8 @@ def calculate_pal_stats(
     rank: int = 1,
     trust_level: int = 0,
     friendship_multipliers: Optional[Dict[str, float]] = None,
-    is_alpha: bool = False
+    is_alpha: bool = False,
+    passive_skills: Optional[List] = None
 ) -> Dict[str, int]:
     """Calculate actual pal stats using the mathematically precise Palworld formulas
     
@@ -124,11 +125,12 @@ def calculate_pal_stats(
         # Step 3: IV Bonus - applies to species growth
         attack_iv_bonus = attack_growth * (max(talent_melee, talent_shot) * 0.3 / 100)
         
-        # Step 4: Trust Bonus - applies to SPECIES GROWTH ONLY
+        # Step 4: Trust Bonus - applies to (SPECIES GROWTH + IV)
         attack_trust_bonus = 0
         if trust_level > 0 and friendship_multipliers and "friendship_shotattack" in friendship_multipliers:
             attack_mult = friendship_multipliers["friendship_shotattack"] / 100
-            attack_trust_bonus = math.floor(attack_growth * (trust_level * attack_mult))
+            # Trust applies to the combined growth (species + IV), not just species
+            attack_trust_bonus = math.floor((attack_growth + attack_iv_bonus) * (trust_level * attack_mult))
             
         # Step 5: Assemble
         attack_effective_base = static_attack + math.floor(attack_growth + attack_iv_bonus) + attack_trust_bonus
@@ -143,11 +145,12 @@ def calculate_pal_stats(
         # Step 3: IV Bonus - applies to species growth
         defense_iv_bonus = defense_growth * (talent_defense * 0.3 / 100)
         
-        # Step 4: Trust Bonus - applies to SPECIES GROWTH ONLY
+        # Step 4: Trust Bonus - applies to (SPECIES GROWTH + IV)
         defense_trust_bonus = 0
         if trust_level > 0 and friendship_multipliers and "friendship_defense" in friendship_multipliers:
             defense_mult = friendship_multipliers["friendship_defense"] / 100
-            defense_trust_bonus = math.floor(defense_growth * (trust_level * defense_mult))
+            # Trust applies to the combined growth (species + IV), not just species
+            defense_trust_bonus = math.floor((defense_growth + defense_iv_bonus) * (trust_level * defense_mult))
             
         # Step 5: Assemble
         defense_effective_base = static_defense + math.floor(defense_growth + defense_iv_bonus) + defense_trust_bonus
@@ -159,6 +162,57 @@ def calculate_pal_stats(
         # Work speed (not affected by level scaling in the same way)
         calculated_work_speed = 70  # Default work speed
         
+        # Apply passive skill multipliers (effects are now stored in SkillInfo)
+        if passive_skills:
+            hp_multiplier = 1.0
+            attack_multiplier = 1.0
+            defense_multiplier = 1.0
+            work_speed_multiplier = 1.0
+            
+            for skill in passive_skills:
+                # Access effects directly from SkillInfo object
+                effects = getattr(skill, 'effects', None)
+                if not effects:
+                    continue
+                    
+                for effect in effects:
+                    effect_type = effect.get('type')
+                    value = effect.get('value', 0) / 100  # Convert percentage to decimal
+                    target = effect.get('target')
+                    
+                    # Only apply if target is ToSelf
+                    if target == 'ToSelf':
+                        if effect_type == 'MaxHP':
+                            hp_multiplier += value
+                            logger.debug(f"Applied MaxHP passive: +{value*100}%")
+                        elif effect_type == 'Attack':
+                            attack_multiplier += value
+                            logger.debug(f"Applied Attack passive: +{value*100}%")
+                        elif effect_type in ['Defense', 'Defence']:  # Handle both spellings
+                            defense_multiplier += value
+                            logger.debug(f"Applied Defense passive: +{value*100}%")
+                        elif effect_type in ['WorkSpeed', 'CraftSpeed']:
+                            work_speed_multiplier += value
+                            logger.debug(f"Applied WorkSpeed passive: +{value*100}%")
+            
+            # Apply multipliers
+            if hp_multiplier != 1.0:
+                old_hp = calculated_hp
+                calculated_hp = math.floor(calculated_hp * hp_multiplier)
+                logger.debug(f"HP: {old_hp} * {hp_multiplier} = {calculated_hp}")
+            if attack_multiplier != 1.0:
+                old_attack = calculated_attack
+                calculated_attack = math.floor(calculated_attack * attack_multiplier)
+                logger.debug(f"Attack: {old_attack} * {attack_multiplier} = {calculated_attack}")
+            if defense_multiplier != 1.0:
+                old_defense = calculated_defense
+                calculated_defense = math.floor(calculated_defense * defense_multiplier)
+                logger.debug(f"Defense: {old_defense} * {defense_multiplier} = {calculated_defense}")
+            if work_speed_multiplier != 1.0:
+                old_ws = calculated_work_speed
+                calculated_work_speed = math.floor(calculated_work_speed * work_speed_multiplier)
+                logger.debug(f"WorkSpeed: {old_ws} * {work_speed_multiplier} = {calculated_work_speed}")
+        
         return {
             "attack": calculated_attack,
             "defense": calculated_defense,
@@ -166,5 +220,5 @@ def calculate_pal_stats(
             "work_speed": calculated_work_speed
         }
     except Exception as e:
-        logger.warning(f"Error calculating stats: {e}")
+        logger.warning(f"Error calculating stats: {e}", exc_info=True)
         return {"attack": 0, "defense": 0, "hp": 0, "work_speed": 70}

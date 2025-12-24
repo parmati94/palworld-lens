@@ -13,10 +13,12 @@ from backend.core.constants import (
 class SkillInfo(BaseModel):
     """Skill information with name, description, and game data"""
     name: str
+    skill_id: Optional[str] = None  # Internal skill ID for lookups
     description: Optional[str] = None
     element: Optional[str] = None  # For active skills - element type
     power: Optional[int] = None  # For active skills - attack power
     rank: Optional[int] = None  # For passive skills - rank (-3 to 4, no 0)
+    effects: Optional[List[Dict]] = None  # For passive skills - stat effects (MaxHP, Defense, etc.)
 
 class PalGender(str, Enum):
     """Pal gender"""

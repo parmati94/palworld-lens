@@ -145,11 +145,13 @@ def map_passive_skills(
         
         if skill_data:
             skills.append(SkillInfo(
+                skill_id=skill_id,
                 name=skill_data["name"],
                 description=skill_data["description"],
-                rank=full_data.get("rank")
+                rank=full_data.get("rank"),
+                effects=full_data.get("effects", [])  # Include stat effects from JSON
             ))
         else:
             # Fallback for unmapped skills
-            skills.append(SkillInfo(name=skill_id, description=""))
+            skills.append(SkillInfo(skill_id=skill_id, name=skill_id, description=""))
     return skills

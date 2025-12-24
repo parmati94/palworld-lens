@@ -295,7 +295,8 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             rank=rank,
             trust_level=trust_level,
             friendship_multipliers=friendship_multipliers,
-            is_alpha=is_alpha_pal
+            is_alpha=is_alpha_pal,
+            passive_skills=passive_skills  # Now includes effects data
         )
         
         pal = PalInfo(
