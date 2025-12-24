@@ -78,6 +78,8 @@ def _get_lookup_id(char_id: str, data_loader: DataLoader) -> str:
     Some BOSS_ characters (like BOSS_Ninja, humanoid NPCs) have their own entries in pals.json.
     Others (like BOSS_CatBat for alpha pals) don't and need the prefix removed.
     
+    Handles case-insensitive lookups for inconsistencies like Boss_LazyCatFish vs LazyCatfish.
+    
     Args:
         char_id: Character ID from save file
         data_loader: DataLoader instance with pal data loaded
@@ -87,11 +89,25 @@ def _get_lookup_id(char_id: str, data_loader: DataLoader) -> str:
     """
     # First, check if the character ID with BOSS_ prefix exists
     if char_id.startswith("BOSS_") or char_id.startswith("Boss_"):
-        # Try with the BOSS_ prefix first
+        # Try with the BOSS_ prefix first (exact match)
         if char_id in data_loader.pal_names or char_id in data_loader.pal_species_data:
             return char_id
+        
         # If not found, remove the prefix
-        return char_id[5:]
+        stripped_id = char_id[5:]
+        
+        # Try exact match first
+        if stripped_id in data_loader.pal_names or stripped_id in data_loader.pal_species_data:
+            return stripped_id
+        
+        # Fall back to case-insensitive lookup (e.g., LazyCatFish vs LazyCatfish)
+        stripped_lower = stripped_id.lower()
+        for key in data_loader.pal_names.keys():
+            if key.lower() == stripped_lower:
+                return key
+        
+        # If still not found, return the stripped ID
+        return stripped_id
     
     return char_id
 
