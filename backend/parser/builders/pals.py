@@ -2,7 +2,6 @@
 import logging
 from typing import List, Dict
 
-from backend.core.enums import EPalGenderType, EPalBaseCampWorkerSickType, EPalStatusHungerType
 from backend.models.models import PalInfo
 from backend.parser.utils.mappers import (
     map_element_display_names,
@@ -12,64 +11,15 @@ from backend.parser.utils.mappers import (
 )
 from backend.parser.extractors.characters import get_character_data
 from backend.parser.extractors.bases import get_base_assignments
-from backend.parser.utils.helpers import get_val
-from backend.parser.core.data_loader import DataLoader
+from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.utils.stats import calculate_pal_stats, calculate_work_suitabilities
-from backend.core.logging_config import get_logger
+from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-
-def _extract_hp(char_info: Dict, key: str, default: float = 100) -> int:
-    """Extract HP value from save data and convert from milli-HP to actual HP
-    
-    HP is stored as FixedPoint64 (milli-HP, scaled by 1000).
-    Full structure: {'value': {'Value': {'value': 582000}}} -> 582 HP
-    
-    Args:
-        char_info: Character save parameter dict
-        key: Key to extract (Hp)
-        default: Default value if not found
-        
-    Returns:
-        Actual HP value (divided by 1000)
-    """
-    hp_data = char_info.get(key)
-    if hp_data is None:
-        logger.debug(f"HP field '{key}' not found in char_info")
-        return default
-    
-    # Handle nested structure: {'value': {'Value': {'value': 582000}}}
-    if isinstance(hp_data, dict):
-        # First check for 'value' key at top level
-        if "value" in hp_data:
-            value_wrapper = hp_data["value"]
-            if isinstance(value_wrapper, dict) and "Value" in value_wrapper:
-                value_data = value_wrapper["Value"]
-                if isinstance(value_data, dict) and "value" in value_data:
-                    milli_hp = value_data["value"]
-                    # Convert from milli-HP to actual HP
-                    actual_hp = int(milli_hp / 1000) if isinstance(milli_hp, (int, float)) else default
-                    return actual_hp
-        # Fallback: check for 'Value' directly (simpler structure)
-        elif "Value" in hp_data:
-            value_data = hp_data["Value"]
-            if isinstance(value_data, dict) and "value" in value_data:
-                milli_hp = value_data["value"]
-                actual_hp = int(milli_hp / 1000) if isinstance(milli_hp, (int, float)) else default
-                return actual_hp
-    
-    # Final fallback to get_val
-    val = get_val(char_info, key, default)
-    if isinstance(val, (int, float)):
-        # If it's a large number, assume it's milli-HP
-        if val > 10000:
-            logger.info(f"✓ Extracted {key} via get_val: {val} -> {int(val / 1000)} HP")
-            return int(val / 1000)
-        return int(val)
-    
-    logger.warning(f"HP extraction failed for {key}, returning default {default}")
-    return default
+# Load YAML schema
+pal_schema = SchemaLoader("pals.yaml")
 
 
 def _get_lookup_id(char_id: str, data_loader: DataLoader) -> str:
@@ -129,68 +79,32 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
     
     for instance_id, char_info in char_data.items():
         # Skip players
-        is_player = get_val(char_info, "IsPlayer", False)
+        is_player = pal_schema.extract_field(char_info, "IsPlayer")
         if is_player:
             continue
         
-        char_id = get_val(char_info, "CharacterID", "Unknown")
+        char_id = pal_schema.extract_field(char_info, "CharacterID")
         
         # Get lookup ID - checks if BOSS_ version exists before stripping prefix
         lookup_id = _get_lookup_id(char_id, data_loader)
         pal_name = data_loader.pal_names.get(lookup_id, char_id)
         
-        # Get gender using official enum
-        gender_data = char_info.get("Gender", {})
-        gender = "Unknown"
-        if isinstance(gender_data, dict):
-            gender_val = gender_data.get("value", {})
-            if isinstance(gender_val, dict):
-                gender_raw = gender_val.get("value", "Unknown")
-            else:
-                gender_raw = str(gender_val) if gender_val else "Unknown"
-        else:
-            gender_raw = str(gender_data) if gender_data else "Unknown"
-        
-        # Parse enum value
-        if gender_raw.startswith("EPalGenderType::"):
-            gender_raw = gender_raw.replace("EPalGenderType::", "")
-        
-        # Map to display name using enum
-        if gender_raw == "Male" or gender_raw == str(EPalGenderType.MALE):
-            gender = "Male"
-        elif gender_raw == "Female" or gender_raw == str(EPalGenderType.FEMALE):
-            gender = "Female"
-        else:
-            gender = "Unknown"
-        
-        # Get owner
+        # Extract fields using YAML schema
+        gender = pal_schema.extract_field(char_info, "Gender")
         owner_name = pal_to_owner.get(str(instance_id))
         
         # Calculate hunger percentage
-        hunger_raw = get_val(char_info, "FullStomach", 150.0)
-        if not isinstance(hunger_raw, (int, float)) or hunger_raw != hunger_raw:
-            hunger_raw = 150.0
-        
-        stomach_lookup_id = char_id
-        if char_id.startswith("BOSS_") or char_id.startswith("Boss_"):
-            stomach_lookup_id = char_id[5:]
+        hunger_raw = pal_schema.extract_field(char_info, "FullStomach")
+        stomach_lookup_id = char_id[5:] if char_id.startswith(("BOSS_", "Boss_")) else char_id
         max_stomach = data_loader.pal_max_stomach.get(stomach_lookup_id, 150)
         hunger = min((hunger_raw / max_stomach) * 100, 100.0)
         
-        # Get sanity
-        sanity = get_val(char_info, "SanityValue", 100.0)
-        if not isinstance(sanity, (int, float)) or sanity != sanity:
-            sanity = 100.0
+        # Extract condition fields
+        sanity = pal_schema.extract_field(char_info, "SanityValue")
+        is_boss = pal_schema.extract_field(char_info, "IsBoss") or char_id.startswith(("BOSS_", "Boss_"))
         
-        is_boss = get_val(char_info, "IsBoss", False) or char_id.startswith("BOSS_") or char_id.startswith("Boss_")
-        
-        # Extract active skills
-        active_skill_ids = []
-        equip_waza = char_info.get("EquipWaza", {})
-        if isinstance(equip_waza, dict) and "value" in equip_waza:
-            waza_values = equip_waza["value"]
-            if isinstance(waza_values, dict) and "values" in waza_values:
-                active_skill_ids = [str(skill) for skill in waza_values["values"]]
+        # Extract active and passive skills
+        active_skill_ids = [str(s) for s in pal_schema.extract_list(char_info, "EquipWaza")]
         active_skills = map_active_skills(
             active_skill_ids,
             data_loader.active_skill_data,
@@ -198,13 +112,7 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             data_loader.element_display_names
         )
         
-        # Extract passive skills
-        passive_skill_ids = []
-        passive_list = char_info.get("PassiveSkillList", {})
-        if isinstance(passive_list, dict) and "value" in passive_list:
-            passive_values = passive_list["value"]
-            if isinstance(passive_values, dict) and "values" in passive_values:
-                passive_skill_ids = [str(skill) for skill in passive_values["values"]]
+        passive_skill_ids = [str(s) for s in pal_schema.extract_list(char_info, "PassiveSkillList")]
         passive_skills = map_passive_skills(
             passive_skill_ids,
             data_loader.passive_skill_data,
@@ -223,45 +131,18 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             base_work_suitability = species_data.get("work_suitability", {})
             
             # Extract work suitability upgrade data if present
-            condensor_rank = None
+            condensor_rank = pal_schema.extract_field(char_info, "Rank")
             manual_upgrades = None
             
-            # Check for Pal Condensor rank (Rank.value == 5 means 4 star)
-            rank_data = char_info.get("Rank", {})
-            if isinstance(rank_data, dict) and "value" in rank_data:
-                rank_value_data = rank_data["value"]
-                if isinstance(rank_value_data, dict) and "value" in rank_value_data:
-                    condensor_rank = rank_value_data["value"]
-            
-            # Extract manual work suitability upgrades
-            got_work_list = char_info.get("GotWorkSuitabilityAddRankList", {})
-            if isinstance(got_work_list, dict) and "value" in got_work_list:
-                work_value = got_work_list["value"]
-                if isinstance(work_value, dict) and "values" in work_value:
-                    upgrade_entries = work_value["values"]
-                    if isinstance(upgrade_entries, list) and upgrade_entries:
-                        manual_upgrades = {}
-                        for entry in upgrade_entries:
-                            if not isinstance(entry, dict):
-                                continue
-                            
-                            # Extract work type
-                            work_suit_data = entry.get("WorkSuitability", {})
-                            if isinstance(work_suit_data, dict) and "value" in work_suit_data:
-                                work_value_data = work_suit_data["value"]
-                                if isinstance(work_value_data, dict) and "value" in work_value_data:
-                                    work_type_full = work_value_data["value"]
-                                    # Extract work type name from enum (e.g., "EPalWorkSuitability::Watering" -> "Watering")
-                                    if isinstance(work_type_full, str) and "::" in work_type_full:
-                                        work_type = work_type_full.split("::")[-1]
-                                    else:
-                                        work_type = work_type_full
-                            
-                                    # Extract rank bonus value
-                                    rank_bonus_data = entry.get("Rank", {})
-                                    if isinstance(rank_bonus_data, dict) and "value" in rank_bonus_data:
-                                        rank_bonus = rank_bonus_data["value"]
-                                        manual_upgrades[work_type] = manual_upgrades.get(work_type, 0) + rank_bonus
+            # Extract manual work suitability upgrades using YAML schema
+            upgrade_entries = pal_schema.extract_list(char_info, "GotWorkSuitabilityAddRankList")
+            if upgrade_entries:
+                manual_upgrades = {}
+                for entry in upgrade_entries:
+                    work_type = entry.get("work_type")
+                    rank_bonus = entry.get("rank_bonus")
+                    if work_type and rank_bonus:
+                        manual_upgrades[work_type] = manual_upgrades.get(work_type, 0) + rank_bonus
             
             # Only calculate if there are upgrades to apply
             if condensor_rank == 5 or manual_upgrades:
@@ -283,48 +164,18 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         # Get base assignment
         assignment = base_assignments.get(str(instance_id), {})
         
-        # Extract condition/status using official enum
-        condition = None
-        worker_sick = char_info.get("WorkerSick", {})
-        if isinstance(worker_sick, dict) and "value" in worker_sick:
-            sick_value = worker_sick["value"]
-            if isinstance(sick_value, dict) and "value" in sick_value:
-                condition_full = sick_value["value"]
-                if isinstance(condition_full, str) and "::" in condition_full:
-                    sick_enum_name = condition_full.split("::")[-1]
-                    # Map to official enum values
-                    if sick_enum_name != "None":
-                        condition = sick_enum_name
+        # Extract condition and hunger status using YAML schema
+        condition = pal_schema.extract_field(char_info, "WorkerSick")
+        hunger_type = pal_schema.extract_field(char_info, "HungerType")
         
-        # Extract hunger type using official enum
-        hunger_type = None
-        hunger_type_data = char_info.get("HungerType", {})
-        if isinstance(hunger_type_data, dict) and "value" in hunger_type_data:
-            hunger_value = hunger_type_data["value"]
-            if isinstance(hunger_value, dict) and "value" in hunger_value:
-                hunger_full = hunger_value["value"]
-                if isinstance(hunger_full, str) and "::" in hunger_full:
-                    hunger_enum_name = hunger_full.split("::")[-1]
-                    # Map enum name to official values
-                    if hunger_enum_name == "Hunger" or hunger_enum_name == str(EPalStatusHungerType.HUNGER):
-                        hunger_type = "Hunger"
-                    elif hunger_enum_name == "Starvation" or hunger_enum_name == str(EPalStatusHungerType.STARVATION):
-                        hunger_type = "Starvation"
-                    elif hunger_enum_name == "Default" or hunger_enum_name == str(EPalStatusHungerType.DEFAULT):
-                        hunger_type = "Default"
-                    else:
-                        hunger_type = hunger_enum_name
-        
-        # Calculate actual stats using the precise formulas
-        level = get_val(char_info, "Level", 1)
-        talent_hp = get_val(char_info, "Talent_HP", 0)
-        talent_melee = get_val(char_info, "Talent_Melee", 0)
-        talent_shot = get_val(char_info, "Talent_Shot", 0)
-        talent_defense = get_val(char_info, "Talent_Defense", 0)
-        rank = get_val(char_info, "Rank", 1)
-        
-        # Extract FriendshipPoint (Trust system)
-        friendship_points = get_val(char_info, "FriendshipPoint", 0)
+        # Extract stat fields using YAML schema
+        level = pal_schema.extract_field(char_info, "Level")
+        talent_hp = pal_schema.extract_field(char_info, "Talent_HP")
+        talent_melee = pal_schema.extract_field(char_info, "Talent_Melee")
+        talent_shot = pal_schema.extract_field(char_info, "Talent_Shot")
+        talent_defense = pal_schema.extract_field(char_info, "Talent_Defense")
+        rank = pal_schema.extract_field(char_info, "Rank")
+        friendship_points = pal_schema.extract_field(char_info, "Friendship")
         from backend.parser.utils.stats import calculate_trust_level
         trust_level = calculate_trust_level(friendship_points, data_loader.trust_thresholds)
         
@@ -372,32 +223,32 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             instance_id=str(instance_id),
             character_id=str(char_id),
             name=str(pal_name),
-            nickname=get_val(char_info, "NickName"),
-            level=get_val(char_info, "Level", 1),
-            exp=get_val(char_info, "Exp", 0),
+            nickname=pal_schema.extract_field(char_info, "NickName"),
+            level=level,
+            exp=pal_schema.extract_field(char_info, "Exp"),
             owner_uid=owner_name,
             gender=gender,
-            hp=_extract_hp(char_info, "Hp", 100),
-            max_hp=calculated_stats["hp"],  # Use calculated HP as max
-            mp=get_val(char_info, "MP"),
-            max_mp=get_val(char_info, "MaxMP"),
+            hp=pal_schema.extract_field(char_info, "Hp"),
+            max_hp=calculated_stats["hp"],
+            mp=pal_schema.extract_field(char_info, "MP"),
+            max_mp=pal_schema.extract_field(char_info, "MaxMP"),
             hunger=hunger,
             sanity=sanity,
-            rank=get_val(char_info, "Rank", 1),
-            rank_hp=get_val(char_info, "Rank_HP", 0),
-            rank_attack=get_val(char_info, "Rank_Attack", 0),
-            rank_defense=get_val(char_info, "Rank_Defense", 0),
-            rank_craftspeed=get_val(char_info, "Rank_CraftSpeed", 0),
-            talent_hp=get_val(char_info, "Talent_HP", 0),
-            talent_melee=get_val(char_info, "Talent_Melee", 0),
-            talent_shot=get_val(char_info, "Talent_Shot", 0),
-            talent_defense=get_val(char_info, "Talent_Defense", 0),
+            rank=rank,
+            rank_hp=pal_schema.extract_field(char_info, "Rank_HP"),
+            rank_attack=pal_schema.extract_field(char_info, "Rank_Attack"),
+            rank_defense=pal_schema.extract_field(char_info, "Rank_Defense"),
+            rank_craftspeed=pal_schema.extract_field(char_info, "Rank_CraftSpeed"),
+            talent_hp=talent_hp,
+            talent_melee=talent_melee,
+            talent_shot=talent_shot,
+            talent_defense=talent_defense,
             active_skills=active_skills,
             passive_skills=passive_skills,
             element_types=element_types,
             work_suitability=work_suitability,
             work_suitability_names=work_suitability_names,
-            is_lucky=get_val(char_info, "IsRarePal", False),
+            is_lucky=pal_schema.extract_field(char_info, "IsRarePal"),
             is_boss=is_boss,
             base_id=assignment.get("base_id"),
             guild_id=assignment.get("guild_id"),

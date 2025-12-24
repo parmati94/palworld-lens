@@ -6,10 +6,13 @@ import math
 from backend.models.models import PlayerInfo
 from backend.parser.extractors.characters import get_player_data
 from backend.parser.extractors.guilds import get_guild_data
-from backend.parser.utils.helpers import get_val
-from backend.core.logging_config import get_logger
+from backend.parser.utils.schema_loader import SchemaLoader
+from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
+
+# Load YAML schema
+player_schema = SchemaLoader("players.yaml")
 
 # Stat name mappings (Chinese to English keys)
 STAT_NAME_MAP = {
@@ -35,12 +38,12 @@ def build_players(world_data: Dict) -> List[PlayerInfo]:
     players = []
     
     for instance_id, char_info in players_data.items():
-        # Extract stat points
+        # Extract stat points using YAML schema
         stat_points = _extract_stat_points(char_info, "GotStatusPointList")
         ex_stat_points = _extract_stat_points(char_info, "GotExStatusPointList")
         
-        # Get level
-        level = get_val(char_info, "Level", 1)
+        # Extract fields using YAML schema
+        level = player_schema.extract_field(char_info, "Level")
         
         # Calculate stats
         calculated_stats = _calculate_player_stats(
@@ -49,32 +52,25 @@ def build_players(world_data: Dict) -> List[PlayerInfo]:
             ex_stat_points=ex_stat_points
         )
         
-        # Get current HP (FixedPoint64 format, divide by 1000)
-        hp_data = char_info.get("Hp", {})
-        if isinstance(hp_data, dict):
-            hp_value = hp_data.get("Value", {})
-            if isinstance(hp_value, dict):
-                hp_value = hp_value.get("value", 0)
-            elif isinstance(hp_value, (int, float)):
-                pass
-            else:
-                hp_value = 0
-        else:
-            hp_value = hp_data if isinstance(hp_data, (int, float)) else 0
+        # HP - extract current HP with fallback to calculated max
+        current_hp = player_schema.extract_field(char_info, "Hp")
+        max_hp = calculated_stats["hp"]
         
-        current_hp = int(hp_value / 1000) if hp_value else calculated_stats["hp"]
+        # Fallback to max HP if extraction failed or value is invalid (greater than max)
+        if not current_hp or current_hp > max_hp:
+            current_hp = max_hp
         
         player = PlayerInfo(
             uid=instance_id,
-            player_name=get_val(char_info, "NickName", "Unknown"),
+            player_name=player_schema.extract_field(char_info, "NickName"),
             level=level,
-            exp=get_val(char_info, "Exp", 0),
+            exp=player_schema.extract_field(char_info, "Exp"),
             hp=current_hp,
-            max_hp=calculated_stats["hp"],
-            mp=get_val(char_info, "MP"),
+            max_hp=max_hp,
+            mp=player_schema.extract_field(char_info, "MP"),
             max_mp=calculated_stats["stamina"],
-            hunger=get_val(char_info, "FullStomach", 100.0),
-            sanity=get_val(char_info, "SanityValue", 100.0),
+            hunger=player_schema.extract_field(char_info, "FullStomach"),
+            sanity=player_schema.extract_field(char_info, "SanityValue"),
             guild_id=_get_player_guild(world_data, instance_id),
             stat_points_hp=stat_points["hp"],
             stat_points_stamina=stat_points["stamina"],
@@ -99,7 +95,7 @@ def build_players(world_data: Dict) -> List[PlayerInfo]:
 
 
 def _extract_stat_points(char_info: Dict, field_name: str) -> Dict[str, int]:
-    """Extract stat points from GotStatusPointList or GotExStatusPointList
+    """Extract stat points from GotStatusPointList or GotExStatusPointList using YAML schema
     
     Args:
         char_info: Character save parameter dict
@@ -117,37 +113,12 @@ def _extract_stat_points(char_info: Dict, field_name: str) -> Dict[str, int]:
         "work_speed": 0
     }
     
-    stat_list = char_info.get(field_name, {})
-    if not isinstance(stat_list, dict):
-        return result
+    # Use YAML schema to extract structured list
+    stat_entries = player_schema.extract_list(char_info, field_name)
     
-    # Navigate through the nested structure
-    value_data = stat_list.get("value", {})
-    if not isinstance(value_data, dict):
-        return result
-    
-    values = value_data.get("values", [])
-    if not isinstance(values, list):
-        return result
-    
-    # Extract stat points from each entry
-    for entry in values:
-        if not isinstance(entry, dict):
-            continue
-        
-        # Get stat name
-        stat_name_data = entry.get("StatusName", {})
-        if isinstance(stat_name_data, dict):
-            stat_name = stat_name_data.get("value", "")
-        else:
-            stat_name = str(stat_name_data)
-        
-        # Get stat points
-        stat_point_data = entry.get("StatusPoint", {})
-        if isinstance(stat_point_data, dict):
-            stat_points = stat_point_data.get("value", 0)
-        else:
-            stat_points = int(stat_point_data) if stat_point_data else 0
+    for entry in stat_entries:
+        stat_name = entry.get("stat_name", "")
+        stat_points = entry.get("stat_points", 0)
         
         # Map to our keys
         mapped_key = STAT_NAME_MAP.get(stat_name)
@@ -222,7 +193,13 @@ def _get_player_guild(world_data: Dict, player_uid: str) -> Optional[str]:
     """
     guilds = get_guild_data(world_data)
     for guild_id, guild_info in guilds.items():
-        group_type = get_val(guild_info, "group_type", "")
+        # Extract group_type manually since we don't have guild schema loaded here
+        group_type_data = guild_info.get("group_type", {})
+        if isinstance(group_type_data, dict):
+            group_type = group_type_data.get("value", "")
+        else:
+            group_type = str(group_type_data)
+            
         if group_type != "EPalGroupType::Guild":
             continue
             

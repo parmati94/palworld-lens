@@ -8,8 +8,8 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from sse_starlette.sse import EventSourceResponse
 
-from backend.core.config import config
-from backend.core.logging_config import setup_logging, get_logger
+from backend.common.config import config
+from backend.common.logging_config import setup_logging, get_logger
 from backend.parser import parser
 from backend.utils.watcher import SaveWatcher
 

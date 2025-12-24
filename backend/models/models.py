@@ -2,7 +2,7 @@
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, computed_field
 from enum import Enum
-from backend.core.constants import (
+from backend.common.constants import (
     CONDITION_DISPLAY_NAMES,
     CONDITION_DESCRIPTIONS,
     WORK_ICON_MAPPING,

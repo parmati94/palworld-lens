@@ -1,0 +1,18 @@
+# Schema for guild data extraction
+
+fields:
+  group_type:
+    path: ["value"]
+    default: ""
+  
+  guild_name:
+    path: ["value"]
+    default: ""
+  
+  group_name:
+    path: ["value"]
+    default: ""
+  
+  admin_player_uid:
+    path: ["value"]
+    default: null

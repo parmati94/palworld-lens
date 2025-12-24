@@ -1,0 +1,133 @@
+# Schema for pal character data extraction
+# Use actual field names from save files
+
+fields:
+  # Basic identification
+  CharacterID:
+    path: ["value"]
+    default: "Unknown"
+  
+  IsPlayer:
+    path: ["value"]
+    default: false
+  
+  NickName:
+    path: ["value"]
+    default: null
+  
+  # Stats
+  Level:
+    path: ["value"]
+    default: 1
+  
+  Exp:
+    path: ["value"]
+    default: 0
+  
+  Rank:
+    path: ["value", "value"]
+    default: 1
+  
+  Rank_HP:
+    path: ["value"]
+    default: 0
+  
+  Rank_Attack:
+    path: ["value"]
+    default: 0
+  
+  Rank_Defense:
+    path: ["value"]
+    default: 0
+  
+  Rank_CraftSpeed:
+    path: ["value"]
+    default: 0
+  
+  # HP - stored as FixedPoint64 (milli-HP / 1000)
+  Hp:
+    path: ["value", "Value", "value"]
+    transform: divide_by_1000
+    default: 100
+  
+  # MP/Stamina
+  MP:
+    path: ["value"]
+    default: null
+  
+  MaxMP:
+    path: ["value"]
+    default: null
+  
+  # Condition/Hunger
+  FullStomach:
+    path: ["value"]
+    default: 150.0
+  
+  SanityValue:
+    path: ["value"]
+    default: 100.0
+  
+  # Talents (IVs)
+  Talent_HP:
+    path: ["value"]
+    default: 0
+  
+  Talent_Melee:
+    path: ["value"]
+    default: 0
+  
+  Talent_Shot:
+    path: ["value"]
+    default: 0
+  
+  Talent_Defense:
+    path: ["value"]
+    default: 0
+  
+  # Trust/Friendship
+  Friendship:
+    path: ["value"]
+    default: 0
+  
+  # Flags
+  IsRarePal:
+    path: ["value"]
+    default: false
+  
+  IsBoss:
+    path: ["value"]
+    default: false
+  
+  # Enums
+  Gender:
+    path: ["value", "value"]
+    strip_prefix: "EPalGenderType::"
+    default: "Unknown"
+  
+  WorkerSick:
+    path: ["value", "value"]
+    strip_prefix: "EPalBaseCampWorkerSickType::"
+    default: null
+  
+  HungerType:
+    path: ["value", "value"]
+    strip_prefix: "EPalStatusHungerType::"
+    default: null
+
+# Lists and complex structures
+lists:
+  EquipWaza:
+    path: ["value", "values"]
+  
+  PassiveSkillList:
+    path: ["value", "values"]
+  
+  GotWorkSuitabilityAddRankList:
+    path: ["value", "values"]
+    items:
+      work_type:
+        path: ["WorkSuitability", "value", "value"]
+        strip_prefix: "EPalWorkSuitability::"
+      rank_bonus:
+        path: ["Rank", "value"]

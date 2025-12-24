@@ -1,0 +1,53 @@
+# Schema for player character data extraction
+
+fields:
+  # Basic info
+  NickName:
+    path: ["value"]
+    default: "Unknown"
+  
+  Level:
+    path: ["value"]
+    default: 1
+  
+  Exp:
+    path: ["value"]
+    default: 0
+  
+  # HP - stored as FixedPoint64 (milli-HP / 1000)
+  Hp:
+    path: ["value", "Value", "value"]
+    transform: divide_by_1000
+    default: 100
+  
+  # MP/Stamina
+  MP:
+    path: ["value"]
+    default: null
+  
+  # Condition
+  FullStomach:
+    path: ["value"]
+    default: 100.0
+  
+  SanityValue:
+    path: ["value"]
+    default: 100.0
+
+# Lists
+lists:
+  GotStatusPointList:
+    path: ["value", "values"]
+    items:
+      stat_name:
+        path: ["StatusName", "value"]
+      stat_points:
+        path: ["StatusPoint", "value"]
+  
+  GotExStatusPointList:
+    path: ["value", "values"]
+    items:
+      stat_name:
+        path: ["StatusName", "value"]
+      stat_points:
+        path: ["StatusPoint", "value"]
