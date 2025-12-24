@@ -205,7 +205,9 @@
             border-radius: 0.5rem;
             border: 1px solid rgba(75, 85, 99, 0.5);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            white-space: nowrap;
+            white-space: normal;
+            max-width: 250px;
+            width: max-content;
             z-index: 1000;
             pointer-events: none;
             margin-bottom: 0.5rem;
@@ -234,6 +236,8 @@
             transform: translateY(-50%);
             margin-bottom: 0;
             margin-left: 0.5rem;
+            max-width: 250px;
+            white-space: normal;
         }
         
         .fixed [data-tooltip]:hover::before {
