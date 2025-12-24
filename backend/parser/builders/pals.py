@@ -14,7 +14,7 @@ from backend.parser.extractors.characters import get_character_data
 from backend.parser.extractors.bases import get_base_assignments
 from backend.parser.utils.helpers import get_val
 from backend.parser.core.data_loader import DataLoader
-from backend.parser.utils.stats import calculate_pal_stats
+from backend.parser.utils.stats import calculate_pal_stats, calculate_work_suitabilities
 from backend.core.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -220,7 +220,60 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
             element_types = species_data.get("element_types", [])
             # Map element IDs to localized display names
             element_types = map_element_display_names(element_types, data_loader.element_display_names)
-            work_suitability = species_data.get("work_suitability", {})
+            base_work_suitability = species_data.get("work_suitability", {})
+            
+            # Extract work suitability upgrade data if present
+            condensor_rank = None
+            manual_upgrades = None
+            
+            # Check for Pal Condensor rank (Rank.value == 5 means 4 star)
+            rank_data = char_info.get("Rank", {})
+            if isinstance(rank_data, dict) and "value" in rank_data:
+                rank_value_data = rank_data["value"]
+                if isinstance(rank_value_data, dict) and "value" in rank_value_data:
+                    condensor_rank = rank_value_data["value"]
+            
+            # Extract manual work suitability upgrades
+            got_work_list = char_info.get("GotWorkSuitabilityAddRankList", {})
+            if isinstance(got_work_list, dict) and "value" in got_work_list:
+                work_value = got_work_list["value"]
+                if isinstance(work_value, dict) and "values" in work_value:
+                    upgrade_entries = work_value["values"]
+                    if isinstance(upgrade_entries, list) and upgrade_entries:
+                        manual_upgrades = {}
+                        for entry in upgrade_entries:
+                            if not isinstance(entry, dict):
+                                continue
+                            
+                            # Extract work type
+                            work_suit_data = entry.get("WorkSuitability", {})
+                            if isinstance(work_suit_data, dict) and "value" in work_suit_data:
+                                work_value_data = work_suit_data["value"]
+                                if isinstance(work_value_data, dict) and "value" in work_value_data:
+                                    work_type_full = work_value_data["value"]
+                                    # Extract work type name from enum (e.g., "EPalWorkSuitability::Watering" -> "Watering")
+                                    if isinstance(work_type_full, str) and "::" in work_type_full:
+                                        work_type = work_type_full.split("::")[-1]
+                                    else:
+                                        work_type = work_type_full
+                            
+                                    # Extract rank bonus value
+                                    rank_bonus_data = entry.get("Rank", {})
+                                    if isinstance(rank_bonus_data, dict) and "value" in rank_bonus_data:
+                                        rank_bonus = rank_bonus_data["value"]
+                                        manual_upgrades[work_type] = manual_upgrades.get(work_type, 0) + rank_bonus
+            
+            # Only calculate if there are upgrades to apply
+            if condensor_rank == 5 or manual_upgrades:
+                work_suitability = calculate_work_suitabilities(
+                    base_work_suitability,
+                    condensor_rank,
+                    manual_upgrades
+                )
+            else:
+                # No upgrades, just use base values
+                work_suitability = base_work_suitability
+            
             # Map work type IDs to display names
             work_suitability_names = map_work_suitability_names(
                 list(work_suitability.keys()),

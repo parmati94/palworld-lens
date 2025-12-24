@@ -3,7 +3,7 @@ Based on community research by u/blahable and datamined mechanics
 """
 import math
 import logging
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, Optional, List, Tuple, Any
 
 from backend.core.logging_config import get_logger
 
@@ -214,3 +214,48 @@ def calculate_pal_stats(
     except Exception as e:
         logger.warning(f"Error calculating stats: {e}", exc_info=True)
         return {"attack": 0, "defense": 0, "hp": 0, "work_speed": 70}
+
+
+def calculate_work_suitabilities(
+    base_work_suitability: Dict[str, int],
+    condensor_rank: Optional[int] = None,
+    manual_upgrades: Optional[Dict[str, int]] = None
+) -> Dict[str, int]:
+    """Calculate actual work suitability levels including bonuses
+    
+    The calculation is:
+    Final Level = Base Level + Pal Condensor Bonus + Manual Upgrades
+    
+    - Base Level: From species JSON data
+    - Pal Condensor Bonus: +1 to ALL work types if condensor_rank == 5 (4 star pal)
+    - Manual Upgrades: Individual upgrades dict {work_type: bonus_amount}
+    
+    Args:
+        base_work_suitability: Base work suitability levels from species data
+        condensor_rank: The Pal Condensor rank value (5 = 4 star pal), or None
+        manual_upgrades: Dict mapping work type to bonus amount, or None
+        
+    Returns:
+        Dict mapping work type ID to calculated level (0-4)
+    """
+    if not base_work_suitability:
+        return {}
+    
+    # Start with base levels
+    calculated_suitabilities = base_work_suitability.copy()
+    
+    # Apply Pal Condensor bonus (4 star pal = rank 5)
+    if condensor_rank == 5:
+        for work_type in calculated_suitabilities:
+            calculated_suitabilities[work_type] += 1
+    
+    # Apply manual upgrades
+    if manual_upgrades:
+        for work_type, bonus in manual_upgrades.items():
+            if work_type in calculated_suitabilities:
+                calculated_suitabilities[work_type] += bonus
+            else:
+                # If work type wasn't in base (level 0), set it to the bonus
+                calculated_suitabilities[work_type] = bonus
+    
+    return calculated_suitabilities
