@@ -5,7 +5,7 @@ import math
 import logging
 from typing import Dict, Optional, List, Tuple, Any
 
-from backend.core.logging_config import get_logger
+from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
 

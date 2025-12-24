@@ -3,7 +3,7 @@
 Mappings aligned with official Palworld enums from:
 https://gist.github.com/DRayX/ffcb68e23956e4ccda566173146a19c4
 
-See backend.core.enums for the actual enum definitions.
+See backend.common.enums for the actual enum definitions.
 """
 from typing import Dict
 

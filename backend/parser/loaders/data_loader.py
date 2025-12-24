@@ -4,8 +4,8 @@ import logging
 from typing import Dict, Optional
 from pathlib import Path
 
-from backend.core.config import config
-from backend.core.logging_config import get_logger
+from backend.common.config import config
+from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
 
