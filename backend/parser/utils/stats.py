@@ -184,34 +184,26 @@ def calculate_pal_stats(
                     if target == 'ToSelf':
                         if effect_type == 'MaxHP':
                             hp_multiplier += value
-                            logger.debug(f"Applied MaxHP passive: +{value*100}%")
                         elif effect_type == 'Attack':
                             attack_multiplier += value
-                            logger.debug(f"Applied Attack passive: +{value*100}%")
                         elif effect_type in ['Defense', 'Defence']:  # Handle both spellings
                             defense_multiplier += value
-                            logger.debug(f"Applied Defense passive: +{value*100}%")
                         elif effect_type in ['WorkSpeed', 'CraftSpeed']:
                             work_speed_multiplier += value
-                            logger.debug(f"Applied WorkSpeed passive: +{value*100}%")
             
             # Apply multipliers
             if hp_multiplier != 1.0:
                 old_hp = calculated_hp
                 calculated_hp = math.floor(calculated_hp * hp_multiplier)
-                logger.debug(f"HP: {old_hp} * {hp_multiplier} = {calculated_hp}")
             if attack_multiplier != 1.0:
                 old_attack = calculated_attack
                 calculated_attack = math.floor(calculated_attack * attack_multiplier)
-                logger.debug(f"Attack: {old_attack} * {attack_multiplier} = {calculated_attack}")
             if defense_multiplier != 1.0:
                 old_defense = calculated_defense
                 calculated_defense = math.floor(calculated_defense * defense_multiplier)
-                logger.debug(f"Defense: {old_defense} * {defense_multiplier} = {calculated_defense}")
             if work_speed_multiplier != 1.0:
                 old_ws = calculated_work_speed
                 calculated_work_speed = math.floor(calculated_work_speed * work_speed_multiplier)
-                logger.debug(f"WorkSpeed: {old_ws} * {work_speed_multiplier} = {calculated_work_speed}")
         
         return {
             "attack": calculated_attack,

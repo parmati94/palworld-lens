@@ -1,3 +1,4 @@
+name: palworld-lens-dev
 services:
   palworld-lens:
     image: palworld-lens:dev
