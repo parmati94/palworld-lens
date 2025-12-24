@@ -80,45 +80,81 @@ def calculate_pal_stats(
         attack_talent_multiplier = 1 + (max(talent_melee, talent_shot) * 0.3) / 100  # Use higher of melee/shot
         defense_talent_multiplier = 1 + (talent_defense * 0.3) / 100
         
-        # Step 1: Calculate base level stats (the "naked" stat) and floor
-        # HP Formula: 500 + (Level × 5) + (Level × SpeciesScaling_HP × 0.5 × TalentMultiplier)
-        hp_raw_growth = BASE_HP + (level * 5) + (level * species_scaling["hp"] * 0.5 * hp_talent_multiplier)
+        # === HP CALCULATION (CORRECTED) ===
+        # Step 1: Calculate static HP (500 base) - NEVER affected by trust/alpha/IV
+        static_hp = BASE_HP
         
-        # Apply Alpha/Boss HP Multiplier (v0.2.4.0: 1.2x for all Alpha/Lucky Pals)
-        # Applied BEFORE trust bonuses, immediately after raw growth calculation
+        # Step 2: Calculate level-based growth components
+        level_growth = level * 5  # Flat HP per level
+        species_growth = level * species_scaling["hp"] * 0.5  # Species-specific scaling
+        
+        # Step 3: Calculate IV (Talent) bonus - applies to species growth only
+        # Talent bonus is SEPARATE from trust bonus
+        iv_bonus_hp = species_growth * (talent_hp * 0.3 / 100)
+        
+        # Step 4: Calculate Trust bonus - applies to (species_growth + level_growth)
+        # Trust bonus uses the combined growth, NOT including static base or IV
+        trust_bonus_hp = 0
+        if trust_level > 0 and friendship_multipliers and "friendship_hp" in friendship_multipliers:
+            hp_mult = friendship_multipliers["friendship_hp"] / 100
+            # CRITICAL: Trust applies to BOTH species scaling AND level growth
+            trust_bonus_hp = math.floor((species_growth + level_growth) * (trust_level * hp_mult))
+        
+        # Step 5: Apply Alpha/Boss HP Multiplier (v0.2.4.0: 1.2x for all Alpha/Lucky Pals)
+        # Applied to species growth before assembly
+        applied_growth = species_growth
         if is_alpha:
-            hp_base = math.floor(hp_raw_growth * 1.2)
-        else:
-            hp_base = math.floor(hp_raw_growth)
+            applied_growth = applied_growth * 1.2
         
-        # Attack Formula: 100 + (Level × SpeciesScaling_Attack × 0.075 × TalentMultiplier)  
-        attack_base = math.floor(BASE_ATTACK + (level * species_scaling["attack"] * 0.075 * attack_talent_multiplier))
+        # Step 6: Assemble final HP base: static + level_growth + (species_growth + IV) + trust
+        # Floor the species_growth+IV together, then add everything
+        hp_effective_base = static_hp + level_growth + math.floor(applied_growth + iv_bonus_hp) + trust_bonus_hp
         
-        # Defense Formula: 50 + (Level × SpeciesScaling_Defense × 0.075 × TalentMultiplier)
-        defense_base = math.floor(BASE_DEFENSE + (level * species_scaling["defense"] * 0.075 * defense_talent_multiplier))
-        
-        # Step 2: Calculate Trust bonus as separate additive amount, floor it, then add to base
-        # Trust bonus is calculated as: floor(base_stat × (TrustLevel × FriendshipValue / 100))
-        # This is ADDITIVE, not multiplicative
-        if trust_level > 0 and friendship_multipliers:
-            if "friendship_hp" in friendship_multipliers:
-                trust_bonus_pct = trust_level * friendship_multipliers["friendship_hp"] / 100
-                hp_trust_bonus = math.floor(hp_base * trust_bonus_pct)
-                hp_base = hp_base + hp_trust_bonus
-            if "friendship_shotattack" in friendship_multipliers:
-                trust_bonus_pct = trust_level * friendship_multipliers["friendship_shotattack"] / 100
-                attack_trust_bonus = math.floor(attack_base * trust_bonus_pct)
-                attack_base = attack_base + attack_trust_bonus
-            if "friendship_defense" in friendship_multipliers:
-                trust_bonus_pct = trust_level * friendship_multipliers["friendship_defense"] / 100
-                defense_trust_bonus = math.floor(defense_base * trust_bonus_pct)
-                defense_base = defense_base + defense_trust_bonus
-        
-        # Step 3: Apply rank bonuses (5% per rank above 1) to effective base and floor final result
+        # Step 7: Apply rank multiplier to assembled HP
         rank_multiplier = 1 + ((rank - 1) * 0.05)  # rank 1 = 1.0, rank 4 = 1.15
-        calculated_hp = math.floor(hp_base * rank_multiplier)
-        calculated_attack = math.floor(attack_base * rank_multiplier)
-        calculated_defense = math.floor(defense_base * rank_multiplier)
+        calculated_hp = math.floor(hp_effective_base * rank_multiplier)
+        
+        # === ATTACK CALCULATION ===
+        # Step 1: Static Attack (100) - NEVER affected by trust/IV
+        static_attack = BASE_ATTACK
+        
+        # Step 2: Species Growth
+        attack_growth = level * species_scaling["attack"] * 0.075
+        
+        # Step 3: IV Bonus - applies to species growth
+        attack_iv_bonus = attack_growth * (max(talent_melee, talent_shot) * 0.3 / 100)
+        
+        # Step 4: Trust Bonus - applies to SPECIES GROWTH ONLY
+        attack_trust_bonus = 0
+        if trust_level > 0 and friendship_multipliers and "friendship_shotattack" in friendship_multipliers:
+            attack_mult = friendship_multipliers["friendship_shotattack"] / 100
+            attack_trust_bonus = math.floor(attack_growth * (trust_level * attack_mult))
+            
+        # Step 5: Assemble
+        attack_effective_base = static_attack + math.floor(attack_growth + attack_iv_bonus) + attack_trust_bonus
+        
+        # === DEFENSE CALCULATION ===
+        # Step 1: Static Defense (50) - NEVER affected by trust/IV
+        static_defense = BASE_DEFENSE
+        
+        # Step 2: Species Growth
+        defense_growth = level * species_scaling["defense"] * 0.075
+        
+        # Step 3: IV Bonus - applies to species growth
+        defense_iv_bonus = defense_growth * (talent_defense * 0.3 / 100)
+        
+        # Step 4: Trust Bonus - applies to SPECIES GROWTH ONLY
+        defense_trust_bonus = 0
+        if trust_level > 0 and friendship_multipliers and "friendship_defense" in friendship_multipliers:
+            defense_mult = friendship_multipliers["friendship_defense"] / 100
+            defense_trust_bonus = math.floor(defense_growth * (trust_level * defense_mult))
+            
+        # Step 5: Assemble
+        defense_effective_base = static_defense + math.floor(defense_growth + defense_iv_bonus) + defense_trust_bonus
+        
+        # Apply rank multipliers
+        calculated_attack = math.floor(attack_effective_base * rank_multiplier)
+        calculated_defense = math.floor(defense_effective_base * rank_multiplier)
         
         # Work speed (not affected by level scaling in the same way)
         calculated_work_speed = 70  # Default work speed
