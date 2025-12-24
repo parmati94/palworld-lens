@@ -153,30 +153,6 @@ docker-compose -f docker-compose.dev.yml down
 - **Frontend changes**: Instantly reflected - just refresh your browser
 - **Backend changes**: Auto-reloaded by uvicorn within 1-2 seconds
 
-No container rebuilds needed for code changes during development!
-
-## 🐛 Troubleshooting
-
-### Container Management
-- **Stop the application:** `docker-compose down`
-- **View logs:** `docker-compose logs -f`
-- **Rebuild:** `docker-compose up -d --build`
-
-### Save not loading?
-- Check that `Level.sav` exists in the mounted directory
-- Verify the path in `docker-compose.yml` is correct
-- Check logs: `docker-compose logs -f`
-
-### Container won't start?
-- Ensure port 5175 is not already in use
-- Check Docker logs for errors
-- Verify the save directory has read permissions
-
-### Data not updating?
-- Click the green "Reload Save" button
-- Check the auto-reload interval setting
-- Verify the save files are being updated
-
 ## 📜 API Endpoints
 
 ### Core Endpoints
