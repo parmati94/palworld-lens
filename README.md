@@ -179,17 +179,30 @@ No container rebuilds needed for code changes during development!
 
 ## 📜 API Endpoints
 
-- `GET /api/info` - Save file information
-- `GET /api/players` - List all players
+### Core Endpoints
+- `GET /api/health` - Health check for container monitoring
+- `GET /api/info` - Save file information and metadata
+- `POST /api/reload` - Manually reload save files
+- `GET /api/reload` - Same as POST (for convenience)
+
+### Data Endpoints
+- `GET /api/players` - List all players with stats
 - `GET /api/guilds` - List all guilds
-- `GET /api/pals` - List all pals
-- `GET /api/base-pals` - Pals organized by base
-- `POST /api/reload` - Reload save files
+- `GET /api/pals` - List all pals (non-player characters)
+
+### Auto-Watch Endpoints
 - `GET /api/watch` - Server-Sent Events stream for real-time updates
-- `GET /api/watch/status` - Check auto-watch status
-- `POST /api/watch/start` - Start file watcher
-- `POST /api/watch/stop` - Stop file watcher
-- `GET /api/health` - Health check
+- `GET /api/watch/status` - Check if auto-watch is currently active
+- `POST /api/watch/start` - Start automatic file watcher
+- `POST /api/watch/stop` - Stop automatic file watcher
+
+### Debug Endpoints
+Various debug endpoints available for development:
+- `/api/debug/world-keys` - Inspect world data structure
+- `/api/debug/base-camps` - View base camp data
+- `/api/debug/char-containers` - Character container inspection
+- `/api/debug/player-mapping` - Player UID mappings
+- And more...
 
 ## 🙏 Credits
 
@@ -201,14 +214,75 @@ Based on concepts from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-
 
 MIT License - Feel free to use and modify!
 
-## 🔮 Future Ideas
-
-- Export data to JSON/CSV
-- Statistics and graphs
-- Pal breeding calculator
-- Map visualization
-- Historical data tracking
+**Note:** This is a read-only viewer. It does not modify your save files in any way.
 
 ---
 
-**Note:** This is a read-only viewer. It does not modify your save files in any way.
+## 📁 Project Structure
+
+```
+palworld-lens/
+│
+├── backend/                        # Python FastAPI backend
+│   ├── main.py                    # FastAPI app, API endpoints, SSE handling
+│   │
+│   ├── common/                    # Shared configuration and utilities
+│   │   ├── config.py             # Environment configuration
+│   │   ├── constants.py          # App-wide constants
+│   │   └── logging_config.py     # Colored logging setup
+│   │
+│   ├── models/                    # Pydantic data models
+│   │   └── models.py             # PalInfo, PlayerInfo, GuildInfo schemas
+│   │
+│   ├── parser/                    # Save file parsing module
+│   │   ├── __init__.py           # SaveFileParser class (main orchestrator)
+│   │   │
+│   │   ├── builders/             # Build model objects from raw data
+│   │   │   ├── pals.py          # Build PalInfo from character data
+│   │   │   ├── players.py       # Build PlayerInfo from player data
+│   │   │   └── guilds.py        # Build GuildInfo from guild data
+│   │   │
+│   │   ├── extractors/          # Extract raw data from save structures
+│   │   │   ├── characters.py    # Get character save parameter map
+│   │   │   ├── guilds.py        # Get guild group data
+│   │   │   └── bases.py         # Get base camp assignments
+│   │   │
+│   │   ├── loader/              # Load game data and save files
+│   │   │   ├── data_loader.py   # Load JSON game data (names, stats, skills)
+│   │   │   └── gvas_handler.py  # GVAS file decompression and parsing
+│   │   │
+│   │   ├── schemas/             # YAML field extraction schemas
+│   │   │   ├── pals.yaml        # Pal character field definitions
+│   │   │   ├── players.yaml     # Player character field definitions
+│   │   │   └── guilds.yaml      # Guild field definitions
+│   │   │
+│   │   └── utils/               # Parser utility functions
+│   │       ├── schema_loader.py # YAML schema parser and field extractor
+│   │       ├── helpers.py       # Basic value extraction helpers
+│   │       ├── mappers.py       # Map IDs to display names
+│   │       ├── stats.py         # Calculate pal/player stats
+│   │       └── relationships.py # Build pal-to-owner mappings
+│   │
+│   └── utils/                    # Backend utilities
+│       └── watcher.py            # File system watcher for auto-reload
+│
+├── data/                          # Game data and localization
+│
+├── frontend/                      # Static web frontend
+│   ├── index.html                # Main SPA page
+│   ├── js/
+│   │   ├── app.js               # Main app logic, API calls, rendering
+│   │   └── utils.js             # Utility functions (formatting, etc.)
+│   └── img/
+│       └── favicon/             # App icons
+│
+├── supervisor/                    # Supervisor config for multi-process container
+│   ├── supervisord.conf          # Production config (backend + nginx)
+│   └── supervisord.dev.conf      # Dev config (hot-reload enabled)
+│
+├── docker-compose.yml             # Production compose file
+├── docker-compose.dev.yml         # Development compose file (hot-reload)
+├── Dockerfile                     # Multi-stage container build
+├── nginx.conf                     # Nginx reverse proxy config (internal container routing)
+├── requirements.txt               # Python dependencies
+```
