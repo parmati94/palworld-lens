@@ -1,116 +1,140 @@
 # Schema for pal character data extraction
-# Use actual field names from save files
 
 fields:
   # Basic identification
   CharacterID:
+    description: "Pal species identifier (e.g., 'PinkCat', 'BOSS_CatBat')"
     path: ["value"]
     default: "Unknown"
   
   IsPlayer:
+    description: "Whether this character is a player (used to filter out players from pal lists)"
     path: ["value"]
     default: false
   
   NickName:
+    description: "Custom nickname given to the pal by the player"
     path: ["value"]
     default: null
   
   # Stats
   Level:
+    description: "Current level of the pal (1-55)"
     path: ["value"]
     default: 1
   
   Exp:
+    description: "Total experience points accumulated"
     path: ["value"]
     default: 0
   
   Rank:
+    description: "Condenser rank (1-5), increases stats when pals are condensed"
     path: ["value", "value"]
     default: 1
   
   Rank_HP:
+    description: "Number of HP souls used for stat upgrades"
     path: ["value"]
     default: 0
   
   Rank_Attack:
+    description: "Number of Attack souls used for stat upgrades"
     path: ["value"]
     default: 0
   
   Rank_Defense:
+    description: "Number of Defense souls used for stat upgrades"
     path: ["value"]
     default: 0
   
   Rank_CraftSpeed:
+    description: "Number of Work Speed souls used for stat upgrades"
     path: ["value"]
     default: 0
   
   # HP - stored as FixedPoint64 (milli-HP / 1000)
   Hp:
+    description: "Current HP value, stored as milli-HP (divided by 1000)"
     path: ["value", "Value", "value"]
     transform: divide_by_1000
     default: 100
   
   # MP/Stamina
   MP:
+    description: "Current stamina/MP value"
     path: ["value"]
     default: null
   
   MaxMP:
+    description: "Maximum stamina/MP capacity"
     path: ["value"]
     default: null
   
   # Condition/Hunger
   FullStomach:
+    description: "Current food/hunger value (out of species-specific max stomach)"
     path: ["value"]
     default: 150.0
   
   SanityValue:
+    description: "Current sanity/mental health value (0-100)"
     path: ["value"]
     default: 100.0
   
   # Talents (IVs)
   Talent_HP:
+    description: "HP talent/IV (0-100), affects base HP stat"
     path: ["value"]
     default: 0
   
   Talent_Melee:
+    description: "Melee talent/IV (0-100), affects melee attack"
     path: ["value"]
     default: 0
   
   Talent_Shot:
+    description: "Ranged talent/IV (0-100), affects ranged attack"
     path: ["value"]
     default: 0
   
   Talent_Defense:
+    description: "Defense talent/IV (0-100), affects defense stat"
     path: ["value"]
     default: 0
   
   # Trust/Friendship
   Friendship:
+    description: "Friendship/trust points with owner (affects Trust rank bonus)"
     path: ["value"]
     default: 0
   
   # Flags
   IsRarePal:
+    description: "Whether this is a Lucky pal (sparkles, better IVs)"
     path: ["value"]
     default: false
   
   IsBoss:
+    description: "Whether this is a boss character (tower bosses, NPCs)"
     path: ["value"]
     default: false
   
   # Enums
   Gender:
+    description: "Pal's gender (Male, Female, Unknown)"
     path: ["value", "value"]
     strip_prefix: "EPalGenderType::"
     default: "Unknown"
   
   WorkerSick:
+    description: "Current illness/injury status (Sick, Injury, Weakening, Depression, DepressionSprain, etc.)"
     path: ["value", "value"]
     strip_prefix: "EPalBaseCampWorkerSickType::"
     default: null
   
   HungerType:
+    description: "Hunger severity level (Default, Hunger, Starvation)"
     path: ["value", "value"]
     strip_prefix: "EPalStatusHungerType::"
     default: null
@@ -118,16 +142,21 @@ fields:
 # Lists and complex structures
 lists:
   EquipWaza:
+    description: "List of active skills equipped on this pal"
     path: ["value", "values"]
   
   PassiveSkillList:
+    description: "List of passive skills/traits on this pal"
     path: ["value", "values"]
   
   GotWorkSuitabilityAddRankList:
+    description: "Manual work suitability rank upgrades (from training in ranch)"
     path: ["value", "values"]
     items:
       work_type:
+        description: "Work type being upgraded (e.g., Kindling, Watering)"
         path: ["WorkSuitability", "value", "value"]
         strip_prefix: "EPalWorkSuitability::"
       rank_bonus:
+        description: "Rank bonus applied to this work type"
         path: ["Rank", "value"]
