@@ -9,24 +9,33 @@ from typing import Dict
 
 # Condition/Status Mappings (aligned with EPalBaseCampWorkerSickType)
 CONDITION_DISPLAY_NAMES: Dict[str, str] = {
-    "Sick": "Sick/Cold",        # UNVERIFIED - inferred from game UI
-    "Sprain": "Sprain",          # UNVERIFIED - inferred from game UI
-    "Bulimia": "Overfull",       # CONFIRMED - found in save file
-    "Ulcer": "Ulcer",            # UNVERIFIED - inferred from game UI
-    "Depression": "Depressed",   # UNVERIFIED - inferred from game UI
-    "GutWrenching": "Gut Wrenching",  # UNVERIFIED - inferred from game UI
-    "Weakness": "Weakened",      # UNVERIFIED - inferred from game UI
-    "Fracture": "Fracture"       # UNVERIFIED - inferred from game UI
+    "Cold": "Cold",                      # EPalBaseCampWorkerSickType.COLD
+    "Sprain": "Sprain",                  # EPalBaseCampWorkerSickType.SPRAIN
+    "Bulimia": "Overfull",               # EPalBaseCampWorkerSickType.BULIMIA
+    "GastricUlcer": "Ulcer",             # EPalBaseCampWorkerSickType.GASTRIC_ULCER
+    "Fracture": "Fracture",              # EPalBaseCampWorkerSickType.FRACTURE
+    "Weakness": "Weakened",              # EPalBaseCampWorkerSickType.WEAKNESS
+    "DepressionSprain": "Depressed",     # EPalBaseCampWorkerSickType.DEPRESSION_SPRAIN
+    "DisturbingElement": "Upset",    # EPalBaseCampWorkerSickType.DISTURBING_ELEMENT
+    # Legacy/alternate names for backwards compatibility
+    "Sick": "Sick/Cold",
+    "Ulcer": "Ulcer",
+    "Depression": "Depressed",
+    "GutWrenching": "Gut Wrenching"
 }
 
 CONDITION_DESCRIPTIONS: Dict[str, str] = {
+    "Cold": "Work Speed -10. Cure: Low Grade Medical Supplies",
     "Sick": "Work Speed -10. Cure: Low Grade Medical Supplies",
     "Sprain": "Movement Speed -10. Cure: Low Grade Medical Supplies",
     "Bulimia": "Hunger depletion -100. Cure: Low Grade Medical Supplies",
+    "GastricUlcer": "Work Speed -20, Movement Speed -10. Cure: Medical Supplies",
     "Ulcer": "Work Speed -20, Movement Speed -10. Cure: Medical Supplies",
     "Fracture": "Work Speed -10, Movement Speed -20. Cure: Medical Supplies",
     "Weakness": "Work Speed -20, Movement Speed -30. Cure: High Grade Medical Supplies",
+    "DepressionSprain": "Work Speed -30, Movement Speed -20. Cure: High Grade Medical Supplies",
     "Depression": "Work Speed -30, Movement Speed -20. Cure: High Grade Medical Supplies",
+    "DisturbingElement": "Elemental disturbance affecting work. Cure: High Grade Medical Supplies",
     "GutWrenching": "Severe digestive issues. Cure: High Grade Medical Supplies"
 }
 

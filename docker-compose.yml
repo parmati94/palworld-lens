@@ -1,3 +1,4 @@
+name: palworld-lens
 services:
   palworld-lens:
     image: parmati/palworld-lens:latest
