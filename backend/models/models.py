@@ -13,10 +13,12 @@ from backend.core.constants import (
 class SkillInfo(BaseModel):
     """Skill information with name, description, and game data"""
     name: str
+    skill_id: Optional[str] = None  # Internal skill ID for lookups
     description: Optional[str] = None
     element: Optional[str] = None  # For active skills - element type
     power: Optional[int] = None  # For active skills - attack power
     rank: Optional[int] = None  # For passive skills - rank (-3 to 4, no 0)
+    effects: Optional[List[Dict]] = None  # For passive skills - stat effects (MaxHP, Defense, etc.)
 
 class PalGender(str, Enum):
     """Pal gender"""
@@ -164,6 +166,25 @@ class PlayerInfo(BaseModel):
     guild_id: Optional[str] = None
     last_online: Optional[str] = None
     location: Optional[Dict[str, float]] = None
+    # Stat points allocation
+    stat_points_hp: int = 0
+    stat_points_stamina: int = 0
+    stat_points_attack: int = 0
+    stat_points_weight: int = 0
+    stat_points_capture: int = 0
+    stat_points_work_speed: int = 0
+    # Extra stat points (from statues/ancient tech)
+    ex_stat_points_hp: int = 0
+    ex_stat_points_stamina: int = 0
+    ex_stat_points_attack: int = 0
+    ex_stat_points_weight: int = 0
+    ex_stat_points_work_speed: int = 0
+    # Calculated stats
+    calculated_max_hp: Optional[int] = None
+    calculated_stamina: Optional[int] = None
+    calculated_attack: Optional[int] = None
+    calculated_weight: Optional[int] = None
+    calculated_work_speed: Optional[int] = None
 
 class GuildInfo(BaseModel):
     """Guild information"""
