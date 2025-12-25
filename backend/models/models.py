@@ -88,26 +88,62 @@ class PalInfo(BaseModel):
     trust_level: Optional[int] = None
     
     @computed_field
+    def all_conditions(self) -> List[Dict[str, str]]:
+        """Get all active conditions with their display info
+        
+        Returns list of dicts with 'type', 'name', and 'description' keys.
+        Type is 'sickness', 'injury', or 'hunger' for UI styling.
+        """
+        conditions = []
+        
+        # Check for sickness (WorkerSick) - PURPLE badge
+        if self.condition:
+            conditions.append({
+                "type": "sickness",
+                "name": CONDITION_DISPLAY_NAMES.get(self.condition, self.condition),
+                "description": CONDITION_DESCRIPTIONS.get(self.condition, self.condition)
+            })
+        
+        # Check for Major Injury (HP = 0) - RED badge
+        if self.hp <= 0:
+            conditions.append({
+                "type": "injury",
+                "name": "Major Injury",
+                "description": "Pal is incapacitated. Place in Palbox to recover over 10 minutes."
+            })
+        
+        # Check for Starvation - RED badge
+        if self.hunger_type == "Starvation":
+            conditions.append({
+                "type": "hunger",
+                "name": "Starving",
+                "description": "Pal is starving and needs food immediately."
+            })
+        
+        return conditions
+    
+    @computed_field
     def condition_display(self) -> Optional[str]:
-        """Get user-friendly condition name for UI"""
-        if not self.condition:
+        """Get highest priority condition for table display
+        
+        Priority: Sickness > Major Injury > Starvation
+        Returns only the name of the highest priority condition.
+        """
+        conditions = self.all_conditions
+        if not conditions:
             return None
         
-        # Return mapped value if exists, otherwise return the raw condition name
-        # This allows unknown conditions to still display
-        return CONDITION_DISPLAY_NAMES.get(self.condition, self.condition)
+        # Return the first condition (they're added in priority order)
+        return conditions[0]["name"]
     
     @computed_field
     def condition_description(self) -> Optional[str]:
-        """Get detailed description of condition including effects and cure"""
-        # Handle hunger type
-        if self.hunger_type == "Hunger":
-            return "Pal needs food urgently"
-        
-        if not self.condition:
+        """Get description for highest priority condition"""
+        conditions = self.all_conditions
+        if not conditions:
             return None
         
-        return CONDITION_DESCRIPTIONS.get(self.condition, self.condition)
+        return conditions[0]["description"]
     
     @computed_field
     def work_suitability_display(self) -> List[Dict[str, Any]]:

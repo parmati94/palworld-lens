@@ -529,6 +529,17 @@ function app() {
         closePalModal() {
             this.showPalModal = false;
             setTimeout(() => this.selectedPal = null, 300);
+        },
+        
+        // Helper to get condition badge color class
+        getConditionClass(condition) {
+            if (!condition || !condition.type) {
+                return 'bg-green-600 text-white border border-green-500';
+            }
+            // Sickness = purple, Injury/Hunger = red
+            return condition.type === 'sickness' 
+                ? 'bg-purple-600 text-white border border-purple-500'
+                : 'bg-red-600 text-white border border-red-500';
         }
     }
 }
