@@ -1,4 +1,4 @@
-"""Relationship building between players, pals, and containers"""
+"""Relationship building between players, pals, and containers - schema-driven version"""
 import logging
 from pathlib import Path
 from typing import Dict
@@ -8,7 +8,10 @@ from palworld_save_tools.palsav import decompress_sav_to_gvas
 from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES
 
 from backend.parser.extractors.characters import get_player_data
+from backend.parser.extractors.guilds import get_guild_data
+from backend.parser.extractors.bases import get_base_data
 from backend.parser.utils.helpers import get_val
+from backend.parser.utils.schema_loader import SchemaLoader
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -38,6 +41,9 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
         instance_to_name[str(instance_id)] = player_name
         logger.info(f"Player from Level.sav: {player_name} (instance_id: {instance_id[:16]}...)")
     
+    # Load schema for player data extraction (works for both Level.sav and Players/*.sav)
+    player_schema = SchemaLoader("players.yaml")
+    
     # Read Players/*.sav files to get PlayerUId and container IDs
     if players_dir and players_dir.exists():
         for player_sav in players_dir.glob("*.sav"):
@@ -53,113 +59,81 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
                     raw_gvas, _ = decompress_sav_to_gvas(sav_data)
                     gvas_file = GvasFile.read(raw_gvas, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES)
                     
-                    save_data = gvas_file.properties.get("SaveData", {})
-                    if isinstance(save_data, dict):
-                        save_val = save_data.get("value", {})
-                        if isinstance(save_val, dict):
-                            # Get PlayerUId
-                            player_uid = formatted_uid
-                            player_uid_data = save_val.get("PlayerUId", {})
-                            if isinstance(player_uid_data, dict) and "value" in player_uid_data:
-                                player_uid = str(player_uid_data["value"])
-                            
-                            # Get IndividualId to match with Level.sav
-                            individual_id = None
-                            ind_id_data = save_val.get("IndividualId", {})
-                            if isinstance(ind_id_data, dict) and "value" in ind_id_data:
-                                ind_val = ind_id_data["value"]
-                                if isinstance(ind_val, dict) and "InstanceId" in ind_val:
-                                    inst_id_data = ind_val["InstanceId"]
-                                    if isinstance(inst_id_data, dict) and "value" in inst_id_data:
-                                        individual_id = str(inst_id_data["value"])
-                            
-                            player_name = instance_to_name.get(individual_id, f"Player_{filename_uid[:8].upper()}")
-                            
-                            # Get container IDs
-                            container_ids = []
-                            for field in ["OtomoCharacterContainerId", "PalStorageContainerId"]:
-                                if field in save_val:
-                                    cont_data = save_val[field]
-                                    if isinstance(cont_data, dict) and "value" in cont_data:
-                                        cont_val = cont_data["value"]
-                                        if isinstance(cont_val, dict) and "ID" in cont_val:
-                                            id_data = cont_val["ID"]
-                                            if isinstance(id_data, dict) and "value" in id_data:
-                                                container_ids.append(str(id_data["value"]))
-                            
-                            player_uid_to_containers[player_uid] = {
-                                "name": player_name,
-                                "containers": container_ids,
-                                "instance_id": individual_id
-                            }
-                            player_names[player_uid] = player_name
-                            logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
+                    # Navigate to SaveData.value (the "root" for Players/*.sav fields)
+                    save_data = gvas_file.properties.get("SaveData", {}).get("value", {})
+                    
+                    # Extract using schema (field names are top-level keys in save_data)
+                    player_uid = player_schema.extract_field(save_data, "PlayerUId")
+                    if not player_uid:
+                        player_uid = formatted_uid
+                    player_uid = str(player_uid)
+                    
+                    # Get IndividualId (links to Level.sav character instance)
+                    individual_id = player_schema.extract_field(save_data, "IndividualId")
+                    if individual_id:
+                        individual_id = str(individual_id)
+                    
+                    player_name = instance_to_name.get(individual_id, f"Player_{filename_uid[:8].upper()}")
+                    
+                    # Get container IDs using schema
+                    container_ids = []
+                    otomo_container = player_schema.extract_field(save_data, "OtomoCharacterContainerId")
+                    if otomo_container:
+                        container_ids.append(str(otomo_container))
+                    
+                    storage_container = player_schema.extract_field(save_data, "PalStorageContainerId")
+                    if storage_container:
+                        container_ids.append(str(storage_container))
+                    
+                    player_uid_to_containers[player_uid] = {
+                        "name": player_name,
+                        "containers": container_ids,
+                        "instance_id": individual_id
+                    }
+                    player_names[player_uid] = player_name
+                    logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
             except Exception as e:
                 logger.warning(f"Failed to read player .sav {player_sav.name}: {e}")
     
     # Add base worker containers to player mappings
     guild_to_players = {}
-    guild_data = world_data.get("GroupSaveDataMap", {})
-    if isinstance(guild_data, dict):
-        guilds = guild_data.get("value", [])
-        for guild in guilds:
-            if isinstance(guild, dict):
-                guild_id = guild.get("key")
-                value = guild.get("value", {})
-                if isinstance(value, dict):
-                    raw_data = value.get("RawData", {})
-                    if isinstance(raw_data, dict):
-                        raw_val = raw_data.get("value", {})
-                        if isinstance(raw_val, dict):
-                            players = raw_val.get("players", [])
-                            if players and guild_id:
-                                player_uids = []
-                                for player in players:
-                                    if isinstance(player, dict):
-                                        player_uid = player.get("player_uid")
-                                        if player_uid:
-                                            player_uids.append(str(player_uid))
-                                if player_uids:
-                                    guild_to_players[str(guild_id)] = player_uids
+    guild_data = get_guild_data(world_data)
+    
+    for guild_id, guild_info in guild_data.items():
+        # Extract player UIDs from guild
+        players = guild_info.get("players", [])
+        if players:
+            player_uids = [str(p.get("player_uid")) for p in players if isinstance(p, dict) and p.get("player_uid")]
+            if player_uids:
+                guild_to_players[str(guild_id)] = player_uids
     
     logger.info(f"Found {len(guild_to_players)} guilds with players")
     
     # Process base camps and link to players through guilds
-    base_camp_data = world_data.get("BaseCampSaveData", {})
-    if isinstance(base_camp_data, dict):
-        base_camps = base_camp_data.get("value", [])
-        logger.info(f"Checking {len(base_camps)} base camps for worker containers")
+    base_data = get_base_data(world_data)
+    logger.info(f"Checking {len(base_data)} base camps for worker containers")
+    
+    for base_id, base_info in base_data.items():
+        # Extract guild ID and container ID  
+        # Note: Can't use schema here because fields aren't top-level keys in base_info
+        raw_val = base_info.get("RawData", {}).get("value", {})
+        guild_id = raw_val.get("group_id_belong_to")
         
-        for base in base_camps:
-            if isinstance(base, dict):
-                value = base.get("value", {})
-                if isinstance(value, dict):
-                    raw_data = value.get("RawData", {})
-                    if isinstance(raw_data, dict):
-                        raw_val = raw_data.get("value", {})
-                        if isinstance(raw_val, dict):
-                            guild_id = raw_val.get("group_id_belong_to")
-                            if guild_id:
-                                guild_id_str = str(guild_id)
-                                
-                                worker_dir = value.get("WorkerDirector", {})
-                                if isinstance(worker_dir, dict):
-                                    wd_val = worker_dir.get("value", {})
-                                    if isinstance(wd_val, dict):
-                                        wd_raw = wd_val.get("RawData", {})
-                                        if isinstance(wd_raw, dict):
-                                            wd_raw_val = wd_raw.get("value", {})
-                                            if isinstance(wd_raw_val, dict):
-                                                container_id = wd_raw_val.get("container_id")
-                                                if container_id:
-                                                    container_id_str = str(container_id)
-                                                    
-                                                    player_uids = guild_to_players.get(guild_id_str, [])
-                                                    for player_uid in player_uids:
-                                                        if player_uid in player_uid_to_containers:
-                                                            player_uid_to_containers[player_uid]["containers"].append(container_id_str)
-                                                            player_name = player_uid_to_containers[player_uid]["name"]
-                                                            logger.debug(f"  -> Added base worker container for {player_name}")
+        if guild_id:
+            guild_id_str = str(guild_id)
+            
+            # Extract worker container ID
+            container_id = base_info.get("WorkerDirector", {}).get("value", {}).get("RawData", {}).get("value", {}).get("container_id")
+            
+            if container_id:
+                container_id_str = str(container_id)
+                
+                player_uids = guild_to_players.get(guild_id_str, [])
+                for player_uid in player_uids:
+                    if player_uid in player_uid_to_containers:
+                        player_uid_to_containers[player_uid]["containers"].append(container_id_str)
+                        player_name = player_uid_to_containers[player_uid]["name"]
+                        logger.debug(f"  -> Added base worker container for {player_name}")
     
     logger.info(f"Mapped {len(player_names)} players with containers")
     return player_uid_to_containers, player_names
@@ -177,46 +151,34 @@ def build_pal_ownership(world_data: Dict, player_uid_to_containers: Dict) -> Dic
     """
     pal_to_owner = {}
     
-    char_container_data = world_data.get("CharacterContainerSaveData", {})
-    if not isinstance(char_container_data, dict):
-        logger.warning("CharacterContainerSaveData not found")
+    # Use schema to get container data
+    schema = SchemaLoader("collections.yaml")
+    containers = schema.extract_collection(world_data, "containers")
+    
+    if not containers:
+        logger.warning("No containers found")
         return pal_to_owner
     
-    containers = char_container_data.get("value", [])
     container_map = {}
     
-    # Build container ID to pal instance IDs mapping
-    for container in containers:
-        if not isinstance(container, dict):
-            continue
+    # Extract pal instance IDs from each container's slots
+    for container_id, container_data in containers.items():
+        slots = container_data.get("Slots", {}).get("value", {}).get("values", [])
+        pal_ids = []
         
-        key_data = container.get("key", {})
-        if isinstance(key_data, dict) and "ID" in key_data:
-            container_id_data = key_data["ID"]
-            if isinstance(container_id_data, dict) and "value" in container_id_data:
-                container_id = str(container_id_data["value"])
-                
-                value_data = container.get("value", {})
-                if isinstance(value_data, dict):
-                    slots_data = value_data.get("Slots", {})
-                    if isinstance(slots_data, dict):
-                        slots_value = slots_data.get("value", {})
-                        if isinstance(slots_value, dict):
-                            slots = slots_value.get("values", [])
-                            pal_ids = []
-                            for slot in slots:
-                                if isinstance(slot, dict) and "RawData" in slot:
-                                    slot_raw = slot["RawData"]
-                                    if isinstance(slot_raw, dict) and "value" in slot_raw:
-                                        slot_val = slot_raw["value"]
-                                        if isinstance(slot_val, dict) and "instance_id" in slot_val:
-                                            pal_instance_id = str(slot_val["instance_id"])
-                                            if pal_instance_id and '00000000-0000-0000-0000-000000000000' not in pal_instance_id:
-                                                pal_ids.append(pal_instance_id)
-                            if pal_ids:
-                                container_map[container_id] = pal_ids
+        for slot in slots:
+            # Navigate to instance_id in slot
+            instance_id = slot.get("RawData", {}).get("value", {}).get("instance_id")
+            
+            if instance_id and '00000000-0000-0000-0000-000000000000' not in str(instance_id):
+                pal_ids.append(str(instance_id))
+        
+        # Always add to container_map, even if empty (to track player containers)
+        container_map[container_id] = pal_ids
     
     logger.debug(f"Found {len(container_map)} containers with pals")
+    logger.debug(f"Container map has {sum(len(v) for v in container_map.values())} total pal slots")
+    logger.debug(f"Container IDs in map: {list(container_map.keys())[:5]}...")  # First 5 IDs
     
     # Map pals to players
     for player_uid, player_data in player_uid_to_containers.items():
@@ -224,11 +186,15 @@ def build_pal_ownership(world_data: Dict, player_uid_to_containers: Dict) -> Dic
         player_containers = player_data["containers"]
         pal_count = 0
         
+        logger.debug(f"Player {player_name} has containers: {player_containers}")
+        
         for container_id in player_containers:
             if container_id in container_map:
                 for pal_id in container_map[container_id]:
                     pal_to_owner[pal_id] = player_name
                     pal_count += 1
+            else:
+                logger.debug(f"  Container {container_id} not found in container_map")
         
         logger.debug(f"Player {player_name}: {pal_count} pals in {len(player_containers)} containers")
     

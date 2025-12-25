@@ -1,6 +1,9 @@
-# Schema for player character data extraction
+# Schema for player data extraction
+# Contains fields from both Level.sav character entities and Players/*.sav account files
 
 fields:
+  # ===== From Level.sav character entities =====
+  
   # Basic info
   NickName:
     description: "Player's in-game character name"
@@ -40,6 +43,32 @@ fields:
     description: "Player's current sanity/mental health (0-100)"
     path: ["value"]
     default: 100.0
+  
+  # ===== From Players/*.sav account files =====
+  # Note: These paths assume data is already at SaveData.value level
+  
+  # Player identification
+  PlayerUId:
+    description: "Player's unique account ID"
+    path: ["value"]
+    default: null
+  
+  # Individual character instance ID (links to Level.sav)
+  IndividualId:
+    description: "Player character instance ID linking to Level.sav"
+    path: ["value", "InstanceId", "value"]
+    default: null
+  
+  # Container IDs for pal storage
+  OtomoCharacterContainerId:
+    description: "Party/Otomo container ID"
+    path: ["value", "ID", "value"]
+    default: null
+  
+  PalStorageContainerId:
+    description: "Palbox storage container ID"
+    path: ["value", "ID", "value"]
+    default: null
 
 # Lists
 lists:
