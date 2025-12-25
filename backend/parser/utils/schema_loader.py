@@ -1,4 +1,4 @@
-"""YAML-based schema loader and field extractor"""
+"""YAML-based schema loader - unified collection and field extraction"""
 import os
 import yaml
 from typing import Any, Dict, List, Optional
@@ -19,7 +19,13 @@ TRANSFORMS = {
 
 
 class SchemaLoader:
-    """Loads and manages YAML schemas for save data extraction"""
+    """Unified schema loader for both collections and fields
+    
+    Handles two types of extraction:
+    1. Collections: Extract multiple entities from save data (e.g., all characters)
+    2. Fields: Extract individual field values from entity data (e.g., one pal's level)
+    """
+
     
     def __init__(self, schema_file: str):
         """Load schema from YAML file
@@ -35,8 +41,9 @@ class SchemaLoader:
         
         self.fields = self.schema.get('fields', {})
         self.lists = self.schema.get('lists', {})
+        self.collections = self.schema.get('collections', {})
     
-    def extract_field(self, data: Dict[str, Any], field_name: str) -> Any:
+    def extract_field(self, data: Dict[str, Any], field_name: str) -> Optional[Any]:
         """Extract a field value from nested save data
         
         Args:
@@ -44,7 +51,7 @@ class SchemaLoader:
             field_name: Name of field to extract (must be in schema)
             
         Returns:
-            Extracted value or default if not found
+            Extracted value or default if not found, None if field not in schema
         """
         if field_name not in self.fields:
             return None
@@ -173,3 +180,126 @@ class SchemaLoader:
             current = current.split("::")[-1]
         
         return current if current is not None else default
+    
+    # Collection extraction methods (unified from GenericExtractor)
+    
+    def extract_collection(self, world_data: Dict[str, Any], collection_name: str) -> Dict[str, Dict[str, Any]]:
+        """Extract a collection of entities from world save data
+        
+        Args:
+            world_data: World save data from GVAS file
+            collection_name: Name of collection to extract (must be in schema)
+            
+        Returns:
+            Dict mapping entity IDs to their data
+        """
+        if collection_name not in self.collections:
+            return {}
+        
+        collection_schema = self.collections[collection_name]
+        root_key = collection_schema.get('root_key')
+        structure = collection_schema.get('structure', {})
+        
+        # Navigate to root collection
+        root_data = world_data.get(root_key)
+        if not isinstance(root_data, dict):
+            return {}
+        
+        # Navigate through structure path
+        current = root_data
+        for path_key in structure.get('path', []):
+            current = self._safe_get(current, path_key)
+            if current is None:
+                return {}
+        
+        # Should now be at a list of entries
+        if structure.get('type') == 'list':
+            if not isinstance(current, list):
+                return {}
+            
+            return self._extract_list_entries(current, structure)
+        
+        return {}
+    
+    def _extract_list_entries(self, entries: List[Dict[str, Any]], structure: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        """Extract key-value pairs from a list of entries
+        
+        Args:
+            entries: List of entry dictionaries to extract from
+            structure: Schema structure defining item_key and item_value extraction
+            
+        Returns:
+            Dict mapping extracted keys to extracted values
+        """
+        result = {}
+        item_key_schema = structure.get('item_key', {})
+        item_value_schema = structure.get('item_value', {})
+        
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            
+            # Extract key
+            key = self._extract_key(entry, item_key_schema)
+            if not key:
+                continue
+            
+            # Extract value
+            value = self._extract_value_from_entry(entry, item_value_schema)
+            if value is not None:
+                result[str(key)] = value
+        
+        return result
+    
+    def _extract_key(self, entry: Dict[str, Any], key_schema: Dict[str, Any]) -> Optional[str]:
+        """Extract key from entry using schema"""
+        key_type = key_schema.get('type', 'simple')
+        
+        if key_type == 'flexible_uuid':
+            # Try dict path first, fall back to direct path
+            dict_path = key_schema.get('dict_path', [])
+            key_data = self._navigate_path(entry, dict_path)
+            
+            if key_data is None:
+                # Try direct path
+                direct_path = key_schema.get('direct_path', [])
+                key_data = self._navigate_path(entry, direct_path)
+            
+            return str(key_data) if key_data else None
+        
+        elif key_type == 'nested_uuid':
+            path = key_schema.get('path', [])
+            key_data = self._navigate_path(entry, path)
+            return str(key_data) if key_data else None
+        
+        elif key_type == 'simple':
+            path = key_schema.get('path', ['key'])
+            key_data = self._navigate_path(entry, path)
+            return str(key_data) if key_data else None
+        
+        return None
+    
+    def _extract_value_from_entry(self, entry: Dict[str, Any], value_schema: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Extract value from entry using schema"""
+        path = value_schema.get('path', [])
+        return self._navigate_path(entry, path)
+    
+    def _navigate_path(self, data: Any, path: List[str]) -> Optional[Any]:
+        """Navigate through nested dicts/lists using path"""
+        current = data
+        
+        for key in path:
+            if not isinstance(current, dict):
+                return None
+            
+            current = self._safe_get(current, key)
+            if current is None:
+                return None
+        
+        return current
+    
+    def _safe_get(self, data: Any, key: str) -> Optional[Any]:
+        """Safely get value from dict"""
+        if not isinstance(data, dict):
+            return None
+        return data.get(key)

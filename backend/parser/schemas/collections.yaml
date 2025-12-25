@@ -1,0 +1,98 @@
+# Unified schema for all data collection extraction
+# Defines paths from world_data to collections of entities
+
+collections:
+  # Character entities (players and pals)
+  characters:
+    description: "All character save parameters (both players and pals)"
+    root_key: "CharacterSaveParameterMap"
+    structure:
+      type: "list"
+      path: ["value"]
+      item_key: 
+        # Key can be either dict or direct UUID
+        type: "flexible_uuid"
+        dict_path: ["key", "InstanceId", "value"]
+        direct_path: ["key"]
+      item_value:
+        path: ["value", "RawData", "value", "object", "SaveParameter", "value"]
+  
+  # Guild/group entities
+  guilds:
+    description: "Guild and organization data"
+    root_key: "GroupSaveDataMap"
+    structure:
+      type: "list"
+      path: ["value"]
+      item_key:
+        type: "flexible_uuid"
+        dict_path: ["key", "value"]
+        direct_path: ["key"]
+      item_value:
+        path: ["value", "RawData", "value"]
+  
+  # Base camp entities
+  bases:
+    description: "Base camp data"
+    root_key: "BaseCampSaveData"
+    structure:
+      type: "list"
+      path: ["value"]
+      item_key:
+        type: "flexible_uuid"
+        dict_path: ["key", "value"]
+        direct_path: ["key"]
+      item_value:
+        # Return full value dict so we can access both RawData AND WorkerDirector
+        path: ["value"]
+  
+  # Character containers (inventory, storage, etc)
+  containers:
+    description: "Character container data for pal storage"
+    root_key: "CharacterContainerSaveData"
+    structure:
+      type: "list"
+      path: ["value"]
+      item_key:
+        type: "nested_uuid"
+        path: ["key", "ID", "value"]
+      item_value:
+        path: ["value"]
+
+# Relationship extractions - complex cross-collection queries
+relationships:
+  # Player ownership of pals
+  pal_owners:
+    description: "Extract which player owns which pal from character container slots"
+    source_collection: "containers"
+    operations:
+      - type: "iterate_slots"
+        slots_path: ["Slots", "value", "values"]
+        extract:
+          instance_id:
+            path: ["RawData", "value", "instance_id", "value"]
+          owner_id:
+            # Owner comes from the parent container's ID
+            type: "parent_key"
+  
+  # Guild membership
+  guild_members:
+    description: "Extract guild member instance IDs"
+    source_collection: "guilds"
+    extract:
+      members:
+        type: "list"
+        path: ["individual_character_handle_ids"]
+        item_field: "instance_id"
+  
+  # Base assignments
+  base_worker_containers:
+    description: "Extract base camp worker container IDs"
+    source_collection: "bases"
+    extract:
+      container_id:
+        path: ["WorkerDirector", "value", "RawData", "value", "container_id", "value"]
+      guild_id:
+        path: ["group_id_belong_to", "value"]
+      base_name:
+        path: ["name", "value"]

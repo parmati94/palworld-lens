@@ -1,0 +1,25 @@
+# Schema for base camp data extraction
+
+fields:
+  # From RawData.value - these are already unwrapped
+  name:
+    description: "Base camp name"
+    path: ["RawData", "value", "name"]
+    default: ""
+  
+  group_id_belong_to:
+    description: "Guild ID this base belongs to"
+    path: ["RawData", "value", "group_id_belong_to"]
+    default: null
+  
+  # WorkerDirector container ID - deeply nested
+  worker_container_id:
+    description: "Container ID for pals assigned to work at this base"
+    path: ["WorkerDirector", "value", "RawData", "value", "container_id"]
+    default: null
+  
+  # Pal SlotId container - for checking which base a pal belongs to
+  pal_container_id:
+    description: "Container ID from a pal's SlotId"
+    path: ["SlotId", "value", "ContainerId", "value", "ID", "value"]
+    default: null
