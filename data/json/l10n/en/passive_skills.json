@@ -413,7 +413,7 @@
   },
   "CraftSpeed_up2": {
     "localized_name": "Artisan",
-    "description": null
+    "description": "Work Speed +50%"
   },
   "CraftSpeed_up3": {
     "localized_name": "Remarkable Craftsmanship",
@@ -445,7 +445,7 @@
   },
   "Deffence_up2": {
     "localized_name": "Burly Body",
-    "description": null
+    "description": "Defense +20%"
   },
   "Deffence_up3": {
     "localized_name": "Diamond Body",
@@ -457,7 +457,7 @@
   },
   "ElementBoost_Aqua_2_PAL": {
     "localized_name": "Lord of the Sea",
-    "description": null
+    "description": "20% increase to Water attack damage."
   },
   "ElementBoost_Dark_1_BossDefeat": {
     "localized_name": "Dark Damage Enhancement (Small)",
@@ -481,7 +481,7 @@
   },
   "ElementBoost_Dark_2_PAL": {
     "localized_name": "Lord of the Underworld",
-    "description": null
+    "description": "20% increase to Dark attack damage."
   },
   "ElementBoost_Dark_3_BossDefeat": {
     "localized_name": "Dark Damage Enhancement (Large)",
@@ -513,7 +513,7 @@
   },
   "ElementBoost_Dragon_2_PAL": {
     "localized_name": "Divine Dragon",
-    "description": null
+    "description": "20% increase to Dragon attack damage."
   },
   "ElementBoost_Dragon_3_BossDefeat": {
     "localized_name": "Dragon Damage Enhancement (Large)",
@@ -545,7 +545,7 @@
   },
   "ElementBoost_Earth_2_PAL": {
     "localized_name": "Earth Emperor",
-    "description": null
+    "description": "20% increase to Earth attack damage."
   },
   "ElementBoost_Earth_3_BossDefeat": {
     "localized_name": "Ground Damage Enhancement (Large)",
@@ -601,7 +601,7 @@
   },
   "ElementBoost_Fire_2_PAL": {
     "localized_name": "Flame Emperor",
-    "description": null
+    "description": "20% increase to Fire attack damage."
   },
   "ElementBoost_Fire_3_BossDefeat": {
     "localized_name": "Fire Damage Enhancement (Large)",
@@ -633,7 +633,7 @@
   },
   "ElementBoost_Ice_2_PAL": {
     "localized_name": "Ice Emperor",
-    "description": null
+    "description": "20% increase to Ice attack damage."
   },
   "ElementBoost_Ice_3_BossDefeat": {
     "localized_name": "Ice Damage Enhancement (Large)",
@@ -665,7 +665,7 @@
   },
   "ElementBoost_Leaf_2_PAL": {
     "localized_name": "Spirit Emperor",
-    "description": null
+    "description": "20% increase to Grass attack damage."
   },
   "ElementBoost_Leaf_3_BossDefeat": {
     "localized_name": "Grass Damage Enhancement (Large)",
@@ -697,7 +697,7 @@
   },
   "ElementBoost_Normal_2_PAL": {
     "localized_name": "Celestial Emperor",
-    "description": null
+    "description": "20% increase to Normal attack damage."
   },
   "ElementBoost_Normal_3_BossDefeat": {
     "localized_name": "Neutral Damage Enhancement (Large)",
@@ -713,7 +713,7 @@
   },
   "ElementBoost_Thunder_2_PAL": {
     "localized_name": "Lord of Lightning",
-    "description": null
+    "description": "20% increase to Lightning attack damage."
   },
   "ElementBoost_Water_1_BossDefeat": {
     "localized_name": "Water Damage Enhancement (Small)",
@@ -1021,7 +1021,7 @@
   },
   "PAL_ALLAttack_up2": {
     "localized_name": "Ferocious",
-    "description": null
+    "description": "Attack +20%"
   },
   "PAL_ALLAttack_up3": {
     "localized_name": "Demon God",
@@ -1033,43 +1033,43 @@
   },
   "PAL_FullStomach_Down_1": {
     "localized_name": "Dainty Eater",
-    "description": "Hunger decreases <NumBlue_13>+10.0%</> slower."
+    "description": "Hunger decreases 10.0% slower."
   },
   "PAL_FullStomach_Down_2": {
     "localized_name": "Diet Lover",
-    "description": "Hunger decreases <NumBlue_13>+15.0%</> slower."
+    "description": "Hunger decreases 15.0% slower."
   },
   "PAL_FullStomach_Down_3": {
     "localized_name": "Mastery of Fasting",
-    "description": "Hunger decreases <NumBlue_13>+20.0%</> slower."
+    "description": "Hunger decreases 20.0% slower."
   },
   "PAL_FullStomach_Up_1": {
     "localized_name": "Glutton",
-    "description": "Hunger decreases <NumRed_13>+10.0%</> faster."
+    "description": "Hunger decreases 10.0% faster."
   },
   "PAL_FullStomach_Up_2": {
     "localized_name": "Bottomless Stomach",
-    "description": "Hunger decreases <NumRed_13>+15.0%</> faster."
+    "description": "Hunger decreases 15.0% faster."
   },
   "PAL_Sanity_Down_1": {
     "localized_name": "Positive Thinker",
-    "description": "SAN drops <NumBlue_13>+10.0%</> slower."
+    "description": "SAN drops 10.0% slower."
   },
   "PAL_Sanity_Down_2": {
     "localized_name": "Workaholic",
-    "description": "SAN drops <NumBlue_13>+15.0%</> slower."
+    "description": "SAN drops +15% slower."
   },
   "PAL_Sanity_Down_3": {
     "localized_name": "Heart of the Immovable King",
-    "description": "SAN drops <NumBlue_13>+20.0%</> slower."
+    "description": "SAN drops 20.0% slower."
   },
   "PAL_Sanity_Up_1": {
     "localized_name": "Unstable",
-    "description": "SAN drops <NumRed_13>+10.0%</> faster."
+    "description": "SAN drops 10.0% faster."
   },
   "PAL_Sanity_Up_2": {
     "localized_name": "Destructive",
-    "description": "SAN drops <NumRed_13>+15.0%</> faster."
+    "description": "SAN drops 15.0% faster."
   },
   "PAL_SpiritualInst": {
     "localized_name": "Mentally unstable",
@@ -1173,7 +1173,7 @@
   },
   "SwimSpeed_up_2": {
     "localized_name": "Ace Swimmer",
-    "description": null
+    "description": "40% increase movement speed on water."
   },
   "SwimSpeed_up_3": {
     "localized_name": "King of the Waves",
@@ -1221,23 +1221,23 @@
   },
   "TrainerATK_UP_1": {
     "localized_name": "Vanguard",
-    "description": "10.0% increase in Player Attack."
+    "description": "10% increase to Player Attack."
   },
   "TrainerDEF_UP_1": {
     "localized_name": "Stronghold Strategist",
-    "description": "10.0% increase in Player Defense."
+    "description": "10% increase to Player Defense."
   },
   "TrainerLogging_up1": {
     "localized_name": "Logging Foreman",
-    "description": "25.0% increase in Player Logging Efficiency."
+    "description": "25% increase to Player Logging Efficiency."
   },
   "TrainerMining_up1": {
     "localized_name": "Mine Foreman",
-    "description": "25.0% increase in Player Mining Efficiency."
+    "description": "25% increase to Player Mining Efficiency."
   },
   "TrainerWorkSpeed_UP_1": {
     "localized_name": "Motivational Leader",
-    "description": "25.0% increase in Player Work Speed."
+    "description": "25% increase to Player Work Speed."
   },
   "Vampire": {
     "localized_name": "Vampiric",

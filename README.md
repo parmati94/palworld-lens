@@ -119,12 +119,12 @@ environment:
 - HP, hunger, and SAN levels
 - Guild membership
 
-### All Pals Tab
+### Pals Tab
 - Searchable list of all pals
 - Level, stats, owner information
 - Lucky/Shiny and Boss indicators
 
-### Base Pals Tab
+### Bases Tab
 - Pals organized by guild/base
 - **Hunger and SAN monitoring** (color-coded warnings)
 - Health bars for each pal
