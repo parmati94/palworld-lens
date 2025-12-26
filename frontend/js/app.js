@@ -16,6 +16,10 @@ function app() {
         pageSize: 10,
         sortColumn: 'level',
         sortDirection: 'desc',
+        // Filter state
+        filterElement: '',
+        filterWorkType: '',
+        filterPassiveSkill: '',
         eventSource: null,
         autoWatchActive: false,
         autoWatchAllowed: true,
@@ -27,6 +31,16 @@ function app() {
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
         
         async init() {
+            console.log('🐛 DEBUG: Filter properties defined:', {
+                filterElement: this.filterElement,
+                filterWorkType: this.filterWorkType,
+                filterPassiveSkill: this.filterPassiveSkill,
+                hasAvailableElements: typeof this.availableElements !== 'undefined',
+                hasAvailableWorkTypes: typeof this.availableWorkTypes !== 'undefined',
+                hasAvailablePassiveSkills: typeof this.availablePassiveSkills !== 'undefined',
+                hasActiveFilterCount: typeof this.activeFilterCount !== 'undefined'
+            });
+            
             // Check auto-watch status from backend
             await this.checkWatchStatus();
             
@@ -51,6 +65,11 @@ function app() {
             this.$watch('palSearch', () => {
                 this.currentPage = 1;
             });
+            
+            // Reset to page 1 when filters change
+            this.$watch('filterElement', () => this.currentPage = 1);
+            this.$watch('filterWorkType', () => this.currentPage = 1);
+            this.$watch('filterPassiveSkill', () => this.currentPage = 1);
             
             // Listen for page visibility changes (e.g., wake from sleep)
             this.setupVisibilityListener();
@@ -427,6 +446,31 @@ function app() {
                 );
             }
             
+            // Apply element filter
+            if (this.filterElement) {
+                filtered = filtered.filter(pal => 
+                    pal.element_types && pal.element_types.includes(this.filterElement)
+                );
+            }
+            
+            // Apply work type filter
+            if (this.filterWorkType) {
+                filtered = filtered.filter(pal => 
+                    pal.work_suitability && 
+                    this.filterWorkType in pal.work_suitability &&
+                    pal.work_suitability[this.filterWorkType] > 0
+                );
+            }
+            
+            // Apply passive skill filter
+            if (this.filterPassiveSkill) {
+                filtered = filtered.filter(pal => 
+                    pal.passive_skills && pal.passive_skills.some(skill => 
+                        skill.skill_id === this.filterPassiveSkill
+                    )
+                );
+            }
+            
             // Apply sorting
             const sorted = [...filtered].sort((a, b) => {
                 let aVal, bVal;
@@ -515,6 +559,73 @@ function app() {
             }
             
             return pages;
+        },
+        
+        // Filter options getters - get unique values from all pals
+        get availableElements() {
+            if (!Array.isArray(this.pals)) return [];
+            const elements = new Set();
+            this.pals.forEach(pal => {
+                if (pal.element_types && pal.element_types.length > 0) {
+                    pal.element_types.forEach(element => elements.add(element));
+                }
+            });
+            return Array.from(elements).sort();
+        },
+        
+        get availableWorkTypes() {
+            if (!Array.isArray(this.pals)) return [];
+            const workTypes = new Map(); // Map of key -> display name
+            this.pals.forEach(pal => {
+                if (pal.work_suitability && pal.work_suitability_names) {
+                    Object.entries(pal.work_suitability).forEach(([key, level]) => {
+                        // Only include work types with level > 0
+                        if (level > 0 && !workTypes.has(key)) {
+                            workTypes.set(key, pal.work_suitability_names[key] || key);
+                        }
+                    });
+                }
+            });
+            // Return array of {key, name} objects sorted by name
+            return Array.from(workTypes.entries())
+                .map(([key, name]) => ({ key, name }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+        },
+        
+        get availablePassiveSkills() {
+            if (!Array.isArray(this.pals)) return [];
+            const skills = new Map(); // Map of skill_id -> {skill_id, name}
+            this.pals.forEach(pal => {
+                if (pal.passive_skills && pal.passive_skills.length > 0) {
+                    pal.passive_skills.forEach(skill => {
+                        if (skill.skill_id && !skills.has(skill.skill_id)) {
+                            skills.set(skill.skill_id, {
+                                skill_id: skill.skill_id,
+                                name: skill.name || skill.skill_id
+                            });
+                        }
+                    });
+                }
+            });
+            return Array.from(skills.values()).sort((a, b) => a.name.localeCompare(b.name));
+        },
+        
+        // Clear all filters
+        clearFilters() {
+            this.palSearch = '';
+            this.filterElement = '';
+            this.filterWorkType = '';
+            this.filterPassiveSkill = '';
+        },
+        
+        // Get count of active filters
+        get activeFilterCount() {
+            let count = 0;
+            if (this.palSearch) count++;
+            if (this.filterElement) count++;
+            if (this.filterWorkType) count++;
+            if (this.filterPassiveSkill) count++;
+            return count;
         },
         
         // Pal detail modal

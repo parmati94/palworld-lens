@@ -256,6 +256,36 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        
+        /* Custom scrollbar for dropdowns */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #374151;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #60a5fa;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+        
+        /* Work suitability icon colors */
+        .work-icon-kindling { filter: brightness(0) saturate(100%) invert(44%) sepia(89%) saturate(2453%) hue-rotate(346deg) brightness(99%) contrast(93%); }
+        .work-icon-watering { filter: brightness(0) saturate(100%) invert(51%) sepia(93%) saturate(1745%) hue-rotate(186deg) brightness(97%) contrast(101%); }
+        .work-icon-planting { filter: brightness(0) saturate(100%) invert(72%) sepia(51%) saturate(457%) hue-rotate(52deg) brightness(98%) contrast(87%); }
+        .work-icon-generating_electricity { filter: brightness(0) saturate(100%) invert(79%) sepia(59%) saturate(489%) hue-rotate(359deg) brightness(102%) contrast(104%); }
+        .work-icon-handiwork { filter: brightness(0) saturate(100%) invert(69%) sepia(16%) saturate(1266%) hue-rotate(354deg) brightness(96%) contrast(92%); }
+        .work-icon-gathering { filter: brightness(0) saturate(100%) invert(72%) sepia(51%) saturate(457%) hue-rotate(52deg) brightness(98%) contrast(87%); }
+        .work-icon-lumbering { filter: brightness(0) saturate(100%) invert(51%) sepia(20%) saturate(1077%) hue-rotate(357deg) brightness(91%) contrast(88%); }
+        .work-icon-mining { filter: brightness(0) saturate(100%) invert(70%) sepia(8%) saturate(362%) hue-rotate(169deg) brightness(93%) contrast(90%); }
+        .work-icon-medicine_production { filter: brightness(0) saturate(100%) invert(76%) sepia(31%) saturate(1214%) hue-rotate(109deg) brightness(94%) contrast(85%); }
+        .work-icon-cooling { filter: brightness(0) saturate(100%) invert(77%) sepia(18%) saturate(1336%) hue-rotate(163deg) brightness(99%) contrast(96%); }
+        .work-icon-transporting { filter: brightness(0) saturate(100%) invert(64%) sepia(17%) saturate(638%) hue-rotate(358deg) brightness(91%) contrast(88%); }
+        .work-icon-farming { filter: brightness(0) saturate(100%) invert(44%) sepia(89%) saturate(2453%) hue-rotate(346deg) brightness(99%) contrast(93%); }
     </style>
 <body class="bg-gray-900 text-gray-100 min-h-screen" x-data="app()" x-cloak>
     
@@ -408,13 +438,13 @@
                     @click="currentTab = 'pals'" 
                     :class="currentTab === 'pals' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
                     class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
-                    All Pals (<span x-text="pals.length"></span>)
+                    Pals (<span x-text="pals.length"></span>)
                 </button>
                 <button 
                     @click="currentTab = 'bases'" 
                     :class="currentTab === 'bases' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
                     class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
-                    Base Pals
+                    Bases
                 </button>
             </div>
         </div>
@@ -547,7 +577,7 @@
             </div>
         </div>
 
-        <!-- All Pals Tab -->
+        <!-- Pals Tab -->
         <div x-show="currentTab === 'pals' && saveInfo.loaded">
             <!-- Search/Filter and Controls -->
             <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -568,6 +598,196 @@
                             x-text="size">
                         </button>
                     </template>
+                </div>
+            </div>
+            
+            <!-- Advanced Filters -->
+            <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Element Filter -->
+                <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+                                </svg>
+                                Element Type
+                            </label>
+                            <div class="relative" x-data="{ open: false, searchString: '', searchTimeout: null, highlightedIndex: -1 }" @click.away="open = false">
+                                <button
+                                    @click="open = !open; highlightedIndex = -1"
+                                    @keydown="if (open && $event.key.length === 1) {
+                                        clearTimeout(searchTimeout);
+                                        searchString += $event.key.toLowerCase();
+                                        let matchIndex = availableElements.findIndex(el => el.toLowerCase().startsWith(searchString));
+                                        if (matchIndex < 0) {
+                                            matchIndex = availableElements.findIndex(el => el.toLowerCase() >= searchString);
+                                        }
+                                        if (matchIndex >= 0) {
+                                            highlightedIndex = matchIndex;
+                                            $nextTick(() => {
+                                                const container = $el.nextElementSibling;
+                                                const item = container.children[matchIndex + 1];
+                                                if (item) item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                                            });
+                                        }
+                                        searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
+                                    }"
+                                    type="button"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    <span x-text="filterElement || 'All Elements'"></span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto custom-scrollbar">
+                                    <div
+                                        @click="filterElement = ''; open = false"
+                                        class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                        :class="filterElement === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        All Elements
+                                    </div>
+                                    <template x-for="(element, index) in availableElements" :key="element">
+                                        <div
+                                            @click="filterElement = element; open = false; highlightedIndex = -1"
+                                            class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                            :class="filterElement === element ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            x-text="element">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                </div>
+                    
+                <!-- Work Suitability Filter -->
+                <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                Work Suitability
+                            </label>
+                            <div class="relative" x-data="{ open: false, searchString: '', searchTimeout: null, highlightedIndex: -1 }" @click.away="open = false">
+                                <button
+                                    @click="open = !open; highlightedIndex = -1"
+                                    @keydown="if (open && $event.key.length === 1) {
+                                        clearTimeout(searchTimeout);
+                                        searchString += $event.key.toLowerCase();
+                                        let matchIndex = availableWorkTypes.findIndex(wt => wt.name.toLowerCase().startsWith(searchString));
+                                        if (matchIndex < 0) {
+                                            matchIndex = availableWorkTypes.findIndex(wt => wt.name.toLowerCase() >= searchString);
+                                        }
+                                        if (matchIndex >= 0) {
+                                            highlightedIndex = matchIndex;
+                                            $nextTick(() => {
+                                                const container = $el.nextElementSibling;
+                                                const item = container.children[matchIndex + 1];
+                                                if (item) item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                                            });
+                                        }
+                                        searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
+                                    }"
+                                    type="button"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    <span x-text="availableWorkTypes.find(w => w.key === filterWorkType)?.name || 'All Work Types'"></span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto custom-scrollbar">
+                                    <div
+                                        @click="filterWorkType = ''; open = false"
+                                        class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                        :class="filterWorkType === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        All Work Types
+                                    </div>
+                                    <template x-for="(workType, index) in availableWorkTypes" :key="workType.key">
+                                        <div
+                                            @click="filterWorkType = workType.key; open = false; highlightedIndex = -1"
+                                            class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                            :class="filterWorkType === workType.key ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            x-text="workType.name">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                </div>
+                    
+                <!-- Passive Skill Filter -->
+                <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                                Passive Skill
+                            </label>
+                            <div class="relative" x-data="{ open: false, searchString: '', searchTimeout: null, highlightedIndex: -1 }" @click.away="open = false">
+                                <button
+                                    @click="open = !open; highlightedIndex = -1"
+                                    @keydown="if (open && $event.key.length === 1) {
+                                        clearTimeout(searchTimeout);
+                                        searchString += $event.key.toLowerCase();
+                                        let matchIndex = availablePassiveSkills.findIndex(sk => sk.name.toLowerCase().startsWith(searchString));
+                                        if (matchIndex < 0) {
+                                            matchIndex = availablePassiveSkills.findIndex(sk => sk.name.toLowerCase() >= searchString);
+                                        }
+                                        if (matchIndex >= 0) {
+                                            highlightedIndex = matchIndex;
+                                            $nextTick(() => {
+                                                const container = $el.nextElementSibling;
+                                                const item = container.children[matchIndex + 1];
+                                                if (item) item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                                            });
+                                        }
+                                        searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
+                                    }"
+                                    type="button"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    <span x-text="availablePassiveSkills.find(s => s.skill_id === filterPassiveSkill)?.name || 'All Skills'"></span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto custom-scrollbar">
+                                    <div
+                                        @click="filterPassiveSkill = ''; open = false"
+                                        class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                        :class="filterPassiveSkill === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        All Skills
+                                    </div>
+                                    <template x-for="(skill, index) in availablePassiveSkills" :key="skill.skill_id">
+                                        <div
+                                            @click="filterPassiveSkill = skill.skill_id; open = false; highlightedIndex = -1"
+                                            class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                            :class="filterPassiveSkill === skill.skill_id ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            x-text="skill.name">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                 </div>
             </div>
             
@@ -761,7 +981,7 @@
             </div>
         </div>
 
-        <!-- Base Pals Tab -->
+        <!-- BasesTab -->
         <div x-show="currentTab === 'bases' && saveInfo.loaded">
             <template x-for="(guild, guildIndex) in basePals" :key="guild.guild_id">
                 <div class="bg-gray-800 rounded-lg border border-gray-700 p-6 mb-4" x-data="{ expanded: false, currentBaseIndex: 0 }">
@@ -1192,7 +1412,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                                     <template x-for="work in selectedPal.work_suitability_display" :key="work.type">
                                         <div class="flex items-center gap-3 bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
-                                            <img :src="`/img/${work.icon}.webp`" class="w-6 h-6 object-contain" :alt="work.name" />
+                                            <img :src="`/img/${work.icon}.webp`" :class="`work-icon-${work.name.toLowerCase().replace(/\s+/g, '_')} w-6 h-6 object-contain`" :alt="work.name" />
                                             <div class="flex-1">
                                                 <span class="text-sm text-gray-200 font-medium" x-text="work.name"></span>
                                             </div>
@@ -1280,6 +1500,6 @@
 
     <!-- JavaScript modules -->
     <script src="/js/utils.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/app.js?v=20251225-008"></script>
 </body>
 </html>
