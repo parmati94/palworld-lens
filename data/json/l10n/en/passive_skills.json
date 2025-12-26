@@ -401,15 +401,15 @@
   },
   "CraftSpeed_down1": {
     "localized_name": "Clumsy",
-    "description": null
+    "description": "Work Speed -10%"
   },
   "CraftSpeed_down2": {
     "localized_name": "Slacker",
-    "description": null
+    "description": "Work Speed -30%"
   },
   "CraftSpeed_up1": {
     "localized_name": "Serious",
-    "description": null
+    "description": "Work Speed +20%"
   },
   "CraftSpeed_up2": {
     "localized_name": "Artisan",
@@ -417,7 +417,7 @@
   },
   "CraftSpeed_up3": {
     "localized_name": "Remarkable Craftsmanship",
-    "description": null
+    "description": "Work Speed +75%"
   },
   "Defense_ACC_up1_Otomo_Only_Equip": {
     "localized_name": "Pal Defense Up Lv. 1",
@@ -433,15 +433,15 @@
   },
   "Deffence_down1": {
     "localized_name": "Downtrodden",
-    "description": null
+    "description": "Defense -10%"
   },
   "Deffence_down2": {
     "localized_name": "Brittle",
-    "description": null
+    "description": "Defense -20%"
   },
   "Deffence_up1": {
     "localized_name": "Hard Skin",
-    "description": null
+    "description": "Defense +10%"
   },
   "Deffence_up2": {
     "localized_name": "Burly Body",
@@ -449,7 +449,7 @@
   },
   "Deffence_up3": {
     "localized_name": "Diamond Body",
-    "description": null
+    "description": "Defense +30%"
   },
   "ElementBoost_Aqua_1_PAL": {
     "localized_name": "Hydromaniac",
@@ -885,7 +885,7 @@
   },
   "EternalFlame": {
     "localized_name": "Eternal Flame",
-    "description": null
+    "description": "30% increase to Fire attack damage, 30% increase to Lightning attack damage"
   },
   "GYM_NAME_Desert": {
     "localized_name": "PIDF Officer",
@@ -929,7 +929,7 @@
   },
   "Invader": {
     "localized_name": "Invader",
-    "description": null
+    "description": "30% increase in Dark attack damage, 30% increase in Dragon attack damage"
   },
   "JumpCount_Increase1": {
     "localized_name": "Jump Count Increase +1",
@@ -997,7 +997,7 @@
   },
   "Noukin": {
     "localized_name": "Musclehead",
-    "description": null
+    "description": "Attack +30%, Work Speed -50%"
   },
   "Nushi": {
     "localized_name": "Lunker",
@@ -1009,15 +1009,15 @@
   },
   "PAL_ALLAttack_down1": {
     "localized_name": "Coward",
-    "description": null
+    "description": "Attack -10%"
   },
   "PAL_ALLAttack_down2": {
     "localized_name": "Pacifist",
-    "description": null
+    "description": "Attack -20%"
   },
   "PAL_ALLAttack_up1": {
     "localized_name": "Brave",
-    "description": null
+    "description": "Attack +10%"
   },
   "PAL_ALLAttack_up2": {
     "localized_name": "Ferocious",
@@ -1025,11 +1025,11 @@
   },
   "PAL_ALLAttack_up3": {
     "localized_name": "Demon God",
-    "description": null
+    "description": "Attack +30%, Defense +5%"
   },
   "PAL_CorporateSlave": {
     "localized_name": "Work Slave",
-    "description": null
+    "description": "Work Speed +30%, Attack -30%"
   },
   "PAL_FullStomach_Down_1": {
     "localized_name": "Dainty Eater",
@@ -1077,23 +1077,23 @@
   },
   "PAL_conceited": {
     "localized_name": "Conceited",
-    "description": null
+    "description": "Work Speed +10%, Defense -10%"
   },
   "PAL_masochist": {
     "localized_name": "Masochist",
-    "description": null
+    "description": "Defense +15%, Attack -15%"
   },
   "PAL_oraora": {
     "localized_name": "Aggressive",
-    "description": null
+    "description": "Attack +10%, Defense -10%"
   },
   "PAL_rude": {
     "localized_name": "Hooligan",
-    "description": null
+    "description": "Attack +15%, Work Speed -10%"
   },
   "PAL_sadist": {
     "localized_name": "Sadist",
-    "description": null
+    "description": "Attack +15%, Defense -15%"
   },
   "PalExp_Increase_1_Otomo_Only_Equip": {
     "localized_name": "Pal EXP Up Lv. 1",
@@ -1109,7 +1109,7 @@
   },
   "Rare": {
     "localized_name": "Lucky",
-    "description": null
+    "description": "Work Speed +15%, Attack +15%"
   },
   "SalePrice_Down_1": {
     "localized_name": "Shabby",
@@ -1245,7 +1245,7 @@
   },
   "Witch": {
     "localized_name": "Siren of the Void",
-    "description": null
+    "description": "30% increase to Dark attack damage, 30% increase to Ice attack damage"
   },
   "WorkSpeed_ACC_up1": {
     "localized_name": "Speedy Worker Lv. 1",
