@@ -12,6 +12,12 @@ class Config:
     # Auto-watch settings
     ENABLE_AUTO_WATCH: bool = os.getenv("ENABLE_AUTO_WATCH", "true").lower() in ("true", "1", "yes")
     
+    # Authentication settings
+    ENABLE_LOGIN: bool = os.getenv("ENABLE_LOGIN", "false").lower() in ("true", "1", "yes")
+    USERNAME: str = os.getenv("USERNAME", "admin")
+    PASSWORD: str = os.getenv("PASSWORD", "admin")
+    SESSION_SECRET: str = os.getenv("SESSION_SECRET", "change-me-in-production-please")
+    
     # Data paths
     DATA_PATH: Path = Path(__file__).parent.parent.parent / "data"
     

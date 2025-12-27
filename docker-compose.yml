@@ -14,6 +14,11 @@ services:
       - ENABLE_AUTO_WATCH=true
       - LOG_LEVEL=INFO  # Options: DEBUG, INFO, WARNING, ERROR
       - TZ=America/New_York  # Set to your local timezone (e.g., America/Los_Angeles, Europe/London, etc.)
+      # Authentication settings (optional)
+      - ENABLE_LOGIN=false  # Set to true to enable login requirement
+      - USERNAME=admin
+      - PASSWORD=changeme
+      - SESSION_SECRET=change-me-in-production
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
