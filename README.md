@@ -103,9 +103,17 @@ environment:
   - ENABLE_AUTO_WATCH=true             # Enable automatic file watching for live updates on backend.  Can still be toggled on/off on UI as long as this is set to true.
   - LOG_LEVEL=INFO                     # Logging level: DEBUG, INFO, WARNING, ERROR
   - TZ=America/New_York                # Your local timezone (e.g., America/Los_Angeles, Europe/London, Asia/Tokyo, etc.)
+  
+  # Authentication (optional - default is disabled)
+  - ENABLE_LOGIN=false                 # Set to true to require login
+  - USERNAME=admin                     # Login username (only used if ENABLE_LOGIN=true)
+  - PASSWORD=changeme                  # Login password (only used if ENABLE_LOGIN=true)
+  - SESSION_SECRET=your-secret-here    # Secret key for session tokens (generate a random string)
 ```
 
 **Auto-Watch**: When enabled, the viewer automatically detects save file changes and pushes updates to the browser in real-time via Server-Sent Events (SSE). The toggle can be controlled from the frontend UI.
+
+**Authentication**: When `ENABLE_LOGIN=true`, users must login before accessing the application. This is a simple single-user authentication system. Sessions last 7 days.
 
 ## 📊 Viewing Options
 
@@ -171,6 +179,11 @@ docker-compose -f docker-compose.dev.yml down
 - `GET /api/watch/status` - Check if auto-watch is currently active
 - `POST /api/watch/start` - Start automatic file watcher
 - `POST /api/watch/stop` - Stop automatic file watcher
+
+### Authentication Endpoints
+- `GET /api/auth/status` - Check if authentication is enabled and if user is logged in
+- `POST /api/auth/login` - Login with username and password
+- `POST /api/auth/logout` - Logout and clear session
 
 ### Debug Endpoints
 Various debug endpoints available for development:

@@ -23,6 +23,11 @@ services:
       - TZ=America/New_York  # Set to your local timezone (e.g., America/Los_Angeles, Europe/London, etc.)
       # Development-specific settings
       - PYTHONUNBUFFERED=1
+      # Authentication settings (optional)
+      - ENABLE_LOGIN=false  # Set to true to enable login requirement
+      - USERNAME=admin
+      - PASSWORD=changeme
+      - SESSION_SECRET=dev-secret-change-in-production
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]

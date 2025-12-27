@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Palworld Lens</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png?v=2">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        
+        /* Gradient background - matches main app */
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        
+        /* Card animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-card {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        /* Title glow effect - exactly matches main app */
+        .glow-title {
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: rgba(147, 197, 253, 0.15);
+            -webkit-text-stroke: 1px rgba(96, 165, 250, 0.7);
+            text-shadow: 
+                0 0 8px rgba(96, 165, 250, 0.4),
+                0 0 12px rgba(59, 130, 246, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .glow-title:hover {
+            color: rgba(147, 197, 253, 0.25);
+            -webkit-text-stroke: 1px rgba(96, 165, 250, 0.85);
+            text-shadow: 
+                0 0 12px rgba(96, 165, 250, 0.6),
+                0 0 16px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Input focus effects */
+        .login-input:focus {
+            border-color: rgba(96, 165, 250, 0.5);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 0 12px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+    <div x-data="loginApp()" x-cloak class="flex items-center justify-center min-h-screen p-4">
+        <div class="login-card w-full max-w-md">
+            <!-- Logo/Title -->
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center gap-3 mb-4">
+                    <div class="h-16 w-16 flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-400/40 backdrop-blur-sm p-2 shadow-lg shadow-blue-500/20">
+                        <img src="/img/favicon/apple-touch-icon.png?v=2" alt="Palworld Lens Logo" class="w-full h-full object-contain rounded-lg">
+                    </div>
+                    <h1 class="text-4xl font-bold text-white glow-title">Palworld Lens</h1>
+                </div>
+                <p class="text-gray-400 text-lg">Sign in to continue</p>
+            </div>
+            
+            <!-- Login Card -->
+            <div class="bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
+                <form @submit.prevent="login">
+                    <!-- Username Field -->
+                    <div class="mb-6">
+                        <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
+                            Username
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            x-model="username"
+                            required
+                            autofocus
+                            class="login-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
+                            placeholder="Enter your username"
+                            :disabled="loading"
+                        >
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="mb-6">
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
+                            Password
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            x-model="password"
+                            required
+                            class="login-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
+                            placeholder="Enter your password"
+                            :disabled="loading"
+                        >
+                    </div>
+                    
+                    <!-- Error Message -->
+                    <div x-show="error" class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg">
+                        <p class="text-red-400 text-sm" x-text="error"></p>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit"
+                        :disabled="loading"
+                        class="w-full py-3 px-4 bg-blue-600/90 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                        <span x-show="!loading">Sign In</span>
+                        <span x-show="loading" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Signing in...
+                        </span>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Footer -->
+            <div class="text-center mt-8 text-gray-500 text-sm">
+                <p>Palworld Lens - Self-Hosted Save Viewer</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loginApp() {
+            return {
+                username: '',
+                password: '',
+                loading: false,
+                error: null,
+                
+                async login() {
+                    this.error = null;
+                    this.loading = true;
+                    
+                    try {
+                        const response = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                username: this.username,
+                                password: this.password
+                            }),
+                            credentials: 'same-origin'
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            // Redirect to main app
+                            window.location.href = '/';
+                        } else {
+                            this.error = data.detail || 'Login failed. Please try again.';
+                        }
+                    } catch (err) {
+                        console.error('Login error:', err);
+                        this.error = 'Network error. Please check your connection.';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+</html>

@@ -31,19 +31,9 @@ function app() {
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
         
         async init() {
-            console.log('🐛 DEBUG: Filter properties defined:', {
-                filterElement: this.filterElement,
-                filterWorkType: this.filterWorkType,
-                filterPassiveSkill: this.filterPassiveSkill,
-                hasAvailableElements: typeof this.availableElements !== 'undefined',
-                hasAvailableWorkTypes: typeof this.availableWorkTypes !== 'undefined',
-                hasAvailablePassiveSkills: typeof this.availablePassiveSkills !== 'undefined',
-                hasActiveFilterCount: typeof this.activeFilterCount !== 'undefined'
-            });
-            
             // Check auto-watch status from backend
             await this.checkWatchStatus();
-            
+
             console.log('🔍 Init state:', { 
                 autoWatchAllowed: this.autoWatchAllowed, 
                 autoWatchActive: this.autoWatchActive 

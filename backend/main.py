@@ -2,14 +2,23 @@
 import asyncio
 import json
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 from sse_starlette.sse import EventSourceResponse
+from pydantic import BaseModel
 
 from backend.common.config import config
 from backend.common.logging_config import setup_logging, get_logger
+from backend.common.auth import (
+    require_auth, 
+    verify_credentials, 
+    create_session_token, 
+    get_session_from_request,
+    SESSION_COOKIE_NAME,
+    SESSION_MAX_AGE
+)
 from backend.parser import parser
 from backend.utils.watcher import SaveWatcher
 
@@ -102,12 +111,63 @@ async def health_check():
         "last_updated": parser.last_load_time.isoformat() if parser.last_load_time else None
     }
 
-@app.get("/api/info")
+# Pydantic models for auth
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+@app.get("/api/auth/status")
+async def auth_status(request: Request):
+    """Check if authentication is enabled and if user is logged in"""
+    if not config.ENABLE_LOGIN:
+        return {"enabled": False, "authenticated": True}
+    
+    username = get_session_from_request(request)
+    return {
+        "enabled": True,
+        "authenticated": username is not None,
+        "username": username if username else None
+    }
+
+@app.post("/api/auth/login")
+async def login(login_data: LoginRequest, response: Response):
+    """Login endpoint"""
+    if not config.ENABLE_LOGIN:
+        raise HTTPException(status_code=400, detail="Authentication is not enabled")
+    
+    if not verify_credentials(login_data.username, login_data.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Create session token
+    token = create_session_token(login_data.username)
+    
+    # Set cookie
+    response.set_cookie(
+        key=SESSION_COOKIE_NAME,
+        value=token,
+        max_age=SESSION_MAX_AGE,
+        httponly=True,
+        samesite="lax",
+        secure=False  # Set to True if using HTTPS
+    )
+    
+    logger.info(f"User '{login_data.username}' logged in successfully")
+    
+    return {"success": True, "username": login_data.username}
+
+@app.post("/api/auth/logout")
+async def logout(response: Response):
+    """Logout endpoint"""
+    response.delete_cookie(SESSION_COOKIE_NAME)
+    logger.info("User logged out")
+    return {"success": True}
+
+@app.get("/api/info", dependencies=[Depends(require_auth)])
 async def get_save_info():
     """Get basic save file information"""
     return parser.get_save_info()
 
-@app.get("/api/watch")
+@app.get("/api/watch", dependencies=[Depends(require_auth)])
 async def watch_save_changes(request: Request):
     """Server-Sent Events endpoint for real-time save updates"""
     # Return error if auto-watch is not currently active
@@ -190,8 +250,8 @@ async def watch_save_changes(request: Request):
     
     return EventSourceResponse(event_generator())
 
-@app.post("/api/reload")
-@app.get("/api/reload")
+@app.post("/api/reload", dependencies=[Depends(require_auth)])
+@app.get("/api/reload", dependencies=[Depends(require_auth)])
 async def reload_save():
     """Reload the save file"""
     try:
@@ -207,7 +267,7 @@ async def reload_save():
         logger.error(f"Reload failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/watch/status")
+@app.get("/api/watch/status", dependencies=[Depends(require_auth)])
 async def get_watch_status():
     """Get the current auto-watch status"""
     return {
@@ -216,7 +276,7 @@ async def get_watch_status():
         "message": "Auto-watch is controlled by ENABLE_AUTO_WATCH environment variable" if not config.ENABLE_AUTO_WATCH else None
     }
 
-@app.post("/api/watch/start")
+@app.post("/api/watch/start", dependencies=[Depends(require_auth)])
 async def start_watch():
     """Start the file watcher"""
     global watcher, watch_active
@@ -276,7 +336,7 @@ async def start_watch():
         logger.error(f"Failed to start watcher: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/watch/stop")
+@app.post("/api/watch/stop", dependencies=[Depends(require_auth)])
 async def stop_watch():
     """Stop the file watcher"""
     global watcher, watch_active
@@ -811,7 +871,7 @@ async def get_pal_slot_structure():
     
     return {"error": "No pals found"}
 
-@app.get("/api/players")
+@app.get("/api/players", dependencies=[Depends(require_auth)])
 async def get_players():
     """Get list of all players"""
     if not parser.loaded:
@@ -824,7 +884,7 @@ async def get_players():
         logger.error(f"Error getting players: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/guilds")
+@app.get("/api/guilds", dependencies=[Depends(require_auth)])
 async def get_guilds():
     """Get list of all guilds"""
     if not parser.loaded:
@@ -837,7 +897,7 @@ async def get_guilds():
         logger.error(f"Error getting guilds: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/pals")
+@app.get("/api/pals", dependencies=[Depends(require_auth)])
 async def get_pals():
     """Get list of all pals"""
     if not parser.loaded:

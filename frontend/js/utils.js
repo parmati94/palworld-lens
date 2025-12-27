@@ -190,9 +190,19 @@ function getPassiveDescriptionClass(rank) {
  * Fetch with automatic retry logic
  */
 async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+    options = { ...options, credentials: 'same-origin' };
+    
     for (let i = 0; i < retries; i++) {
         try {
             const response = await fetch(url, options);
+            
+            // If unauthorized, redirect to login immediately (don't retry)
+            if (response.status === 401) {
+                console.log('🔒 Got 401 Unauthorized, redirecting to login...');
+                window.location.replace('/login.html');
+                return new Promise(() => {});
+            }
+            
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
