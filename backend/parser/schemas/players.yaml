@@ -7,22 +7,26 @@ fields:
   # Basic info
   NickName:
     description: "Player's in-game character name"
+    key: "NickName"
     path: ["value"]
     default: "Unknown"
   
   Level:
     description: "Player's current level (1-55)"
+    key: "Level"
     path: ["value"]
     default: 1
   
   Exp:
     description: "Total experience points accumulated by player"
+    key: "Exp"
     path: ["value"]
     default: 0
   
   # HP - stored as FixedPoint64 (milli-HP / 1000)
   Hp:
     description: "Current player HP value, stored as milli-HP (divided by 1000)"
+    key: "Hp"
     path: ["value", "Value", "value"]
     transform: divide_by_1000
     default: 100
@@ -30,17 +34,20 @@ fields:
   # MP/Stamina
   MP:
     description: "Current player stamina/MP value"
+    key: "MP"
     path: ["value"]
     default: null
   
   # Condition
   FullStomach:
     description: "Player's current hunger/food level (0-100)"
+    key: "FullStomach"
     path: ["value"]
     default: 100.0
   
   SanityValue:
     description: "Player's current sanity/mental health (0-100)"
+    key: "SanityValue"
     path: ["value"]
     default: 100.0
   
@@ -50,23 +57,27 @@ fields:
   # Player identification
   PlayerUId:
     description: "Player's unique account ID"
+    key: "PlayerUId"
     path: ["value"]
     default: null
   
   # Individual character instance ID (links to Level.sav)
   IndividualId:
     description: "Player character instance ID linking to Level.sav"
+    key: "IndividualId"
     path: ["value", "InstanceId", "value"]
     default: null
   
   # Container IDs for pal storage
   OtomoCharacterContainerId:
     description: "Party/Otomo container ID"
+    key: "OtomoCharacterContainerId"
     path: ["value", "ID", "value"]
     default: null
   
   PalStorageContainerId:
     description: "Palbox storage container ID"
+    key: "PalStorageContainerId"
     path: ["value", "ID", "value"]
     default: null
 
@@ -74,6 +85,7 @@ fields:
 lists:
   GotStatusPointList:
     description: "Stat points allocated from leveling up"
+    key: "GotStatusPointList"
     path: ["value", "values"]
     items:
       stat_name:
@@ -85,6 +97,7 @@ lists:
   
   GotExStatusPointList:
     description: "Additional stat points from Ancient Technology upgrades"
+    key: "GotExStatusPointList"
     path: ["value", "values"]
     items:
       stat_name:

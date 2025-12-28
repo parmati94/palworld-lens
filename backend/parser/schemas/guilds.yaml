@@ -3,20 +3,24 @@
 fields:
   group_type:
     description: "Type of group (Guild, Organization, etc.)"
+    key: "group_type"
     path: ["value"]
     default: ""
   
   guild_name:
     description: "Guild's display name"
+    key: "guild_name"
     path: ["value"]
     default: ""
   
   group_name:
     description: "Internal group identifier"
+    key: "group_name"
     path: ["value"]
     default: ""
   
   admin_player_uid:
     description: "Player UID of the guild admin/owner"
+    key: "admin_player_uid"
     path: ["value"]
     default: null
