@@ -1344,10 +1344,24 @@
                                     </div>
                                     
                                     <!-- Results Info Bar -->
-                                    <div class="bg-gray-750 px-4 md:px-6 py-2 border-b border-gray-700">
+                                    <div x-show="base.pals.length > 0" class="bg-gray-750 px-4 md:px-6 py-2 border-b border-gray-700">
                                         <span class="text-sm text-gray-400">Showing <span class="text-cyan-400 font-medium" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-cyan-400 font-medium" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-cyan-400 font-medium" x-text="base.pals.length"></span></span>
                                     </div>
-                                    <div class="overflow-x-auto">
+                                    
+                                    <!-- Empty State - No Pals at Base -->
+                                    <template x-if="base.pals.length === 0">
+                                        <div class="py-16 px-4 text-center">
+                                            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-700/50 mb-4">
+                                                <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-xl font-semibold text-gray-300 mb-2">No Pals at This Base</h3>
+                                            <p class="text-gray-500">This base is established but doesn't have any pals assigned yet.</p>
+                                        </div>
+                                    </template>
+                                    
+                                    <div x-show="base.pals.length > 0" class="overflow-x-auto">
                                         <table class="w-full">
                                             <thead class="bg-gray-700">
                                                 <tr>
@@ -1473,7 +1487,7 @@
                                 </div>
                                 
                                 <!-- Pagination Controls -->
-                                <div x-show="basePalsTotalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+                                <div x-show="base.pals.length > 0 && basePalsTotalPages > 1" class="mt-4 flex items-center justify-center gap-2">
                                     <!-- Previous Button -->
                                     <button 
                                         @click="changeBasePalPage(basePalPage - 1)"
@@ -1805,6 +1819,6 @@
 
     <!-- JavaScript modules -->
     <script src="/js/utils.js"></script>
-    <script src="/js/app.js?v=20251225-008"></script>
+    <script src="/js/app.js?v=20251228-001"></script>
 </body>
 </html>

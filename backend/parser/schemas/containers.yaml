@@ -1,0 +1,16 @@
+# Schema for container data extraction
+
+fields:
+  # Container slots containing pals
+  slots:
+    description: "Array of slots in the container, each potentially containing a pal"
+    root_key: "Slots"
+    path: ["value", "values"]
+    default: []
+  
+  # Extracting instance_id from individual slot (used when iterating slots)
+  slot_instance_id:
+    description: "Instance ID of pal in a slot"
+    root_key: "RawData"
+    path: ["value", "instance_id"]
+    default: null

@@ -11,15 +11,15 @@ from backend.parser.utils.mappers import (
 )
 from backend.parser.extractors.characters import get_character_data
 from backend.parser.extractors.bases import get_base_assignments
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
 from backend.parser.loaders.data_loader import DataLoader
-from backend.parser.utils.stats import calculate_pal_stats, calculate_work_suitabilities
+from backend.parser.utils.stats import calculate_pal_stats, calculate_work_suitabilities, calculate_trust_level
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 # Load YAML schema
-pal_schema = SchemaLoader("pals.yaml")
+pal_schema = SchemaManager.get("pals.yaml")
 
 
 def _get_lookup_id(char_id: str, data_loader: DataLoader) -> str:
@@ -176,7 +176,6 @@ def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str
         talent_defense = pal_schema.extract_field(char_info, "Talent_Defense")
         rank = pal_schema.extract_field(char_info, "Rank")
         friendship_points = pal_schema.extract_field(char_info, "Friendship")
-        from backend.parser.utils.stats import calculate_trust_level
         trust_level = calculate_trust_level(friendship_points, data_loader.trust_thresholds)
         
         # Get species scaling data and friendship multipliers from already-loaded data

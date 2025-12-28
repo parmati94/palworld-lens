@@ -11,7 +11,7 @@ from backend.parser.extractors.characters import get_player_data
 from backend.parser.extractors.guilds import get_guild_data
 from backend.parser.extractors.bases import get_base_data
 from backend.parser.utils.helpers import get_val
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -41,8 +41,10 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
         instance_to_name[str(instance_id)] = player_name
         logger.info(f"Player from Level.sav: {player_name} (instance_id: {instance_id[:16]}...)")
     
-    # Load schema for player data extraction (works for both Level.sav and Players/*.sav)
-    player_schema = SchemaLoader("players.yaml")
+    # Load schemas for data extraction
+    player_schema = SchemaManager.get("players.yaml")
+    guild_schema = SchemaManager.get("guilds.yaml")
+    base_schema = SchemaManager.get("bases.yaml")
     
     # Read Players/*.sav files to get PlayerUId and container IDs
     if players_dir and players_dir.exists():
@@ -100,8 +102,8 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
     guild_data = get_guild_data(world_data)
     
     for guild_id, guild_info in guild_data.items():
-        # Extract player UIDs from guild
-        players = guild_info.get("players", [])
+        # Extract player UIDs from guild using schema
+        players = guild_schema.extract_field(guild_info, "players")
         if players:
             player_uids = [str(p.get("player_uid")) for p in players if isinstance(p, dict) and p.get("player_uid")]
             if player_uids:
@@ -114,16 +116,14 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
     logger.info(f"Checking {len(base_data)} base camps for worker containers")
     
     for base_id, base_info in base_data.items():
-        # Extract guild ID and container ID  
-        # Note: Can't use schema here because fields aren't top-level keys in base_info
-        raw_val = base_info.get("RawData", {}).get("value", {})
-        guild_id = raw_val.get("group_id_belong_to")
+        # Extract guild ID and container ID using schema
+        guild_id = base_schema.extract_field(base_info, "guild_id")
         
         if guild_id:
             guild_id_str = str(guild_id)
             
-            # Extract worker container ID
-            container_id = base_info.get("WorkerDirector", {}).get("value", {}).get("RawData", {}).get("value", {}).get("container_id")
+            # Extract worker container ID using schema
+            container_id = base_schema.extract_field(base_info, "worker_container_id")
             
             if container_id:
                 container_id_str = str(container_id)
@@ -151,9 +151,10 @@ def build_pal_ownership(world_data: Dict, player_uid_to_containers: Dict) -> Dic
     """
     pal_to_owner = {}
     
-    # Use schema to get container data
-    schema = SchemaLoader("collections.yaml")
-    containers = schema.extract_collection(world_data, "containers")
+    # Use schemas to get container data
+    collections_schema = SchemaManager.get("collections.yaml")
+    container_schema = SchemaManager.get("containers.yaml")
+    containers = collections_schema.extract_collection(world_data, "containers")
     
     if not containers:
         logger.warning("No containers found")
@@ -163,12 +164,12 @@ def build_pal_ownership(world_data: Dict, player_uid_to_containers: Dict) -> Dic
     
     # Extract pal instance IDs from each container's slots
     for container_id, container_data in containers.items():
-        slots = container_data.get("Slots", {}).get("value", {}).get("values", [])
+        slots = container_schema.extract_field(container_data, "slots")
         pal_ids = []
         
         for slot in slots:
-            # Navigate to instance_id in slot
-            instance_id = slot.get("RawData", {}).get("value", {}).get("instance_id")
+            # Extract instance_id from slot using schema
+            instance_id = container_schema.extract_field(slot, "slot_instance_id")
             
             if instance_id and '00000000-0000-0000-0000-000000000000' not in str(instance_id):
                 pal_ids.append(str(instance_id))

@@ -1,17 +1,17 @@
 """Character data extraction - schema-driven version"""
 from typing import Dict
 
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
 
 # Singleton instance
 _schema = None
 
 
-def _get_schema() -> SchemaLoader:
+def _get_schema():
     """Get or create SchemaLoader singleton"""
     global _schema
     if _schema is None:
-        _schema = SchemaLoader("collections.yaml")
+        _schema = SchemaManager.get("collections.yaml")
     return _schema
 
 

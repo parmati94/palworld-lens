@@ -3,20 +3,36 @@
 fields:
   group_type:
     description: "Type of group (Guild, Organization, etc.)"
-    path: ["value"]
+    root_key: "group_type"
+    path: []
     default: ""
   
   guild_name:
     description: "Guild's display name"
-    path: ["value"]
+    root_key: "guild_name"
+    path: []
     default: ""
   
   group_name:
     description: "Internal group identifier"
-    path: ["value"]
+    root_key: "group_name"
+    path: []
     default: ""
   
   admin_player_uid:
     description: "Player UID of the guild admin/owner"
-    path: ["value"]
+    root_key: "admin_player_uid"
+    path: []
     default: null
+  
+  individual_character_handle_ids:
+    description: "List of member character instance IDs"
+    root_key: "individual_character_handle_ids"
+    path: []
+    default: []
+  
+  players:
+    description: "List of player UIDs who are members of this guild"
+    root_key: "players"
+    path: []
+    default: []

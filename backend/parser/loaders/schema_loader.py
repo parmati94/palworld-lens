@@ -4,6 +4,10 @@ import yaml
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
+from backend.common.logging_config import get_logger
+
+logger = get_logger(__name__)
+
 
 # Named transform functions
 def divide_by_1000(value: Any) -> Any:
@@ -16,6 +20,52 @@ def divide_by_1000(value: Any) -> Any:
 TRANSFORMS = {
     "divide_by_1000": divide_by_1000,
 }
+
+
+class SchemaManager:
+    """Singleton manager for schema loaders - caches instances to avoid reloading"""
+    _instances: Dict[str, 'SchemaLoader'] = {}
+    
+    @classmethod
+    def get(cls, schema_file: str) -> 'SchemaLoader':
+        """Get or create a SchemaLoader instance for the given schema file
+        
+        Args:
+            schema_file: Name of schema file (e.g., 'pals.yaml', 'collections.yaml')
+            
+        Returns:
+            Cached or newly created SchemaLoader instance
+        """
+        if schema_file not in cls._instances:
+            logger.debug(f"Loading schema: {schema_file}")
+            cls._instances[schema_file] = SchemaLoader(schema_file)
+        return cls._instances[schema_file]
+    
+    @classmethod
+    def clear_cache(cls):
+        """Clear all cached schema instances (useful for testing or hot-reload)"""
+        logger.debug("Clearing schema cache")
+        cls._instances.clear()
+    
+    @classmethod
+    def preload_all(cls):
+        """Preload all schema files on startup for consistent logging and performance
+        
+        Call this once during application initialization to load all schemas upfront.
+        """
+        schema_files = [
+            "collections.yaml",
+            "pals.yaml",
+            "players.yaml",
+            "guilds.yaml",
+            "bases.yaml",
+            "containers.yaml"
+        ]
+        
+        logger.info("Preloading all schemas...")
+        for schema_file in schema_files:
+            cls.get(schema_file)
+        logger.info(f"Successfully preloaded {len(schema_files)} schemas")
 
 
 class SchemaLoader:
@@ -36,12 +86,17 @@ class SchemaLoader:
         schema_dir = Path(__file__).parent.parent / "schemas"
         schema_path = schema_dir / schema_file
         
+        self.schema_file = schema_file
+        
+        logger.debug(f"Loading schema from: {schema_path}")
         with open(schema_path, 'r') as f:
             self.schema = yaml.safe_load(f)
         
         self.fields = self.schema.get('fields', {})
         self.lists = self.schema.get('lists', {})
         self.collections = self.schema.get('collections', {})
+        
+        logger.debug(f"Schema '{schema_file}' loaded: {len(self.fields)} fields, {len(self.lists)} lists, {len(self.collections)} collections")
     
     def extract_field(self, data: Dict[str, Any], field_name: str) -> Optional[Any]:
         """Extract a field value from nested save data
@@ -54,20 +109,38 @@ class SchemaLoader:
             Extracted value or default if not found, None if field not in schema
         """
         if field_name not in self.fields:
+            logger.debug(f"Field '{field_name}' not found in schema '{self.schema_file}'. Available fields: {list(self.fields.keys())[:10]}")
             return None
         
         field_schema = self.fields[field_name]
         path = field_schema.get('path', [])
         default = field_schema.get('default')
         
-        # Start with the top-level key
-        current = data.get(field_name)
-        if current is None:
-            return default
-        
-        # Navigate through the path
-        for path_key in path:
-            if not isinstance(current, dict):
+        # Support root_key to decouple logical field name from data structure
+        # If root_key is specified, start from that key and follow path
+        # If not specified, the path should contain the full navigation including root
+        if 'root_key' in field_schema:
+            root_key = field_schema['root_key']
+            current = data.get(root_key)
+            if current is None:
+                return default
+            
+            # Navigate through the path after root_key
+            for path_key in path:
+                if not isinstance(current, dict):
+                    return default
+                current = current.get(path_key)
+                if current is None:
+                    return default
+        else:
+            # No root_key: path includes everything starting from data
+            current = data
+            for path_key in path:
+                if not isinstance(current, dict):
+                    return default
+                current = current.get(path_key)
+                if current is None:
+                    return default
                 break
             current = current.get(path_key)
             if current is None:
@@ -110,6 +183,7 @@ class SchemaLoader:
             List of extracted values (or empty list if not found)
         """
         if list_name not in self.lists:
+            logger.debug(f"List '{list_name}' not found in schema '{self.schema_file}'. Available lists: {list(self.lists.keys())}")
             return []
         
         list_schema = self.lists[list_name]
@@ -194,6 +268,7 @@ class SchemaLoader:
             Dict mapping entity IDs to their data
         """
         if collection_name not in self.collections:
+            logger.debug(f"Collection '{collection_name}' not found in schema '{self.schema_file}'. Available collections: {list(self.collections.keys())}")
             return {}
         
         collection_schema = self.collections[collection_name]

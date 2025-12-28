@@ -355,7 +355,30 @@ function app() {
             
             // Group by guild_id
             const guildMap = {};
+            
+            // First, populate guildMap with all guilds and their bases from guild data
+            for (const guild of this.guilds) {
+                guildMap[guild.guild_id] = {
+                    guild_id: guild.guild_id,
+                    guild_name: guild.guild_name,
+                    bases: {}
+                };
+                
+                // Add all bases from base_locations (even if they have no pals)
+                if (guild.base_locations && Array.isArray(guild.base_locations)) {
+                    for (const baseInfo of guild.base_locations) {
+                        guildMap[guild.guild_id].bases[baseInfo.base_id] = {
+                            base_id: baseInfo.base_id,
+                            base_name: baseInfo.base_name,
+                            pals: []
+                        };
+                    }
+                }
+            }
+            
+            // Now add pals to their respective bases
             for (const pal of basesPals) {
+                // Ensure guild exists (fallback)
                 if (!guildMap[pal.guild_id]) {
                     const guild = this.guilds.find(g => g.guild_id === pal.guild_id);
                     guildMap[pal.guild_id] = {
@@ -365,7 +388,7 @@ function app() {
                     };
                 }
                 
-                // Group by base_id within guild
+                // Ensure base exists (fallback if not in base_locations)
                 if (!guildMap[pal.guild_id].bases[pal.base_id]) {
                     guildMap[pal.guild_id].bases[pal.base_id] = {
                         base_id: pal.base_id,
