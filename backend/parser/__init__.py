@@ -10,7 +10,7 @@ from backend.models.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo
 from backend.parser.loaders.gvas_handler import GvasHandler
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.extractors.characters import get_character_data
-from backend.parser.utils.relationships import build_player_mapping, build_pal_ownership
+from backend.parser.extractors.relationships import build_player_mapping, build_pal_ownership
 from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
 from backend.parser.builders.guilds import build_guilds

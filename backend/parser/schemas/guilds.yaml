@@ -30,3 +30,9 @@ fields:
     root_key: "individual_character_handle_ids"
     path: []
     default: []
+  
+  players:
+    description: "List of player UIDs who are members of this guild"
+    root_key: "players"
+    path: []
+    default: []

@@ -20,10 +20,3 @@ fields:
     root_key: "WorkerDirector"
     path: ["value", "RawData", "value", "container_id"]
     default: null
-  
-  # Pal assignment reference
-  pal_container_id:
-    description: "Container ID from a pal's SlotId"
-    root_key: "SlotId"
-    path: ["value", "ContainerId", "value", "ID", "value"]
-    default: null
