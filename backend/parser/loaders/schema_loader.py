@@ -46,6 +46,26 @@ class SchemaManager:
         """Clear all cached schema instances (useful for testing or hot-reload)"""
         logger.debug("Clearing schema cache")
         cls._instances.clear()
+    
+    @classmethod
+    def preload_all(cls):
+        """Preload all schema files on startup for consistent logging and performance
+        
+        Call this once during application initialization to load all schemas upfront.
+        """
+        schema_files = [
+            "collections.yaml",
+            "pals.yaml",
+            "players.yaml",
+            "guilds.yaml",
+            "bases.yaml",
+            "containers.yaml"
+        ]
+        
+        logger.info("Preloading all schemas...")
+        for schema_file in schema_files:
+            cls.get(schema_file)
+        logger.info(f"Successfully preloaded {len(schema_files)} schemas")
 
 
 class SchemaLoader:

@@ -9,8 +9,11 @@ from contextlib import asynccontextmanager
 from sse_starlette.sse import EventSourceResponse
 from pydantic import BaseModel
 
-from backend.common.config import config
 from backend.common.logging_config import setup_logging, get_logger
+setup_logging()
+logger = get_logger(__name__)
+
+from backend.common.config import config
 from backend.common.auth import (
     require_auth, 
     verify_credentials, 
@@ -21,10 +24,6 @@ from backend.common.auth import (
 )
 from backend.parser import parser
 from backend.utils.watcher import SaveWatcher
-
-# Setup colored logging
-setup_logging()
-logger = get_logger(__name__)
 
 # Global watcher instance and SSE clients
 watcher: Optional[SaveWatcher] = None
