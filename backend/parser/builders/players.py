@@ -6,13 +6,13 @@ import math
 from backend.models.models import PlayerInfo
 from backend.parser.extractors.characters import get_player_data
 from backend.parser.extractors.guilds import get_guild_data
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 # Load YAML schema
-player_schema = SchemaLoader("players.yaml")
+player_schema = SchemaManager.get("players.yaml")
 
 # Stat name mappings (Chinese to English keys)
 STAT_NAME_MAP = {

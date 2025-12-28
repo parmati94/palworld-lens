@@ -4,6 +4,10 @@ import yaml
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
+from backend.common.logging_config import get_logger
+
+logger = get_logger(__name__)
+
 
 # Named transform functions
 def divide_by_1000(value: Any) -> Any:
@@ -16,6 +20,32 @@ def divide_by_1000(value: Any) -> Any:
 TRANSFORMS = {
     "divide_by_1000": divide_by_1000,
 }
+
+
+class SchemaManager:
+    """Singleton manager for schema loaders - caches instances to avoid reloading"""
+    _instances: Dict[str, 'SchemaLoader'] = {}
+    
+    @classmethod
+    def get(cls, schema_file: str) -> 'SchemaLoader':
+        """Get or create a SchemaLoader instance for the given schema file
+        
+        Args:
+            schema_file: Name of schema file (e.g., 'pals.yaml', 'collections.yaml')
+            
+        Returns:
+            Cached or newly created SchemaLoader instance
+        """
+        if schema_file not in cls._instances:
+            logger.debug(f"Loading schema: {schema_file}")
+            cls._instances[schema_file] = SchemaLoader(schema_file)
+        return cls._instances[schema_file]
+    
+    @classmethod
+    def clear_cache(cls):
+        """Clear all cached schema instances (useful for testing or hot-reload)"""
+        logger.debug("Clearing schema cache")
+        cls._instances.clear()
 
 
 class SchemaLoader:
@@ -36,12 +66,17 @@ class SchemaLoader:
         schema_dir = Path(__file__).parent.parent / "schemas"
         schema_path = schema_dir / schema_file
         
+        self.schema_file = schema_file
+        
+        logger.debug(f"Loading schema from: {schema_path}")
         with open(schema_path, 'r') as f:
             self.schema = yaml.safe_load(f)
         
         self.fields = self.schema.get('fields', {})
         self.lists = self.schema.get('lists', {})
         self.collections = self.schema.get('collections', {})
+        
+        logger.debug(f"Schema '{schema_file}' loaded: {len(self.fields)} fields, {len(self.lists)} lists, {len(self.collections)} collections")
     
     def extract_field(self, data: Dict[str, Any], field_name: str) -> Optional[Any]:
         """Extract a field value from nested save data
@@ -54,6 +89,7 @@ class SchemaLoader:
             Extracted value or default if not found, None if field not in schema
         """
         if field_name not in self.fields:
+            logger.debug(f"Field '{field_name}' not found in schema '{self.schema_file}'. Available fields: {list(self.fields.keys())[:10]}")
             return None
         
         field_schema = self.fields[field_name]
@@ -127,6 +163,7 @@ class SchemaLoader:
             List of extracted values (or empty list if not found)
         """
         if list_name not in self.lists:
+            logger.debug(f"List '{list_name}' not found in schema '{self.schema_file}'. Available lists: {list(self.lists.keys())}")
             return []
         
         list_schema = self.lists[list_name]
@@ -211,6 +248,7 @@ class SchemaLoader:
             Dict mapping entity IDs to their data
         """
         if collection_name not in self.collections:
+            logger.debug(f"Collection '{collection_name}' not found in schema '{self.schema_file}'. Available collections: {list(self.collections.keys())}")
             return {}
         
         collection_schema = self.collections[collection_name]

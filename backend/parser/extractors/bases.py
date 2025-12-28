@@ -1,17 +1,18 @@
 """Base camp data extraction - schema-driven version"""
 from typing import Dict
 
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
+from backend.parser.extractors.characters import get_character_data
 
 # Singleton instance
 _schema = None
 
 
-def _get_schema() -> SchemaLoader:
+def _get_schema():
     """Get or create SchemaLoader singleton"""
     global _schema
     if _schema is None:
-        _schema = SchemaLoader("collections.yaml")
+        _schema = SchemaManager.get("collections.yaml")
     return _schema
 
 
@@ -42,11 +43,9 @@ def get_base_assignments(world_data: Dict) -> Dict[str, Dict[str, str]]:
     if not world_data:
         return {}
     
-    from backend.parser.utils.schema_loader import SchemaLoader
-    
     # Load schema for extracting nested fields
-    pal_schema = SchemaLoader("pals.yaml")
-    base_schema = SchemaLoader("bases.yaml")
+    pal_schema = SchemaManager.get("pals.yaml")
+    base_schema = SchemaManager.get("bases.yaml")
     
     # Get base data using schema-driven extraction
     base_data = get_base_data(world_data)
@@ -96,7 +95,6 @@ def get_base_assignments(world_data: Dict) -> Dict[str, Dict[str, str]]:
                 base_to_name[base_id] = f"Base {i + 1}"
     
     # Get character data using schema-driven extraction
-    from backend.parser.extractors.characters import get_character_data
     char_data = get_character_data(world_data)
     
     assignments = {}

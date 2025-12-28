@@ -5,13 +5,13 @@ from typing import List, Dict
 from backend.models.models import GuildInfo
 from backend.parser.extractors.guilds import get_guild_data
 from backend.parser.extractors.bases import get_base_data
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 # Load YAML schema
-guild_schema = SchemaLoader("guilds.yaml")
+guild_schema = SchemaManager.get("guilds.yaml")
 
 
 def build_guilds(world_data: Dict) -> List[GuildInfo]:
@@ -27,8 +27,7 @@ def build_guilds(world_data: Dict) -> List[GuildInfo]:
     guilds = []
     
     # Get all base data and map bases to guilds (matching logic from get_base_assignments)
-    from backend.parser.utils.schema_loader import SchemaLoader
-    base_schema = SchemaLoader("bases.yaml")
+    base_schema = SchemaManager.get("bases.yaml")
     
     base_data = get_base_data(world_data)
     base_to_guild = {}

@@ -11,7 +11,7 @@ from backend.parser.extractors.characters import get_player_data
 from backend.parser.extractors.guilds import get_guild_data
 from backend.parser.extractors.bases import get_base_data
 from backend.parser.utils.helpers import get_val
-from backend.parser.utils.schema_loader import SchemaLoader
+from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -42,9 +42,9 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
         logger.info(f"Player from Level.sav: {player_name} (instance_id: {instance_id[:16]}...)")
     
     # Load schemas for data extraction
-    player_schema = SchemaLoader("players.yaml")
-    guild_schema = SchemaLoader("guilds.yaml")
-    base_schema = SchemaLoader("bases.yaml")
+    player_schema = SchemaManager.get("players.yaml")
+    guild_schema = SchemaManager.get("guilds.yaml")
+    base_schema = SchemaManager.get("bases.yaml")
     
     # Read Players/*.sav files to get PlayerUId and container IDs
     if players_dir and players_dir.exists():
@@ -152,8 +152,8 @@ def build_pal_ownership(world_data: Dict, player_uid_to_containers: Dict) -> Dic
     pal_to_owner = {}
     
     # Use schemas to get container data
-    collections_schema = SchemaLoader("collections.yaml")
-    container_schema = SchemaLoader("containers.yaml")
+    collections_schema = SchemaManager.get("collections.yaml")
+    container_schema = SchemaManager.get("containers.yaml")
     containers = collections_schema.extract_collection(world_data, "containers")
     
     if not containers:
