@@ -46,6 +46,7 @@ def get_base_assignments(world_data: Dict) -> Dict[str, Dict[str, str]]:
     
     # Load schema for extracting nested fields
     pal_schema = SchemaLoader("pals.yaml")
+    base_schema = SchemaLoader("bases.yaml")
     
     # Get base data using schema-driven extraction
     base_data = get_base_data(world_data)
@@ -54,31 +55,28 @@ def get_base_assignments(world_data: Dict) -> Dict[str, Dict[str, str]]:
     base_to_guild = {}
     base_to_name = {}
     
-    # Extract base metadata - these are simple enough to do directly
+    # Extract base metadata using schema
     for base_id, base_info in base_data.items():
         base_id = str(base_id)
         
-        # Navigate to RawData.value once
-        raw_val = base_info.get("RawData", {}).get("value", {})
+        # Extract guild ID using schema
+        guild_id = base_schema.extract_field(base_info, "guild_id")
+        if guild_id:
+            base_to_guild[base_id] = str(guild_id)
         
-        # Extract name (already unwrapped)
-        name_str = raw_val.get("name", "")
+        # Extract name using schema
+        name_str = base_schema.extract_field(base_info, "base_name")
         
         # Store raw name - we'll assign sequential numbers later
-        if "新規生成拠点テンプレート名" in name_str:
+        if name_str and "新規生成拠点テンプレート名" in name_str:
             base_to_name[base_id] = "template"
-        elif not name_str.strip():
+        elif not name_str or not name_str.strip():
             base_to_name[base_id] = "unnamed"
         else:
             base_to_name[base_id] = name_str
         
-        # Extract guild ID (already unwrapped)
-        guild_id = raw_val.get("group_id_belong_to")
-        if guild_id:
-            base_to_guild[base_id] = str(guild_id)
-        
-        # Extract container ID from WorkerDirector
-        container_id = base_info.get("WorkerDirector", {}).get("value", {}).get("RawData", {}).get("value", {}).get("container_id")
+        # Extract container ID using schema
+        container_id = base_schema.extract_field(base_info, "worker_container_id")
         if container_id:
             base_to_container[base_id] = str(container_id)
     

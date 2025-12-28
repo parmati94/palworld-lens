@@ -27,26 +27,25 @@ def build_guilds(world_data: Dict) -> List[GuildInfo]:
     guilds = []
     
     # Get all base data and map bases to guilds (matching logic from get_base_assignments)
+    from backend.parser.utils.schema_loader import SchemaLoader
+    base_schema = SchemaLoader("bases.yaml")
+    
     base_data = get_base_data(world_data)
     base_to_guild = {}
     base_to_name = {}
     base_to_container = {}
     
-    # Extract base metadata - manual navigation is more maintainable for this data structure
-    # since multiple fields need to be extracted from the same nested parents
+    # Extract base metadata using schema
     for base_id, base_info in base_data.items():
         base_id = str(base_id)
         
-        # Navigate to RawData.value once
-        raw_val = base_info.get("RawData", {}).get("value", {})
-        
-        # Extract guild ID (already unwrapped)
-        guild_id = raw_val.get("group_id_belong_to")
+        # Extract guild ID using schema
+        guild_id = base_schema.extract_field(base_info, "guild_id")
         if guild_id:
             base_to_guild[base_id] = str(guild_id)
         
-        # Extract container ID from WorkerDirector
-        container_id = base_info.get("WorkerDirector", {}).get("value", {}).get("RawData", {}).get("value", {}).get("container_id")
+        # Extract container ID using schema
+        container_id = base_schema.extract_field(base_info, "worker_container_id")
         if container_id:
             base_to_container[base_id] = str(container_id)
     
@@ -70,9 +69,9 @@ def build_guilds(world_data: Dict) -> List[GuildInfo]:
         if group_type != "EPalGroupType::Guild":
             continue
         
-        # Get members
+        # Get members using schema
         members_list = []
-        members_data = guild_info.get("individual_character_handle_ids", [])
+        members_data = guild_schema.extract_field(guild_info, "individual_character_handle_ids")
         if isinstance(members_data, list):
             for member in members_data:
                 if isinstance(member, dict):
