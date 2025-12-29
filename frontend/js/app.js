@@ -651,6 +651,10 @@ function app() {
         selectedPal: null,
         showPalModal: false,
         
+        // Container detail modal
+        selectedContainer: null,
+        showContainerModal: false,
+        
         openPalModal(pal) {
             this.selectedPal = pal;
             this.showPalModal = true;
@@ -659,6 +663,16 @@ function app() {
         closePalModal() {
             this.showPalModal = false;
             setTimeout(() => this.selectedPal = null, 300);
+        },
+        
+        openContainerModal(container) {
+            this.selectedContainer = container;
+            this.showContainerModal = true;
+        },
+        
+        closeContainerModal() {
+            this.showContainerModal = false;
+            setTimeout(() => this.selectedContainer = null, 300);
         },
         
         // Helper to get condition badge color class

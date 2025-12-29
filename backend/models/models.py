@@ -259,6 +259,11 @@ class BaseContainerInfo(BaseModel):
         return sum(item.count for item in self.items)
     
     @computed_field
+    def unique_item_count(self) -> int:
+        """Number of unique items (item types) in this container"""
+        return len(self.items)
+    
+    @computed_field
     def is_empty(self) -> bool:
         """Whether the container has no items"""
         return len(self.items) == 0 or self.total_item_count == 0

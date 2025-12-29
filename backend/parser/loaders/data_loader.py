@@ -28,6 +28,7 @@ class DataLoader:
         self.trust_thresholds: list = []  # List of (required_points, trust_level) tuples
         self.item_data: Dict[str, Dict] = {}  # Item names and data
         self.building_data: Dict[str, Dict] = {}  # Building data (icons, stats, etc.)
+        self.technology_data: Dict[str, Dict] = {}  # Technology/building localized names
         
         self._load_pal_names()
         self._load_pal_data()
@@ -37,6 +38,7 @@ class DataLoader:
         self._load_trust_thresholds()
         self._load_items()
         self._load_buildings()
+        self._load_technologies()
     
     def _load_pal_names(self):
         """Load pal name mappings from JSON"""
@@ -220,11 +222,37 @@ class DataLoader:
             if buildings_json.exists():
                 with open(buildings_json, 'r', encoding='utf-8') as f:
                     self.building_data = json.load(f)
+                
+                # Merge localized names from l10n file
+                buildings_l10n_json = config.DATA_PATH / "json" / "l10n" / "en" / "buildings.json"
+                if buildings_l10n_json.exists():
+                    with open(buildings_l10n_json, 'r', encoding='utf-8') as f:
+                        l10n_data = json.load(f)
+                        for building_id, l10n_info in l10n_data.items():
+                            if building_id in self.building_data and isinstance(l10n_info, dict):
+                                if "localized_name" in l10n_info:
+                                    self.building_data[building_id]["localized_name"] = l10n_info["localized_name"]
+                                if "description" in l10n_info:
+                                    self.building_data[building_id]["description"] = l10n_info["description"]
+                
                 logger.debug(f"Loaded {len(self.building_data)} buildings")
             else:
                 logger.warning(f"Buildings file not found: {buildings_json}")
         except Exception as e:
             logger.warning(f"Could not load buildings: {e}")
+    
+    def _load_technologies(self):
+        """Load technology/building localized names from JSON"""
+        try:
+            tech_json = config.DATA_PATH / "json" / "l10n" / "en" / "technologies.json"
+            if tech_json.exists():
+                with open(tech_json, 'r', encoding='utf-8') as f:
+                    self.technology_data = json.load(f)
+                logger.debug(f"Loaded {len(self.technology_data)} technologies")
+            else:
+                logger.warning(f"Technologies file not found: {tech_json}")
+        except Exception as e:
+            logger.warning(f"Could not load technologies: {e}")
     
     def get_species_scaling(self, character_id: str) -> Optional[Dict[str, int]]:
         """Get species scaling values from pals.json"""
