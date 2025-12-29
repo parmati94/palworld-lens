@@ -14,7 +14,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="/js/utils.js"></script>
-    <script src="/js/app.js?v=20251228-001"></script>
+    <script src="/js/app.js?v=20251229-002"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -1213,7 +1213,7 @@
         </div>
 
         <!-- BasesTab -->
-        <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ selectedGuildId: null, selectedBaseId: null, basePalPage: 1, basePalPageSize: 10 }" @navigate-to-base.window="selectedGuildId = $event.detail.guildId; selectedBaseId = $event.detail.baseId;">
+        <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ selectedGuildId: null, selectedBaseId: null, baseTab: 'pals', basePalPage: 1, basePalPageSize: 10 }" @navigate-to-base.window="selectedGuildId = $event.detail.guildId; selectedBaseId = $event.detail.baseId; baseTab = 'pals';">
             <!-- Guild Selection -->
             <div class="mb-6">
                 <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -1317,22 +1317,59 @@
                     <template x-for="guild in basePals.filter(g => g.guild_id === selectedGuildId)" :key="guild.guild_id">
                         <template x-for="base in guild.bases.filter(b => b.base_id === selectedBaseId)" :key="base.base_id">
                             <div>
-                                <!-- Integrated Header Section -->
-                                <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                                <!-- Base Header with Title and Tabs -->
+                                <div class="bg-gradient-to-r from-cyan-600/10 to-purple-600/10 rounded-t-lg border border-gray-700 border-b-0">
                                     <!-- Title Bar -->
-                                    <div class="bg-gradient-to-r from-cyan-600/10 to-purple-600/10 border-b border-gray-700 px-4 md:px-6 py-4">
-                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                            <div class="flex items-center gap-3">
-                                                <div class="p-2 bg-cyan-600/30 rounded-lg">
-                                                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h2 class="text-2xl font-bold text-white flex items-center gap-2" x-text="base.base_name"></h2>
-                                                    <div class="text-sm text-cyan-400" x-text="`${base.pals.length} pals total`"></div>
-                                                </div>
+                                    <div class="px-4 md:px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-cyan-600/30 rounded-lg">
+                                                <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                </svg>
                                             </div>
+                                            <div>
+                                                <h2 class="text-2xl font-bold text-white" x-text="base.base_name"></h2>
+                                                <div class="text-sm text-cyan-400" x-text="`${base.pals.length} pals total`"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tab Navigation -->
+                                    <div class="bg-gray-800/50 px-4 md:px-6">
+                                        <div class="flex gap-2">
+                                            <button 
+                                                @click="baseTab = 'pals'"
+                                                :class="baseTab === 'pals' ? 'border-cyan-500 text-cyan-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
+                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span>Pals</span>
+                                                    <span class="px-1.5 py-0.5 rounded-full text-xs font-semibold" :class="baseTab === 'pals' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-gray-600 text-gray-300'" x-text="base.pals.length"></span>
+                                                </div>
+                                            </button>
+                                            <button 
+                                                @click="baseTab = 'food'; console.log('Switched to food tab', {selectedBaseId, hasContainers: !!baseContainers})"
+                                                :class="baseTab === 'food' ? 'border-orange-500 text-orange-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
+                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    </svg>
+                                                    <span>Food</span>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                    
+                                <!-- Pals Tab Content (Table) -->
+                                <div x-show="baseTab === 'pals'" class="tab-content">
+                                    <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0 overflow-hidden">
+                                        <!-- Page Size Controls -->
+                                        <div class="bg-gray-750 px-4 md:px-6 py-3 border-b border-gray-700 flex items-center justify-between">
+                                            <span class="text-sm text-gray-400">Showing <span class="text-cyan-400 font-medium" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-cyan-400 font-medium" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-cyan-400 font-medium" x-text="base.pals.length"></span></span>
                                             <div class="flex items-center gap-2">
                                                 <span class="text-sm text-gray-400">Show:</span>
                                                 <template x-for="size in [10, 20, 30]" :key="size">
@@ -1345,12 +1382,6 @@
                                                 </template>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Results Info Bar -->
-                                    <div x-show="base.pals.length > 0" class="bg-gray-750 px-4 md:px-6 py-2 border-b border-gray-700">
-                                        <span class="text-sm text-gray-400">Showing <span class="text-cyan-400 font-medium" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-cyan-400 font-medium" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-cyan-400 font-medium" x-text="base.pals.length"></span></span>
-                                    </div>
                                     
                                     <!-- Empty State - No Pals at Base -->
                                     <template x-if="base.pals.length === 0">
@@ -1524,10 +1555,89 @@
                                         </svg>
                                     </button>
                                     </div>
+                                    <!-- End Pals Pagination -->
+                                    
+                                    </div>
+                                    <!-- End Pals Table Container -->
                                 </div>
+                                <!-- End Pals Tab Content -->
+                                    
+
                             </div>
                         </template>
                     </template>
+                    
+                    <!-- Food Tab Content -->
+                    <div x-show="baseTab === 'food' && selectedBaseId" class="tab-content">
+                        <div class="bg-gray-800 rounded-lg border border-gray-700">
+                            
+                            <!-- Empty State -->
+                            <template x-if="!baseContainers?.containers_by_base?.[selectedBaseId] || baseContainers.containers_by_base[selectedBaseId].length === 0">
+                                <div class="py-16 px-4 text-center">
+                                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-600/20 mb-4">
+                                        <svg class="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Food Containers</h3>
+                                    <p class="text-gray-500">This base doesn't have any food boxes or storage yet.</p>
+                                </div>
+                            </template>
+                            
+                            <!-- Food Containers Grid -->
+                            <template x-if="baseContainers?.containers_by_base?.[selectedBaseId] && baseContainers.containers_by_base[selectedBaseId].length > 0">
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <template x-for="container in baseContainers.containers_by_base[selectedBaseId]" :key="container.container_id">
+                                            <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:border-orange-500/50 transition-colors">
+                                                <div class="flex items-start justify-between mb-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="p-2 bg-orange-600/20 rounded-lg">
+                                                            <template x-if="container.building_icon">
+                                                                <img :src="`/img/${container.building_icon}.webp`" :alt="container.display_name" class="w-6 h-6" :onerror="`this.style.display='none'; this.nextElementSibling.style.display='block'`">
+                                                            </template>
+                                                            <svg class="w-5 h-5 text-orange-400" :class="container.building_icon ? 'hidden' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <span class="font-medium text-white" x-text="container.display_name || 'Food Box'"></span>
+                                                    </div>
+                                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300" x-text="`${container.total_item_count || 0} items`"></span>
+                                                </div>
+                                                
+                                                <!-- Items List -->
+                                                <template x-if="container.items && container.items.length > 0">
+                                                    <div class="space-y-2">
+                                                        <div class="text-xs text-gray-400 mb-2">Contents:</div>
+                                                        <template x-for="item in container.items" :key="item.item_id">
+                                                            <div class="flex items-center justify-between bg-gray-800 rounded p-2">
+                                                                <div class="flex items-center gap-2 min-w-0">
+                                                                    <img 
+                                                                        :src="item.icon ? `/img/${item.icon}.webp` : '/img/food.webp'" 
+                                                                        :alt="item.item_name"
+                                                                        :onerror="`this.src='/img/food.webp'`"
+                                                                        class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
+                                                                    <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
+                                                                </div>
+                                                                <span class="text-sm font-semibold text-orange-400 ml-2" x-text="`×${item.count}`"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                
+                                                <!-- Empty Container -->
+                                                <template x-if="!container.items || container.items.length === 0">
+                                                    <div class="text-sm text-gray-500 italic">Empty</div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                        </div>
+                    </div>
+                    <!-- End Food Tab Content -->
                 </div>
             </template>
 

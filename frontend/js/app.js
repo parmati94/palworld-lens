@@ -9,6 +9,7 @@ function app() {
         pals: [],
         guilds: [],
         bases: [],
+        baseContainers: null,
         loading: false,
         error: null,
         palSearch: '',
@@ -278,6 +279,7 @@ function app() {
             this.pals = data.pals || [];
             this.guilds = data.guilds || [];
             this.bases = data.bases || [];
+            this.baseContainers = data.base_containers || null;
             this.loading = false;
             this.error = null;
             console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
@@ -312,6 +314,10 @@ function app() {
                     this.players = (await playersRes.json()).players;
                     this.pals = (await palsRes.json()).pals;
                     this.guilds = (await guildsRes.json()).guilds;
+                    
+                    // Also load base containers
+                    const containersRes = await fetchWithRetry('/api/base-containers');
+                    this.baseContainers = await containersRes.json();
                     
                     this.error = null;
                 }
