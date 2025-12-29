@@ -6,7 +6,7 @@ all parsing operations across the different submodules.
 import logging
 from typing import List, Dict, Optional
 
-from backend.models.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo
+from backend.models.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, BaseContainerInfo
 from backend.parser.loaders.gvas_handler import GvasHandler
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.loaders.schema_loader import SchemaManager
@@ -15,6 +15,7 @@ from backend.parser.extractors.relationships import build_player_mapping, build_
 from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
 from backend.parser.builders.guilds import build_guilds
+from backend.parser.builders.base_containers import build_base_containers
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -130,6 +131,12 @@ class SaveFileParser:
         if not self.gvas.loaded:
             return []
         return build_pals(self.gvas.world_data, self.data, self.pal_to_owner)
+    
+    def get_base_containers(self) -> Dict[str, List[BaseContainerInfo]]:
+        """Get base containers grouped by base ID"""
+        if not self.gvas.loaded:
+            return {}
+        return build_base_containers(self.gvas.world_data, self.data)
 
 
 # Global parser instance

@@ -59,7 +59,8 @@ class SchemaManager:
             "players.yaml",
             "guilds.yaml",
             "bases.yaml",
-            "containers.yaml"
+            "containers.yaml",
+            "structures.yaml"
         ]
         
         logger.info("Preloading all schemas...")

@@ -230,3 +230,41 @@ class GuildInfo(BaseModel):
     members: List[str] = []
     base_locations: List[Dict[str, Any]] = []
 
+
+class ItemSlot(BaseModel):
+    """Item in a container slot"""
+    item_id: str
+    item_name: str
+    count: int
+    icon: Optional[str] = None
+
+
+class BaseContainerInfo(BaseModel):
+    """Base container information (food bowls, storage, etc.)"""
+    container_type: str  # "food_bowl", "storage", "ranch", etc.
+    building_type: str  # "PalFoodBox", "CoolerPalFoodBox", "ItemChest", etc.
+    display_name: str  # "Feed Box", "Cold Food Box", "Wooden Chest", etc.
+    building_icon: Optional[str] = None  # Icon for the building itself
+    base_id: str
+    base_name: Optional[str] = None
+    container_id: Optional[str] = None
+    items: List[ItemSlot] = []
+    hp_current: Optional[int] = None
+    hp_max: Optional[int] = None
+    is_damaged: bool = False
+    
+    @computed_field
+    def total_item_count(self) -> int:
+        """Total number of items in this container"""
+        return sum(item.count for item in self.items)
+    
+    @computed_field
+    def unique_item_count(self) -> int:
+        """Number of unique items (item types) in this container"""
+        return len(self.items)
+    
+    @computed_field
+    def is_empty(self) -> bool:
+        """Whether the container has no items"""
+        return len(self.items) == 0 or self.total_item_count == 0
+

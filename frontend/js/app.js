@@ -9,6 +9,7 @@ function app() {
         pals: [],
         guilds: [],
         bases: [],
+        baseContainers: null,
         loading: false,
         error: null,
         palSearch: '',
@@ -278,6 +279,7 @@ function app() {
             this.pals = data.pals || [];
             this.guilds = data.guilds || [];
             this.bases = data.bases || [];
+            this.baseContainers = data.base_containers || null;
             this.loading = false;
             this.error = null;
             console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
@@ -312,6 +314,10 @@ function app() {
                     this.players = (await playersRes.json()).players;
                     this.pals = (await palsRes.json()).pals;
                     this.guilds = (await guildsRes.json()).guilds;
+                    
+                    // Also load base containers
+                    const containersRes = await fetchWithRetry('/api/base-containers');
+                    this.baseContainers = await containersRes.json();
                     
                     this.error = null;
                 }
@@ -645,6 +651,10 @@ function app() {
         selectedPal: null,
         showPalModal: false,
         
+        // Container detail modal
+        selectedContainer: null,
+        showContainerModal: false,
+        
         openPalModal(pal) {
             this.selectedPal = pal;
             this.showPalModal = true;
@@ -653,6 +663,16 @@ function app() {
         closePalModal() {
             this.showPalModal = false;
             setTimeout(() => this.selectedPal = null, 300);
+        },
+        
+        openContainerModal(container) {
+            this.selectedContainer = container;
+            this.showContainerModal = true;
+        },
+        
+        closeContainerModal() {
+            this.showContainerModal = false;
+            setTimeout(() => this.selectedContainer = null, 300);
         },
         
         // Helper to get condition badge color class
@@ -667,3 +687,4 @@ function app() {
         }
     }
 }
+window.app = app;

@@ -155,3 +155,49 @@ def map_passive_skills(
             # Fallback for unmapped skills
             skills.append(SkillInfo(skill_id=skill_id, name=skill_id, description=""))
     return skills
+
+
+def map_building_name(building_type: str, technology_data: Dict[str, Dict], building_data: Dict[str, Dict] = None) -> str:
+    """Map building type to localized name with fallback logic
+    
+    Handles inconsistent naming between save files and technologies.json/buildings.json.
+    For example: ItemChest → Infra_ItemChest_Grade_01
+    
+    Args:
+        building_type: Building type ID from save data (e.g., 'ItemChest', 'Cooler', 'Shelf01_Iron')
+        technology_data: Dictionary of technology data from DataLoader.technology_data
+        building_data: Optional dictionary of building data from DataLoader.building_data
+        
+    Returns:
+        Localized building name or formatted fallback
+    """
+    # Try direct lookup in technology data first
+    tech_info = technology_data.get(building_type)
+    if tech_info and "localized_name" in tech_info:
+        return tech_info["localized_name"]
+    
+    # Try looking up in building_data (for furniture/shelves/etc)
+    if building_data:
+        building_info = building_data.get(building_type, {})
+        localized_name = building_info.get("localized_name")
+        if localized_name:
+            return localized_name
+    
+    # Map chest variants to their Infra_ItemChest_Grade_XX equivalents
+    # Save files use: ItemChest, ItemChest_02, ItemChest_03, ItemChest_04
+    # technologies.json uses: Infra_ItemChest_Grade_01, Infra_ItemChest_Grade_02, etc.
+    chest_mapping = {
+        "ItemChest": "Infra_ItemChest_Grade_01",      # Wooden Chest
+        "ItemChest_02": "Infra_ItemChest_Grade_02",  # Metal Chest
+        "ItemChest_03": "Infra_ItemChest_Grade_03",  # Refined Metal Chest
+        # ItemChest_04 already exists as-is in technologies.json (Advanced Chest)
+    }
+    
+    if building_type in chest_mapping:
+        tech_key = chest_mapping[building_type]
+        tech_info = technology_data.get(tech_key)
+        if tech_info and "localized_name" in tech_info:
+            return tech_info["localized_name"]
+    
+    # Fallback: clean up the building_type for display
+    return building_type.replace("_", " ").title()

@@ -1,0 +1,55 @@
+# Schema for map object data extraction
+
+fields:
+  # Object identification
+  map_object_id:
+    description: "Map object unique identifier"
+    root_key: "MapObjectId"
+    path: ["value"]
+    default: null
+  
+  # Base and location info from Model
+  base_camp_id:
+    description: "Base camp this object belongs to"
+    root_key: "Model"
+    path: ["value", "RawData", "value", "base_camp_id_belong_to"]
+    default: null
+  
+  instance_id:
+    description: "Model instance ID"
+    root_key: "Model"
+    path: ["value", "RawData", "value", "instance_id"]
+    default: null
+  
+  concrete_model_instance_id:
+    description: "Concrete model instance ID"
+    root_key: "Model"
+    path: ["value", "RawData", "value", "concrete_model_instance_id"]
+    default: null
+  
+  # HP and condition
+  hp_current:
+    description: "Current HP of the structure"
+    root_key: "Model"
+    path: ["value", "RawData", "value", "hp", "current"]
+    default: null
+  
+  hp_max:
+    description: "Maximum HP of the structure"
+    root_key: "Model"
+    path: ["value", "RawData", "value", "hp", "max"]
+    default: null
+  
+  # Building type from ConcreteModel
+  concrete_model_type:
+    description: "Building type (e.g., BP_PalFoodBox_C)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "concrete_model_type"]
+    default: null
+  
+  # ModuleMap for extracting container references
+  module_map:
+    description: "Module map containing container and other module references"
+    root_key: "ConcreteModel"
+    path: ["value", "ModuleMap", "value"]
+    default: []
