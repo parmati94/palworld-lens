@@ -186,7 +186,7 @@ async def watch_save_changes(request: Request):
                 players = parser.get_players()
                 pals = parser.get_pals()
                 guilds = parser.get_guilds()
-                base_containers = parser.get_base_containers()
+                containers_by_base = parser.get_base_containers()
                 save_info = parser.get_save_info()
                 
                 initial_data = {
@@ -194,7 +194,13 @@ async def watch_save_changes(request: Request):
                     "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
                     "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                     "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
-                    "base_containers": base_containers,
+                    "base_containers": {
+                        "containers": {
+                            base_id: [c.model_dump() if hasattr(c, 'model_dump') else c for c in containers]
+                            for base_id, containers in containers_by_base.items()
+                        },
+                        "count": len(containers_by_base)
+                    },
                 }
                 yield {
                     "event": "init",
@@ -222,7 +228,7 @@ async def watch_save_changes(request: Request):
                     players = parser.get_players()
                     pals = parser.get_pals()
                     guilds = parser.get_guilds()
-                    base_containers = parser.get_base_containers()
+                    containers_by_base = parser.get_base_containers()
                     save_info = parser.get_save_info()
                     
                     updated_data = {
@@ -230,7 +236,13 @@ async def watch_save_changes(request: Request):
                         "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
                         "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                         "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
-                        "base_containers": base_containers,
+                        "base_containers": {
+                            "containers": {
+                                base_id: [c.model_dump() if hasattr(c, 'model_dump') else c for c in containers]
+                                for base_id, containers in containers_by_base.items()
+                            },
+                            "count": len(containers_by_base)
+                        },
                     }
                     yield {
                         "event": "update",
@@ -908,21 +920,7 @@ async def get_base_containers():
     
     try:
         containers_by_base = parser.get_base_containers()
-        total_containers = sum(len(containers) for containers in containers_by_base.values())
-        
-        # Count by type for summary
-        container_type_counts = {}
-        for containers in containers_by_base.values():
-            for container in containers:
-                ctype = container.container_type
-                container_type_counts[ctype] = container_type_counts.get(ctype, 0) + 1
-        
-        return {
-            "containers_by_base": containers_by_base,
-            "base_count": len(containers_by_base),
-            "total_container_count": total_containers,
-            "by_type": container_type_counts
-        }
+        return {"containers": containers_by_base, "count": len(containers_by_base)}
     except Exception as e:
         logger.error(f"Error getting base containers: {e}")
         raise HTTPException(status_code=500, detail=str(e))

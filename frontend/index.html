@@ -14,7 +14,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="/js/utils.js"></script>
-    <script src="/js/app.js?v=20251229-003"></script>
+    <script src="/js/app.js?v=20251229-005"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -1583,7 +1583,7 @@
                         <div class="bg-gray-800 rounded-lg border border-gray-700">
                             
                             <!-- Empty State -->
-                            <template x-if="!baseContainers?.containers_by_base?.[selectedBaseId] || baseContainers.containers_by_base[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length === 0">
+                            <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length === 0">
                                 <div class="py-16 px-4 text-center">
                                     <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-600/20 mb-4">
                                         <svg class="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1596,10 +1596,10 @@
                             </template>
                             
                             <!-- Food Containers Grid -->
-                            <template x-if="baseContainers?.containers_by_base?.[selectedBaseId] && baseContainers.containers_by_base[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length > 0">
+                            <template x-if="baseContainers?.containers?.[selectedBaseId] && baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length > 0">
                                 <div class="p-6">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        <template x-for="container in baseContainers.containers_by_base[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0)" :key="container.container_id">
+                                        <template x-for="container in baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0)" :key="container.container_id">
                                             <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:border-orange-500/50 transition-colors">
                                                 <div class="flex items-start justify-between mb-3">
                                                     <div class="flex items-center gap-2">
@@ -1665,7 +1665,7 @@
                         <div class="bg-gray-800 rounded-lg border border-gray-700">
                             
                             <!-- Empty State -->
-                            <template x-if="!baseContainers?.containers_by_base?.[selectedBaseId] || baseContainers.containers_by_base[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0).length === 0">
+                            <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0).length === 0">
                                 <div class="py-16 px-4 text-center">
                                     <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-600/20 mb-4">
                                         <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1678,10 +1678,10 @@
                             </template>
                             
                             <!-- Storage Containers Grouped by Type -->
-                            <template x-if="baseContainers?.containers_by_base?.[selectedBaseId] && baseContainers.containers_by_base[selectedBaseId].filter(c => c.container_type !== 'food_bowl').length > 0">
-                                <div class="p-6 space-y-6" x-data="{
+                            <template x-if="baseContainers?.containers?.[selectedBaseId] && baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl').length > 0">
+                                <div class="px-6 pt-2 pb-6 space-y-6" x-data="{
                                     get storageContainers() {
-                                        return baseContainers.containers_by_base[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0);
+                                        return baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0);
                                     },
                                     get groupedByType() {
                                         const groups = {};
