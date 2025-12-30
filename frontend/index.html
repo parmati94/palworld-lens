@@ -98,6 +98,48 @@
             overflow: hidden;
         }
         
+        /* Compact numbered circles for mobile */
+        @media (max-width: 768px) {
+            .base-pill-compact {
+                width: 48px !important;
+                height: 48px !important;
+                min-width: 48px;
+                padding: 0 !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-sizing: content-box !important;
+            }
+            
+            .base-pill-compact .base-pill-content {
+                display: none !important;
+            }
+            
+            .base-pill-compact .base-pill-number {
+                display: flex !important;
+                font-size: 1.125rem;
+                font-weight: 700;
+            }
+        }
+        
+        /* Floating navigation arrows */
+        .floating-nav {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 20;
+            display: flex;
+            gap: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .floating-nav {
+                bottom: 16px;
+                right: 16px;
+            }
+        }
+        
         /* Subtle shimmer overlay instead of grid dots */
         .pal-header-gradient::before {
             content: '';
@@ -1291,7 +1333,41 @@
         </div>
 
         <!-- BasesTab -->
-        <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ selectedGuildId: null, selectedBaseId: null, baseTab: 'pals', basePalPage: 1, basePalPageSize: 10 }" @navigate-to-base.window="selectedGuildId = $event.detail.guildId; selectedBaseId = $event.detail.baseId; baseTab = 'pals';">
+        <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ 
+            selectedGuildId: null, 
+            selectedBaseId: null, 
+            baseTab: 'pals', 
+            basePalPage: 1, 
+            basePalPageSize: 10,
+            get currentBaseIndex() {
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                if (!guild) return -1;
+                return guild.bases.findIndex(b => b.base_id === selectedBaseId);
+            },
+            get hasPrevBase() {
+                return this.currentBaseIndex > 0;
+            },
+            get hasNextBase() {
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                return guild && this.currentBaseIndex < guild.bases.length - 1;
+            },
+            navigateToPrevBase() {
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                if (guild && this.hasPrevBase) {
+                    selectedBaseId = guild.bases[this.currentBaseIndex - 1].base_id;
+                    basePalPage = 1;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+            navigateToNextBase() {
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                if (guild && this.hasNextBase) {
+                    selectedBaseId = guild.bases[this.currentBaseIndex + 1].base_id;
+                    basePalPage = 1;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+        }" @navigate-to-base.window="selectedGuildId = $event.detail.guildId; selectedBaseId = $event.detail.baseId; baseTab = 'pals';">
             <!-- Guild Selection -->
             <div class="mb-6">
                 <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -1332,35 +1408,46 @@
                 </div>
             </div>
 
-            <!-- Base Selection (shown when guild is selected) -->
+            <!-- Base Selection (shown when guild is selected) - Compact Pills -->
             <template x-if="selectedGuildId">
-                <div class="mb-6 tab-content">
+                <div class="mb-6">
                     <template x-for="guild in basePals.filter(g => g.guild_id === selectedGuildId)" :key="guild.guild_id">
                         <div>
-                            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
-                                <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
-                                Select Base
-                            </h2>
+                            <div class="flex items-center justify-between mb-3">
+                                <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                                    <svg class="w-6 h-6 md:w-7 md:h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    <span class="hidden md:inline">Select Base</span>
+                                    <span class="md:hidden">Bases</span>
+                                </h2>
+                                <span class="text-sm text-gray-400" x-text="`${guild.bases.length} total`"></span>
+                            </div>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <template x-for="base in guild.bases" :key="base.base_id">
+                            <!-- Horizontal scrollable pills -->
+                            <div class="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
+                                <template x-for="(base, index) in guild.bases" :key="base.base_id">
                                     <button 
-                                        @click="selectedBaseId = base.base_id"
-                                        :class="selectedBaseId === base.base_id ? 'bg-cyan-600 border-cyan-500 shadow-lg shadow-cyan-500/30 transform scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600'"
-                                        class="stat-card border rounded-lg p-5 transition-all duration-200 cursor-pointer text-left">
-                                        <div class="flex items-start justify-between mb-2">
-                                            <h3 class="text-lg font-bold text-white" x-text="base.base_name"></h3>
-                                            <svg x-show="selectedBaseId === base.base_id" class="w-6 h-6 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        @click="selectedBaseId = base.base_id; basePalPage = 1"
+                                        :class="selectedBaseId === base.base_id ? 'bg-cyan-600 border-cyan-500 shadow-lg ring-2 ring-cyan-400/50' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-cyan-600/50'"
+                                        :title="base.base_name + ' (' + base.pals.length + ' pals)'"
+                                        class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer">
+                                        <!-- Mobile: Just the number -->
+                                        <div class="base-pill-number hidden" x-text="index + 1"></div>
+                                        <!-- Desktop: Full content -->
+                                        <div class="base-pill-content flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            </svg>
+                                            <div class="text-left">
+                                                <div class="text-sm font-semibold text-white whitespace-nowrap" x-text="base.base_name"></div>
+                                                <div class="text-xs text-gray-400">
+                                                    <span x-text="base.pals.length"></span> pals
+                                                </div>
+                                            </div>
+                                            <svg x-show="selectedBaseId === base.base_id" class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                             </svg>
-                                        </div>
-                                        <div class="flex items-center gap-1 text-sm">
-                                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span class="text-gray-300"><span class="font-semibold text-purple-400" x-text="base.pals.length"></span> pals</span>
                                         </div>
                                     </button>
                                 </template>
@@ -1369,6 +1456,28 @@
                     </template>
                 </div>
             </template>
+
+            <!-- Floating Base Navigation (shown when base is selected) -->
+            <div x-show="selectedGuildId && selectedBaseId" class="floating-nav">
+                <button 
+                    @click="navigateToPrevBase()"
+                    x-show="hasPrevBase"
+                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
+                    title="Previous Base">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button 
+                    @click="navigateToNextBase()"
+                    x-show="hasNextBase"
+                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
+                    title="Next Base">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
 
             <!-- Pals Table (shown when base is selected) -->
             <template x-if="selectedGuildId && selectedBaseId">
