@@ -20,3 +20,10 @@ fields:
     root_key: "WorkerDirector"
     path: ["value", "RawData", "value", "container_id"]
     default: null
+  
+  # Location/coordinates
+  transform:
+    description: "Spawn transform containing base coordinates"
+    root_key: "WorkerDirector"
+    path: ["value", "RawData", "value", "spawn_transform"]
+    default: null

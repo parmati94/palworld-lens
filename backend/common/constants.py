@@ -3,22 +3,21 @@
 Mappings aligned with official Palworld enums from:
 https://gist.github.com/DRayX/ffcb68e23956e4ccda566173146a19c4
 
-See backend.common.enums for the actual enum definitions.
 """
 from typing import Dict
 
 # Condition/Status Mappings (aligned with EPalBaseCampWorkerSickType)
 CONDITION_DISPLAY_NAMES: Dict[str, str] = {
-    "Cold": "Cold",                      # EPalBaseCampWorkerSickType.COLD
+    "Cold": "Sick",                      # EPalBaseCampWorkerSickType.COLD (shows as "Sick" in-game)
     "Sprain": "Sprain",                  # EPalBaseCampWorkerSickType.SPRAIN
     "Bulimia": "Overfull",               # EPalBaseCampWorkerSickType.BULIMIA
     "GastricUlcer": "Ulcer",             # EPalBaseCampWorkerSickType.GASTRIC_ULCER
     "Fracture": "Fracture",              # EPalBaseCampWorkerSickType.FRACTURE
     "Weakness": "Weakened",              # EPalBaseCampWorkerSickType.WEAKNESS
     "DepressionSprain": "Depressed",     # EPalBaseCampWorkerSickType.DEPRESSION_SPRAIN
-    "DisturbingElement": "Upset",    # EPalBaseCampWorkerSickType.DISTURBING_ELEMENT
+    "DisturbingElement": "Upset",        # EPalBaseCampWorkerSickType.DISTURBING_ELEMENT
     # Legacy/alternate names for backwards compatibility
-    "Sick": "Sick/Cold",
+    "Sick": "Sick",
     "Ulcer": "Ulcer",
     "Depression": "Depressed",
     "GutWrenching": "Gut Wrenching"
