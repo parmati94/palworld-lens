@@ -352,6 +352,13 @@ function leafletMapComponent() {
             if (this.map) {
                 this.map.zoomOut();
             }
+        },
+        
+        centerOnLocation(x, y, zoom = 5) {
+            if (this.map && x !== undefined && y !== undefined) {
+                const coords = saveToMapCoords(x, y);
+                this.map.setView(coords, zoom);
+            }
         }
     };
 }
