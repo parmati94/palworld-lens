@@ -175,10 +175,21 @@ class PalInfo(BaseModel):
     @computed_field
     def image_id(self) -> str:
         """Get the image filename for this pal"""
-        # Remove boss prefix for image lookup (handle both BOSS_ and Boss_)
         base_id = self.character_id
+        
+        # Remove boss prefix for image lookup (handle both BOSS_ and Boss_)
         if base_id.startswith("BOSS_") or base_id.startswith("Boss_"):
             base_id = base_id[5:]
+        
+        # Remove quest prefix for image lookup (e.g., Quest_Farmer03_PinkCat -> PinkCat)
+        # Quest variants use the base pal's image
+        if base_id.startswith("Quest_"):
+            # Find the last underscore and take everything after it
+            # Quest_Farmer03_PinkCat -> PinkCat
+            parts = base_id.split('_')
+            if len(parts) > 2:  # At least Quest_Something_PalName
+                base_id = parts[-1]
+        
         return base_id.lower()
 
 class PlayerInfo(BaseModel):
