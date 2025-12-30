@@ -101,7 +101,7 @@ function leafletMapComponent() {
                 this.map = L.map(this.mapElement, {
                     crs: L.CRS.Simple,
                     minZoom: 0,
-                    maxZoom: 5,
+                    maxZoom: 7,  // Allow zooming to level 7
                     
                     // --- PERFORMANCE OPTIMIZATIONS ---
                     zoomSnap: 1,      
@@ -117,7 +117,8 @@ function leafletMapComponent() {
                 // TILE LAYER
                 L.tileLayer('/img/tiles/{z}/{x}/{y}.png', {
                     minZoom: 0,
-                    maxZoom: 5,
+                    maxZoom: 7,        // Allow zooming to level 7
+                    maxNativeZoom: 5,  // Real tiles up to level 5, digital zoom for 7
                     tileSize: 256,
                     bounds: bounds,
                     noWrap: true,
