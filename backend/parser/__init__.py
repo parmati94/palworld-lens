@@ -10,7 +10,10 @@ from backend.models.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, Base
 from backend.parser.loaders.gvas_handler import GvasHandler
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.loaders.schema_loader import SchemaManager
-from backend.parser.extractors.characters import get_character_data
+from backend.parser.extractors.characters import get_character_data, get_player_data
+from backend.parser.extractors.guilds import get_guild_data
+from backend.parser.extractors.bases import get_base_data, get_base_assignments
+from backend.parser.extractors.structures import get_food_bowls, get_storage_containers
 from backend.parser.extractors.relationships import build_player_mapping, build_pal_ownership
 from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
@@ -30,14 +33,34 @@ class SaveFileParser:
     def __init__(self):
         self.gvas = GvasHandler()
         self.data = DataLoader()
+        
+        # Relationship mappings
         self.player_uid_to_containers: Dict = {}
         self.player_names: Dict[str, str] = {}
         self.pal_to_owner: Dict[str, str] = {}
+        
+        # Extracted data (populated on load)
+        self.char_data: Dict = {}
+        self.player_data: Dict = {}
+        self.guild_data: Dict = {}
+        self.base_data: Dict = {}
+        self.base_assignments: Dict = {}
+        self.food_bowls: List = []
+        self.storage_containers: List = {}
     
     def load(self) -> bool:
         """Load save files from mounted directory"""
         if not self.gvas.load():
             return False
+        
+        # Extract all raw data from save files
+        self.char_data = get_character_data(self.gvas.world_data)
+        self.player_data = get_player_data(self.gvas.world_data)
+        self.guild_data = get_guild_data(self.gvas.world_data)
+        self.base_data = get_base_data(self.gvas.world_data)
+        self.base_assignments = get_base_assignments(self.gvas.world_data)
+        self.food_bowls = get_food_bowls(self.gvas.world_data)
+        self.storage_containers = get_storage_containers(self.gvas.world_data)
         
         # Build relationship mappings
         self.player_uid_to_containers, self.player_names = build_player_mapping(
@@ -73,13 +96,12 @@ class SaveFileParser:
         
         world_name = self.gvas.world_name or "My World"
         
-        # Get counts
-        char_data = get_character_data(self.gvas.world_data)
-        player_count = sum(1 for char_info in char_data.values() 
+        # Get counts from extracted data
+        player_count = sum(1 for char_info in self.char_data.values() 
                           if isinstance(char_info, dict) and char_info.get("IsPlayer", {}).get("value", False))
-        pal_count = len(char_data) - player_count
+        pal_count = len(self.char_data) - player_count
         
-        # Get guilds
+        # Get guilds (use cached extracted data)
         actual_guilds = self.get_guilds()
         
         # Get file sizes
@@ -118,25 +140,32 @@ class SaveFileParser:
         """Get list of all players"""
         if not self.gvas.loaded:
             return []
-        return build_players(self.gvas.world_data, self.player_uid_to_containers)
+        return build_players(self.player_data, self.guild_data, self.player_uid_to_containers)
     
     def get_guilds(self) -> List[GuildInfo]:
         """Get list of all guilds"""
         if not self.gvas.loaded:
             return []
-        return build_guilds(self.gvas.world_data)
+        return build_guilds(self.guild_data, self.base_data)
     
     def get_pals(self) -> List[PalInfo]:
         """Get list of all pals (non-player characters)"""
         if not self.gvas.loaded:
             return []
-        return build_pals(self.gvas.world_data, self.data, self.pal_to_owner)
+        return build_pals(self.char_data, self.base_assignments, self.data, self.pal_to_owner)
     
     def get_base_containers(self) -> Dict[str, List[BaseContainerInfo]]:
         """Get base containers grouped by base ID"""
         if not self.gvas.loaded:
             return {}
-        return build_base_containers(self.gvas.world_data, self.data)
+        # Pass world_data for get_container_contents lookup
+        return build_base_containers(
+            self.base_data, 
+            self.food_bowls, 
+            self.storage_containers, 
+            self.gvas.world_data,
+            self.data
+        )
 
 
 # Global parser instance

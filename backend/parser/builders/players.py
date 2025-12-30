@@ -4,8 +4,6 @@ from typing import List, Optional, Dict
 import math
 
 from backend.models.models import PlayerInfo
-from backend.parser.extractors.characters import get_player_data
-from backend.parser.extractors.guilds import get_guild_data
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
@@ -25,17 +23,17 @@ STAT_NAME_MAP = {
 }
 
 
-def build_players(world_data: Dict, player_uid_to_containers: Dict = None) -> List[PlayerInfo]:
+def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_containers: Dict = None) -> List[PlayerInfo]:
     """Build list of all players from save data
     
     Args:
-        world_data: World save data from GVAS file
+        players_data: Extracted player data from get_player_data()
+        guilds_data: Extracted guild data from get_guild_data()
         player_uid_to_containers: Mapping of player UID to container and location data
         
     Returns:
         List of PlayerInfo objects
     """
-    players_data = get_player_data(world_data)
     players = []
     
     for instance_id, char_info in players_data.items():
@@ -80,7 +78,7 @@ def build_players(world_data: Dict, player_uid_to_containers: Dict = None) -> Li
             max_mp=calculated_stats["stamina"],
             hunger=player_schema.extract_field(char_info, "FullStomach"),
             sanity=player_schema.extract_field(char_info, "SanityValue"),
-            guild_id=_get_player_guild(world_data, instance_id),
+            guild_id=_get_player_guild(guilds_data, instance_id),
             location=location,
             stat_points_hp=stat_points["hp"],
             stat_points_stamina=stat_points["stamina"],
@@ -191,18 +189,17 @@ def _calculate_player_stats(level: int, stat_points: Dict[str, int],
     }
 
 
-def _get_player_guild(world_data: Dict, player_uid: str) -> Optional[str]:
+def _get_player_guild(guilds_data: Dict, player_uid: str) -> Optional[str]:
     """Get the guild ID for a player
     
     Args:
-        world_data: World save data from GVAS file
+        guilds_data: Extracted guild data from get_guild_data()
         player_uid: Player's character instance ID
         
     Returns:
         Guild ID string or None
     """
-    guilds = get_guild_data(world_data)
-    for guild_id, guild_info in guilds.items():
+    for guild_id, guild_info in guilds_data.items():
         # Extract group_type manually since we don't have guild schema loaded here
         group_type_data = guild_info.get("group_type", {})
         if isinstance(group_type_data, dict):

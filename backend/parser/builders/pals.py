@@ -9,8 +9,6 @@ from backend.parser.utils.mappers import (
     map_active_skills,
     map_passive_skills
 )
-from backend.parser.extractors.characters import get_character_data
-from backend.parser.extractors.bases import get_base_assignments
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.utils.stats import calculate_pal_stats, calculate_work_suitabilities, calculate_trust_level
@@ -62,19 +60,18 @@ def _get_lookup_id(char_id: str, data_loader: DataLoader) -> str:
     return char_id
 
 
-def build_pals(world_data: Dict, data_loader: DataLoader, pal_to_owner: Dict[str, str]) -> List[PalInfo]:
+def build_pals(char_data: Dict, base_assignments: Dict, data_loader: DataLoader, pal_to_owner: Dict[str, str]) -> List[PalInfo]:
     """Build list of all pals from save data
     
     Args:
-        world_data: World save data from GVAS file
+        char_data: Extracted character data from get_character_data()
+        base_assignments: Extracted base assignments from get_base_assignments()
         data_loader: Data loader with localization mappings
         pal_to_owner: Mapping of pal instance_id to owner name
         
     Returns:
         List of PalInfo objects
     """
-    base_assignments = get_base_assignments(world_data)
-    char_data = get_character_data(world_data)
     pals = []
     
     for instance_id, char_info in char_data.items():
