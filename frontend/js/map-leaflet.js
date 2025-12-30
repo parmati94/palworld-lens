@@ -1,55 +1,35 @@
 /**
- * Leaflet.js Map Component for Palworld Lens
- * Industry-standard approach for game map visualization
- */
-
-/**
  * Convert Palworld save coordinates to Leaflet map coordinates
- * CORRECTED FORMULA based on community research
+ * SYSTEM: 0-256 Virtual World (Standard Leaflet Scale)
+ * [0,0] is Top-Left. [-256, 256] is Bottom-Right.
  */
 function saveToMapCoords(saveX, saveY) {
-    // ---------------------------------------------------------
-    // 1. CONFIGURATION (Calibration v3)
-    // ---------------------------------------------------------
-    
-    // SCALE: Controls zoom/spread. 
-    // We are increasing this significantly to SHRINK the map.
-    // This will pull the "High" Top Base DOWN and the "Low" Bottom Base UP.
-    // OLD: 600 -> NEW: 650
     const scaleDivisor = 625; 
-
-    // OFFSET X: Moves points East/West.
-    // Your drawing showed HUGE red lines pointing Left. 
-    // We are dropping this aggressively to shift the whole map West.
-    // OLD: 385 -> NEW: 245
     const manualOffsetX = 275;
-
-    // OFFSET Y: Moves points North/South.
-    // We are decreasing this to move the center of the map DOWN (South).
-    // This combines with the scale fix to ensure the Top Base drops enough.
-    // OLD: 255 -> NEW: 230
     const manualOffsetY = 242;
 
-    // ---------------------------------------------------------
-    // 2. CALCULATION
-    // ---------------------------------------------------------
-
-    // Transform Save (Unreal Units) to Game Map (Meters)
     const gameX = (saveY - 158000) / scaleDivisor;
     const gameY = (saveX + 123888) / scaleDivisor;
     
-    // Define Map Constants
-    const mapSize = 1000;
+    // Virtual World Bounds (Game Units)
     const worldMin = -1150;
     const worldMax = 1150;
-    const worldRange = worldMax - worldMin; // 2300
+    const worldRange = worldMax - worldMin; 
 
-    // 3. Normalize to 0-1000 Pixel Space
-    const normalizedX = (((gameX + manualOffsetX) - worldMin) / worldRange) * mapSize;
-    const normalizedY = (((gameY + manualOffsetY) - worldMin) / worldRange) * mapSize;
+    // 1. Normalize to 0.0 -> 1.0
+    const normX = ((gameX + manualOffsetX) - worldMin) / worldRange;
+    const normY = ((gameY + manualOffsetY) - worldMin) / worldRange;
 
-    // 4. Return [Lat, Lng] (Leaflet Y, Leaflet X)
-    return [normalizedY, normalizedX];
+    // 2. Scale to Leaflet 256 Unit System
+    const leafletX = normX * 256;
+    
+    // 3. Invert Y Axis for Mapping
+    // Tiles go Down (0 -> 1). Game coords go Up.
+    const leafletY = (1 - normY) * 256; 
+
+    // Return [Lat, Lng]
+    // In Leaflet CRS.Simple, Y goes UP (Positive). We use NEGATIVE Y to match image coordinates.
+    return [-leafletY, leafletX];
 }
 
 /**
@@ -61,241 +41,177 @@ function leafletMapComponent() {
         mapElement: null,
         markers: [],
         mapReady: false,
+        resizeObserver: null,
         
         init() {
-            console.log('🗺️ Map component init called');
-            
-            // Check if Leaflet is loaded
-            if (typeof L === 'undefined') {
-                console.error('❌ Leaflet library not loaded! Make sure Leaflet.js is included before map-leaflet.js');
-                return;
-            }
-            
-            console.log('✅ Leaflet library loaded');
-            
-            // Wait for DOM and ensure element exists
+            if (typeof L === 'undefined') return;
+
             this.$nextTick(() => {
                 setTimeout(() => {
-                    // Try x-ref first, then fallback to getElementById
                     const mapEl = this.$refs.leafletMap || document.getElementById('leafletMap');
-                    
                     if (mapEl) {
-                        console.log('✅ Map container found:', mapEl);
-                        // Store reference for later use
                         this.mapElement = mapEl;
+                        this.initMap();
                         
-                        // Wait a bit more to ensure parent data is loaded
-                        setTimeout(() => {
-                            this.initMap();
-                        }, 200);
-                    } else {
-                        console.error('❌ Map container not found. Tried $refs.leafletMap and getElementById("leafletMap")');
-                        console.log('Available refs:', this.$refs);
+                        // Resize Observer to fix the "Partial Load" layout bug
+                        this.resizeObserver = new ResizeObserver(() => {
+                            if (this.map) {
+                                setTimeout(() => {
+                                    this.map.invalidateSize();
+                                }, 10);
+                            }
+                        });
+                        this.resizeObserver.observe(this.mapElement);
                     }
                 }, 100);
             });
         },
         
         initMap() {
-            console.log('🗺️ Initializing Leaflet map...');
-            
             if (this.map) return;
             
             try {
-                const mapWidth = 1000;
-                const mapHeight = 1000;
-                const bounds = [[0, 0], [mapHeight, mapWidth]];
+                // Define the world boundaries:
+                // Top-Left: [0, 0]
+                // Bottom-Right: [-256, 256]
+                const bounds = [[0, 0], [-256, 256]];
                 
-                // OPTIMIZATION 1: preferCanvas: true
-                // This forces Leaflet to render markers on a <canvas> layer 
-                // instead of creating individual DOM elements for every marker.
                 this.map = L.map(this.mapElement, {
                     crs: L.CRS.Simple,
-                    minZoom: -1,
-                    maxZoom: 3,
+                    minZoom: 0,
+                    maxZoom: 5,
+                    
+                    // --- PERFORMANCE OPTIMIZATIONS ---
+                    zoomSnap: 1,      
+                    zoomDelta: 1,      
+                    wheelPxPerZoomLevel: 120,
+                    
                     attributionControl: false,
-                    maxBounds: bounds,
-                    maxBoundsViscosity: 0.5,
-                    preferCanvas: true, 
-                    zoomSnap: 0.5,       // Smoother zooming
-                    wheelDebounceTime: 150 // Reduces render calls during scroll
+                    maxBounds: [[20, -20], [-276, 276]], 
+                    maxBoundsViscosity: 0.8
                 });
-                
-                console.log('✅ Leaflet map object created');
-                
-                // OPTIMIZATION 2: Add className for GPU acceleration
-                const imageOverlay = L.imageOverlay('/img/World_Map_4k.webp', bounds, {
-                    className: 'gpu-accelerated',
-                    interactive: false // Prevents the image itself from capturing clicks
-                });
-                
-                imageOverlay.addTo(this.map);
-                
-                // ... rest of your existing loading logic ...
-                
-                setTimeout(() => {
-                    const imgElement = imageOverlay.getElement();
-                    if (imgElement) {
-                        // Ensure image isn't dragged (ghosting effect)
-                        imgElement.style.pointerEvents = 'none'; 
-                        imgElement.addEventListener('load', () => console.log('✅ Map image loaded'));
-                    }
-                }, 50);
-                
-                this.map.fitBounds(bounds);
-                setTimeout(() => {
-                    this.map.setView([mapHeight / 2, mapWidth / 2], 0);
-                }, 100);
+
+                // TILE LAYER
+                L.tileLayer('/img/tiles/{z}/{x}/{y}.png', {
+                    minZoom: 0,
+                    maxZoom: 5,
+                    tileSize: 256,
+                    bounds: bounds,
+                    noWrap: true,
+                    tms: false, 
+                    
+                    updateWhenIdle: false, 
+                    keepBuffer: 10,       
+                    updateWhenZooming: false,
+                    
+                    errorTileUrl: 'https://placehold.co/256x256/333/666?text=Missing'
+                }).addTo(this.map);
+
+                // --- DYNAMIC START ZOOM ---
+                const containerWidth = this.mapElement.clientWidth || 1000;
+                const fillZoom = Math.log2(containerWidth / 256);
+                const initialZoom = Math.max(2, Math.min(5, Math.ceil(fillZoom)));
+
+                // Center view
+                this.map.setView([-128, 128], initialZoom);
                 
                 this.mapReady = true;
                 
+                // Initial load attempt
                 setTimeout(() => {
+                    this.map.invalidateSize();
                     this.loadBases();
-                }, 800);
+                }, 200);
+                
             } catch (error) {
-                console.error('❌ Error initializing map:', error);
+                console.error('Map error:', error);
             }
         },
-        
-        loadBases() {
-            // Clear existing markers
+
+        loadBases(retries = 0) {
+            // 1. Clear old markers
             this.markers.forEach(marker => marker.remove());
             this.markers = [];
             
-            // Get bases from parent app - try multiple ways to access it
-            let guilds = [];
-            
-            // Method 1: Try Alpine.$data on the body element
+            // 2. Try to get data
             const bodyData = Alpine.$data(document.body);
-            if (bodyData && bodyData.guilds) {
-                guilds = bodyData.guilds;
-                console.log('✅ Got guilds from body Alpine data');
-            }
-            // Method 2: Try this.$root
-            else if (this.$root && this.$root.guilds) {
-                guilds = this.$root.guilds;
-                console.log('✅ Got guilds from $root');
-            }
-            // Method 3: Try window reference
-            else if (window.Alpine && window.Alpine.store) {
-                console.log('⚠️ Trying Alpine store (may not exist)');
+            let guilds = bodyData && bodyData.guilds ? bodyData.guilds : (this.$root && this.$root.guilds ? this.$root.guilds : []);
+            
+            // 3. Retry Logic
+            if ((!guilds || guilds.length === 0) && retries < 10) {
+                console.log(`⏳ Map waiting for data... (Attempt ${retries + 1}/10)`);
+                setTimeout(() => this.loadBases(retries + 1), 500);
+                return;
             }
             
-            console.log('🗺️ Loading bases from', guilds.length, 'guilds');
-            console.log('🗺️ Guild data sample:', guilds[0]);
-            
-            let baseCount = 0;
+            console.log(`📍 Loading markers for ${guilds.length} guilds...`);
+
             for (const guild of guilds) {
-                console.log('🗺️ Processing guild:', guild.guild_name, 'with', guild.base_locations?.length || 0, 'bases');
-                
                 if (guild.base_locations) {
                     for (const base of guild.base_locations) {
-                        console.log('📍 Base data:', base);
-                        
                         if (base.x !== undefined && base.y !== undefined) {
                             this.addBaseMarker(base, guild);
-                            baseCount++;
-                        } else {
-                            console.warn('⚠️ Base missing coordinates:', base.base_name, base);
                         }
                     }
                 }
             }
-            
-            console.log('✅ Added', baseCount, 'base markers to map');
-            
-            if (baseCount === 0) {
-                console.warn('⚠️ No bases with coordinates found. Check that:');
-                console.warn('  1. Save data is loaded');
-                console.warn('  2. Guilds have base_locations array');
-                console.warn('  3. Bases have x, y coordinates');
-                console.warn('  4. Try clicking "Refresh Bases" button after data loads');
-            }
         },
-        
+
         addBaseMarker(base, guild) {
-            // Convert save coordinates to map coordinates using the correct formula
             const coords = saveToMapCoords(base.x, base.y);
             
-            console.log('📍 Plotting base:', base.base_name);
-            console.log('   Game coords:', base.x, base.y);
-            console.log('   Map coords:', coords);
-            
-            // Create custom icon
             const icon = L.divIcon({
                 className: 'base-marker',
                 html: `
-                    <div class="relative">
-                        <div class="w-8 h-8 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white">
-                            🏠
+                    <div class="relative group">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white transition-transform transform group-hover:scale-110 cursor-pointer">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        </div>
+                        <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[1000] shadow-lg">
+                            ${base.base_name}
                         </div>
                     </div>
                 `,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
             });
             
-            // Create marker
             const marker = L.marker(coords, { icon: icon }).addTo(this.map);
             
-            // Add popup with base info (removed Z coordinate)
-            const popupContent = `
-                <div class="p-2">
-                    <div class="font-bold text-blue-600">${base.base_name}</div>
-                    <div class="text-sm text-gray-600">${guild.guild_name}</div>
-                    <div class="text-xs text-gray-500 mt-1">
-                        Game X: ${Math.round(base.x)}<br>
-                        Game Y: ${Math.round(base.y)}<br>
-                        Map: [${Math.round(coords[0])}, ${Math.round(coords[1])}]
-                    </div>
-                </div>
-            `;
+            marker.on('click', () => {
+                window.dispatchEvent(new CustomEvent('navigate-to-base', { 
+                    detail: { guildId: guild.guild_id, baseId: base.base_id } 
+                }));
+            });
             
-            marker.bindPopup(popupContent);
             this.markers.push(marker);
         },
-        
+
         resetView() {
             if (this.map) {
-                const bounds = [[0, 0], [1000, 1000]];
-                this.map.fitBounds(bounds);
+                // Re-calculate the best fit zoom on reset
+                const containerWidth = this.mapElement.clientWidth;
+                const fillZoom = Math.log2(containerWidth / 256);
+                const resetZoom = Math.max(2, Math.min(5, Math.ceil(fillZoom)));
+                
+                this.map.setView([-128, 128], resetZoom);
+                this.map.invalidateSize();
             }
         },
-        
-        // Call this when data is refreshed
-        refresh() {
-            console.log('🔄 Refreshing map data...');
-            this.loadBases();
-        },
-        
-        // Helper to get all bases with coordinates (for template usage)
+
+        refresh() { this.loadBases(); },
+
         getAllBasesWithCoords() {
             const bases = [];
-            
-            // Try to get guilds from Alpine
-            let guilds = [];
             const bodyData = Alpine.$data(document.body);
-            if (bodyData && bodyData.guilds) {
-                guilds = bodyData.guilds;
-            } else if (this.$root && this.$root.guilds) {
-                guilds = this.$root.guilds;
-            }
-            
+            let guilds = bodyData && bodyData.guilds ? bodyData.guilds : (this.$root && this.$root.guilds ? this.$root.guilds : []);
             for (const guild of guilds) {
                 if (guild.base_locations) {
                     for (const base of guild.base_locations) {
-                        if (base.x !== undefined && base.y !== undefined) {
-                            bases.push({
-                                ...base,
-                                guild_name: guild.guild_name,
-                                guild_id: guild.guild_id
-                            });
-                        }
+                        if (base.x !== undefined && base.y !== undefined) bases.push(base);
                     }
                 }
             }
-            
             return bases;
         }
     };

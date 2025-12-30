@@ -21,7 +21,7 @@
     <script src="/js/app.js?v=20251230-019"></script>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/js/map-leaflet.js?v=20251230-027"></script>
+    <script src="/js/map-leaflet.js?v=20251230-048"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -338,6 +338,11 @@
             background: transparent !important;
             border: none !important;
         }
+
+        .leaflet-container {
+            background: #0b101b !important; /* Matches Palworld ocean/dark theme */
+            outline: none;
+        }
         
         .leaflet-popup-content-wrapper {
             background: #1f2937;
@@ -374,6 +379,14 @@
         /* Reduce marker DOM weight */
         .leaflet-marker-icon {
             will-change: transform;
+        }
+
+        /* specific Leaflet overrides to kill the lag */
+        .leaflet-map-pane, 
+        .leaflet-tile, 
+        .leaflet-marker-icon, 
+        .leaflet-popup {
+            transition: none !important;
         }
     </style>
 </head>
