@@ -107,9 +107,23 @@ def build_guilds(world_data: Dict) -> List[GuildInfo]:
         base_locations = []
         if guild_id_str in guild_bases:
             for base_id in guild_bases[guild_id_str]:
+                # Get base raw data for coordinates
+                base_raw = base_data.get(base_id, {})
+                transform = base_schema.extract_field(base_raw, "transform")
+                
+                # Extract coordinates from transform
+                coords = {}
+                if transform and isinstance(transform, dict):
+                    translation = transform.get("translation", {})
+                    if translation:
+                        coords["x"] = translation.get("x")
+                        coords["y"] = translation.get("y")
+                        coords["z"] = translation.get("z")
+                
                 base_locations.append({
                     "base_id": base_id,
-                    "base_name": base_to_name.get(base_id, f"Base {base_id[:8]}")
+                    "base_name": base_to_name.get(base_id, f"Base {base_id[:8]}"),
+                    **coords
                 })
         
         guild = GuildInfo(

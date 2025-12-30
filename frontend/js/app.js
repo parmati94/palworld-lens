@@ -684,6 +684,29 @@ function app() {
             return condition.type === 'sickness' 
                 ? 'bg-purple-600 text-white border border-purple-500'
                 : 'bg-red-600 text-white border border-red-500';
+        },
+        
+        // Helper to get all bases with coordinates for map
+        getAllBasesWithCoords() {
+            const bases = [];
+            const guilds = this.guilds || [];
+            
+            for (const guild of guilds) {
+                if (guild.base_locations) {
+                    for (const base of guild.base_locations) {
+                        // Only include bases with coordinates
+                        if (base.x && base.y) {
+                            bases.push({
+                                ...base,
+                                guild_name: guild.guild_name,
+                                guild_id: guild.guild_id
+                            });
+                        }
+                    }
+                }
+            }
+            
+            return bases;
         }
     }
 }

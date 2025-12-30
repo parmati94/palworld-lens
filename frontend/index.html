@@ -11,10 +11,17 @@
     <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon.png?v=2">
     <link rel="icon" type="image/png" sizes="192x192" href="/img/favicon/android-chrome-192x192.png?v=2">
     <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon/android-chrome-512x512.png?v=2">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <script src="/js/utils.js"></script>
-    <script src="/js/app.js?v=20251229-005"></script>
+    <script src="/js/utils.js?v=20251230-019"></script>
+    <script src="/js/app.js?v=20251230-019"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/map-leaflet.js?v=20251230-027"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -325,6 +332,49 @@
                 0 0 12px rgba(96, 165, 250, 0.6),
                 0 0 16px rgba(59, 130, 246, 0.3);
         }
+        
+        /* Leaflet custom styles */
+        .base-marker {
+            background: transparent !important;
+            border: none !important;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            background: #1f2937;
+            color: white;
+            border-radius: 0.5rem;
+        }
+        
+        .leaflet-popup-tip {
+            background: #1f2937;
+        }
+        
+        .leaflet-control-zoom a {
+            background: #1f2937 !important;
+            color: white !important;
+        }
+        
+        .leaflet-control-zoom a:hover {
+            background: #374151 !important;
+        }
+
+        /* Force GPU acceleration for the map pane */
+        .leaflet-map-pane {
+            transform: translate3d(0,0,0);
+            will-change: transform;
+        }
+
+        /* Optimize the huge image layer */
+        .gpu-accelerated {
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        /* Reduce marker DOM weight */
+        .leaflet-marker-icon {
+            will-change: transform;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen" x-data="app()" x-cloak>
@@ -562,6 +612,12 @@
                     :class="currentTab === 'bases' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
                     class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
                     Bases
+                </button>
+                <button 
+                    @click="currentTab = 'map'" 
+                    :class="currentTab === 'map' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
+                    🗺️ Map
                 </button>
             </div>
         </div>
@@ -2149,6 +2205,98 @@
                         </div>
                     </div>
                 </template>
+            </div>
+        </div>
+
+        <!-- Map Tab (Leaflet Version) -->
+        <div x-show="currentTab === 'map' && saveInfo.loaded" class="tab-content">
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700" x-data="leafletMapComponent()" x-init="init()">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-white">World Map - Base Locations</h2>
+                    <div class="flex gap-2">
+                        <div class="text-sm text-gray-400">
+                            <span x-text="getAllBasesWithCoords().length"></span> bases mapped
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Instructions -->
+                <div class="bg-gray-700/50 rounded p-3 mb-4 text-sm text-gray-300">
+                    <div class="flex items-start gap-2">
+                        <span class="text-blue-400">ℹ️</span>
+                        <div>
+                            <strong>Controls:</strong> 
+                            <span class="ml-2">🖱️ Drag to pan</span>
+                            <span class="ml-2">🔍 Scroll/+/- to zoom</span>
+                            <span class="ml-2">🏠 Click markers for details</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Leaflet Map Container -->
+                <div class="relative">
+                    <!-- Loading State -->
+                    <div x-show="!mapReady" class="absolute inset-0 flex items-center justify-center bg-gray-900 rounded-lg z-50" style="height: 70vh;">
+                        <div class="text-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                            <div class="text-gray-400">Loading world map...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Map -->
+                    <div x-ref="leafletMap" id="leafletMap" class="relative rounded-lg overflow-hidden z-0" style="height: 70vh;"></div>
+                    
+                    <!-- Controls -->
+                    <div class="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                        <button 
+                            @click="resetView()"
+                            class="bg-gray-800/90 hover:bg-gray-700 text-white px-3 py-2 rounded shadow-lg transition-colors backdrop-blur-sm">
+                            🔄 Reset View
+                        </button>
+                        <button 
+                            @click="refresh()"
+                            class="bg-gray-800/90 hover:bg-gray-700 text-white px-3 py-2 rounded shadow-lg transition-colors backdrop-blur-sm">
+                            ↻ Refresh Bases
+                        </button>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="absolute bottom-4 left-4 bg-gray-800/90 rounded-lg p-3 shadow-lg backdrop-blur-sm z-10">
+                        <div class="text-sm text-white font-semibold mb-2">Legend</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-300">
+                            <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
+                                🏠
+                            </div>
+                            <span>Player Base</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Base List -->
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold text-white mb-3">Base Coordinates</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <template x-for="base in getAllBasesWithCoords()" :key="base.base_id">
+                            <div class="bg-gray-700/50 rounded p-3 border border-gray-600 hover:border-blue-500 transition-colors">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="font-semibold text-white" x-text="base.base_name"></div>
+                                        <div class="text-sm text-gray-400" x-text="base.guild_name"></div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span>X: </span><span x-text="Math.round(base.x)"></span>
+                                            <span class="ml-2">Y: </span><span x-text="Math.round(base.y)"></span>
+                                            <span class="ml-2">Z: </span><span x-text="Math.round(base.z)"></span>
+                                        </div>
+                                    </div>
+                                    <div class="w-3 h-3 bg-blue-500 rounded-full border-2 border-white flex-shrink-0 mt-1"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="getAllBasesWithCoords().length === 0" class="text-center text-gray-400 py-8">
+                        No bases with coordinate data found
+                    </div>
+                </div>
             </div>
         </div>
 

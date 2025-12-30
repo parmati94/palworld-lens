@@ -217,13 +217,22 @@ class PlayerInfo(BaseModel):
     calculated_weight: Optional[int] = None
     calculated_work_speed: Optional[int] = None
 
+class BaseLocation(BaseModel):
+    """Base location information"""
+    base_id: str
+    base_name: str
+    x: Optional[float] = None
+    y: Optional[float] = None
+    z: Optional[float] = None
+
+
 class GuildInfo(BaseModel):
     """Guild information"""
     guild_id: str
     guild_name: str
     admin_player_uid: Optional[str] = None
     members: List[str] = []
-    base_locations: List[Dict[str, Any]] = []
+    base_locations: List[BaseLocation] = []
 
 
 class ItemSlot(BaseModel):
