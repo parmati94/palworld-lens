@@ -21,11 +21,20 @@
     <script src="/js/app.js?v=20251230-019"></script>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/js/map-leaflet.js?v=20251230-048"></script>
+    <script src="/js/map-leaflet.js?v=20251230-052"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
+        
+        /* Hide scrollbar for navigation but keep functionality */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari and Opera */
+        }
         
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -601,36 +610,36 @@
 
         <!-- Tabs -->
         <div x-show="saveInfo.loaded" class="mb-6">
-            <div class="flex gap-2 overflow-x-auto pb-2">
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory scroll-smooth">
                 <button 
                     @click="currentTab = 'overview'" 
                     :class="currentTab === 'overview' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
                     Overview
                 </button>
                 <button 
                     @click="currentTab = 'players'" 
                     :class="currentTab === 'players' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
-                    Players (<span x-text="players.length"></span>)
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Players <span class="hidden sm:inline">(<span x-text="players.length"></span>)</span>
                 </button>
                 <button 
                     @click="currentTab = 'pals'" 
                     :class="currentTab === 'pals' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
-                    Pals (<span x-text="pals.length"></span>)
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Pals <span class="hidden sm:inline">(<span x-text="pals.length"></span>)</span>
                 </button>
                 <button 
                     @click="currentTab = 'bases'" 
                     :class="currentTab === 'bases' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
                     Bases
                 </button>
                 <button 
                     @click="currentTab = 'map'" 
                     :class="currentTab === 'map' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base">
-                    🗺️ Map
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Map
                 </button>
             </div>
         </div>
@@ -2223,91 +2232,67 @@
 
         <!-- Map Tab (Leaflet Version) -->
         <div x-show="currentTab === 'map' && saveInfo.loaded" class="tab-content">
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700" x-data="leafletMapComponent()" x-init="init()">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-white">World Map - Base Locations</h2>
-                    <div class="flex gap-2">
-                        <div class="text-sm text-gray-400">
-                            <span x-text="getAllBasesWithCoords().length"></span> bases mapped
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700/50 shadow-2xl" x-data="leafletMapComponent()" x-init="init()">
+                <!-- Header with subtle gradient accent -->
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-700/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Map Instructions -->
-                <div class="bg-gray-700/50 rounded p-3 mb-4 text-sm text-gray-300">
-                    <div class="flex items-start gap-2">
-                        <span class="text-blue-400">ℹ️</span>
                         <div>
-                            <strong>Controls:</strong> 
-                            <span class="ml-2">🖱️ Drag to pan</span>
-                            <span class="ml-2">🔍 Scroll/+/- to zoom</span>
-                            <span class="ml-2">🏠 Click markers for details</span>
+                            <h2 class="text-2xl font-bold text-white">Interactive Map</h2>
+                            <p class="text-sm text-gray-400">Explore player base locations</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gray-700/50 px-4 py-2 rounded-lg border border-gray-600/50">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-medium text-gray-300">
+                                    <span x-text="getAllBasesWithCoords().length"></span> Bases
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Leaflet Map Container -->
-                <div class="relative">
+                <!-- Map Container with enhanced styling -->
+                <div class="relative rounded-xl overflow-hidden shadow-2xl ring-1 ring-gray-700/50">
                     <!-- Loading State -->
-                    <div x-show="!mapReady" class="absolute inset-0 flex items-center justify-center bg-gray-900 rounded-lg z-50" style="height: 70vh;">
+                    <div x-show="!mapReady" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 z-50" style="height: 70vh;">
                         <div class="text-center">
-                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                            <div class="text-gray-400">Loading world map...</div>
+                            <div class="relative">
+                                <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                                <div class="absolute inset-0 animate-ping rounded-full h-16 w-16 border border-blue-500/30 mx-auto"></div>
+                            </div>
+                            <div class="text-gray-300 font-medium">Loading world map...</div>
+                            <div class="text-gray-500 text-sm mt-1">Preparing your view</div>
                         </div>
                     </div>
                     
                     <!-- Map -->
-                    <div x-ref="leafletMap" id="leafletMap" class="relative rounded-lg overflow-hidden z-0" style="height: 70vh;"></div>
+                    <div x-ref="leafletMap" id="leafletMap" class="relative z-0" style="height: 70vh;"></div>
                     
-                    <!-- Controls -->
+                    <!-- Enhanced Controls -->
                     <div class="absolute top-4 right-4 flex flex-col gap-2 z-10">
                         <button 
                             @click="resetView()"
-                            class="bg-gray-800/90 hover:bg-gray-700 text-white px-3 py-2 rounded shadow-lg transition-colors backdrop-blur-sm">
-                            🔄 Reset View
+                            title="Reset View"
+                            class="group w-11 h-11 bg-gray-900/95 hover:bg-blue-600 text-white rounded-xl shadow-xl transition-all hover:scale-110 backdrop-blur-md flex items-center justify-center border border-gray-700/50 hover:border-blue-500/50">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
                         </button>
                         <button 
                             @click="refresh()"
-                            class="bg-gray-800/90 hover:bg-gray-700 text-white px-3 py-2 rounded shadow-lg transition-colors backdrop-blur-sm">
-                            ↻ Refresh Bases
+                            title="Refresh Bases"
+                            class="group w-11 h-11 bg-gray-900/95 hover:bg-blue-600 text-white rounded-xl shadow-xl transition-all hover:scale-110 backdrop-blur-md flex items-center justify-center border border-gray-700/50 hover:border-blue-500/50">
+                            <svg class="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
                         </button>
-                    </div>
-                    
-                    <!-- Legend -->
-                    <div class="absolute bottom-4 left-4 bg-gray-800/90 rounded-lg p-3 shadow-lg backdrop-blur-sm z-10">
-                        <div class="text-sm text-white font-semibold mb-2">Legend</div>
-                        <div class="flex items-center gap-2 text-sm text-gray-300">
-                            <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
-                                🏠
-                            </div>
-                            <span>Player Base</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Base List -->
-                <div class="mt-6">
-                    <h3 class="text-xl font-semibold text-white mb-3">Base Coordinates</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <template x-for="base in getAllBasesWithCoords()" :key="base.base_id">
-                            <div class="bg-gray-700/50 rounded p-3 border border-gray-600 hover:border-blue-500 transition-colors">
-                                <div class="flex items-start justify-between">
-                                    <div>
-                                        <div class="font-semibold text-white" x-text="base.base_name"></div>
-                                        <div class="text-sm text-gray-400" x-text="base.guild_name"></div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            <span>X: </span><span x-text="Math.round(base.x)"></span>
-                                            <span class="ml-2">Y: </span><span x-text="Math.round(base.y)"></span>
-                                            <span class="ml-2">Z: </span><span x-text="Math.round(base.z)"></span>
-                                        </div>
-                                    </div>
-                                    <div class="w-3 h-3 bg-blue-500 rounded-full border-2 border-white flex-shrink-0 mt-1"></div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div x-show="getAllBasesWithCoords().length === 0" class="text-center text-gray-400 py-8">
-                        No bases with coordinate data found
                     </div>
                 </div>
             </div>

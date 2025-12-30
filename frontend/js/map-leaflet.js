@@ -62,6 +62,16 @@ function leafletMapComponent() {
                             }
                         });
                         this.resizeObserver.observe(this.mapElement);
+                        
+                        // Watch for changes to guild data (from parent Alpine component)
+                        // This automatically triggers when SSE updates or manual reload happens
+                        const bodyData = Alpine.$data(document.body);
+                        if (bodyData) {
+                            this.$watch(() => bodyData.guilds, () => {
+                                console.log('🗺️ Map: Guild data changed, refreshing markers...');
+                                this.loadBases();
+                            }, { deep: true });
+                        }
                     }
                 }, 100);
             });
@@ -160,15 +170,23 @@ function leafletMapComponent() {
         addBaseMarker(base, guild) {
             const coords = saveToMapCoords(base.x, base.y);
             
+            // Calculate real in-game coordinates for display
+            const gameX = (base.y - 158000) / 625;
+            const gameY = (base.x + 123888) / 625;
+            
             const icon = L.divIcon({
                 className: 'base-marker',
                 html: `
                     <div class="relative group">
-                        <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white transition-transform transform group-hover:scale-110 cursor-pointer">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
+                            <img src="/img/t_icon_camp.webp" class="w-4 h-4 object-contain" alt="Base" />
                         </div>
-                        <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[1000] shadow-lg">
-                            ${base.base_name}
+                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[1000] shadow-lg max-w-[200px]">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold">${base.base_name}</span>
+                                <span class="text-gray-400 text-[10px] truncate">${guild.guild_name}</span>
+                            </div>
+                            <div class="text-gray-400">X: ${Math.round(gameX)} | Y: ${Math.round(gameY)}</div>
                         </div>
                     </div>
                 `,
