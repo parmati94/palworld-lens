@@ -25,11 +25,12 @@ STAT_NAME_MAP = {
 }
 
 
-def build_players(world_data: Dict) -> List[PlayerInfo]:
+def build_players(world_data: Dict, player_uid_to_containers: Dict = None) -> List[PlayerInfo]:
     """Build list of all players from save data
     
     Args:
         world_data: World save data from GVAS file
+        player_uid_to_containers: Mapping of player UID to container and location data
         
     Returns:
         List of PlayerInfo objects
@@ -60,6 +61,14 @@ def build_players(world_data: Dict) -> List[PlayerInfo]:
         if not current_hp or current_hp > max_hp:
             current_hp = max_hp
         
+        # Get location from player_uid_to_containers (from Players/*.sav LastTransform)
+        location = None
+        if player_uid_to_containers:
+            for player_uid, player_data in player_uid_to_containers.items():
+                if player_data.get("instance_id") == instance_id:
+                    location = player_data.get("location")
+                    break
+        
         player = PlayerInfo(
             uid=instance_id,
             player_name=player_schema.extract_field(char_info, "NickName"),
@@ -72,6 +81,7 @@ def build_players(world_data: Dict) -> List[PlayerInfo]:
             hunger=player_schema.extract_field(char_info, "FullStomach"),
             sanity=player_schema.extract_field(char_info, "SanityValue"),
             guild_id=_get_player_guild(world_data, instance_id),
+            location=location,
             stat_points_hp=stat_points["hp"],
             stat_points_stamina=stat_points["stamina"],
             stat_points_attack=stat_points["attack"],

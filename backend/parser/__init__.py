@@ -118,7 +118,7 @@ class SaveFileParser:
         """Get list of all players"""
         if not self.gvas.loaded:
             return []
-        return build_players(self.gvas.world_data)
+        return build_players(self.gvas.world_data, self.player_uid_to_containers)
     
     def get_guilds(self) -> List[GuildInfo]:
         """Get list of all guilds"""

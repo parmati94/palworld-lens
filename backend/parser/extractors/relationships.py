@@ -3,13 +3,10 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-from palworld_save_tools.gvas import GvasFile
-from palworld_save_tools.palsav import decompress_sav_to_gvas
-from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES
-
 from backend.parser.extractors.characters import get_player_data
 from backend.parser.extractors.guilds import get_guild_data
 from backend.parser.extractors.bases import get_base_data
+from backend.parser.extractors.players import extract_player_save_data
 from backend.parser.utils.helpers import get_val
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
@@ -30,7 +27,7 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
     player_uid_to_containers = {}
     player_names = {}
     
-    # Get players from Level.sav first
+    # Get players from Level.sav first (for names)
     players_data = get_player_data(world_data)
     logger.info(f"build_player_mapping: Found {len(players_data)} players in Level.sav")
     
@@ -42,60 +39,25 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
         logger.info(f"Player from Level.sav: {player_name} (instance_id: {instance_id[:16]}...)")
     
     # Load schemas for data extraction
-    player_schema = SchemaManager.get("players.yaml")
     guild_schema = SchemaManager.get("guilds.yaml")
     base_schema = SchemaManager.get("bases.yaml")
     
-    # Read Players/*.sav files to get PlayerUId and container IDs
-    if players_dir and players_dir.exists():
-        for player_sav in players_dir.glob("*.sav"):
-            try:
-                filename_uid = player_sav.stem
-                if len(filename_uid) == 32:
-                    formatted_uid = f"{filename_uid[0:8]}-{filename_uid[8:12]}-{filename_uid[12:16]}-{filename_uid[16:20]}-{filename_uid[20:32]}"
-                    formatted_uid = formatted_uid.lower()
-                    
-                    with open(player_sav, "rb") as f:
-                        sav_data = f.read()
-                    
-                    raw_gvas, _ = decompress_sav_to_gvas(sav_data)
-                    gvas_file = GvasFile.read(raw_gvas, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES)
-                    
-                    # Navigate to SaveData.value (the "root" for Players/*.sav fields)
-                    save_data = gvas_file.properties.get("SaveData", {}).get("value", {})
-                    
-                    # Extract using schema (field names are top-level keys in save_data)
-                    player_uid = player_schema.extract_field(save_data, "PlayerUId")
-                    if not player_uid:
-                        player_uid = formatted_uid
-                    player_uid = str(player_uid)
-                    
-                    # Get IndividualId (links to Level.sav character instance)
-                    individual_id = player_schema.extract_field(save_data, "IndividualId")
-                    if individual_id:
-                        individual_id = str(individual_id)
-                    
-                    player_name = instance_to_name.get(individual_id, f"Player_{filename_uid[:8].upper()}")
-                    
-                    # Get container IDs using schema
-                    container_ids = []
-                    otomo_container = player_schema.extract_field(save_data, "OtomoCharacterContainerId")
-                    if otomo_container:
-                        container_ids.append(str(otomo_container))
-                    
-                    storage_container = player_schema.extract_field(save_data, "PalStorageContainerId")
-                    if storage_container:
-                        container_ids.append(str(storage_container))
-                    
-                    player_uid_to_containers[player_uid] = {
-                        "name": player_name,
-                        "containers": container_ids,
-                        "instance_id": individual_id
-                    }
-                    player_names[player_uid] = player_name
-                    logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(container_ids)} containers")
-            except Exception as e:
-                logger.warning(f"Failed to read player .sav {player_sav.name}: {e}")
+    # Extract player save data from Players/*.sav files
+    player_save_data = extract_player_save_data(players_dir)
+    
+    # Build mappings using extracted data
+    for individual_id, save_info in player_save_data.items():
+        player_uid = save_info["player_uid"]
+        player_name = instance_to_name.get(individual_id, f"Player_{player_uid[:8].upper()}")
+        
+        player_uid_to_containers[player_uid] = {
+            "name": player_name,
+            "containers": save_info["containers"],
+            "instance_id": individual_id,
+            "location": save_info["location"]
+        }
+        player_names[player_uid] = player_name
+        logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(save_info['containers'])} containers, location={save_info['location'] is not None}")
     
     # Add base worker containers to player mappings
     guild_to_players = {}

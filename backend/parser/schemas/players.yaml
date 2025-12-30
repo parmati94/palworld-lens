@@ -61,6 +61,13 @@ fields:
     path: ["value"]
     default: null
   
+  # Location/coordinates (from Players/*.sav LastTransform)
+  LastTransform:
+    description: "Player's last known position coordinates"
+    root_key: "LastTransform"
+    path: ["value", "Translation", "value"]
+    default: null
+  
   # Individual character instance ID (links to Level.sav)
   IndividualId:
     description: "Player character instance ID linking to Level.sav"

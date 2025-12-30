@@ -21,7 +21,7 @@
     <script src="/js/app.js?v=20251230-019"></script>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/js/map-leaflet.js?v=20251230-052"></script>
+    <script src="/js/map-leaflet.js?v=20251230-053"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -1340,14 +1340,16 @@
             basePalPage: 1, 
             basePalPageSize: 10,
             get currentBaseIndex() {
+                if (!selectedGuildId) return -1;
                 const guild = basePals.find(g => g.guild_id === selectedGuildId);
                 if (!guild) return -1;
                 return guild.bases.findIndex(b => b.base_id === selectedBaseId);
             },
             get hasPrevBase() {
-                return this.currentBaseIndex > 0;
+                return selectedGuildId && this.currentBaseIndex > 0;
             },
             get hasNextBase() {
+                if (!selectedGuildId) return false;
                 const guild = basePals.find(g => g.guild_id === selectedGuildId);
                 return guild && this.currentBaseIndex < guild.bases.length - 1;
             },
@@ -1456,28 +1458,6 @@
                     </template>
                 </div>
             </template>
-
-            <!-- Floating Base Navigation (shown when base is selected) -->
-            <div x-show="selectedGuildId && selectedBaseId" class="floating-nav">
-                <button 
-                    @click="navigateToPrevBase()"
-                    x-show="hasPrevBase"
-                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
-                    title="Previous Base">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <button 
-                    @click="navigateToNextBase()"
-                    x-show="hasNextBase"
-                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
-                    title="Next Base">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-            </div>
 
             <!-- Pals Table (shown when base is selected) -->
             <template x-if="selectedGuildId && selectedBaseId">
@@ -2336,6 +2316,28 @@
                         </div>
                     </div>
                 </template>
+            </div>
+            
+            <!-- Floating Base Navigation (shown when base is selected) -->
+            <div x-show="selectedGuildId && selectedBaseId" class="floating-nav">
+                <button 
+                    @click="navigateToPrevBase()"
+                    x-show="hasPrevBase"
+                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
+                    title="Previous Base">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button 
+                    @click="navigateToNextBase()"
+                    x-show="hasNextBase"
+                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
+                    title="Next Base">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
             </div>
         </div>
 
