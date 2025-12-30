@@ -40,8 +40,15 @@ function leafletMapComponent() {
         map: null,
         mapElement: null,
         markers: [],
+        playerMarkers: [],
         mapReady: false,
         resizeObserver: null,
+        
+        // Filter state
+        showBases: true,
+        showPlayers: true,
+        filtersCollapsed: false,
+        isRefreshing: false,
         
         init() {
             if (typeof L === 'undefined') return;
@@ -71,6 +78,11 @@ function leafletMapComponent() {
                                 console.log('🗺️ Map: Guild data changed, refreshing markers...');
                                 this.loadBases();
                             }, { deep: true });
+                            
+                            this.$watch(() => bodyData.players, () => {
+                                console.log('🗺️ Map: Player data changed, refreshing player markers...');
+                                this.loadPlayers();
+                            }, { deep: true });
                         }
                     }
                 }, 100);
@@ -89,7 +101,7 @@ function leafletMapComponent() {
                 this.map = L.map(this.mapElement, {
                     crs: L.CRS.Simple,
                     minZoom: 0,
-                    maxZoom: 5,
+                    maxZoom: 7,  // Allow zooming to level 7
                     
                     // --- PERFORMANCE OPTIMIZATIONS ---
                     zoomSnap: 1,      
@@ -97,6 +109,7 @@ function leafletMapComponent() {
                     wheelPxPerZoomLevel: 120,
                     
                     attributionControl: false,
+                    zoomControl: false,  // Disable default zoom control
                     maxBounds: [[20, -20], [-276, 276]], 
                     maxBoundsViscosity: 0.8
                 });
@@ -104,7 +117,8 @@ function leafletMapComponent() {
                 // TILE LAYER
                 L.tileLayer('/img/tiles/{z}/{x}/{y}.png', {
                     minZoom: 0,
-                    maxZoom: 5,
+                    maxZoom: 7,        // Allow zooming to level 7
+                    maxNativeZoom: 5,  // Real tiles up to level 5, digital zoom for 7
                     tileSize: 256,
                     bounds: bounds,
                     noWrap: true,
@@ -131,6 +145,7 @@ function leafletMapComponent() {
                 setTimeout(() => {
                     this.map.invalidateSize();
                     this.loadBases();
+                    this.loadPlayers();
                 }, 200);
                 
             } catch (error) {
@@ -205,6 +220,67 @@ function leafletMapComponent() {
             this.markers.push(marker);
         },
 
+        loadPlayers(retries = 0) {
+            // Clear old player markers
+            this.playerMarkers.forEach(marker => marker.remove());
+            this.playerMarkers = [];
+            
+            // Try to get player data
+            const bodyData = Alpine.$data(document.body);
+            let players = bodyData && bodyData.players ? bodyData.players : (this.$root && this.$root.players ? this.$root.players : []);
+            
+            // Retry logic
+            if ((!players || players.length === 0) && retries < 10) {
+                console.log(`⏳ Map waiting for player data... (Attempt ${retries + 1}/10)`);
+                setTimeout(() => this.loadPlayers(retries + 1), 500);
+                return;
+            }
+            
+            console.log(`👤 Loading markers for ${players.length} players...`);
+
+            for (const player of players) {
+                if (player.location && player.location.x !== undefined && player.location.y !== undefined) {
+                    this.addPlayerMarker(player);
+                }
+            }
+        },
+
+        addPlayerMarker(player) {
+            const coords = saveToMapCoords(player.location.x, player.location.y);
+            
+            // Calculate real in-game coordinates for display
+            const gameX = (player.location.y - 158000) / 625;
+            const gameY = (player.location.x + 123888) / 625;
+            
+            const icon = L.divIcon({
+                className: 'player-marker',
+                html: `
+                    <div class="relative group">
+                        <div class="w-6 h-6 bg-green-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[1000] shadow-lg max-w-[200px]">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold">${player.player_name}</span>
+                                <span class="text-green-400 text-[10px]">Lv ${player.level}</span>
+                            </div>
+                            <div class="text-gray-400">X: ${Math.round(gameX)} | Y: ${Math.round(gameY)}</div>
+                        </div>
+                    </div>
+                `,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            
+            const marker = L.marker(coords, { 
+                icon: icon,
+                zIndexOffset: 1000  // Player markers always on top
+            }).addTo(this.map);
+            this.playerMarkers.push(marker);
+        },
+
         resetView() {
             if (this.map) {
                 // Re-calculate the best fit zoom on reset
@@ -217,7 +293,15 @@ function leafletMapComponent() {
             }
         },
 
-        refresh() { this.loadBases(); },
+        refresh() {
+            this.isRefreshing = true;
+            this.loadBases();
+            this.loadPlayers();
+            // Reset loading state after a short delay
+            setTimeout(() => {
+                this.isRefreshing = false;
+            }, 600);
+        },
 
         getAllBasesWithCoords() {
             const bases = [];
@@ -231,6 +315,51 @@ function leafletMapComponent() {
                 }
             }
             return bases;
+        },
+        
+        toggleBases() {
+            this.showBases = !this.showBases;
+            this.markers.forEach(marker => {
+                if (this.showBases) {
+                    marker.addTo(this.map);
+                } else {
+                    marker.remove();
+                }
+            });
+        },
+        
+        togglePlayers() {
+            this.showPlayers = !this.showPlayers;
+            this.playerMarkers.forEach(marker => {
+                if (this.showPlayers) {
+                    marker.addTo(this.map);
+                } else {
+                    marker.remove();
+                }
+            });
+        },
+        
+        toggleFilters() {
+            this.filtersCollapsed = !this.filtersCollapsed;
+        },
+        
+        zoomIn() {
+            if (this.map) {
+                this.map.zoomIn();
+            }
+        },
+        
+        zoomOut() {
+            if (this.map) {
+                this.map.zoomOut();
+            }
+        },
+        
+        centerOnLocation(x, y, zoom = 5) {
+            if (this.map && x !== undefined && y !== undefined) {
+                const coords = saveToMapCoords(x, y);
+                this.map.setView(coords, zoom);
+            }
         }
     };
 }

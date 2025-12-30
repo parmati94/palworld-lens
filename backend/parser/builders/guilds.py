@@ -3,8 +3,6 @@ import logging
 from typing import List, Dict
 
 from backend.models.models import GuildInfo
-from backend.parser.extractors.guilds import get_guild_data
-from backend.parser.extractors.bases import get_base_data
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
@@ -14,22 +12,21 @@ logger = get_logger(__name__)
 guild_schema = SchemaManager.get("guilds.yaml")
 
 
-def build_guilds(world_data: Dict) -> List[GuildInfo]:
+def build_guilds(guilds_data: Dict, base_data: Dict) -> List[GuildInfo]:
     """Build list of all guilds from save data
     
     Args:
-        world_data: World save data from GVAS file
+        guilds_data: Extracted guild data from get_guild_data()
+        base_data: Extracted base data from get_base_data()
         
     Returns:
         List of GuildInfo objects
     """
-    guilds_data = get_guild_data(world_data)
     guilds = []
     
     # Get all base data and map bases to guilds (matching logic from get_base_assignments)
     base_schema = SchemaManager.get("bases.yaml")
     
-    base_data = get_base_data(world_data)
     base_to_guild = {}
     base_to_name = {}
     base_to_container = {}

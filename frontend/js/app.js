@@ -376,6 +376,8 @@ function app() {
                         guildMap[guild.guild_id].bases[baseInfo.base_id] = {
                             base_id: baseInfo.base_id,
                             base_name: baseInfo.base_name,
+                            x: baseInfo.x,
+                            y: baseInfo.y,
                             pals: []
                         };
                     }

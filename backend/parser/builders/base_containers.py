@@ -4,8 +4,7 @@ from typing import List, Dict
 from collections import defaultdict
 
 from backend.models.models import BaseContainerInfo, ItemSlot
-from backend.parser.extractors.structures import get_food_bowls, get_storage_containers, get_container_contents
-from backend.parser.extractors.bases import get_base_data
+from backend.parser.extractors.structures import get_container_contents
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.utils.mappers import map_building_name
@@ -17,24 +16,22 @@ logger = get_logger(__name__)
 base_schema = SchemaManager.get("bases.yaml")
 
 
-def build_base_containers(world_data: Dict, data_loader: DataLoader) -> Dict[str, List[BaseContainerInfo]]:
+def build_base_containers(base_data: Dict, food_bowls: List, storage_containers: List, world_data: Dict, data_loader: DataLoader) -> Dict[str, List[BaseContainerInfo]]:
     """Build base container information grouped by base ID
     
     Extracts food bowls and storage containers (chests, coolers, etc.)
     
     Args:
-        world_data: World save data from GVAS file
+        base_data: Extracted base data from get_base_data()
+        food_bowls: Extracted food bowl data from get_food_bowls()
+        storage_containers: Extracted storage container data from get_storage_containers()
+        world_data: World save data (needed for get_container_contents lookup)
         data_loader: Data loader with localization mappings
         
     Returns:
         Dict mapping base_id to list of BaseContainerInfo objects
     """
-    # Get all food bowls and storage containers
-    food_bowls = get_food_bowls(world_data)
-    storage_containers = get_storage_containers(world_data)
-    
     # Get base data for names
-    base_data = get_base_data(world_data)
     base_names = {}
     for base_id, base_info in base_data.items():
         base_name = base_schema.extract_field(base_info, "base_name")
