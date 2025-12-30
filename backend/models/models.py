@@ -20,11 +20,6 @@ class SkillInfo(BaseModel):
     rank: Optional[int] = None  # For passive skills - rank (-3 to 4, no 0)
     effects: Optional[List[Dict]] = None  # For passive skills - stat effects (MaxHP, Defense, etc.)
 
-class PalGender(str, Enum):
-    """Pal gender"""
-    MALE = "Male"
-    FEMALE = "Female"
-
 class SaveInfo(BaseModel):
     """Basic save file information"""
     world_name: str
