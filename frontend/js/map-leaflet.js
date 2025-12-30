@@ -44,6 +44,12 @@ function leafletMapComponent() {
         mapReady: false,
         resizeObserver: null,
         
+        // Filter state
+        showBases: true,
+        showPlayers: true,
+        filtersCollapsed: false,
+        isRefreshing: false,
+        
         init() {
             if (typeof L === 'undefined') return;
 
@@ -103,6 +109,7 @@ function leafletMapComponent() {
                     wheelPxPerZoomLevel: 120,
                     
                     attributionControl: false,
+                    zoomControl: false,  // Disable default zoom control
                     maxBounds: [[20, -20], [-276, 276]], 
                     maxBoundsViscosity: 0.8
                 });
@@ -266,7 +273,10 @@ function leafletMapComponent() {
                 iconAnchor: [12, 12]
             });
             
-            const marker = L.marker(coords, { icon: icon }).addTo(this.map);
+            const marker = L.marker(coords, { 
+                icon: icon,
+                zIndexOffset: 1000  // Player markers always on top
+            }).addTo(this.map);
             this.playerMarkers.push(marker);
         },
 
@@ -282,9 +292,14 @@ function leafletMapComponent() {
             }
         },
 
-        refresh() { 
+        refresh() {
+            this.isRefreshing = true;
             this.loadBases();
             this.loadPlayers();
+            // Reset loading state after a short delay
+            setTimeout(() => {
+                this.isRefreshing = false;
+            }, 600);
         },
 
         getAllBasesWithCoords() {
@@ -299,6 +314,44 @@ function leafletMapComponent() {
                 }
             }
             return bases;
+        },
+        
+        toggleBases() {
+            this.showBases = !this.showBases;
+            this.markers.forEach(marker => {
+                if (this.showBases) {
+                    marker.addTo(this.map);
+                } else {
+                    marker.remove();
+                }
+            });
+        },
+        
+        togglePlayers() {
+            this.showPlayers = !this.showPlayers;
+            this.playerMarkers.forEach(marker => {
+                if (this.showPlayers) {
+                    marker.addTo(this.map);
+                } else {
+                    marker.remove();
+                }
+            });
+        },
+        
+        toggleFilters() {
+            this.filtersCollapsed = !this.filtersCollapsed;
+        },
+        
+        zoomIn() {
+            if (this.map) {
+                this.map.zoomIn();
+            }
+        },
+        
+        zoomOut() {
+            if (this.map) {
+                this.map.zoomOut();
+            }
         }
     };
 }
