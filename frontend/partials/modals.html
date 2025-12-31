@@ -135,7 +135,7 @@
                                         <span class="text-white/80 text-sm" x-text="selectedPal.display_name" x-show="selectedPal.nickname"></span>
                                         <template x-for="element in selectedPal.element_types" :key="element">
                                             <div class="flex items-center gap-1.5 px-2 py-1 bg-white/20 rounded text-xs font-semibold text-white">
-                                                <img :src="`img/${getElementIcon(element)}`" :alt="element" class="w-4 h-4">
+                                                <img :src="`/img/${getElementIcon(element)}`" :alt="element" class="w-4 h-4">
                                                 <span x-text="element"></span>
                                             </div>
                                         </template>
@@ -306,7 +306,7 @@
                                                 <div x-show="skill.element && skill.power" 
                                                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0 min-w-[4rem]"
                                                      :style="`background-color: ${getElementColor(skill.element)}`">
-                                                    <img :src="`img/${getElementIconWhite(skill.element)}`" 
+                                                    <img :src="`/img/${getElementIconWhite(skill.element)}`" 
                                                          :alt="skill.element" 
                                                          class="w-4 h-4">
                                                     <span class="text-sm font-bold text-white" x-text="skill.power"></span>

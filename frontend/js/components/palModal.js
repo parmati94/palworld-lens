@@ -45,18 +45,17 @@ export function palModal() {
 
         getElementIcon(element) {
             const iconMap = {
-                'Neutral': 'element_normal.webp',
-                'Dark': 'element_dark.webp',
-                'Dragon': 'element_dragon.webp',
-                'Fire': 'element_fire.webp',
-                'Grass': 'element_grass.webp',
-                'Ground': 'element_ground.webp',
-                'Electric': 'element_electric.webp',
-                'Water': 'element_water.webp',
-                'Ice': 'element_ice.webp',
-                'Leaf': 'element_leaf.webp'
+                'Fire': 'fire.webp',
+                'Water': 'water.webp',
+                'Grass': 'grass.webp',
+                'Electric': 'electric.webp',
+                'Ice': 'ice.webp',
+                'Ground': 'ground.webp',
+                'Dark': 'dark.webp',
+                'Dragon': 'dragon.webp',
+                'Normal': 'neutral.webp'
             };
-            return iconMap[element] || 'element_normal.webp';
+            return iconMap[element] || 'neutral.webp';
         },
 
         init() {
