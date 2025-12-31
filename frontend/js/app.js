@@ -13,9 +13,10 @@ import {
     getPassiveBackgroundClass,
     getPassiveTextClass,
     getPassiveDescriptionClass,
-    fetchWithRetry,
     formatUptime
 } from './utils.js';
+import { api } from './services/api.js';
+import { WatchService } from './services/watch.js';
 
 export function app() {
     return {
@@ -42,25 +43,22 @@ export function app() {
         selectedBaseId: null,
         hasPrevBase: false,
         hasNextBase: false,
-        // SSE state
-        eventSource: null,
+        // Watch service state
+        watchService: null,
         autoWatchActive: false,
         autoWatchAllowed: true,
         watchToggling: false,
-        reconnectAttempts: 0,
-        maxReconnectAttempts: 5,
-        reconnectDelay: 2000,
         lastRefreshTime: 0,
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
-        // Server info state
-        showServerInfo: false,
-        serverInfo: null,
-        serverInfoLoading: false,
-        serverInfoError: null,
-        serverInfoNotConfigured: false,
-        serverInfoTab: 'overview',
         
         async init() {
+            // Initialize watch service
+            this.watchService = new WatchService();
+            
+            // Set up callbacks for watch service
+            this.watchService.onUpdate = (data) => this.updateFromSSE(data);
+            this.watchService.onError = (error) => { this.error = error; };
+            
             // Check auto-watch status from backend
             await this.checkWatchStatus();
 
@@ -72,7 +70,7 @@ export function app() {
             // If auto-watch is already active on backend, connect to it
             if (this.autoWatchActive) {
                 console.log('📡 Auto-watch already active on backend, connecting SSE...');
-                this.connectSSE();
+                this.watchService.connect();
             }
             // If allowed but not active, respect the backend state (don't auto-start)
             // User must manually enable it via the toggle
@@ -116,9 +114,9 @@ export function app() {
                     console.log(`👀 Page visible after ${Math.round(timeHidden/1000)}s, checking connection...`);
                     
                     // If auto-watch is active and SSE is dead or errored, reconnect
-                    if (this.autoWatchActive && this.eventSource && this.eventSource.readyState !== EventSource.OPEN) {
+                    if (this.autoWatchActive && !this.watchService.isConnected()) {
                         console.log('🔄 SSE disconnected, reconnecting...');
-                        this.reconnectSSE();
+                        this.watchService.reconnect();
                     } 
                     // If not using auto-watch and enough time has passed, refresh data
                     else if (!this.autoWatchActive && timeSinceLastRefresh >= this.refreshCooldown) {
@@ -131,8 +129,7 @@ export function app() {
         
         async checkWatchStatus() {
             try {
-                const res = await fetchWithRetry('/api/watch/status');
-                const data = await res.json();
+                const data = await this.watchService.checkStatus();
                 this.autoWatchActive = data.active;
                 this.autoWatchAllowed = data.allowed;
                 console.log('👀 Watch status:', data);
@@ -151,9 +148,11 @@ export function app() {
             
             try {
                 if (this.autoWatchActive) {
-                    await this.stopAutoWatch();
+                    const data = await this.watchService.stop();
+                    this.autoWatchActive = data.active;
                 } else {
-                    await this.startAutoWatch();
+                    const data = await this.watchService.start();
+                    this.autoWatchActive = data.active;
                 }
             } catch (err) {
                 console.error('Failed to toggle auto-watch:', err);
@@ -161,145 +160,6 @@ export function app() {
             } finally {
                 this.watchToggling = false;
             }
-        },
-        
-        async startAutoWatch() {
-            try {
-                const res = await fetch('/api/watch/start', { method: 'POST' });
-                if (!res.ok) {
-                    const error = await res.json();
-                    throw new Error(error.detail || 'Failed to start auto-watch');
-                }
-                const data = await res.json();
-                this.autoWatchActive = data.active;
-                
-                // Save preference
-                localStorage.setItem('autoWatchEnabled', 'true');
-                
-                // Connect SSE
-                this.connectSSE();
-                
-                console.log('✅ Auto-watch started');
-            } catch (err) {
-                console.error('Failed to start auto-watch:', err);
-                throw err;
-            }
-        },
-        
-        async stopAutoWatch() {
-            try {
-                const res = await fetch('/api/watch/stop', { method: 'POST' });
-                const data = await res.json();
-                this.autoWatchActive = data.active;
-                
-                // Save preference
-                localStorage.setItem('autoWatchEnabled', 'false');
-                
-                // Close SSE connection
-                if (this.eventSource) {
-                    this.eventSource.close();
-                    this.eventSource = null;
-                }
-                
-                console.log('🛑 Auto-watch stopped');
-            } catch (err) {
-                console.error('Failed to stop auto-watch:', err);
-                throw err;
-            }
-        },
-        
-        connectSSE() {
-            if (!this.autoWatchActive) {
-                console.log('Auto-watch not active, skipping SSE connection');
-                return;
-            }
-            
-            // Close existing connection if any
-            if (this.eventSource) {
-                this.eventSource.close();
-                this.eventSource = null;
-            }
-            
-            try {
-                this.eventSource = new EventSource('/api/watch');
-                
-                this.eventSource.addEventListener('init', (event) => {
-                    console.log('📡 SSE: Received initial data');
-                    const data = JSON.parse(event.data);
-                    this.updateFromSSE(data);
-                    this.reconnectAttempts = 0; // Reset on successful connection
-                });
-                
-                this.eventSource.addEventListener('update', (event) => {
-                    console.log('🔄 SSE: Save updated!');
-                    const data = JSON.parse(event.data);
-                    this.updateFromSSE(data);
-                    this.reconnectAttempts = 0; // Reset on successful message
-                });
-                
-                this.eventSource.addEventListener('ping', () => {
-                    // Keepalive ping, do nothing
-                });
-                
-                this.eventSource.addEventListener('error', (event) => {
-                    console.error('❌ SSE: Error event', event);
-                    if (event.data) {
-                        try {
-                            const error = JSON.parse(event.data);
-                            this.error = error.error;
-                        } catch (e) {
-                            console.error('Failed to parse SSE error', e);
-                        }
-                    }
-                });
-                
-                this.eventSource.onerror = (error) => {
-                    console.error('❌ SSE: Connection error', error);
-                    
-                    // If the connection is closing or closed, attempt to reconnect
-                    if (this.eventSource && this.eventSource.readyState === EventSource.CLOSED) {
-                        console.log('⚠️  SSE connection closed, will attempt to reconnect...');
-                        this.eventSource = null;
-                        this.scheduleReconnect();
-                    }
-                };
-                
-                console.log('✅ SSE: Connected to real-time updates');
-            } catch (err) {
-                console.error('Failed to connect SSE:', err);
-                this.scheduleReconnect();
-            }
-        },
-        
-        scheduleReconnect() {
-            if (!this.autoWatchActive) {
-                console.log('Auto-watch not active, skipping reconnect');
-                return;
-            }
-            
-            if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-                console.error('❌ Max reconnect attempts reached, falling back to manual data loading');
-                this.loadAllData().catch(err => {
-                    this.error = 'Failed to fetch data. Please try reloading the page.';
-                });
-                return;
-            }
-            
-            this.reconnectAttempts++;
-            const delay = this.reconnectDelay * this.reconnectAttempts; // Exponential backoff
-            console.log(`🔄 Scheduling SSE reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms...`);
-            
-            setTimeout(() => {
-                console.log(`🔄 Attempting SSE reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-                this.connectSSE();
-            }, delay);
-        },
-        
-        reconnectSSE() {
-            // Reset reconnect attempts and immediately try to reconnect
-            this.reconnectAttempts = 0;
-            console.log('🔄 Forcing SSE reconnection...');
-            this.connectSSE();
         },
         
         updateFromSSE(data) {
@@ -314,40 +174,21 @@ export function app() {
             console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
         },
         
-        startPolling() {
-            // Fallback: Auto-reload every 30 seconds
-            console.log('⏰ Starting fallback polling (30s interval)');
-            setInterval(() => {
-                this.loadAllData(true);
-            }, 30000);
-        },
-        
         async loadAllData(silent = false) {
             if (!silent) {
                 this.loading = true;
             }
             
             try {
-                // Load save info with retry
-                const infoRes = await fetchWithRetry('/api/info');
-                this.saveInfo = await infoRes.json();
+                const data = await api.loadAll();
+                
+                this.saveInfo = data.saveInfo;
                 
                 if (this.saveInfo.loaded) {
-                    // Load all data in parallel with retry
-                    const [playersRes, palsRes, guildsRes] = await Promise.all([
-                        fetchWithRetry('/api/players'),
-                        fetchWithRetry('/api/pals'),
-                        fetchWithRetry('/api/guilds')
-                    ]);
-                    
-                    this.players = (await playersRes.json()).players;
-                    this.pals = (await palsRes.json()).pals;
-                    this.guilds = (await guildsRes.json()).guilds;
-                    
-                    // Also load base containers
-                    const containersRes = await fetchWithRetry('/api/base-containers');
-                    this.baseContainers = await containersRes.json();
-                    
+                    this.players = data.players;
+                    this.pals = data.pals;
+                    this.guilds = data.guilds;
+                    this.baseContainers = data.baseContainers;
                     this.error = null;
                 }
                 
@@ -364,8 +205,7 @@ export function app() {
         async reloadSave() {
             this.loading = true;
             try {
-                const res = await fetchWithRetry('/api/reload', { method: 'POST' });
-                const data = await res.json();
+                const data = await api.reloadSave();
                 
                 if (data.success) {
                     await this.loadAllData();
@@ -678,34 +518,6 @@ export function app() {
             return count;
         },
         
-        // Pal detail modal
-        selectedPal: null,
-        showPalModal: false,
-        
-        // Container detail modal
-        selectedContainer: null,
-        showContainerModal: false,
-        
-        openPalModal(pal) {
-            this.selectedPal = pal;
-            this.showPalModal = true;
-        },
-        
-        closePalModal() {
-            this.showPalModal = false;
-            setTimeout(() => this.selectedPal = null, 300);
-        },
-        
-        openContainerModal(container) {
-            this.selectedContainer = container;
-            this.showContainerModal = true;
-        },
-        
-        closeContainerModal() {
-            this.showContainerModal = false;
-            setTimeout(() => this.selectedContainer = null, 300);
-        },
-        
         // Helper to get condition badge color class
         getConditionClass(condition) {
             if (!condition || !condition.type) {
@@ -740,39 +552,6 @@ export function app() {
             return bases;
         },
         
-        // Load server info from RCON API
-        async loadServerInfo() {
-            this.serverInfoLoading = true;
-            this.serverInfoError = null;
-            this.serverInfoNotConfigured = false;
-            this.serverInfo = null;
-            
-            try {
-                const response = await fetchWithRetry('/api/rcon/status', {
-                    credentials: 'same-origin'
-                });
-                
-                const data = await response.json();
-                
-                // Check if there are any errors in the response
-                if (data.errors && Object.keys(data.errors).length > 0) {
-                    console.warn('Some RCON endpoints failed:', data.errors);
-                }
-                
-                this.serverInfo = data;
-            } catch (error) {
-                console.error('Failed to load server info:', error);
-                
-                // Check if it's a 503 error (RCON not configured)
-                if (error.message && error.message.includes('503')) {
-                    this.serverInfoNotConfigured = true;
-                } else {
-                    this.serverInfoError = error.message || 'Failed to connect to server';
-                }
-            } finally {
-                this.serverInfoLoading = false;
-            }
-        },
         
         // Expose utility functions for use in HTML
         formatUptime

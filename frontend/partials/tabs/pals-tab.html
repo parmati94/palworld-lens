@@ -1,0 +1,1057 @@
+        <!-- Pals Tab -->
+        <div x-show="currentTab === 'pals' && saveInfo.loaded">
+            <!-- Search/Filter and Controls - Unified Card -->
+            <div class="mb-4 bg-gray-800/40 border border-gray-700/50 rounded-xl p-4">
+                <!-- Search Bar - Full Width -->
+                <div class="mb-4">
+                    <input 
+                        type="text" 
+                        x-model="palSearch" 
+                        placeholder="Search pals by name or ID..."
+                        class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 search-input">
+                </div>
+                
+                <!-- Filters Row -->
+                <div class="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                    <!-- Advanced Filters -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 w-full">
+                <!-- Element Filter -->
+                <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+                                </svg>
+                                Element Type
+                            </label>
+                            <div class="relative" x-data="{ open: false, searchString: '', searchTimeout: null, highlightedIndex: -1 }" @click.away="open = false">
+                                <button
+                                    @click="open = !open; highlightedIndex = -1"
+                                    @keydown="if (open && $event.key.length === 1) {
+                                        clearTimeout(searchTimeout);
+                                        searchString += $event.key.toLowerCase();
+                                        let matchIndex = availableElements.findIndex(el => el.toLowerCase().startsWith(searchString));
+                                        if (matchIndex < 0) {
+                                            matchIndex = availableElements.findIndex(el => el.toLowerCase() >= searchString);
+                                        }
+                                        if (matchIndex >= 0) {
+                                            highlightedIndex = matchIndex;
+                                            $nextTick(() => {
+                                                const container = $el.nextElementSibling;
+                                                const item = container.children[matchIndex + 1];
+                                                if (item) item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                                            });
+                                        }
+                                        searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
+                                    }"
+                                    type="button"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    <span x-text="filterElement || 'All Elements'"></span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto custom-scrollbar">
+                                    <div
+                                        @click="filterElement = ''; open = false"
+                                        class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                        :class="filterElement === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        All Elements
+                                    </div>
+                                    <template x-for="(element, index) in availableElements" :key="element">
+                                        <div
+                                            @click="filterElement = element; open = false; highlightedIndex = -1"
+                                            class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                            :class="filterElement === element ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            x-text="element">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                </div>
+                    
+                <!-- Work Suitability Filter -->
+                <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                Work Suitability
+                            </label>
+                            <div class="relative" x-data="{ open: false, searchString: '', searchTimeout: null, highlightedIndex: -1 }" @click.away="open = false">
+                                <button
+                                    @click="open = !open; highlightedIndex = -1"
+                                    @keydown="if (open && $event.key.length === 1) {
+                                        clearTimeout(searchTimeout);
+                                        searchString += $event.key.toLowerCase();
+                                        let matchIndex = availableWorkTypes.findIndex(wt => wt.name.toLowerCase().startsWith(searchString));
+                                        if (matchIndex < 0) {
+                                            matchIndex = availableWorkTypes.findIndex(wt => wt.name.toLowerCase() >= searchString);
+                                        }
+                                        if (matchIndex >= 0) {
+                                            highlightedIndex = matchIndex;
+                                            $nextTick(() => {
+                                                const container = $el.nextElementSibling;
+                                                const item = container.children[matchIndex + 1];
+                                                if (item) item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                                            });
+                                        }
+                                        searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
+                                    }"
+                                    type="button"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    <span x-text="availableWorkTypes.find(w => w.key === filterWorkType)?.name || 'All Work Types'"></span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto custom-scrollbar">
+                                    <div
+                                        @click="filterWorkType = ''; open = false"
+                                        class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                        :class="filterWorkType === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        All Work Types
+                                    </div>
+                                    <template x-for="(workType, index) in availableWorkTypes" :key="workType.key">
+                                        <div
+                                            @click="filterWorkType = workType.key; open = false; highlightedIndex = -1"
+                                            class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                            :class="filterWorkType === workType.key ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            x-text="workType.name">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                </div>
+                    
+                <!-- Passive Skill Filter -->
+                <div>
+                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                                Passive Skill
+                            </label>
+                            <div class="relative" x-data="{ open: false, searchString: '', searchTimeout: null, highlightedIndex: -1 }" @click.away="open = false">
+                                <button
+                                    @click="open = !open; highlightedIndex = -1"
+                                    @keydown="if (open && $event.key.length === 1) {
+                                        clearTimeout(searchTimeout);
+                                        searchString += $event.key.toLowerCase();
+                                        let matchIndex = availablePassiveSkills.findIndex(sk => sk.name.toLowerCase().startsWith(searchString));
+                                        if (matchIndex < 0) {
+                                            matchIndex = availablePassiveSkills.findIndex(sk => sk.name.toLowerCase() >= searchString);
+                                        }
+                                        if (matchIndex >= 0) {
+                                            highlightedIndex = matchIndex;
+                                            $nextTick(() => {
+                                                const container = $el.nextElementSibling;
+                                                const item = container.children[matchIndex + 1];
+                                                if (item) item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                                            });
+                                        }
+                                        searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
+                                    }"
+                                    type="button"
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    <span x-text="availablePassiveSkills.find(s => s.skill_id === filterPassiveSkill)?.name || 'All Skills'"></span>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-auto custom-scrollbar">
+                                    <div
+                                        @click="filterPassiveSkill = ''; open = false"
+                                        class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                        :class="filterPassiveSkill === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        All Skills
+                                    </div>
+                                    <template x-for="(skill, index) in availablePassiveSkills" :key="skill.skill_id">
+                                        <div
+                                            @click="filterPassiveSkill = skill.skill_id; open = false; highlightedIndex = -1"
+                                            class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
+                                            :class="filterPassiveSkill === skill.skill_id ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            x-text="skill.name">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                </div>
+                    </div>
+                    
+                    <!-- Page Size Selector -->
+                    <div class="flex items-center gap-2 whitespace-nowrap">
+                        <span class="text-sm text-gray-400">Show:</span>
+                        <template x-for="size in [10, 25, 50, 100]" :key="size">
+                            <button 
+                                @click="changePageSize(size)"
+                                :class="pageSize === size ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                                class="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+                                x-text="size">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Info -->
+            <div class="mb-3 text-sm text-gray-400">
+                <span>Showing <span class="text-white font-medium" x-text="((currentPage - 1) * pageSize + 1)"></span> - <span class="text-white font-medium" x-text="Math.min(currentPage * pageSize, filteredPals.length)"></span> of <span class="text-white font-medium" x-text="filteredPals.length"></span> pals</span>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th @click="sortBy('name')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center gap-1">
+                                        <span>Pal</span>
+                                        <svg x-show="sortColumn === 'name'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="sortBy('level')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center gap-1">
+                                        <span>Level</span>
+                                        <svg x-show="sortColumn === 'level'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="sortBy('hp')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors md:w-[180px]">
+                                    <div class="flex items-center gap-1">
+                                        <span>HP</span>
+                                        <svg x-show="sortColumn === 'hp'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="sortBy('hunger')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors md:w-[180px]">
+                                    <div class="flex items-center gap-1">
+                                        <span>Hunger</span>
+                                        <svg x-show="sortColumn === 'hunger'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="sortBy('sanity')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors md:w-[180px]">
+                                    <div class="flex items-center gap-1">
+                                        <span>SAN</span>
+                                        <svg x-show="sortColumn === 'sanity'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="sortBy('base')" class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center gap-1">
+                                        <span>Base</span>
+                                        <svg x-show="sortColumn === 'base'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="sortBy('owner')" class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center gap-1">
+                                        <span>Owner</span>
+                                        <svg x-show="sortColumn === 'owner'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            <template x-for="pal in paginatedPals" :key="pal.instance_id">
+                                <tr @click="$dispatch('open-pal-modal', pal)" class="hover:bg-gray-700/50 transition-colors cursor-pointer">
+                                    <td class="px-2 md:px-4 py-3">
+                                        <div class="flex items-center gap-2 md:gap-3">
+                                            <!-- Pal Image -->
+                                            <div class="relative flex-shrink-0">
+                                                <img 
+                                                    :src="`/img/${pal.image_id}.webp`" 
+                                                    :alt="pal.display_name"
+                                                    :onerror="`this.src='/img/unknown.webp'`"
+                                                    class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-800 object-cover">
+                                                <!-- Alpha indicator -->
+                                                <img 
+                                                    x-show="pal.is_alpha" 
+                                                    src="/img/alpha.webp"
+                                                    alt="Alpha"
+                                                    class="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5">
+                                                <!-- Lucky indicator -->
+                                                <img 
+                                                    x-show="pal.is_lucky" 
+                                                    src="/img/lucky.webp"
+                                                    alt="Lucky"
+                                                    class="absolute -top-1 -left-1 w-4 h-4 md:w-5 md:h-5">
+                                            </div>
+                                            <!-- Pal Info -->
+                                            <div class="flex items-center min-w-0">
+                                                <div class="font-medium text-sm md:text-base truncate" x-text="pal.nickname || pal.display_name"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-2 md:px-4 py-3">
+                                        <span class="text-purple-400 font-bold text-sm md:text-base" x-text="pal.level"></span>
+                                    </td>
+                                    <td class="px-2 md:px-4 py-3">
+                                        <!-- Desktop: Bar + Percentage -->
+                                        <div class="hidden md:flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                <div class="bg-green-500 h-2 rounded-full" :style="`width: ${Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1)}%`"></div>
+                                            </div>
+                                            <span class="text-xs text-green-400 min-w-[3ch]" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                        </div>
+                                        <!-- Mobile: Percentage only -->
+                                        <div class="md:hidden">
+                                            <span class="text-xs text-green-400 font-medium" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-2 md:px-4 py-3">
+                                        <!-- Desktop: Bar + Percentage -->
+                                        <div class="hidden md:flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                <div class="bg-orange-500 h-2 rounded-full" :style="`width: ${Math.max(pal.hunger, 1)}%`"></div>
+                                            </div>
+                                            <span class="text-xs text-orange-400 min-w-[3ch]" x-text="Math.round(pal.hunger) + '%'"></span>
+                                        </div>
+                                        <!-- Mobile: Percentage only -->
+                                        <div class="md:hidden">
+                                            <span class="text-xs text-orange-400 font-medium" x-text="Math.round(pal.hunger) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-2 md:px-4 py-3">
+                                        <!-- Desktop: Bar + Percentage -->
+                                        <div class="hidden md:flex items-center gap-2">
+                                            <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                <div class="bg-blue-500 h-2 rounded-full" :style="`width: ${Math.max(pal.sanity, 1)}%`"></div>
+                                            </div>
+                                            <span class="text-xs text-blue-400 min-w-[3ch]" x-text="Math.round(pal.sanity) + '%'"></span>
+                                        </div>
+                                        <!-- Mobile: Percentage only -->
+                                        <div class="md:hidden">
+                                            <span class="text-xs text-blue-400 font-medium" x-text="Math.round(pal.sanity) + '%'"></span>
+                                        </div>
+                                    </td>
+                                    <td class="hidden lg:table-cell px-4 py-3 text-sm text-gray-400">
+                                        <span x-text="pal.base_name || '-'"></span>
+                                    </td>
+                                    <td class="hidden lg:table-cell px-4 py-3 text-sm text-gray-400">
+                                        <span x-text="pal.owner_uid || 'None'"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div x-show="totalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+                <!-- Previous Button -->
+                <button 
+                    @click="changePage(currentPage - 1)"
+                    :disabled="currentPage === 1"
+                    :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
+                    class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                
+                <!-- Page Numbers -->
+                <template x-for="page in pageNumbers" :key="page">
+                    <button 
+                        @click="changePage(page)"
+                        :class="currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
+                        class="px-4 py-2 border border-gray-700 rounded-lg font-medium transition-colors"
+                        x-text="page">
+                    </button>
+                </template>
+                
+                <!-- Next Button -->
+                <button 
+                    @click="changePage(currentPage + 1)"
+                    :disabled="currentPage === totalPages"
+                    :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
+                    class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- BasesTab -->
+        <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ 
+            selectedGuildId: null, 
+            selectedBaseId: null, 
+            baseTab: 'pals', 
+            basePalPage: 1, 
+            basePalPageSize: 10,
+            get currentBaseIndex() {
+                if (!selectedGuildId) return -1;
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                if (!guild) return -1;
+                return guild.bases.findIndex(b => b.base_id === selectedBaseId);
+            },
+            get hasPrevBase() {
+                return selectedGuildId && this.currentBaseIndex > 0;
+            },
+            get hasNextBase() {
+                if (!selectedGuildId) return false;
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                return guild && this.currentBaseIndex < guild.bases.length - 1;
+            },
+            navigateToPrevBase() {
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                if (guild && this.hasPrevBase) {
+                    selectedBaseId = guild.bases[this.currentBaseIndex - 1].base_id;
+                    basePalPage = 1;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+            navigateToNextBase() {
+                const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                if (guild && this.hasNextBase) {
+                    selectedBaseId = guild.bases[this.currentBaseIndex + 1].base_id;
+                    basePalPage = 1;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+        }" @navigate-to-base.window="selectedGuildId = $event.detail.guildId; selectedBaseId = $event.detail.baseId; baseTab = 'pals';">
+            <!-- Guild Selection -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Select Guild
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <template x-for="guild in basePals" :key="guild.guild_id">
+                        <button 
+                            @click="selectedGuildId = guild.guild_id; selectedBaseId = null"
+                            :class="selectedGuildId === guild.guild_id ? 'bg-green-600 border-green-500 shadow-lg shadow-green-500/30 transform scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600'"
+                            class="stat-card border rounded-lg p-5 transition-all duration-200 cursor-pointer text-left">
+                            <div class="flex items-start justify-between mb-2">
+                                <h3 class="text-lg font-bold text-white" x-text="guild.guild_name"></h3>
+                                <svg x-show="selectedGuildId === guild.guild_id" class="w-6 h-6 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex items-center gap-4 text-sm">
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    <span class="text-gray-300"><span class="font-semibold text-cyan-400" x-text="guild.bases.length"></span> bases</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-gray-300"><span class="font-semibold text-purple-400" x-text="guild.bases.reduce((total, base) => total + base.pals.length, 0)"></span> pals</span>
+                                </div>
+                            </div>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Base Selection (shown when guild is selected) - Compact Pills -->
+            <template x-if="selectedGuildId">
+                <div class="mb-6">
+                    <template x-for="guild in basePals.filter(g => g.guild_id === selectedGuildId)" :key="guild.guild_id">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                                    <svg class="w-6 h-6 md:w-7 md:h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    <span class="hidden md:inline">Select Base</span>
+                                    <span class="md:hidden">Bases</span>
+                                </h2>
+                                <span class="text-sm text-gray-400" x-text="`${guild.bases.length} total`"></span>
+                            </div>
+                            
+                            <!-- Horizontal scrollable pills -->
+                            <div class="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
+                                <template x-for="(base, index) in guild.bases" :key="base.base_id">
+                                    <button 
+                                        @click="selectedBaseId = base.base_id; basePalPage = 1"
+                                        :class="selectedBaseId === base.base_id ? 'bg-cyan-600 border-cyan-500 shadow-lg ring-2 ring-cyan-400/50' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-cyan-600/50'"
+                                        :title="base.base_name + ' (' + base.pals.length + ' pals)'"
+                                        class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer">
+                                        <!-- Mobile: Just the number -->
+                                        <div class="base-pill-number hidden" x-text="index + 1"></div>
+                                        <!-- Desktop: Full content -->
+                                        <div class="base-pill-content flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            </svg>
+                                            <div class="text-left">
+                                                <div class="text-sm font-semibold text-white whitespace-nowrap" x-text="base.base_name"></div>
+                                                <div class="text-xs text-gray-400">
+                                                    <span x-text="base.pals.length"></span> pals
+                                                </div>
+                                            </div>
+                                            <svg x-show="selectedBaseId === base.base_id" class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Pals Table (shown when base is selected) -->
+            <template x-if="selectedGuildId && selectedBaseId">
+                <div class="tab-content" 
+                     x-data="{
+                         get basePalsTotalPages() {
+                             const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                             const base = guild?.bases.find(b => b.base_id === selectedBaseId);
+                             return base ? Math.ceil(base.pals.length / basePalPageSize) : 0;
+                         },
+                         get basePalsPaginated() {
+                             const guild = basePals.find(g => g.guild_id === selectedGuildId);
+                             const base = guild?.bases.find(b => b.base_id === selectedBaseId);
+                             if (!base) return [];
+                             const start = (basePalPage - 1) * basePalPageSize;
+                             return base.pals.slice(start, start + basePalPageSize);
+                         },
+                         changeBasePalPage(page) {
+                             if (page >= 1 && page <= this.basePalsTotalPages) {
+                                 basePalPage = page;
+                             }
+                         }
+                     }">
+                    <template x-for="guild in basePals.filter(g => g.guild_id === selectedGuildId)" :key="guild.guild_id">
+                        <template x-for="base in guild.bases.filter(b => b.base_id === selectedBaseId)" :key="base.base_id">
+                            <div>
+                                <!-- Base Header with Title and Tabs -->
+                                <div class="bg-gradient-to-r from-cyan-600/10 to-purple-600/10 rounded-t-lg border border-gray-700 border-b-0">
+                                    <!-- Title Bar -->
+                                    <div class="px-4 md:px-6 py-4">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="p-2 bg-cyan-600/30 rounded-lg">
+                                                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h2 class="text-2xl font-bold text-white" x-text="base.base_name"></h2>
+                                                    <div class="text-sm text-cyan-400" x-text="`${base.pals.length} pals total`"></div>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                x-show="base.x !== undefined && base.y !== undefined"
+                                                @click="currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#leafletMap'); if (mapEl) { const mapComponent = Alpine.$data(mapEl.parentElement); if (mapComponent && mapComponent.centerOnLocation) mapComponent.centerOnLocation(base.x, base.y); } });"
+                                                title="Show on map"
+                                                class="w-10 h-10 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/40 hover:border-blue-400/60 rounded-lg flex items-center justify-center transition-all hover:scale-110 group flex-shrink-0">
+                                                <svg class="w-5 h-5 text-blue-300 group-hover:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tab Navigation -->
+                                    <div class="bg-gray-800/50 px-4 md:px-6">
+                                        <div class="flex gap-2">
+                                            <button 
+                                                @click="baseTab = 'pals'"
+                                                :class="baseTab === 'pals' ? 'border-cyan-500 text-cyan-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
+                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <span>Pals</span>
+                                                    <span class="px-1.5 py-0.5 rounded-full text-xs font-semibold" :class="baseTab === 'pals' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-gray-600 text-gray-300'" x-text="base.pals.length"></span>
+                                                </div>
+                                            </button>
+                                            <button 
+                                                @click="baseTab = 'food'; console.log('Switched to food tab', {selectedBaseId, hasContainers: !!baseContainers})"
+                                                :class="baseTab === 'food' ? 'border-orange-500 text-orange-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
+                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    </svg>
+                                                    <span>Food</span>
+                                                </div>
+                                            </button>
+                                            <button 
+                                                @click="baseTab = 'storage'"
+                                                :class="baseTab === 'storage' ? 'border-blue-500 text-blue-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
+                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                    </svg>
+                                                    <span>Storage</span>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                    
+                                <!-- Pals Tab Content (Table) -->
+                                <div x-show="baseTab === 'pals'" class="tab-content">
+                                    <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0 overflow-hidden">
+                                        <!-- Page Size Controls -->
+                                        <div class="bg-gray-750 px-4 md:px-6 py-3 border-b border-gray-700 flex items-center justify-between">
+                                            <span class="text-sm text-gray-400">Showing <span class="text-cyan-400 font-medium" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-cyan-400 font-medium" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-cyan-400 font-medium" x-text="base.pals.length"></span></span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-sm text-gray-400">Show:</span>
+                                                <template x-for="size in [10, 20, 30]" :key="size">
+                                                    <button 
+                                                        @click="basePalPageSize = size; basePalPage = 1"
+                                                        :class="basePalPageSize === size ? 'bg-cyan-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
+                                                        class="px-3 py-1.5 rounded text-sm font-medium transition-all"
+                                                        x-text="size">
+                                                    </button>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    
+                                    <!-- Empty State - No Pals at Base -->
+                                    <template x-if="base.pals.length === 0">
+                                        <div class="py-16 px-4 text-center">
+                                            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-700/50 mb-4">
+                                                <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-xl font-semibold text-gray-300 mb-2">No Pals at This Base</h3>
+                                            <p class="text-gray-500">This base is established but doesn't have any pals assigned yet.</p>
+                                        </div>
+                                    </template>
+                                    
+                                    <div x-show="base.pals.length > 0" class="overflow-x-auto">
+                                        <table class="w-full">
+                                            <thead class="bg-gray-700">
+                                                <tr>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Pal</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Level</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">HP</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Hunger</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">SAN</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Gender</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-700">
+                                                <template x-for="pal in basePalsPaginated" :key="pal.instance_id">
+                                                    <tr @click="$dispatch('open-pal-modal', pal)" class="hover:bg-gray-700/50 transition-colors cursor-pointer">
+                                                        <td class="px-2 md:px-4 py-3">
+                                                            <div class="flex items-center gap-2 md:gap-3">
+                                                                <!-- Pal Image -->
+                                                                <div class="relative flex-shrink-0">
+                                                                    <img 
+                                                                        :src="`/img/${pal.image_id}.webp`" 
+                                                                        :alt="pal.display_name"
+                                                                        :onerror="`this.src='/img/unknown.webp'`"
+                                                                        class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-800 object-cover">
+                                                                    <!-- Alpha indicator -->
+                                                                    <img 
+                                                                        x-show="pal.is_alpha" 
+                                                                        src="/img/alpha.webp"
+                                                                        alt="Alpha"
+                                                                        class="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5">
+                                                                    <!-- Lucky indicator -->
+                                                                    <img 
+                                                                        x-show="pal.is_lucky" 
+                                                                        src="/img/lucky.webp"
+                                                                        alt="Lucky"
+                                                                        class="absolute -top-1 -left-1 w-4 h-4 md:w-5 md:h-5">
+                                                                </div>
+                                                                <!-- Pal Info -->
+                                                                <div class="flex items-center min-w-0">
+                                                                    <div class="font-medium text-sm md:text-base truncate" x-text="pal.nickname || pal.display_name"></div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 md:px-4 py-3">
+                                                            <span class="text-purple-400 font-bold text-sm md:text-base" x-text="pal.level"></span>
+                                                        </td>
+                                                        <td class="px-2 md:px-4 py-3">
+                                                            <div class="flex items-center gap-1">
+                                                                <!-- Condition Status Badge (Primary condition only) -->
+                                                                <template x-if="pal.condition_display">
+                                                                    <div 
+                                                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium shadow-sm"
+                                                                        :class="pal.all_conditions && pal.all_conditions.length > 0 ? (pal.all_conditions[0].type === 'sickness' ? 'bg-purple-600 text-white border border-purple-500' : 'bg-red-600 text-white border border-red-500') : 'bg-purple-600 text-white border border-purple-500'"
+                                                                        :data-tooltip="pal.condition_description"
+                                                                        x-text="pal.condition_display">
+                                                                    </div>
+                                                                </template>
+                                                                <!-- Healthy indicator -->
+                                                                <template x-if="!pal.condition_display">
+                                                                    <div 
+                                                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium shadow-sm bg-green-600 text-white border border-green-500"
+                                                                        data-tooltip="No conditions affecting this Pal">
+                                                                        Healthy
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 md:px-4 py-3">
+                                                            <!-- Desktop: Bar + Percentage -->
+                                                            <div class="hidden md:flex items-center gap-2">
+                                                                <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                                    <div class="bg-green-500 h-2 rounded-full" :style="`width: ${Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1)}%`"></div>
+                                                                </div>
+                                                                <span class="text-xs text-green-400 min-w-[3ch]" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                                            </div>
+                                                            <!-- Mobile: Percentage only -->
+                                                            <div class="md:hidden">
+                                                                <span class="text-xs text-green-400 font-medium" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 md:px-4 py-3">
+                                                            <!-- Desktop: Bar + Percentage -->
+                                                            <div class="hidden md:flex items-center gap-2">
+                                                                <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                                    <div class="bg-orange-500 h-2 rounded-full" :style="`width: ${Math.max(pal.hunger, 1)}%`"></div>
+                                                                </div>
+                                                                <span class="text-xs text-orange-400 min-w-[3ch]" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                            </div>
+                                                            <!-- Mobile: Percentage only -->
+                                                            <div class="md:hidden">
+                                                                <span class="text-xs text-orange-400 font-medium" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 md:px-4 py-3">
+                                                            <!-- Desktop: Bar + Percentage -->
+                                                            <div class="hidden md:flex items-center gap-2">
+                                                                <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
+                                                                    <div class="bg-blue-500 h-2 rounded-full" :style="`width: ${Math.max(pal.sanity, 1)}%`"></div>
+                                                                </div>
+                                                                <span class="text-xs text-blue-400 min-w-[3ch]" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                            </div>
+                                                            <!-- Mobile: Percentage only -->
+                                                            <div class="md:hidden">
+                                                                <span class="text-xs text-blue-400 font-medium" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 md:px-4 py-3 text-sm text-gray-400">
+                                                            <template x-if="pal.gender === 'Male'">
+                                                                <img src="img/male.webp" alt="Male" class="w-4 h-4 md:w-5 md:h-5 inline-block" title="Male">
+                                                            </template>
+                                                            <template x-if="pal.gender === 'Female'">
+                                                                <img src="img/female.webp" alt="Female" class="w-4 h-4 md:w-5 md:h-5 inline-block" title="Female">
+                                                            </template>
+                                                            <template x-if="pal.gender !== 'Male' && pal.gender !== 'Female'">
+                                                                <span class="text-gray-500 text-xs" x-text="pal.gender"></span>
+                                                            </template>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pagination Controls -->
+                                <div x-show="base.pals.length > 0 && basePalsTotalPages > 1" class="mt-4 flex items-center justify-center gap-2">
+                                    <!-- Previous Button -->
+                                    <button 
+                                        @click="changeBasePalPage(basePalPage - 1)"
+                                        :disabled="basePalPage === 1"
+                                        :class="basePalPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
+                                        class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Page Numbers -->
+                                    <template x-for="page in Array.from({length: basePalsTotalPages}, (_, i) => i + 1)" :key="page">
+                                        <button 
+                                            @click="changeBasePalPage(page)"
+                                            :class="basePalPage === page ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
+                                            class="px-4 py-2 border border-gray-700 rounded-lg font-medium transition-colors"
+                                            x-text="page">
+                                        </button>
+                                    </template>
+                                    
+                                    <!-- Next Button -->
+                                    <button 
+                                        @click="changeBasePalPage(basePalPage + 1)"
+                                        :disabled="basePalPage === basePalsTotalPages"
+                                        :class="basePalPage === basePalsTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
+                                        class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                    </div>
+                                    <!-- End Pals Pagination -->
+                                    
+                                    </div>
+                                    <!-- End Pals Table Container -->
+                                </div>
+                                <!-- End Pals Tab Content -->
+                                    
+
+                            </div>
+                        </template>
+                    </template>
+                    
+                    <!-- Food Tab Content -->
+                    <div x-show="baseTab === 'food' && selectedBaseId" class="tab-content">
+                        <div class="bg-gray-800 rounded-lg border border-gray-700">
+                            
+                            <!-- Empty State -->
+                            <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length === 0">
+                                <div class="py-16 px-4 text-center">
+                                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-600/20 mb-4">
+                                        <svg class="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Food Containers</h3>
+                                    <p class="text-gray-500">This base doesn't have any food boxes or storage yet.</p>
+                                </div>
+                            </template>
+                            
+                            <!-- Food Containers Grid -->
+                            <template x-if="baseContainers?.containers?.[selectedBaseId] && baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length > 0">
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <template x-for="container in baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0)" :key="container.container_id">
+                                            <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:border-orange-500/50 transition-colors">
+                                                <div class="flex items-start justify-between mb-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="p-2 bg-orange-600/20 rounded-lg">
+                                                            <template x-if="container.building_icon">
+                                                                <img :src="`/img/${container.building_icon}.webp`" :alt="container.display_name" class="w-6 h-6" :onerror="`this.style.display='none'; this.nextElementSibling.style.display='block'`">
+                                                            </template>
+                                                            <svg class="w-5 h-5 text-orange-400" :class="container.building_icon ? 'hidden' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <span class="font-medium text-white" x-text="container.display_name || 'Food Box'"></span>
+                                                    </div>
+                                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300" x-text="`${container.unique_item_count || 0} items`"></span>
+                                                </div>
+                                                
+                                                <!-- Items List -->
+                                                <template x-if="container.items && container.items.length > 0">
+                                                    <div class="space-y-2">
+                                                        <div class="text-xs text-gray-400 mb-2">Contents:</div>
+                                                        <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`food-item-${index}`">
+                                                            <div class="flex items-center justify-between bg-gray-800 rounded p-2">
+                                                                <div class="flex items-center gap-2 min-w-0">
+                                                                    <img 
+                                                                        :src="item.icon ? `/img/${item.icon}.webp` : '/img/food.webp'" 
+                                                                        :alt="item.item_name"
+                                                                        :onerror="`this.src='/img/food.webp'`"
+                                                                        class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
+                                                                    <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
+                                                                </div>
+                                                                <span class="text-sm font-semibold text-orange-400 ml-2" x-text="`×${item.count}`"></span>
+                                                            </div>
+                                                        </template>
+                                                        <!-- View All button -->
+                                                        <template x-if="container.items && container.items.length > 5">
+                                                            <button 
+                                                                @click="$dispatch('open-container-modal', { container: container })"
+                                                                class="w-full mt-2 text-xs text-orange-400 hover:text-orange-300 py-1.5 px-2 rounded bg-gray-800/50 hover:bg-gray-800 transition-colors flex items-center justify-center gap-1">
+                                                                <span>View All</span>
+                                                                <span class="font-semibold" x-text="container.items.length"></span>
+                                                                <span>Items</span>
+                                                            </button>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                
+                                                <!-- Empty Container -->
+                                                <template x-if="!container.items || container.items.length === 0">
+                                                    <div class="text-sm text-gray-500 italic">Empty</div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                        </div>
+                    </div>
+                    <!-- End Food Tab Content -->
+                    
+                    <!-- Storage Tab Content -->
+                    <div x-show="baseTab === 'storage' && selectedBaseId" class="tab-content">
+                        <div class="bg-gray-800 rounded-lg border border-gray-700">
+                            
+                            <!-- Empty State -->
+                            <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0).length === 0">
+                                <div class="py-16 px-4 text-center">
+                                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-600/20 mb-4">
+                                        <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Storage Containers</h3>
+                                    <p class="text-gray-500">This base doesn't have any storage chests or coolers yet.</p>
+                                </div>
+                            </template>
+                            
+                            <!-- Storage Containers Grouped by Type -->
+                            <template x-if="baseContainers?.containers?.[selectedBaseId] && baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl').length > 0">
+                                <div class="px-6 pt-2 pb-6 space-y-6" x-data="{
+                                    get storageContainers() {
+                                        return baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0);
+                                    },
+                                    get groupedByType() {
+                                        const groups = {};
+                                        this.storageContainers.forEach(container => {
+                                            const type = container.container_type || 'unknown';
+                                            if (!groups[type]) {
+                                                groups[type] = [];
+                                            }
+                                            groups[type].push(container);
+                                        });
+                                        return groups;
+                                    },
+                                    get sortedTypes() {
+                                        const types = Object.keys(this.groupedByType);
+                                        // Sort so cooler comes before storage
+                                        return types.sort((a, b) => {
+                                            if (a === 'cooler') return -1;
+                                            if (b === 'cooler') return 1;
+                                            return a.localeCompare(b);
+                                        });
+                                    },
+                                    formatTypeName(type) {
+                                        // Special case: cooler -> Coolers
+                                        if (type === 'cooler') return 'Coolers';
+                                        // Default: capitalize and replace underscores
+                                        return type.replace('_', ' ').split(' ').map(word => 
+                                            word.charAt(0).toUpperCase() + word.slice(1)
+                                        ).join(' ');
+                                    }
+                                }">
+                                    <!-- Group by container type -->
+                                    <template x-for="type in sortedTypes" :key="type">
+                                        <div>
+                                            <!-- Type Header -->
+                                            <div class="mb-3 flex items-center gap-2">
+                                                <h3 class="text-lg font-semibold text-blue-400" x-text="formatTypeName(type)"></h3>
+                                                <span class="text-xs px-2 py-1 rounded-full bg-blue-600/20 text-blue-300" x-text="groupedByType[type].length + ' container' + (groupedByType[type].length !== 1 ? 's' : '')"></span>
+                                            </div>
+                                            
+                                            <!-- Containers Grid -->
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                <template x-for="container in groupedByType[type]" :key="container.container_id">
+                                                    <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:border-blue-500/50 transition-colors">
+                                                        <div class="flex items-start justify-between mb-3">
+                                                            <div class="flex items-center gap-2">
+                                                                <div class="p-2 bg-blue-600/20 rounded-lg">
+                                                                    <template x-if="container.building_icon">
+                                                                        <img :src="`/img/${container.building_icon}.webp`" :alt="container.display_name" class="w-6 h-6" :onerror="`this.style.display='none'; this.nextElementSibling.style.display='block'`">
+                                                                    </template>
+                                                                    <svg class="w-5 h-5 text-blue-400" :class="container.building_icon ? 'hidden' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                                    </svg>
+                                                                </div>
+                                                                <span class="font-medium text-white" x-text="container.display_name || 'Storage'"></span>
+                                                            </div>
+                                                            <span class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300" x-text="`${container.unique_item_count || 0} items`"></span>
+                                                        </div>
+                                                        
+                                                        <!-- Items List -->
+                                                        <template x-if="container.items && container.items.length > 0">
+                                                            <div class="space-y-2">
+                                                                <div class="text-xs text-gray-400 mb-2">Contents:</div>
+                                                                <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`card-item-${index}`">
+                                                                    <div class="flex items-center justify-between bg-gray-800 rounded p-2">
+                                                                        <div class="flex items-center gap-2 min-w-0">
+                                                                            <img 
+                                                                                :src="item.icon ? `/img/${item.icon}.webp` : '/img/item.webp'" 
+                                                                                :alt="item.item_name"
+                                                                                :onerror="`this.src='/img/item.webp'`"
+                                                                                class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
+                                                                            <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
+                                                                        </div>
+                                                                        <span class="text-sm font-semibold text-blue-400 ml-2" x-text="`×${item.count}`"></span>
+                                                                    </div>
+                                                                </template>
+                                                                <!-- View All button -->
+                                                                <template x-if="container.items && container.items.length > 5">
+                                                                    <button 
+                                                                        @click="$dispatch('open-container-modal', { container: container })"
+                                                                        class="w-full mt-2 text-xs text-blue-400 hover:text-blue-300 py-1.5 px-2 rounded bg-gray-800/50 hover:bg-gray-800 transition-colors flex items-center justify-center gap-1">
+                                                                        <span>View All</span>
+                                                                        <span class="font-semibold" x-text="container.items.length"></span>
+                                                                        <span>Items</span>
+                                                                    </button>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                        
+                                                        <!-- Empty Container -->
+                                                        <template x-if="!container.items || container.items.length === 0">
+                                                            <div class="text-sm text-gray-500 italic">Empty</div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                        </div>
+                    </div>
+                    <!-- End Storage Tab Content -->
+                </div>
+            </template>
+
+            <!-- Empty State (no selection) -->
+            <template x-if="!selectedGuildId">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-12 text-center">
+                    <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-400 mb-2">Select a Guild to View Bases</h3>
+                    <p class="text-gray-500">Choose a guild from above to see their bases and pals</p>
+                </div>
+            </template>
+        </div>
+
