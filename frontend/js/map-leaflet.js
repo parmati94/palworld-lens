@@ -413,7 +413,7 @@ function leafletMapComponent() {
                         <div class="w-7 h-7 bg-cyan-500/90 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
                             <img src="/img/t_icon_compass_fttower.webp" class="w-6 h-6 object-contain" alt="Fast Travel" />
                         </div>
-                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
+                        <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                             <div class="font-semibold text-cyan-400 break-words">${point.localized_name}</div>
                             <div class="text-gray-400 text-[10px] mt-1">Fast Travel Point</div>
                         </div>
