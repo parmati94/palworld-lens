@@ -968,6 +968,81 @@ async def get_map_objects():
         logger.error(f"Error getting map objects: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/rcon/status", dependencies=[Depends(require_auth)])
+async def get_rcon_status():
+    """Get RCON server information aggregated from multiple endpoints"""
+    import httpx
+    
+    if not config.RCON_HOST or not config.RCON_PASSWORD:
+        raise HTTPException(
+            status_code=503, 
+            detail="RCON is not configured. Set RCON_HOST, RCON_PORT, and RCON_PASSWORD environment variables."
+        )
+    
+    base_url = f"http://{config.RCON_HOST}:{config.RCON_PORT}"
+    # RCON API uses Basic Auth with username 'admin'
+    auth = ("admin", config.RCON_PASSWORD)
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            # Make all RCON API calls in parallel with Basic Auth
+            info_task = client.get(f"{base_url}/v1/api/info", auth=auth)
+            players_task = client.get(f"{base_url}/v1/api/players", auth=auth)
+            settings_task = client.get(f"{base_url}/v1/api/settings", auth=auth)
+            metrics_task = client.get(f"{base_url}/v1/api/metrics", auth=auth)
+            
+            # Wait for all responses
+            info_response, players_response, settings_response, metrics_response = await asyncio.gather(
+                info_task, players_task, settings_task, metrics_task,
+                return_exceptions=True
+            )
+            
+            result = {
+                "info": None,
+                "players": None,
+                "settings": None,
+                "metrics": None,
+                "errors": {}
+            }
+            
+            # Process info response
+            if isinstance(info_response, Exception):
+                result["errors"]["info"] = str(info_response)
+            elif info_response.status_code == 200:
+                result["info"] = info_response.json()
+            else:
+                result["errors"]["info"] = f"HTTP {info_response.status_code}"
+            
+            # Process players response
+            if isinstance(players_response, Exception):
+                result["errors"]["players"] = str(players_response)
+            elif players_response.status_code == 200:
+                result["players"] = players_response.json()
+            else:
+                result["errors"]["players"] = f"HTTP {players_response.status_code}"
+            
+            # Process settings response
+            if isinstance(settings_response, Exception):
+                result["errors"]["settings"] = str(settings_response)
+            elif settings_response.status_code == 200:
+                result["settings"] = settings_response.json()
+            else:
+                result["errors"]["settings"] = f"HTTP {settings_response.status_code}"
+            
+            # Process metrics response
+            if isinstance(metrics_response, Exception):
+                result["errors"]["metrics"] = str(metrics_response)
+            elif metrics_response.status_code == 200:
+                result["metrics"] = metrics_response.json()
+            else:
+                result["errors"]["metrics"] = f"HTTP {metrics_response.status_code}"
+            
+            return result
+            
+    except Exception as e:
+        logger.error(f"Error fetching RCON data: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to connect to RCON server: {str(e)}")
+
 @app.get("/api/debug/player-mapping")
 async def get_player_mapping():
     """Debug endpoint to show player UID mapping"""

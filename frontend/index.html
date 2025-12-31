@@ -492,6 +492,16 @@
                             <span class="hidden sm:inline" x-text="loading ? 'Reloading...' : 'Reload'"></span>
                         </button>
                         
+                        <!-- Server Info Button (RCON) -->
+                        <button 
+                            @click="showServerInfo = true; loadServerInfo()"
+                            title="Server Info"
+                            class="p-1.5 hover:bg-blue-500/20 rounded-lg transition-all group">
+                            <svg class="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                            </svg>
+                        </button>
+                        
                         <!-- Logout Button (only show if auth is enabled) -->
                         <button 
                             @click="async () => { await fetch('/api/auth/logout', {method: 'POST', credentials: 'same-origin'}); window.location.href = '/login.html'; }"
@@ -2558,6 +2568,208 @@
         </div>
 
     </main>
+
+    <!-- Server Info Modal -->
+    <div 
+        x-show="showServerInfo" 
+        x-cloak
+        @click.self="showServerInfo = false"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div 
+            @click.stop
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-blue-600/20 border-b border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Server Information</h2>
+                            <p class="text-sm text-gray-400">Real-time server status and metrics</p>
+                        </div>
+                    </div>
+                    <button 
+                        @click="showServerInfo = false"
+                        class="p-2 hover:bg-gray-700/50 rounded-lg transition-all">
+                        <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="border-b border-gray-700 bg-gray-800/50">
+                <nav class="flex px-6" role="tablist">
+                    <button 
+                        @click="serverInfoTab = 'overview'"
+                        :class="serverInfoTab === 'overview' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
+                        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">
+                        Overview
+                    </button>
+                    <button 
+                        @click="serverInfoTab = 'settings'"
+                        :class="serverInfoTab === 'settings' ? 'border-blue-500 text-blue-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
+                        class="px-4 py-3 text-sm font-medium border-b-2 transition-colors">
+                        Server Settings
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+                <!-- Loading State -->
+                <div x-show="serverInfoLoading" class="flex items-center justify-center py-20">
+                    <div class="text-center">
+                        <svg class="animate-spin w-12 h-12 text-blue-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-gray-400">Loading server information...</p>
+                    </div>
+                </div>
+                
+                <!-- Not Configured State -->
+                <div x-show="serverInfoNotConfigured && !serverInfoLoading" class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-8">
+                    <div class="flex items-start gap-4">
+                        <svg class="w-8 h-8 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1">
+                            <h3 class="text-blue-300 font-semibold text-lg mb-2">RCON Not Configured</h3>
+                            <p class="text-blue-200/80 text-sm mb-4">Server information is not available because RCON has not been configured.</p>
+                            <div class="bg-gray-800/50 rounded-lg p-4 text-xs font-mono text-gray-300">
+                                <p class="text-gray-400 mb-2">To enable this feature, add the following to your docker-compose.yml:</p>
+                                <div class="space-y-1">
+                                    <p>- RCON_HOST=your-server-ip</p>
+                                    <p>- RCON_PORT=8212</p>
+                                    <p>- RCON_PASSWORD=your_admin_password</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error State -->
+                <div x-show="serverInfoError && !serverInfoLoading" class="bg-red-500/10 border border-red-500/30 rounded-lg p-6">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h3 class="text-red-400 font-medium mb-1">Failed to load server information</h3>
+                            <p class="text-red-300/80 text-sm" x-text="serverInfoError"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Overview Tab -->
+                <div x-show="serverInfoTab === 'overview' && !serverInfoLoading && !serverInfoError">
+                    <div class="space-y-6">
+                        <!-- Server Info Card -->
+                        <div x-show="serverInfo?.info" class="bg-gray-700/30 rounded-xl p-5 border border-gray-700/50">
+                            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Server Details
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-all">
+                                    <div class="text-xs text-gray-400 mb-1">Server Name</div>
+                                    <div class="text-white font-medium" x-text="serverInfo?.info?.servername || 'N/A'"></div>
+                                </div>
+                                <div class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-all">
+                                    <div class="text-xs text-gray-400 mb-1">Version</div>
+                                    <div class="text-white font-medium" x-text="serverInfo?.info?.version || 'N/A'"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Online Players Card -->
+                        <div x-show="serverInfo?.players" class="bg-gray-700/30 rounded-xl p-5 border border-gray-700/50">
+                            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                Online Players
+                                <span class="text-sm font-normal text-gray-400" x-text="'(' + (serverInfo?.players?.players?.length || 0) + ')'"></span>
+                            </h3>
+                            <div x-show="serverInfo?.players?.players?.length > 0" class="space-y-2">
+                                <template x-for="player in serverInfo?.players?.players" :key="player.name">
+                                    <div class="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between hover:bg-gray-800/70 transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                            <span class="text-white font-medium" x-text="player.name"></span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xs text-gray-500" x-text="player.userid"></span>
+                                            <span class="text-xs text-gray-400 font-medium" x-text="player.ping ? Math.round(player.ping) + 'ms' : ''"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div x-show="!serverInfo?.players?.players?.length" class="text-center text-gray-400 py-4">
+                                No players currently online
+                            </div>
+                        </div>
+                        
+                        <!-- Metrics Card -->
+                        <div x-show="serverInfo?.metrics" class="bg-gray-700/30 rounded-xl p-5 border border-gray-700/50">
+                            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Server Metrics
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-all">
+                                    <div class="text-xs text-gray-400 mb-1">Server FPS</div>
+                                    <div class="text-white font-medium text-xl" x-text="serverInfo?.metrics?.serverfps ? Math.round(serverInfo.metrics.serverfps) : 'N/A'"></div>
+                                </div>
+                                <div class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-all">
+                                    <div class="text-xs text-gray-400 mb-1">Server Frame Time</div>
+                                    <div class="text-white font-medium text-xl" x-text="serverInfo?.metrics?.serverframetime ? Math.round(serverInfo.metrics.serverframetime) + 'ms' : 'N/A'"></div>
+                                </div>
+                                <div class="bg-gray-800/50 rounded-lg p-3 hover:bg-gray-800/70 transition-all">
+                                    <div class="text-xs text-gray-400 mb-1">Uptime</div>
+                                    <div class="text-white font-medium text-xl" x-text="serverInfo?.metrics?.uptime ? formatUptime(serverInfo.metrics.uptime) : 'N/A'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div x-show="serverInfoTab === 'settings' && !serverInfoLoading && !serverInfoError">
+                    <div x-show="serverInfo?.settings" class="space-y-4">
+                        <template x-for="(value, key) in serverInfo?.settings" :key="key">
+                            <div class="bg-gray-700/30 rounded-lg p-4 border border-gray-700/50 hover:border-gray-600/50 hover:bg-gray-700/40 transition-all">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-sm font-medium text-blue-300 mb-1 break-words" x-text="key"></div>
+                                        <div class="text-white font-mono text-sm break-all" x-text="typeof value === 'object' ? JSON.stringify(value) : value"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="!serverInfo?.settings || Object.keys(serverInfo?.settings || {}).length === 0" class="text-center text-gray-400 py-8">
+                        No server settings available
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-gray-800 border-t border-gray-700 mt-12">
