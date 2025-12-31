@@ -19,6 +19,10 @@ services:
       - USERNAME=admin
       - PASSWORD=changeme
       - SESSION_SECRET=change-me-in-production
+      # RCON settings (optional - for server info feature)
+      # - RCON_HOST=your-palworld-server-ip
+      # - RCON_PORT=8212
+      # - RCON_PASSWORD=your_rcon_admin_password
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]

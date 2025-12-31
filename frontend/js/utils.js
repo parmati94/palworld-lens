@@ -254,3 +254,23 @@ export async function fetchWithRetry(url, options = {}, retries = 3, delay = 100
         }
     }
 }
+
+/**
+ * Format uptime in seconds to Days, Hours, Minutes, Seconds
+ */
+export function formatUptime(seconds) {
+    if (!seconds && seconds !== 0) return 'N/A';
+    
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
+    
+    return parts.join(' ');
+}

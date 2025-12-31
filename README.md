@@ -11,7 +11,8 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
-- 🐳 **Containerized** - Single Docker container with nginx + FastAPI
+- �️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
+- �🐳 **Containerized** - Single Docker container with nginx + FastAPI
 - 🚫 **Read-Only** - No editing functionality, just viewing
 
 ## 🚀 Quick Start
@@ -109,11 +110,24 @@ environment:
   - USERNAME=admin                     # Login username (only used if ENABLE_LOGIN=true)
   - PASSWORD=changeme                  # Login password (only used if ENABLE_LOGIN=true)
   - SESSION_SECRET=your-secret-here    # Secret key for session tokens (generate a random string)
+  
+  # RCON Server Info (optional - for real-time server status)
+  - RCON_HOST=your-palworld-server-ip  # IP/hostname of your Palworld server
+  - RCON_PORT=8212                     # RCON port (default: 8212)
+  - RCON_PASSWORD=your_admin_password  # RCON admin password
 ```
 
 **Auto-Watch**: When enabled, the viewer automatically detects save file changes and pushes updates to the browser in real-time via Server-Sent Events (SSE). The toggle can be controlled from the frontend UI.
 
 **Authentication**: When `ENABLE_LOGIN=true`, users must login before accessing the application. This is a simple single-user authentication system. Sessions last 7 days.
+
+**RCON Server Info**: When configured, adds a server info button to view real-time server status including:
+- Server name, version, and uptime
+- Online players with ping/latency
+- Server performance metrics (FPS, frame time)
+- All server configuration settings
+
+Requires your Palworld server to have RCON enabled and accessible.
 
 ## 📊 Viewing Options
 
@@ -158,7 +172,7 @@ docker-compose -f docker-compose.dev.yml down
 - **Build arg `DEV_MODE=true`**: Enables uvicorn's `--reload` flag for backend hot-reloading
 - **Image tags**: Dev builds tag as `palworld-lens:dev`, production as `palworld-lens:latest`
 - **Auto-watch disabled**: Set to `false` in dev to allow instant uvicorn reloads (SSE connections prevent fast reloads)
-- **Frontend changes**: Instantly reflected - just refresh your browser
+- **Frontend changes**: After making changes, run `npm run build` in the `frontend/` folder to rebuild the Vite bundle, then refresh your browser
 - **Backend changes**: Auto-reloaded by uvicorn within 1-2 seconds
 
 ## 📜 API Endpoints
@@ -184,6 +198,9 @@ docker-compose -f docker-compose.dev.yml down
 - `GET /api/auth/status` - Check if authentication is enabled and if user is logged in
 - `POST /api/auth/login` - Login with username and password
 - `POST /api/auth/logout` - Logout and clear session
+
+### Server Info Endpoints (RCON)
+- `GET /api/rcon/status` - Aggregated server information from RCON API (requires RCON configuration)
 
 ### Debug Endpoints
 Various debug endpoints available for development:

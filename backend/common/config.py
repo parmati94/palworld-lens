@@ -18,6 +18,11 @@ class Config:
     PASSWORD: str = os.getenv("PASSWORD", "admin")
     SESSION_SECRET: str = os.getenv("SESSION_SECRET", "change-me-in-production-please")
     
+    # RCON settings
+    RCON_HOST: str = os.getenv("RCON_HOST", "")
+    RCON_PORT: int = int(os.getenv("RCON_PORT", "8212"))
+    RCON_PASSWORD: str = os.getenv("RCON_PASSWORD", "")
+    
     # Data paths
     DATA_PATH: Path = Path(__file__).parent.parent.parent / "data"
     
