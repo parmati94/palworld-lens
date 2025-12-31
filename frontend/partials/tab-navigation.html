@@ -1,0 +1,37 @@
+        </div>
+
+        <!-- Tabs -->
+        <div x-show="saveInfo.loaded" class="mb-6">
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory scroll-smooth">
+                <button 
+                    @click="currentTab = 'overview'" 
+                    :class="currentTab === 'overview' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Overview
+                </button>
+                <button 
+                    @click="currentTab = 'players'" 
+                    :class="currentTab === 'players' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Players <span class="hidden sm:inline">(<span x-text="players.length"></span>)</span>
+                </button>
+                <button 
+                    @click="currentTab = 'pals'" 
+                    :class="currentTab === 'pals' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Pals <span class="hidden sm:inline">(<span x-text="pals.length"></span>)</span>
+                </button>
+                <button 
+                    @click="currentTab = 'bases'" 
+                    :class="currentTab === 'bases' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Bases
+                </button>
+                <button 
+                    @click="currentTab = 'map'" 
+                    :class="currentTab === 'map' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
+                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
+                    Map
+                </button>
+            </div>
+        </div>
