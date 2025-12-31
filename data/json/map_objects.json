@@ -319,7 +319,7 @@
     },
     {
         "x": 6.0000005,
-        "y": -0.000048830407,
+        "y": -4.8830407e-05,
         "type": "fast_travel",
         "localized_name": "Pristine Snow Field"
     },
@@ -1567,49 +1567,49 @@
         "pal": "FlowerDoll",
         "pal_type": "predator",
         "x": -245230,
-        "y": 147e3
+        "y": 147000.0
     },
     {
         "type": "pal",
         "pal": "HerculesBeetle",
         "pal_type": "predator",
         "x": -227500,
-        "y": 232e3
+        "y": 232000.0
     },
     {
         "type": "pal",
         "pal": "VioletFairy",
         "pal_type": "predator",
         "x": -147500,
-        "y": 215e3
+        "y": 215000.0
     },
     {
         "type": "pal",
         "pal": "GrassRabbitMan",
         "pal_type": "predator",
-        "x": -118e3,
+        "x": -118000.0,
         "y": 287500
     },
     {
         "type": "pal",
         "pal": "WhiteMoth",
         "pal_type": "predator",
-        "x": -91e3,
-        "y": 273e3
+        "x": -91000.0,
+        "y": 273000.0
     },
     {
         "type": "pal",
         "pal": "Umihebi",
         "pal_type": "predator",
-        "x": -161e3,
-        "y": 316e3
+        "x": -161000.0,
+        "y": 316000.0
     },
     {
         "type": "pal",
         "pal": "CatMage",
         "pal_type": "predator",
-        "x": -277e3,
-        "y": 268e3
+        "x": -277000.0,
+        "y": 268000.0
     },
     {
         "type": "pal",
@@ -1741,7 +1741,7 @@
         "type": "pal",
         "pal": "Werewolf_Ice",
         "pal_type": "predator",
-        "x": -11e3,
+        "x": -11000.0,
         "y": 69160
     },
     {
@@ -1818,397 +1818,463 @@
         "type": "alpha_pal",
         "pal": "GrassMammoth",
         "x": -343155,
-        "y": 244585
+        "y": 244585,
+        "level": 38
     },
     {
         "type": "alpha_pal",
         "pal": "KingAlpaca",
         "x": -335225,
-        "y": 180735
+        "y": 180735,
+        "level": 23
     },
     {
         "type": "alpha_pal",
         "pal": "SakuraSaurus_Water",
         "x": -329427.8,
-        "y": 81512.31
+        "y": 81512.31,
+        "level": 30
     },
     {
         "type": "alpha_pal",
         "pal": "BlueDragon",
         "x": -301505,
-        "y": 133775
+        "y": 133775,
+        "level": 17
     },
     {
         "type": "alpha_pal",
         "pal": "Anubis",
         "x": -167230,
-        "y": 96430
+        "y": 96430,
+        "level": 47
     },
     {
         "type": "alpha_pal",
         "pal": "ThunderBird",
         "x": -239970,
-        "y": -450
+        "y": -450,
+        "level": 29
     },
     {
         "type": "alpha_pal",
         "pal": "FengyunDeeper",
         "x": -333940,
-        "y": 39610
+        "y": 39610,
+        "level": 25
     },
     {
         "type": "alpha_pal",
         "pal": "WeaselDragon",
         "x": -315583.53,
-        "y": 237116.97
+        "y": 237116.97,
+        "level": 11
     },
     {
         "type": "alpha_pal",
         "pal": "QueenBee",
         "x": -196380,
-        "y": 166870
+        "y": 166870,
+        "level": 31
     },
     {
         "type": "alpha_pal",
         "pal": "FairyDragon",
         "x": -254060,
-        "y": 178050
+        "y": 178050,
+        "level": 30
     },
     {
         "type": "alpha_pal",
         "pal": "DarkScorpion",
         "x": -77080.266,
-        "y": 394535.8
+        "y": 394535.8,
+        "level": 44
     },
     {
         "type": "alpha_pal",
         "pal": "Suzaku",
         "x": -6430,
-        "y": 343440
+        "y": 343440,
+        "level": 45
     },
     {
         "type": "alpha_pal",
         "pal": "FlowerDinosaur_Electric",
         "x": 122760,
-        "y": 318710
+        "y": 318710,
+        "level": 47
     },
     {
         "type": "alpha_pal",
         "pal": "SaintCentaur",
         "x": 187860,
-        "y": 363020
+        "y": 363020,
+        "level": 60
     },
     {
         "type": "alpha_pal",
         "pal": "BlackCentaur",
         "x": 187860,
-        "y": 363020
+        "y": 363020,
+        "level": 60
     },
     {
         "type": "alpha_pal",
         "pal": "BlackMetalDragon",
         "x": -320870,
-        "y": -124090
+        "y": -124090,
+        "level": 48
     },
     {
         "type": "alpha_pal",
         "pal": "KingBahamut",
         "x": -381240,
-        "y": -44760
+        "y": -44760,
+        "level": 49
     },
     {
         "type": "alpha_pal",
         "pal": "JetDragon",
         "x": -271220,
-        "y": -204190
+        "y": -204190,
+        "level": 60
     },
     {
         "type": "alpha_pal",
         "pal": "IceHorse",
         "x": 109790,
-        "y": -5880
+        "y": -5880,
+        "level": 60
     },
     {
         "type": "alpha_pal",
         "pal": "LilyQueen_Dark",
         "x": 33500,
-        "y": 84430
+        "y": 84430,
+        "level": 49
     },
     {
         "type": "alpha_pal",
         "pal": "KingAlpaca_Ice",
         "x": 91527.57,
-        "y": 53307.61
+        "y": 53307.61,
+        "level": 46
     },
     {
         "type": "alpha_pal",
         "pal": "WingGolem",
         "x": -44230,
-        "y": -152230
+        "y": -152230,
+        "level": 55
     },
     {
         "type": "alpha_pal",
         "pal": "DarkScorpion_Ground",
         "x": 28540,
-        "y": -105820
+        "y": -105820,
+        "level": 54
     },
     {
         "type": "alpha_pal",
         "pal": "SakuraSaurus",
         "x": -431050.44,
-        "y": 56140.586
+        "y": 56140.586,
+        "level": 23
     },
     {
         "type": "alpha_pal",
         "pal": "PlantSlime",
         "x": -412259.28,
-        "y": 106237.67
+        "y": 106237.67,
+        "level": 11
     },
     {
         "type": "alpha_pal",
         "pal": "MopKing",
         "x": -396003.12,
-        "y": 53772.16
+        "y": 53772.16,
+        "level": 11
     },
     {
         "type": "alpha_pal",
         "pal": "Kirin",
         "x": -372950,
-        "y": 104400
+        "y": 104400,
+        "level": 31
     },
     {
         "type": "alpha_pal",
         "pal": "NaughtyCat",
         "x": -236727.1,
-        "y": 321310.12
+        "y": 321310.12,
+        "level": 17
     },
     {
         "type": "alpha_pal",
         "pal": "HawkBird",
         "x": -155950,
-        "y": 31260
+        "y": 31260,
+        "level": 18
     },
     {
         "type": "alpha_pal",
         "pal": "LazyCatfish",
         "x": -122060,
-        "y": 15810
+        "y": 15810,
+        "level": 14
     },
     {
         "type": "alpha_pal",
         "pal": "Yeti_Grass",
         "x": -147370,
-        "y": 364010
+        "y": 364010,
+        "level": 38
     },
     {
         "type": "alpha_pal",
         "pal": "GrassPanda_Electric",
         "x": -206970,
-        "y": 363810
+        "y": 363810,
+        "level": 31
     },
     {
         "type": "alpha_pal",
         "pal": "NightBlueHorse",
         "x": -555190,
-        "y": -188780
+        "y": -188780,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "BerryGoat_Dark",
         "x": -882660,
-        "y": -376490
+        "y": -376490,
+        "level": 55
     },
     {
         "type": "alpha_pal",
         "pal": "FengyunDeeper_Electric",
         "x": -635928.44,
-        "y": -224786.02
+        "y": -224786.02,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "Werewolf_Ice",
         "x": -502070,
-        "y": -276210
+        "y": -276210,
+        "level": 54
     },
     {
         "type": "alpha_pal",
         "pal": "Horus_Water",
         "x": -605010.5,
-        "y": -130144.8
+        "y": -130144.8,
+        "level": 56
     },
     {
         "type": "alpha_pal",
         "pal": "NightBlueHorse",
         "x": -555190,
-        "y": -188780
+        "y": -188780,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "RaijinDaughter_Water",
         "x": -848870,
-        "y": -458610
+        "y": -458610,
+        "level": 53
     },
     {
         "type": "alpha_pal",
         "pal": "WhiteTiger_Ground",
         "x": -838350,
-        "y": -376940
+        "y": -376940,
+        "level": 58
     },
     {
         "type": "alpha_pal",
         "pal": "PurpleSpider",
         "x": -779670,
-        "y": -457500
+        "y": -457500,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "Kitsunebi_Ice",
         "x": -722610,
-        "y": -431080
+        "y": -431080,
+        "level": 52
     },
     {
         "type": "alpha_pal",
         "pal": "MysteryMask",
         "x": -807770,
-        "y": -385160
+        "y": -385160,
+        "level": 55
     },
     {
         "type": "alpha_pal",
         "pal": "HerculesBeetle_Ground",
         "x": -788310,
-        "y": -310830
+        "y": -310830,
+        "level": 59
     },
     {
         "type": "alpha_pal",
         "pal": "PinkRabbit_Grass",
         "x": -745180,
-        "y": -398020
+        "y": -398020,
+        "level": 53
     },
     {
         "type": "alpha_pal",
         "pal": "GrimGirl",
         "x": -732424.9,
-        "y": -396803.44
+        "y": -396803.44,
+        "level": 58
     },
     {
         "type": "alpha_pal",
         "pal": "BlueThunderHorse",
         "x": -727685.3,
-        "y": -349625.47
+        "y": -349625.47,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "AmaterasuWolf_Dark",
         "x": -649355.75,
-        "y": -317586.72
+        "y": -317586.72,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "WhiteDeer",
         "x": -663312.1,
-        "y": -284782.62
+        "y": -284782.62,
+        "level": 60
     },
     {
         "type": "alpha_pal",
         "pal": "GoldenHorse",
         "x": -685460,
-        "y": -191380
+        "y": -191380,
+        "level": 58
     },
     {
         "type": "alpha_pal",
         "pal": "BadCatgirl",
         "x": -555394.56,
-        "y": -353314.03
+        "y": -353314.03,
+        "level": 57
     },
     {
         "type": "alpha_pal",
         "pal": "WhiteShieldDragon",
         "x": -593142.44,
-        "y": -293751.53
+        "y": -293751.53,
+        "level": 59
     },
     {
         "type": "alpha_pal",
         "pal": "CatVampire",
         "x": -149060,
-        "y": -34010
+        "y": -34010,
+        "level": 23
     },
     {
         "type": "alpha_pal",
         "pal": "SkyDragon",
         "x": -184230,
-        "y": 37430
+        "y": 37430,
+        "level": 23
     },
     {
         "type": "alpha_pal",
         "pal": "Umihebi",
         "x": -244230,
-        "y": 72430
+        "y": 72430,
+        "level": 45
     },
     {
         "type": "alpha_pal",
         "pal": "LazyDragon_Electric",
         "x": -283230,
-        "y": 61430
+        "y": 61430,
+        "level": 31
     },
     {
         "type": "alpha_pal",
         "pal": "Ronin",
         "x": -350230,
-        "y": 101930
+        "y": 101930,
+        "level": 23
     },
     {
         "type": "alpha_pal",
         "pal": "Mutant",
         "x": -428230,
-        "y": 87930
+        "y": 87930,
+        "level": 32
     },
     {
         "type": "alpha_pal",
         "pal": "CaptainPenguin",
         "x": -285230,
-        "y": 207930
+        "y": 207930,
+        "level": 15
     },
     {
         "type": "alpha_pal",
         "pal": "FlowerDoll",
         "x": -245230,
-        "y": 147e3
+        "y": 147000.0,
+        "level": 28
     },
     {
         "type": "alpha_pal",
         "pal": "HerculesBeetle",
         "x": -227500,
-        "y": 232e3
+        "y": 232000.0,
+        "level": 30
     },
     {
         "type": "alpha_pal",
         "pal": "VioletFairy",
         "x": -147500,
-        "y": 215e3
+        "y": 215000.0,
+        "level": 38
     },
     {
         "type": "alpha_pal",
         "pal": "GrassRabbitMan",
-        "x": -118e3,
-        "y": 287500
+        "x": -118000.0,
+        "y": 287500,
+        "level": 35
     },
     {
         "type": "alpha_pal",
         "pal": "WhiteMoth",
-        "x": -91e3,
-        "y": 273e3
+        "x": -91000.0,
+        "y": 273000.0,
+        "level": 40
     },
     {
         "type": "alpha_pal",
         "pal": "Umihebi",
-        "x": -161e3,
-        "y": 316e3
+        "x": -161000.0,
+        "y": 316000.0,
+        "level": 45
     },
     {
         "type": "alpha_pal",
         "pal": "CatMage",
-        "x": -277e3,
-        "y": 268e3
+        "x": -277000.0,
+        "y": 268000.0,
+        "level": 23
     },
     {
         "type": "predator_pal",
@@ -2321,7 +2387,7 @@
     {
         "type": "predator_pal",
         "pal": "Werewolf_Ice",
-        "x": -11e3,
+        "x": -11000.0,
         "y": 69160
     },
     {

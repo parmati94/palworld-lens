@@ -1,6 +1,6 @@
 """Data models for the application"""
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, computed_field
+from typing import Optional, List, Dict, Any, Union
+from pydantic import BaseModel, computed_field, Field
 from enum import Enum
 from backend.common.constants import (
     CONDITION_DISPLAY_NAMES,
@@ -8,6 +8,28 @@ from backend.common.constants import (
     WORK_ICON_MAPPING,
     WORK_LEVEL_COLORS,
 )
+
+
+class AlphaPalMapObject(BaseModel):
+    """Alpha pal spawn location on map"""
+    type: str = Field(default="alpha_pal", frozen=True)
+    x: float
+    y: float
+    pal: str  # Internal pal ID (e.g., "BlueDragon")
+    pal_name: Optional[str] = None  # Localized name (e.g., "Azurobe")
+    level: Optional[int] = None
+
+
+class FastTravelMapObject(BaseModel):
+    """Fast travel point location on map"""
+    type: str = Field(default="fast_travel", frozen=True)
+    x: float
+    y: float
+    localized_name: str  # Display name of the location
+
+
+# Union type for polymorphic map objects
+MapObject = Union[AlphaPalMapObject, FastTravelMapObject]
 
 
 class SkillInfo(BaseModel):
