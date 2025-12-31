@@ -1,39 +1,6 @@
 /**
- * Convert Palworld save coordinates to Leaflet map coordinates
- * SYSTEM: 0-256 Virtual World (Standard Leaflet Scale)
- * [0,0] is Top-Left. [-256, 256] is Bottom-Right.
- */
-function saveToMapCoords(saveX, saveY) {
-    const scaleDivisor = 625; 
-    const manualOffsetX = 275;
-    const manualOffsetY = 242;
-
-    const gameX = (saveY - 158000) / scaleDivisor;
-    const gameY = (saveX + 123888) / scaleDivisor;
-    
-    // Virtual World Bounds (Game Units)
-    const worldMin = -1150;
-    const worldMax = 1150;
-    const worldRange = worldMax - worldMin; 
-
-    // 1. Normalize to 0.0 -> 1.0
-    const normX = ((gameX + manualOffsetX) - worldMin) / worldRange;
-    const normY = ((gameY + manualOffsetY) - worldMin) / worldRange;
-
-    // 2. Scale to Leaflet 256 Unit System
-    const leafletX = normX * 256;
-    
-    // 3. Invert Y Axis for Mapping
-    // Tiles go Down (0 -> 1). Game coords go Up.
-    const leafletY = (1 - normY) * 256; 
-
-    // Return [Lat, Lng]
-    // In Leaflet CRS.Simple, Y goes UP (Positive). We use NEGATIVE Y to match image coordinates.
-    return [-leafletY, leafletX];
-}
-
-/**
  * Alpine.js + Leaflet Map Component
+ * Note: saveToMapCoords is now in utils.js
  */
 function leafletMapComponent() {
     return {
@@ -41,14 +8,22 @@ function leafletMapComponent() {
         mapElement: null,
         markers: [],
         playerMarkers: [],
+        alphaPalMarkers: [],
+        fastTravelMarkers: [],
         mapReady: false,
         resizeObserver: null,
         
         // Filter state
         showBases: true,
         showPlayers: true,
+        showAlphaPals: true,
+        showFastTravel: false,
         filtersCollapsed: false,
         isRefreshing: false,
+        
+        // Static map objects (loaded once)
+        mapObjects: null,
+        mapObjectsLoaded: false,
         
         init() {
             if (typeof L === 'undefined') return;
@@ -146,6 +121,7 @@ function leafletMapComponent() {
                     this.map.invalidateSize();
                     this.loadBases();
                     this.loadPlayers();
+                    this.loadStaticMapObjects();
                 }, 200);
                 
             } catch (error) {
@@ -193,20 +169,18 @@ function leafletMapComponent() {
                 className: 'base-marker',
                 html: `
                     <div class="relative group">
-                        <div class="w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
-                            <img src="/img/t_icon_camp.webp" class="w-4 h-4 object-contain" alt="Base" />
-                        </div>
-                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[1000] shadow-lg max-w-[200px]">
+                        <img src="/img/t_icon_compass_camp.webp" class="w-12 h-12 object-contain transition-transform transform group-hover:scale-125 cursor-pointer drop-shadow-lg" alt="Base" />
+                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="font-semibold">${base.base_name}</span>
-                                <span class="text-gray-400 text-[10px] truncate">${guild.guild_name}</span>
+                                <span class="font-semibold truncate">${base.base_name}</span>
+                                <span class="text-gray-400 text-[10px] truncate flex-shrink-0">${guild.guild_name}</span>
                             </div>
                             <div class="text-gray-400">X: ${Math.round(gameX)} | Y: ${Math.round(gameY)}</div>
                         </div>
                     </div>
                 `,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
+                iconSize: [48, 48],
+                iconAnchor: [24, 24]
             });
             
             const marker = L.marker(coords, { icon: icon }).addTo(this.map);
@@ -261,7 +235,7 @@ function leafletMapComponent() {
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[1000] shadow-lg max-w-[200px]">
+                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="font-semibold">${player.player_name}</span>
                                 <span class="text-green-400 text-[10px]">Lv ${player.level}</span>
@@ -317,6 +291,149 @@ function leafletMapComponent() {
             return bases;
         },
         
+        async loadStaticMapObjects() {
+            // Only load once
+            if (this.mapObjectsLoaded) {
+                console.log('📍 Static map objects already loaded, refreshing markers...');
+                this.loadAlphaPals();
+                this.loadFastTravelPoints();
+                return;
+            }
+            
+            try {
+                console.log('📍 Loading static map objects from API...');
+                const response = await fetch('/api/map-objects', {
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                // Store in the format we expect (array of objects)
+                this.mapObjects = [...data.alpha_pals, ...data.fast_travel];
+                this.mapObjectsLoaded = true;
+                
+                console.log(`📍 Loaded ${data.alpha_pals.length} alpha pals, ${data.fast_travel.length} fast travel points`);
+                
+                // Load both types of markers
+                this.loadAlphaPals();
+                this.loadFastTravelPoints();
+            } catch (error) {
+                console.error('❌ Failed to load map objects:', error);
+            }
+        },
+        
+        loadAlphaPals() {
+            if (!this.mapObjects) return;
+            
+            // Clear old markers
+            this.alphaPalMarkers.forEach(marker => marker.remove());
+            this.alphaPalMarkers = [];
+            
+            const alphaPals = this.mapObjects.filter(obj => obj.type === 'alpha_pal');
+            console.log(`🐲 Loading ${alphaPals.length} alpha pal markers...`);
+            
+            for (const alphaPal of alphaPals) {
+                if (alphaPal.x !== undefined && alphaPal.y !== undefined) {
+                    this.addAlphaPalMarker(alphaPal);
+                }
+            }
+        },
+        
+        addAlphaPalMarker(alphaPal) {
+            const coords = saveToMapCoords(alphaPal.x, alphaPal.y);
+            
+            // Get pal image ID in the format: t_{paild}_icon_normal.webp
+            let imageId = alphaPal.pal.toLowerCase();
+            if (imageId.startsWith('boss_')) {
+                imageId = imageId.substring(5);
+            }
+            const iconPath = `/img/t_${imageId}_icon_normal.webp`;
+            
+            // Use enriched data from backend
+            const palName = alphaPal.pal_name || alphaPal.pal;
+            const level = alphaPal.level;
+            
+            const icon = L.divIcon({
+                className: 'alpha-pal-marker',
+                html: `
+                    <div class="relative group">
+                        <div class="w-8 h-8 bg-black rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
+                            <img src="${iconPath}" class="w-6 h-6 object-contain" alt="${palName}" onerror="this.src='/img/t_icon_item_pal.webp'" />
+                        </div>
+                        <div class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
+                            <div class="font-semibold text-yellow-400 break-words">⚔️ ${palName}</div>
+                            ${level ? `<div class="text-gray-300 text-[11px]">Level ${level}</div>` : ''}
+                            <div class="text-gray-400 text-[10px]">Alpha Pal</div>
+                        </div>
+                    </div>
+                `,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+            
+            const marker = L.marker(coords, { 
+                icon: icon,
+                zIndexOffset: 500  // Below players, above bases
+            });
+            
+            if (this.showAlphaPals) {
+                marker.addTo(this.map);
+            }
+            this.alphaPalMarkers.push(marker);
+        },
+        
+        loadFastTravelPoints() {
+            if (!this.mapObjects) return;
+            
+            // Clear old markers
+            this.fastTravelMarkers.forEach(marker => marker.remove());
+            this.fastTravelMarkers = [];
+            
+            const fastTravelPoints = this.mapObjects.filter(obj => obj.type === 'fast_travel');
+            console.log(`🚀 Loading ${fastTravelPoints.length} fast travel markers...`);
+            
+            for (const point of fastTravelPoints) {
+                if (point.x !== undefined && point.y !== undefined) {
+                    this.addFastTravelMarker(point);
+                }
+            }
+        },
+        
+        addFastTravelMarker(point) {
+            const coords = saveToMapCoords(point.x, point.y);
+            
+            const icon = L.divIcon({
+                className: 'fast-travel-marker',
+                html: `
+                    <div class="relative group">
+                        <div class="w-7 h-7 bg-cyan-500/90 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
+                            <img src="/img/t_icon_compass_fttower.webp" class="w-6 h-6 object-contain" alt="Fast Travel" />
+                        </div>
+                        <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
+                            <div class="font-semibold text-cyan-400 break-words">${point.localized_name}</div>
+                            <div class="text-gray-400 text-[10px] mt-1">Fast Travel Point</div>
+                        </div>
+                    </div>
+                `,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+            
+            const marker = L.marker(coords, { 
+                icon: icon,
+                zIndexOffset: 100  // Lowest priority
+            });
+            
+            if (this.showFastTravel) {
+                marker.addTo(this.map);
+            }
+            this.fastTravelMarkers.push(marker);
+        },
+        
         toggleBases() {
             this.showBases = !this.showBases;
             this.markers.forEach(marker => {
@@ -332,6 +449,28 @@ function leafletMapComponent() {
             this.showPlayers = !this.showPlayers;
             this.playerMarkers.forEach(marker => {
                 if (this.showPlayers) {
+                    marker.addTo(this.map);
+                } else {
+                    marker.remove();
+                }
+            });
+        },
+        
+        toggleAlphaPals() {
+            this.showAlphaPals = !this.showAlphaPals;
+            this.alphaPalMarkers.forEach(marker => {
+                if (this.showAlphaPals) {
+                    marker.addTo(this.map);
+                } else {
+                    marker.remove();
+                }
+            });
+        },
+        
+        toggleFastTravel() {
+            this.showFastTravel = !this.showFastTravel;
+            this.fastTravelMarkers.forEach(marker => {
+                if (this.showFastTravel) {
                     marker.addTo(this.map);
                 } else {
                     marker.remove();

@@ -29,6 +29,7 @@ class DataLoader:
         self.item_data: Dict[str, Dict] = {}  # Item names and data
         self.building_data: Dict[str, Dict] = {}  # Building data (icons, stats, etc.)
         self.technology_data: Dict[str, Dict] = {}  # Technology/building localized names
+        self.map_objects: list = []  # Static map objects (alpha pals, fast travel, etc.)
         
         self._load_pal_names()
         self._load_pal_data()
@@ -39,6 +40,7 @@ class DataLoader:
         self._load_items()
         self._load_buildings()
         self._load_technologies()
+        self._load_map_objects()
     
     def _load_pal_names(self):
         """Load pal name mappings from JSON"""
@@ -253,6 +255,23 @@ class DataLoader:
                 logger.warning(f"Technologies file not found: {tech_json}")
         except Exception as e:
             logger.warning(f"Could not load technologies: {e}")
+    
+    def _load_map_objects(self):
+        """Load static map objects (alpha pals, fast travel points, etc.)"""
+        try:
+            map_objects_json = config.DATA_PATH / "json" / "map_objects.json"
+            if map_objects_json.exists():
+                with open(map_objects_json, 'r', encoding='utf-8') as f:
+                    self.map_objects = json.load(f)
+                
+                # Count different types
+                alpha_count = sum(1 for obj in self.map_objects if obj.get('type') == 'alpha_pal')
+                travel_count = sum(1 for obj in self.map_objects if obj.get('type') == 'fast_travel')
+                logger.debug(f"Loaded {len(self.map_objects)} map objects ({alpha_count} alpha pals, {travel_count} fast travel)")
+            else:
+                logger.warning(f"Map objects file not found: {map_objects_json}")
+        except Exception as e:
+            logger.warning(f"Could not load map objects: {e}")
     
     def get_species_scaling(self, character_id: str) -> Optional[Dict[str, int]]:
         """Get species scaling values from pals.json"""

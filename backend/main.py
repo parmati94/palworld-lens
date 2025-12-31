@@ -938,6 +938,36 @@ async def get_pals():
         logger.error(f"Error getting pals: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/map-objects", dependencies=[Depends(require_auth)])
+async def get_map_objects():
+    """Get static map objects (alpha pals, fast travel points, etc.)"""
+    try:
+        map_objects = parser.data.map_objects
+        
+        # Enrich alpha pals with localized names
+        alpha_pals = []
+        for obj in map_objects:
+            if obj.get('type') == 'alpha_pal':
+                enriched = dict(obj)
+                pal_id = obj.get('pal')
+                if pal_id:
+                    # Add localized name
+                    enriched['pal_name'] = parser.data.pal_names.get(pal_id, pal_id)
+                    # Level already comes from map_objects.json
+                alpha_pals.append(enriched)
+        
+        # Fast travel points already have localized_name
+        fast_travel = [obj for obj in map_objects if obj.get('type') == 'fast_travel']
+        
+        return {
+            "alpha_pals": alpha_pals,
+            "fast_travel": fast_travel,
+            "total": len(map_objects)
+        }
+    except Exception as e:
+        logger.error(f"Error getting map objects: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/debug/player-mapping")
 async def get_player_mapping():
     """Debug endpoint to show player UID mapping"""

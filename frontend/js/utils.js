@@ -187,6 +187,38 @@ function getPassiveDescriptionClass(rank) {
 }
 
 /**
+ * Convert Palworld save coordinates to Leaflet map coordinates
+ * SYSTEM: 0-256 Virtual World (Standard Leaflet Scale)
+ * [0,0] is Top-Left. [-256, 256] is Bottom-Right.
+ */
+function saveToMapCoords(saveX, saveY) {
+    const scaleDivisor = 630; 
+    const manualOffsetX = 275;
+    const manualOffsetY = 242;
+
+    const gameX = (saveY - 158000) / scaleDivisor;
+    const gameY = (saveX + 123888) / scaleDivisor;
+    
+    // Virtual World Bounds (Game Units)
+    const worldMin = -1150;
+    const worldMax = 1150;
+    const worldRange = worldMax - worldMin; 
+
+    // 1. Normalize to 0.0 -> 1.0
+    const normX = ((gameX + manualOffsetX) - worldMin) / worldRange;
+    const normY = ((gameY + manualOffsetY) - worldMin) / worldRange;
+
+    // 2. Scale to Leaflet 256 Unit System
+    const leafletX = normX * 256;
+    
+    // 3. Invert Y Axis for Mapping
+    const leafletY = (1 - normY) * 256; 
+
+    // Return [Lat, Lng]
+    return [-leafletY, leafletX];
+}
+
+/**
  * Fetch with automatic retry logic
  */
 async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
