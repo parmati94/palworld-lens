@@ -9,16 +9,16 @@ services:
         - DEV_MODE=true
     container_name: palworld-lens-dev
     ports:
-      - "5175:80"
+      - "5176:80"
     volumes:
       # Mount save files (read-only)
       - ./saves:/app/saves:ro
       # Mount source code for live development
       - ./backend:/app/backend
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend/dist:/usr/share/nginx/html
     environment:
       - SAVE_MOUNT_PATH=/app/saves
-      - ENABLE_AUTO_WATCH=false  # Disable in dev to allow fast uvicorn reloads
+      - ENABLE_AUTO_WATCH=false # Disable in dev to allow fast uvicorn reloads
       - LOG_LEVEL=DEBUG
       - TZ=America/New_York  # Set to your local timezone (e.g., America/Los_Angeles, Europe/London, etc.)
       # Development-specific settings

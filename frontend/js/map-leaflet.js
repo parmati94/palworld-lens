@@ -2,7 +2,9 @@
  * Alpine.js + Leaflet Map Component
  * Note: saveToMapCoords is now in utils.js
  */
-function leafletMapComponent() {
+import { saveToMapCoords } from './utils.js';
+
+export function leafletMapComponent() {
     return {
         map: null,
         mapElement: null,

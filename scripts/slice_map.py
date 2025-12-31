@@ -3,8 +3,8 @@ import math
 from PIL import Image
 
 # CONFIGURATION
-INPUT_IMAGE = "frontend/img/World_Map_8k.webp" 
-OUTPUT_DIR = "frontend/img/tiles"
+INPUT_IMAGE = "frontend/public/img/World_Map_8k.webp" 
+OUTPUT_DIR = "frontend/public/img/tiles"
 TILE_SIZE = 256
 
 def slice_map():

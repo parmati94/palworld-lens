@@ -17,13 +17,12 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <script src="/js/utils.js?v=20251230-068"></script>
-    <script src="/js/app.js?v=20251230-068"></script>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/js/map-leaflet.js?v=20251230-068"></script>
     
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Main application bundle (includes Alpine.js) -->
+    <script type="module" src="/js/main.js" defer></script>
+    
     <style>
         [x-cloak] { display: none !important; }
         
@@ -446,7 +445,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen" x-data="app()" x-cloak>
+<body class="bg-gray-900 text-gray-100 min-h-screen" x-data="app" x-cloak>
     
     <script>
         (async function() {
@@ -2372,7 +2371,7 @@
 
         <!-- Map Tab (Leaflet Version) -->
         <div x-show="currentTab === 'map' && saveInfo.loaded" class="tab-content">
-            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700/50 shadow-2xl" x-data="leafletMapComponent()" x-init="init()">
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700/50 shadow-2xl" x-data="leafletMapComponent" x-init="init()">
                 <!-- Header with subtle gradient accent -->
                 <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-700/50">
                     <div class="flex items-center gap-3">
