@@ -5,7 +5,7 @@
 /**
  * Format a date string to localized format
  */
-function formatDate(dateStr) {
+export function formatDate(dateStr) {
     if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleString();
 }
@@ -13,7 +13,7 @@ function formatDate(dateStr) {
 /**
  * Format bytes to human-readable file size
  */
-function formatFileSize(bytes) {
+export function formatFileSize(bytes) {
     if (!bytes) return 'N/A';
     const sizes = ['B', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 B';
@@ -24,7 +24,7 @@ function formatFileSize(bytes) {
 /**
  * Get element icon filename
  */
-function getElementIcon(element) {
+export function getElementIcon(element) {
     const iconMap = {
         'Fire': 'fire.webp',
         'Water': 'water.webp',
@@ -42,7 +42,7 @@ function getElementIcon(element) {
 /**
  * Get white element icon filename for active skills
  */
-function getElementIconWhite(element) {
+export function getElementIconWhite(element) {
     const iconMap = {
         'Fire': 'fire_white.webp',
         'Water': 'water_white.webp',
@@ -60,7 +60,7 @@ function getElementIconWhite(element) {
 /**
  * Get element color for active skill badges
  */
-function getElementColor(element) {
+export function getElementColor(element) {
     const colorMap = {
         'Fire': '#ef4444',      // red-500
         'Water': '#3b82f6',     // blue-500
@@ -78,7 +78,7 @@ function getElementColor(element) {
 /**
  * Generate element-themed gradient for pal header
  */
-function getPalHeaderGradient(elements) {
+export function getPalHeaderGradient(elements) {
     if (!elements || elements.length === 0) {
         return 'linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6)';
     }
@@ -111,7 +111,7 @@ function getPalHeaderGradient(elements) {
 /**
  * Get rank icon filename for passive skills
  */
-function getRankIcon(rank) {
+export function getRankIcon(rank) {
     if (rank < 0) {
         // Use negative rank icons: rank_-1.webp, rank_-2.webp, rank_-3.webp
         return `img/rank_${rank}.webp`;
@@ -125,7 +125,7 @@ function getRankIcon(rank) {
 /**
  * Get rank color filter for passive skills
  */
-function getRankFilter(rank) {
+export function getRankFilter(rank) {
     if (rank < 0) {
         // Negative ranks: red
         return 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)';
@@ -145,7 +145,7 @@ function getRankFilter(rank) {
 /**
  * Get passive skill background class based on rank
  */
-function getPassiveBackgroundClass(rank) {
+export function getPassiveBackgroundClass(rank) {
     if (rank < 0) {
         // Negative: red gradient with downward stripes
         return 'passive-bg-negative';
@@ -165,7 +165,7 @@ function getPassiveBackgroundClass(rank) {
 /**
  * Get passive skill text color based on rank
  */
-function getPassiveTextClass(rank) {
+export function getPassiveTextClass(rank) {
     if (rank >= 2 && rank <= 3) {
         // Gold background needs dark text
         return 'text-gray-900';
@@ -177,7 +177,7 @@ function getPassiveTextClass(rank) {
 /**
  * Get passive skill description color based on rank
  */
-function getPassiveDescriptionClass(rank) {
+export function getPassiveDescriptionClass(rank) {
     if (rank >= 2 && rank <= 3) {
         // Gold background needs darker description
         return 'text-gray-700';
@@ -191,7 +191,7 @@ function getPassiveDescriptionClass(rank) {
  * SYSTEM: 0-256 Virtual World (Standard Leaflet Scale)
  * [0,0] is Top-Left. [-256, 256] is Bottom-Right.
  */
-function saveToMapCoords(saveX, saveY) {
+export function saveToMapCoords(saveX, saveY) {
     const scaleDivisor = 630; 
     const manualOffsetX = 275;
     const manualOffsetY = 242;
@@ -221,7 +221,7 @@ function saveToMapCoords(saveX, saveY) {
 /**
  * Fetch with automatic retry logic
  */
-async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+export async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
     options = { ...options, credentials: 'same-origin' };
     
     for (let i = 0; i < retries; i++) {

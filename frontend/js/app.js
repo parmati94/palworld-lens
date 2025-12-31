@@ -1,7 +1,22 @@
 /**
  * Main Alpine.js application for Palworld Lens
  */
-function app() {
+import {
+    formatDate,
+    formatFileSize,
+    getElementIcon,
+    getElementIconWhite,
+    getElementColor,
+    getPalHeaderGradient,
+    getRankIcon,
+    getRankFilter,
+    getPassiveBackgroundClass,
+    getPassiveTextClass,
+    getPassiveDescriptionClass,
+    fetchWithRetry
+} from './utils.js';
+
+export function app() {
     return {
         currentTab: 'overview',
         saveInfo: { loaded: false },
@@ -21,6 +36,12 @@ function app() {
         filterElement: '',
         filterWorkType: '',
         filterPassiveSkill: '',
+        // Base navigation state
+        selectedGuildId: null,
+        selectedBaseId: null,
+        hasPrevBase: false,
+        hasNextBase: false,
+        // SSE state
         eventSource: null,
         autoWatchActive: false,
         autoWatchAllowed: true,
@@ -712,4 +733,3 @@ function app() {
         }
     }
 }
-window.app = app;

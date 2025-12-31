@@ -16,6 +16,8 @@ build/
 .coverage
 htmlcov/
 node_modules/
+frontend/dist/
+frontend/node_modules/
 saves/
 local-dev/
 
