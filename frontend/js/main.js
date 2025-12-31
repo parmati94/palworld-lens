@@ -15,10 +15,16 @@ import * as utils from './utils.js';
 // Import Alpine.js components
 import { app } from './app.js';
 import { leafletMapComponent } from './map-leaflet.js';
+import { serverInfoModal } from './components/serverInfoModal.js';
+import { containerModal } from './components/containerModal.js';
+import { palModal } from './components/palModal.js';
 
 // Register components with Alpine using proper API
 Alpine.data('app', app);
 Alpine.data('leafletMapComponent', leafletMapComponent);
+Alpine.data('serverInfoModal', serverInfoModal);
+Alpine.data('containerModal', containerModal);
+Alpine.data('palModal', palModal);
 
 // Expose utility functions globally (required by Alpine.js inline expressions in x-text, x-bind, etc.)
 Object.assign(window, utils);

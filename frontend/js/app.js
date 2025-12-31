@@ -52,13 +52,6 @@ export function app() {
         reconnectDelay: 2000,
         lastRefreshTime: 0,
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
-        // Server info state
-        showServerInfo: false,
-        serverInfo: null,
-        serverInfoLoading: false,
-        serverInfoError: null,
-        serverInfoNotConfigured: false,
-        serverInfoTab: 'overview',
         
         async init() {
             // Check auto-watch status from backend
@@ -678,34 +671,6 @@ export function app() {
             return count;
         },
         
-        // Pal detail modal
-        selectedPal: null,
-        showPalModal: false,
-        
-        // Container detail modal
-        selectedContainer: null,
-        showContainerModal: false,
-        
-        openPalModal(pal) {
-            this.selectedPal = pal;
-            this.showPalModal = true;
-        },
-        
-        closePalModal() {
-            this.showPalModal = false;
-            setTimeout(() => this.selectedPal = null, 300);
-        },
-        
-        openContainerModal(container) {
-            this.selectedContainer = container;
-            this.showContainerModal = true;
-        },
-        
-        closeContainerModal() {
-            this.showContainerModal = false;
-            setTimeout(() => this.selectedContainer = null, 300);
-        },
-        
         // Helper to get condition badge color class
         getConditionClass(condition) {
             if (!condition || !condition.type) {
@@ -740,39 +705,6 @@ export function app() {
             return bases;
         },
         
-        // Load server info from RCON API
-        async loadServerInfo() {
-            this.serverInfoLoading = true;
-            this.serverInfoError = null;
-            this.serverInfoNotConfigured = false;
-            this.serverInfo = null;
-            
-            try {
-                const response = await fetchWithRetry('/api/rcon/status', {
-                    credentials: 'same-origin'
-                });
-                
-                const data = await response.json();
-                
-                // Check if there are any errors in the response
-                if (data.errors && Object.keys(data.errors).length > 0) {
-                    console.warn('Some RCON endpoints failed:', data.errors);
-                }
-                
-                this.serverInfo = data;
-            } catch (error) {
-                console.error('Failed to load server info:', error);
-                
-                // Check if it's a 503 error (RCON not configured)
-                if (error.message && error.message.includes('503')) {
-                    this.serverInfoNotConfigured = true;
-                } else {
-                    this.serverInfoError = error.message || 'Failed to connect to server';
-                }
-            } finally {
-                this.serverInfoLoading = false;
-            }
-        },
         
         // Expose utility functions for use in HTML
         formatUptime
