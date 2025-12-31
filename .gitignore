@@ -23,5 +23,4 @@ local-dev/
 
 # Generated map tiles (created at build time by scripts/slice_map.py)
 frontend/img/tiles/
-# Generated file - built from partials/
-frontend/index.html
+
