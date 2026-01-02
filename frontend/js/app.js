@@ -38,6 +38,7 @@ export function app() {
         filterElement: '',
         filterWorkType: '',
         filterPassiveSkill: '',
+        filterOwner: '',
         // Base navigation state
         selectedGuildId: null,
         selectedBaseId: null,
@@ -361,6 +362,13 @@ export function app() {
                 );
             }
             
+            // Apply owner filter
+            if (this.filterOwner) {
+                filtered = filtered.filter(pal => 
+                    pal.owner_uid === this.filterOwner
+                );
+            }
+            
             // Apply sorting
             const sorted = [...filtered].sort((a, b) => {
                 let aVal, bVal;
@@ -498,6 +506,17 @@ export function app() {
                 }
             });
             return Array.from(skills.values()).sort((a, b) => a.name.localeCompare(b.name));
+        },
+        
+        get availableOwners() {
+            if (!Array.isArray(this.pals)) return [];
+            const owners = new Set();
+            this.pals.forEach(pal => {
+                if (pal.owner_uid) {
+                    owners.add(pal.owner_uid);
+                }
+            });
+            return Array.from(owners).sort();
         },
         
         // Clear all filters
