@@ -93,7 +93,8 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-sizing: content-box !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
     }
     
     .base-pill-compact .base-pill-content {
@@ -104,6 +105,11 @@
         display: flex !important;
         font-size: 1.125rem;
         font-weight: 700;
+    }
+    
+    /* Show pill icon on mobile (x-show handles visibility conditionally) */
+    .base-pill-compact .base-pill-warning-icon {
+        display: block;
     }
 }
 

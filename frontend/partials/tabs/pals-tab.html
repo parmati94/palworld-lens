@@ -415,6 +415,10 @@
             baseTab: 'pals', 
             basePalPage: 1, 
             basePalPageSize: 10,
+            // Helper to count unhealthy pals
+            getUnhealthyCount(pals) {
+                return pals.filter(p => p.condition_display).length;
+            },
             get currentBaseIndex() {
                 if (!selectedGuildId) return -1;
                 const guild = basePals.find(g => g.guild_id === selectedGuildId);
@@ -467,7 +471,7 @@
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <div class="flex items-center gap-4 text-sm">
+                            <div class="flex items-center gap-4 text-sm flex-wrap">
                                 <div class="flex items-center gap-1">
                                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -480,6 +484,17 @@
                                     </svg>
                                     <span class="text-gray-300"><span class="font-semibold text-purple-400" x-text="guild.bases.reduce((total, base) => total + base.pals.length, 0)"></span> pals</span>
                                 </div>
+                                <template x-if="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0) > 0">
+                                    <div class="flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-orange-400 opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                                            <!-- Heart shape with crack -->
+                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                            <!-- Crack/lightning bolt through heart (wider) -->
+                                            <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#1f2937" stroke="#1f2937" stroke-width="0.8"/>
+                                        </svg>
+                                        <span class="text-gray-300"><span class="font-semibold text-orange-400" x-text="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0)"></span> unhealthy</span>
+                                    </div>
+                                </template>
                             </div>
                         </button>
                     </template>
@@ -503,13 +518,22 @@
                             </div>
                             
                             <!-- Horizontal scrollable pills -->
-                            <div class="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
+                            <div class="flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide">
                                 <template x-for="(base, index) in guild.bases" :key="base.base_id">
                                     <button 
                                         @click="selectedBaseId = base.base_id; basePalPage = 1"
                                         :class="selectedBaseId === base.base_id ? 'bg-cyan-600 border-cyan-500 shadow-lg ring-2 ring-cyan-400/50' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-cyan-600/50'"
-                                        :title="base.base_name + ' (' + base.pals.length + ' pals)'"
-                                        class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer">
+                                        :title="base.base_name + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
+                                        class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer relative">
+                                        <!-- Unhealthy indicator cracked heart icon (mobile) -->
+                                        <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
+                                             class="base-pill-warning-icon absolute -top-0.5 -right-0.5 w-4 h-4 text-orange-500 opacity-90 hidden"
+                                             viewBox="0 0 24 24">
+                                            <g transform="scale(0.85) translate(2, 2)">
+                                                <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#1f2937" stroke="#1f2937" stroke-width="0.8"/>
+                                            </g>
+                                        </svg>
                                         <!-- Mobile: Just the number -->
                                         <div class="base-pill-number hidden" x-text="index + 1"></div>
                                         <!-- Desktop: Full content -->
@@ -523,6 +547,15 @@
                                                     <span x-text="base.pals.length"></span> pals
                                                 </div>
                                             </div>
+                                            <!-- Unhealthy cracked heart icon (desktop - smaller) -->
+                                            <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
+                                                 class="w-3.5 h-3.5 text-orange-400 opacity-90 flex-shrink-0" 
+                                                 fill="currentColor" 
+                                                 viewBox="0 0 24 24"
+                                                 :title="base.pals.filter(p => p.condition_display).length + ' unhealthy pal(s)'">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#1f2937" stroke="#1f2937" stroke-width="0.8"/>
+                                            </svg>
                                             <svg x-show="selectedBaseId === base.base_id" class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                             </svg>
@@ -835,7 +868,7 @@
                     
                     <!-- Food Tab Content -->
                     <div x-show="baseTab === 'food' && selectedBaseId" class="tab-content">
-                        <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0">
                             
                             <!-- Empty State -->
                             <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length === 0">
@@ -917,7 +950,7 @@
                     
                     <!-- Storage Tab Content -->
                     <div x-show="baseTab === 'storage' && selectedBaseId" class="tab-content">
-                        <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0">
                             
                             <!-- Empty State -->
                             <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0).length === 0">
