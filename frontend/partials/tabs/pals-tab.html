@@ -518,7 +518,7 @@
                             </div>
                             
                             <!-- Horizontal scrollable pills -->
-                            <div class="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
+                            <div class="flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide">
                                 <template x-for="(base, index) in guild.bases" :key="base.base_id">
                                     <button 
                                         @click="selectedBaseId = base.base_id; basePalPage = 1"
@@ -547,9 +547,9 @@
                                                     <span x-text="base.pals.length"></span> pals
                                                 </div>
                                             </div>
-                                            <!-- Unhealthy cracked heart icon (desktop) -->
+                                            <!-- Unhealthy cracked heart icon (desktop - smaller) -->
                                             <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
-                                                 class="w-4 h-4 text-orange-400 opacity-90 flex-shrink-0" 
+                                                 class="w-3.5 h-3.5 text-orange-400 opacity-90 flex-shrink-0" 
                                                  fill="currentColor" 
                                                  viewBox="0 0 24 24"
                                                  :title="base.pals.filter(p => p.condition_display).length + ' unhealthy pal(s)'">

@@ -93,7 +93,8 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-sizing: content-box !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
     }
     
     .base-pill-compact .base-pill-content {
