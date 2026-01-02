@@ -415,6 +415,10 @@
             baseTab: 'pals', 
             basePalPage: 1, 
             basePalPageSize: 10,
+            // Helper to count unhealthy pals
+            getUnhealthyCount(pals) {
+                return pals.filter(p => p.condition_display).length;
+            },
             get currentBaseIndex() {
                 if (!selectedGuildId) return -1;
                 const guild = basePals.find(g => g.guild_id === selectedGuildId);
@@ -467,7 +471,7 @@
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <div class="flex items-center gap-4 text-sm">
+                            <div class="flex items-center gap-4 text-sm flex-wrap">
                                 <div class="flex items-center gap-1">
                                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -480,6 +484,14 @@
                                     </svg>
                                     <span class="text-gray-300"><span class="font-semibold text-purple-400" x-text="guild.bases.reduce((total, base) => total + base.pals.length, 0)"></span> pals</span>
                                 </div>
+                                <template x-if="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0) > 0">
+                                    <div class="flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                        </svg>
+                                        <span class="text-gray-300"><span class="font-semibold text-red-400" x-text="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0)"></span> unhealthy</span>
+                                    </div>
+                                </template>
                             </div>
                         </button>
                     </template>
@@ -508,8 +520,18 @@
                                     <button 
                                         @click="selectedBaseId = base.base_id; basePalPage = 1"
                                         :class="selectedBaseId === base.base_id ? 'bg-cyan-600 border-cyan-500 shadow-lg ring-2 ring-cyan-400/50' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-cyan-600/50'"
-                                        :title="base.base_name + ' (' + base.pals.length + ' pals)'"
-                                        class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer">
+                                        :title="base.base_name + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
+                                        class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer relative">
+                                        <!-- Unhealthy indicator beaker icon (mobile) -->
+                                        <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
+                                             class="base-pill-warning-icon absolute -top-0.5 -right-0.5 w-4 h-4 text-red-500 hidden"
+                                             fill="none" 
+                                             stroke="currentColor" 
+                                             viewBox="0 0 24 24"
+                                             stroke-width="2.5">
+                                            <circle cx="12" cy="12" r="11" fill="transparent" stroke="none"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                        </svg>
                                         <!-- Mobile: Just the number -->
                                         <div class="base-pill-number hidden" x-text="index + 1"></div>
                                         <!-- Desktop: Full content -->
@@ -523,6 +545,16 @@
                                                     <span x-text="base.pals.length"></span> pals
                                                 </div>
                                             </div>
+                                            <!-- Unhealthy beaker icon (desktop) -->
+                                            <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
+                                                 class="w-4 h-4 text-red-400 flex-shrink-0" 
+                                                 fill="none" 
+                                                 stroke="currentColor" 
+                                                 viewBox="0 0 24 24"
+                                                 stroke-width="2"
+                                                 :title="base.pals.filter(p => p.condition_display).length + ' unhealthy pal(s)'">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                            </svg>
                                             <svg x-show="selectedBaseId === base.base_id" class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                             </svg>

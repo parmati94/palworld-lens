@@ -105,6 +105,11 @@
         font-size: 1.125rem;
         font-weight: 700;
     }
+    
+    /* Show pill icon on mobile (x-show handles visibility conditionally) */
+    .base-pill-compact .base-pill-warning-icon {
+        display: block;
+    }
 }
 
 /* Floating navigation arrows */
