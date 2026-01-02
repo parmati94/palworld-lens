@@ -403,6 +403,14 @@ export function app() {
                         aVal = (a.base_name || 'None').toLowerCase();
                         bVal = (b.base_name || 'None').toLowerCase();
                         break;
+                    case 'attack':
+                        aVal = a.calculated_attack || 0;
+                        bVal = b.calculated_attack || 0;
+                        break;
+                    case 'defense':
+                        aVal = a.calculated_defense || 0;
+                        bVal = b.calculated_defense || 0;
+                        break;
                     default:
                         return 0;
                 }
