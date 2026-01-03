@@ -52,6 +52,11 @@ async def lifespan(app: FastAPI):
     if config.ENABLE_AUTO_WATCH:
         async def on_save_change():
             """Callback when save file changes"""
+            # Only reload if there are active SSE clients
+            if not sse_clients:
+                logger.debug("🔇 Skipping reload - no active clients")
+                return
+            
             logger.info("🔄 Save file changed, reloading...")
             if parser.reload():
                 logger.info("✅ Save reloaded successfully")
