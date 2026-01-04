@@ -227,8 +227,8 @@ def calculate_work_suitabilities(
     Final Level = Base Level + Pal Condensor Bonus + Manual Upgrades
     
     - Base Level: From species JSON data
-    - Pal Condensor Bonus: +1 to ALL work types if condensor_rank == 5 (4 star pal)
-    - Manual Upgrades: Individual upgrades dict {work_type: bonus_amount}
+    - Pal Condensor Bonus: +1 to existing work types (level > 0) if condensor_rank == 5 (4 star pal)
+    - Manual Upgrades: Individual upgrades from books/manuals, can grant new work types
     
     Args:
         base_work_suitability: Base work suitability levels from species data
@@ -236,7 +236,7 @@ def calculate_work_suitabilities(
         manual_upgrades: Dict mapping work type to bonus amount, or None
         
     Returns:
-        Dict mapping work type ID to calculated level (0-4)
+        Dict mapping work type ID to calculated level (1-4)
     """
     if not base_work_suitability:
         return {}
@@ -245,17 +245,20 @@ def calculate_work_suitabilities(
     calculated_suitabilities = base_work_suitability.copy()
     
     # Apply Pal Condensor bonus (4 star pal = rank 5)
+    # Only increment work types that have base level > 0
     if condensor_rank == 5:
-        for work_type in calculated_suitabilities:
-            calculated_suitabilities[work_type] += 1
+        for work_type, level in calculated_suitabilities.items():
+            if level > 0:
+                calculated_suitabilities[work_type] += 1
     
-    # Apply manual upgrades
+    # Apply manual upgrades (can add new work types or boost existing ones)
     if manual_upgrades:
         for work_type, bonus in manual_upgrades.items():
             if work_type in calculated_suitabilities:
+                # Boost existing work type
                 calculated_suitabilities[work_type] += bonus
             else:
-                # If work type wasn't in base (level 0), set it to the bonus
+                # Grant new work type that didn't exist
                 calculated_suitabilities[work_type] = bonus
     
     return calculated_suitabilities
