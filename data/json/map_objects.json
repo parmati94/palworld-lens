@@ -2277,6 +2277,13 @@
         "level": 23
     },
     {
+        "type": "alpha_pal",
+        "pal": "PoseidonOrca",
+        "x": 175142.77,
+        "y": 221586.5,
+        "level": 60
+    },
+    {
         "type": "predator_pal",
         "pal": "PinkLizard",
         "x": -318898.75,
