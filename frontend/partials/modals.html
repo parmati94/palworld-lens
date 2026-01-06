@@ -114,9 +114,9 @@
                             <div class="flex items-start gap-4">
                                 <!-- Pal Image -->
                                 <div class="relative z-10">
-                                    <img :src="`/img/${selectedPal.image_id}.webp`" 
+                                    <img :src="`/img/t_${selectedPal.image_id}_icon_normal.webp`" 
                                          :alt="selectedPal.display_name"
-                                         :onerror="`this.src='/img/unknown.webp'`"
+                                         :onerror="`if(this.src.includes('_icon_normal')){this.src='/img/${selectedPal.image_id}.webp'}else if(!this.src.includes('unknown')){this.src='/img/unknown.webp'}`"
                                          class="w-32 h-32 rounded-lg bg-gray-800 object-cover border-2 border-white/20">
                                     <img x-show="selectedPal.is_alpha" 
                                          src="/img/alpha.webp" 

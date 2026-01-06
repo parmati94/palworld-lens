@@ -56,6 +56,9 @@ def setup_logging(level=None):
     # Suppress watchdog's verbose inotify logs
     logging.getLogger('watchdog.observers.inotify_buffer').setLevel(logging.WARNING)
     
+    # Suppress sse_starlette's verbose SSE chunk/ping logs
+    logging.getLogger('sse_starlette.sse').setLevel(logging.WARNING)
+    
     return logger
 
 def get_logger(name: str):

@@ -364,9 +364,9 @@
                                             <!-- Pal Image -->
                                             <div class="relative flex-shrink-0">
                                                 <img 
-                                                    :src="`/img/${pal.image_id}.webp`" 
+                                                    :src="`/img/t_${pal.image_id}_icon_normal.webp`" 
                                                     :alt="pal.display_name"
-                                                    :onerror="`this.src='/img/unknown.webp'`"
+                                                    :onerror="`if(this.src.includes('_icon_normal')){this.src='/img/${pal.image_id}.webp'}else if(!this.src.includes('unknown')){this.src='/img/unknown.webp'}`"
                                                     class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-800 object-cover">
                                                 <!-- Alpha indicator -->
                                                 <img 
@@ -802,9 +802,9 @@
                                                                 <!-- Pal Image -->
                                                                 <div class="relative flex-shrink-0">
                                                                     <img 
-                                                                        :src="`/img/${pal.image_id}.webp`" 
+                                                                        :src="`/img/t_${pal.image_id}_icon_normal.webp`" 
                                                                         :alt="pal.display_name"
-                                                                        :onerror="`this.src='/img/unknown.webp'`"
+                                                                        :onerror="`if(this.src.includes('_icon_normal')){this.src='/img/${pal.image_id}.webp'}else if(!this.src.includes('unknown')){this.src='/img/unknown.webp'}`"
                                                                         class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-800 object-cover">
                                                                     <!-- Alpha indicator -->
                                                                     <img 
