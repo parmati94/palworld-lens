@@ -2,8 +2,6 @@
 
 A lightweight, read-only viewer for Palworld save files. Built to be mobile-friendly and containerized.
 
-## 📸 Screenshots
-
 <div align="center">
   <img src="https://i.imgur.com/1CsxLWa.png" alt="Screenshot 1" width="32%"/>
   <img src="https://i.imgur.com/8VLRdv8.png" alt="Screenshot 2" width="32%"/>
