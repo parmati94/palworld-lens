@@ -11,9 +11,10 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
     <td><img src="https://i.imgur.com/boV1jx3.png" alt="Screenshot 1" width="280"/></td>
   </tr>
   <tr>
-    <td><img src="https://i.imgur.com/MphZH9m.png" alt="Screenshot 5" width="280"/></td>
-    <td><img src="https://i.imgur.com/GIMIqNR.png" alt="Screenshot 3" width="280"/></td>
-    <td></td>
+    <td colspan="3" align="center">
+      <img src="https://i.imgur.com/MphZH9m.png" alt="Screenshot 5" width="280"/>
+      <img src="https://i.imgur.com/GIMIqNR.png" alt="Screenshot 3" width="280"/>
+    </td>
   </tr>
 </table>
 
