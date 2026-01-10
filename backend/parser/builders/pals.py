@@ -201,6 +201,13 @@ def build_pals(char_data: Dict, base_assignments: Dict, data_loader: DataLoader,
         # Detect if this is an Alpha/Boss pal (applies 1.2x HP multiplier)
         is_alpha_pal = char_id.startswith("BOSS_") or char_id.startswith("Boss_")
         
+        # Extract Pal Soul stat allocations (Statue of Power bonuses)
+        # These fields only appear if the pal has been upgraded at least once
+        soul_hp = pal_schema.extract_field(char_info, "Rank_HP") or 0
+        soul_attack = pal_schema.extract_field(char_info, "Rank_Attack") or 0
+        soul_defense = pal_schema.extract_field(char_info, "Rank_Defense") or 0
+        soul_work_speed = pal_schema.extract_field(char_info, "Rank_CraftSpeed") or 0
+        
         calculated_stats = calculate_pal_stats(
             species_scaling=species_scaling,
             level=level,
@@ -212,7 +219,11 @@ def build_pals(char_data: Dict, base_assignments: Dict, data_loader: DataLoader,
             trust_level=trust_level,
             friendship_multipliers=friendship_multipliers,
             is_alpha=is_alpha_pal,
-            passive_skills=passive_skills  # Now includes effects data
+            passive_skills=passive_skills,  # Now includes effects data
+            soul_hp=soul_hp,
+            soul_attack=soul_attack,
+            soul_defense=soul_defense,
+            soul_work_speed=soul_work_speed
         )
         
         pal = PalInfo(

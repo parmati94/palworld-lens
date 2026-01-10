@@ -40,7 +40,11 @@ def calculate_pal_stats(
     trust_level: int = 0,
     friendship_multipliers: Optional[Dict[str, float]] = None,
     is_alpha: bool = False,
-    passive_skills: Optional[List] = None
+    passive_skills: Optional[List] = None,
+    soul_hp: int = 0,
+    soul_attack: int = 0,
+    soul_defense: int = 0,
+    soul_work_speed: int = 0
 ) -> Dict[str, int]:
     """Calculate actual pal stats using the mathematically precise Palworld formulas
     
@@ -49,7 +53,8 @@ def calculate_pal_stats(
     - Attack/Defense: floor(Base + (Level × SpeciesScaling × 0.075 × (1 + (Talent × 0.3)/100)))
     - Alpha/Boss Multiplier: 1.2x HP (as of v0.2.4.0, applied before trust bonuses)
     - Trust Bonus: BaseStat × (TrustLevel × FriendshipValue / 100)
-    - Final: floor(BaseLevelStat × (1 + TrustBonus + RankBonus))
+    - Soul Bonus: +3% per level (applied multiplicatively at the end)
+    - Final: floor(BaseLevelStat × (1 + TrustBonus + RankBonus) × PassiveMultiplier × SoulMultiplier)
     
     Args:
         species_scaling: Dict with 'hp', 'attack', 'defense' scaling values for the species
@@ -62,6 +67,10 @@ def calculate_pal_stats(
         trust_level: Trust/Friendship Level (0-10, default 0)
         friendship_multipliers: Dict with friendship_hp, friendship_shotattack, friendship_defense
         is_alpha: Whether this is an alpha/boss pal (applies 1.2x HP multiplier)
+        soul_hp: Pal Soul stat points allocated to HP (from RankHP field, 0-10+)
+        soul_attack: Pal Soul stat points allocated to Attack (from RankAttack field, 0-10+)
+        soul_defense: Pal Soul stat points allocated to Defense (from RankDefence field, 0-10+)
+        soul_work_speed: Pal Soul stat points allocated to Work Speed (from RankCraftSpeed field, 0-10+)
         
     Returns:
         Dict with calculated 'attack', 'defense', 'hp', 'work_speed' values
@@ -112,7 +121,8 @@ def calculate_pal_stats(
         hp_effective_base = static_hp + level_growth + math.floor(applied_growth + iv_bonus_hp) + trust_bonus_hp
         
         # Step 7: Apply rank multiplier to assembled HP
-        rank_multiplier = 1 + ((rank - 1) * 0.05)  # rank 1 = 1.0, rank 4 = 1.15
+        # rank is save file value (1-5): 1=0★, 2=1★, 3=2★, 4=3★, 5=4★
+        rank_multiplier = 1 + ((rank - 1) * 0.05)  # 5% per star: 0★=1.0, 4★=1.20
         calculated_hp = math.floor(hp_effective_base * rank_multiplier)
         
         # === ATTACK CALCULATION ===
@@ -163,12 +173,12 @@ def calculate_pal_stats(
         calculated_work_speed = 70  # Default work speed
         
         # Apply passive skill multipliers (effects are now stored in SkillInfo)
+        passive_mult_hp = 1.0
+        passive_mult_attack = 1.0
+        passive_mult_defense = 1.0
+        passive_mult_work = 1.0
+        
         if passive_skills:
-            hp_multiplier = 1.0
-            attack_multiplier = 1.0
-            defense_multiplier = 1.0
-            work_speed_multiplier = 1.0
-            
             for skill in passive_skills:
                 # Access effects directly from SkillInfo object
                 effects = getattr(skill, 'effects', None)
@@ -183,27 +193,27 @@ def calculate_pal_stats(
                     # Only apply if target is ToSelf
                     if target == 'ToSelf':
                         if effect_type == 'MaxHP':
-                            hp_multiplier += value
+                            passive_mult_hp += value
                         elif effect_type == 'Attack':
-                            attack_multiplier += value
+                            passive_mult_attack += value
                         elif effect_type in ['Defense', 'Defence']:  # Handle both spellings
-                            defense_multiplier += value
+                            passive_mult_defense += value
                         elif effect_type in ['WorkSpeed', 'CraftSpeed']:
-                            work_speed_multiplier += value
-            
-            # Apply multipliers
-            if hp_multiplier != 1.0:
-                old_hp = calculated_hp
-                calculated_hp = math.floor(calculated_hp * hp_multiplier)
-            if attack_multiplier != 1.0:
-                old_attack = calculated_attack
-                calculated_attack = math.floor(calculated_attack * attack_multiplier)
-            if defense_multiplier != 1.0:
-                old_defense = calculated_defense
-                calculated_defense = math.floor(calculated_defense * defense_multiplier)
-            if work_speed_multiplier != 1.0:
-                old_ws = calculated_work_speed
-                calculated_work_speed = math.floor(calculated_work_speed * work_speed_multiplier)
+                            passive_mult_work += value
+        
+        # Calculate Soul multipliers (Statue of Power bonuses)
+        # Each soul level adds +3% (0.03) to the respective stat
+        # These are applied multiplicatively as a separate bucket from passives
+        soul_mult_hp = 1 + (soul_hp * 0.03)
+        soul_mult_attack = 1 + (soul_attack * 0.03)
+        soul_mult_defense = 1 + (soul_defense * 0.03)
+        soul_mult_work = 1 + (soul_work_speed * 0.03)
+        
+        # Apply both passive and soul multipliers (multiplicative buckets)
+        calculated_hp = math.floor(calculated_hp * passive_mult_hp * soul_mult_hp)
+        calculated_attack = math.floor(calculated_attack * passive_mult_attack * soul_mult_attack)
+        calculated_defense = math.floor(calculated_defense * passive_mult_defense * soul_mult_defense)
+        calculated_work_speed = math.floor(calculated_work_speed * passive_mult_work * soul_mult_work)
         
         return {
             "attack": calculated_attack,

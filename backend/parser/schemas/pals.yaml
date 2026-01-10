@@ -53,7 +53,7 @@ fields:
   
   Rank_Defense:
     description: "Number of Defense souls used for stat upgrades"
-    root_key: "Rank_Defense"
+    root_key: "Rank_Defence"
     path: ["value"]
     default: 0
   
