@@ -1,6 +1,8 @@
 """FastAPI backend for Palworld Lens"""
 import asyncio
 import json
+import tempfile
+from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,64 +26,156 @@ from backend.common.auth import (
 )
 from backend.parser import parser
 from backend.utils.watcher import SaveWatcher
+from backend.utils.remote_loader import RemoteSaveLoader, RemoteSavePoller
 
-# Global watcher instance and SSE clients
+# Global watcher/poller instances and SSE clients
 watcher: Optional[SaveWatcher] = None
+remote_loader: Optional[RemoteSaveLoader] = None
+remote_poller: Optional[RemoteSavePoller] = None
 sse_clients: list[asyncio.Queue] = []
-watch_active: bool = False  # Track if watching is currently active
+watch_active: bool = False  # Track if watching/polling is currently active
+remote_mode: bool = False  # Track if using remote saves
+
+
+async def reload_and_notify(skip_if_no_clients: bool = False):
+    """Shared helper to reload save and notify SSE clients
+    
+    Args:
+        skip_if_no_clients: If True, skip reload when no SSE clients connected
+    """
+    if skip_if_no_clients and not sse_clients:
+        logger.debug("🔇 Skipping reload - no active clients")
+        return False
+    
+    logger.info("🔄 Reloading save...")
+    if parser.reload():
+        logger.info("✅ Save reloaded successfully")
+        # Notify all SSE clients
+        for client_queue in sse_clients:
+            try:
+                client_queue.put_nowait({"event": "reload"})
+            except asyncio.QueueFull:
+                pass  # Skip if queue is full
+        return True
+    else:
+        logger.error("❌ Failed to reload save")
+        return False
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle events"""
-    global watcher, watch_active
+    global watcher, remote_loader, remote_poller, watch_active, remote_mode
     
     logger.info("🚀 Starting Palworld Lens")
-    logger.info(f"📂 Save mount path: {config.SAVE_MOUNT_PATH}")
     
-    # Try to load save on startup
-    if config.get_level_sav_path():
-        logger.info("🔍 Found save files, attempting auto-load...")
-        if parser.load():
-            logger.info("✅ Save loaded successfully on startup")
-        else:
-            logger.warning("⚠️  Failed to auto-load save")
-    else:
-        logger.warning("⚠️  No save files found in mounted directory")
-    
-    # Start file watcher if enabled
-    if config.ENABLE_AUTO_WATCH:
-        async def on_save_change():
-            """Callback when save file changes"""
-            # Only reload if there are active SSE clients
-            if not sse_clients:
-                logger.debug("🔇 Skipping reload - no active clients")
-                return
-            
-            logger.info("🔄 Save file changed, reloading...")
-            if parser.reload():
-                logger.info("✅ Save reloaded successfully")
-                # Notify all SSE clients
-                for client_queue in sse_clients:
-                    try:
-                        client_queue.put_nowait({"event": "reload"})
-                    except asyncio.QueueFull:
-                        pass  # Skip if queue is full
-            else:
-                logger.error("❌ Failed to reload save")
+    # Check if remote save mode is enabled
+    if config.REMOTE_SAVE_ENABLED:
+        logger.info("🌐 Remote save mode enabled")
+        remote_mode = True
         
-        # Get the current event loop to pass to watcher
-        loop = asyncio.get_event_loop()
-        watcher = SaveWatcher(config.get_save_path(), on_save_change, loop)
-        if watcher.start():
-            watch_active = True
-    else:
-        logger.info("⏸️  Auto-watch disabled by default (ENABLE_AUTO_WATCH=false)")
+        # Validate remote configuration
+        if not all([config.REMOTE_HOST, config.REMOTE_USER, config.REMOTE_PASSWORD, config.REMOTE_PATH]):
+            logger.error("❌ Remote save configuration incomplete! Required: REMOTE_HOST, REMOTE_USER, REMOTE_PASSWORD, REMOTE_PATH")
+            logger.warning("⚠️  Falling back to local mode")
+            remote_mode = False
+        else:
+            protocol = config.get_remote_protocol()
+            logger.info(f"📡 Remote config: {protocol.upper()}://{config.REMOTE_USER}@{config.REMOTE_HOST}:{config.REMOTE_PORT}{config.REMOTE_PATH}")
+            logger.info(f"⏰ Poll interval: {config.REMOTE_POLL_INTERVAL}s")
+            
+            # Create temporary directory for downloaded saves
+            temp_dir = Path(tempfile.gettempdir()) / "palworld-lens-remote"
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Override save mount path to use temp directory (update class variable)
+            from backend.common.config import Config
+            Config.SAVE_MOUNT_PATH = str(temp_dir)
+            logger.info(f"📂 Using temporary directory: {temp_dir}")
+            logger.warning(f"⚠️  Ignoring any bind-mounted volumes - remote mode active")
+            
+            # Initialize remote loader
+            remote_loader = RemoteSaveLoader(
+                protocol=protocol,
+                host=config.REMOTE_HOST,
+                port=config.REMOTE_PORT,
+                username=config.REMOTE_USER,
+                password=config.REMOTE_PASSWORD,
+                remote_path=config.REMOTE_PATH,
+                local_temp_dir=temp_dir
+            )
+            
+            # Try initial download
+            logger.info("⬇️  Performing initial save download...")
+            if remote_loader.download():
+                logger.info("✅ Initial download successful")
+                if parser.load():
+                    logger.info("✅ Save loaded successfully")
+                else:
+                    logger.warning("⚠️  Failed to load downloaded save")
+            else:
+                logger.error("❌ Initial download failed")
+            
+            # Start remote poller
+            async def on_remote_save_change():
+                """Callback when remote save is downloaded"""
+                # In remote mode, always reload (user explicitly enabled polling)
+                await reload_and_notify(skip_if_no_clients=False)
+            
+            # Only start polling if interval is configured (> 0)
+            if config.REMOTE_POLL_INTERVAL > 0:
+                loop = asyncio.get_event_loop()
+                remote_poller = RemoteSavePoller(
+                    remote_loader=remote_loader,
+                    poll_interval=config.REMOTE_POLL_INTERVAL,
+                    on_change_callback=on_remote_save_change,
+                    loop=loop
+                )
+                
+                if remote_poller.start():
+                    watch_active = True
+                    logger.info("✅ Remote polling started (auto-watch enabled)")
+            else:
+                logger.info("⏸️  Remote polling disabled (REMOTE_POLL_INTERVAL=0) - manual reload only")
+                watch_active = False
+    
+    # Local mode (original behavior)
+    if not remote_mode:
+        logger.info(f"📂 Save mount path: {config.SAVE_MOUNT_PATH}")
+        
+        # Try to load save on startup
+        if config.get_level_sav_path():
+            logger.info("🔍 Found save files, attempting auto-load...")
+            if parser.load():
+                logger.info("✅ Save loaded successfully on startup")
+            else:
+                logger.warning("⚠️  Failed to auto-load save")
+        else:
+            logger.warning("⚠️  No save files found in mounted directory")
+        
+        # Start file watcher if enabled
+        if config.ENABLE_AUTO_WATCH:
+            async def on_save_change():
+                """Callback when save file changes"""
+                # Only reload if there are active SSE clients
+                await reload_and_notify(skip_if_no_clients=True)
+            
+            # Get the current event loop to pass to watcher
+            loop = asyncio.get_event_loop()
+            watcher = SaveWatcher(config.get_save_path(), on_save_change, loop)
+            if watcher.start():
+                watch_active = True
+        else:
+            logger.info("⏸️  Auto-watch disabled (ENABLE_AUTO_WATCH=false)")
     
     yield
     
-    # Stop watcher
+    # Cleanup
     if watcher:
         watcher.stop()
+    
+    if remote_poller:
+        await remote_poller.stop()
     
     logger.info("👋 Shutting down Palworld Lens")
 
@@ -275,11 +369,26 @@ async def watch_save_changes(request: Request):
 async def reload_save():
     """Reload the save file"""
     try:
+        # If in remote mode, trigger a manual poll
+        if remote_mode and remote_poller:
+            logger.info("🔄 Manual reload requested (remote mode)")
+            if await remote_poller.poll_now():
+                return {
+                    "success": True,
+                    "message": "Remote save downloaded and reloaded successfully",
+                    "info": parser.get_save_info(),
+                    "remote": True
+                }
+            else:
+                raise HTTPException(status_code=500, detail="Failed to download remote save")
+        
+        # Local mode - just reload from disk
         if parser.reload():
             return {
                 "success": True,
                 "message": "Save reloaded successfully",
-                "info": parser.get_save_info()
+                "info": parser.get_save_info(),
+                "remote": False
             }
         else:
             raise HTTPException(status_code=500, detail="Failed to reload save")
@@ -289,19 +398,69 @@ async def reload_save():
 
 @app.get("/api/watch/status", dependencies=[Depends(require_auth)])
 async def get_watch_status():
-    """Get the current auto-watch status"""
-    return {
+    """Get the current auto-watch/polling status"""
+    # Determine if toggle is allowed based on mode
+    if remote_mode:
+        allowed = config.REMOTE_POLL_INTERVAL > 0
+        message = "Remote polling is disabled (REMOTE_POLL_INTERVAL=0). Set interval > 0 to enable." if not allowed else None
+    else:
+        allowed = config.ENABLE_AUTO_WATCH
+        message = "Auto-watch is controlled by ENABLE_AUTO_WATCH environment variable" if not allowed else None
+    
+    response = {
         "active": watch_active,
-        "allowed": config.ENABLE_AUTO_WATCH,
-        "message": "Auto-watch is controlled by ENABLE_AUTO_WATCH environment variable" if not config.ENABLE_AUTO_WATCH else None
+        "allowed": allowed,
+        "remote_mode": remote_mode,
+        "message": message
     }
+    
+    if remote_mode:
+        response["remote_config"] = {
+            "protocol": config.get_remote_protocol(),
+            "host": config.REMOTE_HOST,
+            "port": config.REMOTE_PORT,
+            "user": config.REMOTE_USER,
+            "path": config.REMOTE_PATH,
+            "poll_interval": config.REMOTE_POLL_INTERVAL
+        }
+    
+    return response
 
 @app.post("/api/watch/start", dependencies=[Depends(require_auth)])
 async def start_watch():
-    """Start the file watcher"""
-    global watcher, watch_active
+    """Start the file watcher or remote poller"""
+    global watcher, watch_active, remote_poller
     
-    # Check if auto-watch is allowed by env var
+    # Handle remote mode
+    if remote_mode:
+        if config.REMOTE_POLL_INTERVAL <= 0:
+            raise HTTPException(
+                status_code=403,
+                detail="Remote polling is disabled. Set REMOTE_POLL_INTERVAL > 0 to enable."
+            )
+        
+        # Check if already polling
+        if watch_active and remote_poller:
+            logger.info("⚠️  Remote polling already active, skipping duplicate start")
+            return {
+                "success": True,
+                "message": "Remote polling is already active",
+                "active": True
+            }
+        
+        # Start remote poller
+        if remote_poller and remote_poller.start():
+            watch_active = True
+            logger.info("🌐 Remote polling started via API")
+            return {
+                "success": True,
+                "message": "Remote polling started successfully",
+                "active": True
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to start remote poller")
+    
+    # Local mode - check if auto-watch is allowed by env var
     if not config.ENABLE_AUTO_WATCH:
         raise HTTPException(
             status_code=403,
@@ -327,17 +486,7 @@ async def start_watch():
     try:
         async def on_save_change():
             """Callback when save file changes"""
-            logger.info("🔄 Save file changed, reloading...")
-            if parser.reload():
-                logger.info("✅ Save reloaded successfully")
-                # Notify all SSE clients
-                for client_queue in sse_clients:
-                    try:
-                        client_queue.put_nowait({"event": "reload"})
-                    except asyncio.QueueFull:
-                        pass  # Skip if queue is full
-            else:
-                logger.error("❌ Failed to reload save")
+            await reload_and_notify(skip_if_no_clients=False)
         
         loop = asyncio.get_event_loop()
         watcher = SaveWatcher(config.get_save_path(), on_save_change, loop)
@@ -358,9 +507,32 @@ async def start_watch():
 
 @app.post("/api/watch/stop", dependencies=[Depends(require_auth)])
 async def stop_watch():
-    """Stop the file watcher"""
-    global watcher, watch_active
+    """Stop the file watcher or remote poller"""
+    global watcher, watch_active, remote_poller
     
+    # Handle remote mode
+    if remote_mode:
+        if not watch_active or not remote_poller:
+            return {
+                "success": True,
+                "message": "Remote polling is already stopped",
+                "active": False
+            }
+        
+        try:
+            await remote_poller.stop()
+            watch_active = False
+            logger.info("🛑 Remote polling stopped via API")
+            return {
+                "success": True,
+                "message": "Remote polling stopped successfully",
+                "active": False
+            }
+        except Exception as e:
+            logger.error(f"Failed to stop remote poller: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    # Local mode
     if not watch_active or not watcher:
         return {
             "success": True,

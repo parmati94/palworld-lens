@@ -127,8 +127,7 @@
                     <div class="flex items-center gap-2 lg:justify-end justify-center w-full lg:w-auto relative z-50" x-data="{ showTooltip: false }">
                         <div class="relative flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all" :class="{
                             'bg-green-500/10 border-green-500/30': autoWatchActive,
-                            'bg-gray-700/40 border-gray-600/30': !autoWatchActive && autoWatchAllowed,
-                            'bg-gray-800/40 border-gray-700/30': !autoWatchAllowed
+                            'bg-gray-700/40 border-gray-600/30': !autoWatchActive
                         }">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4" :class="{
@@ -140,9 +139,8 @@
                                 </svg>
                                 <span class="text-sm font-medium" :class="{
                                     'text-green-300': autoWatchActive,
-                                    'text-gray-300': !autoWatchActive && autoWatchAllowed,
-                                    'text-gray-500': !autoWatchAllowed
-                                }">Auto-Watch</span>
+                                    'text-gray-300': !autoWatchActive
+                                }" x-text="remoteMode ? 'Polling' : 'Auto-Watch'"></span>
                             </div>
                             
                             <button 
@@ -171,8 +169,39 @@
                                 x-show="showTooltip && !autoWatchAllowed"
                                 class="absolute top-full mt-2 right-0 w-64 bg-gray-800 border border-yellow-500 text-yellow-200 text-xs rounded-lg p-3 shadow-lg z-50"
                                 style="display: none;">
-                                <div class="font-semibold mb-1">⚠️ Auto-Watch Disabled</div>
-                                <div class="text-gray-300">Set <code class="bg-gray-700 px-1 rounded">ENABLE_AUTO_WATCH=true</code> in your environment to enable this feature.</div>
+                                <div class="font-semibold mb-1" x-text="remoteMode ? '⚠️ Polling Disabled' : '⚠️ Auto-Watch Disabled'"></div>
+                                <div class="text-gray-300" x-show="!remoteMode">Set <code class="bg-gray-700 px-1 rounded">ENABLE_AUTO_WATCH=true</code> in your environment to enable file watching.</div>
+                                <div class="text-gray-300" x-show="remoteMode">Set <code class="bg-gray-700 px-1 rounded">REMOTE_POLL_INTERVAL</code> to a value greater than 0 to enable automatic polling. Currently set to 0 (manual reload only).</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Remote Connection Info (when remote mode is active) -->
+                        <div x-show="remoteMode" class="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-500/10 border border-blue-500/30 rounded-lg" x-data="{ showRemoteInfo: false }">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-xs font-medium text-blue-300 uppercase" x-text="remoteProtocol"></span>
+                            <button 
+                                @mouseenter="showRemoteInfo = true"
+                                @mouseleave="showRemoteInfo = false"
+                                class="text-blue-400 hover:text-blue-300 transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Remote info tooltip -->
+                            <div 
+                                x-show="showRemoteInfo"
+                                class="absolute top-full mt-2 right-0 w-64 bg-gray-800 border border-blue-500 text-blue-200 text-xs rounded-lg p-3 shadow-lg z-50"
+                                style="display: none;">
+                                <div class="font-semibold mb-2">Remote Connection</div>
+                                <div class="space-y-1 text-gray-300">
+                                    <div>Connection: <span class="text-blue-300 font-mono" x-text="remoteUser + '@' + remoteHost"></span></div>
+                                    <div>Protocol: <span class="text-blue-300 uppercase" x-text="remoteProtocol"></span></div>
+                                    <div>Poll Interval: <span class="text-blue-300" x-text="remotePollInterval + 's'"></span></div>
+                                    <div class="text-xs text-gray-400 mt-2">Changes are detected via periodic polling</div>
+                                </div>
                             </div>
                         </div>
                     </div>

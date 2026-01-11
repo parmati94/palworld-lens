@@ -1,7 +1,7 @@
 """Configuration management"""
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 
 class Config:
     """Application configuration"""
@@ -11,6 +11,20 @@ class Config:
     
     # Auto-watch settings
     ENABLE_AUTO_WATCH: bool = os.getenv("ENABLE_AUTO_WATCH", "true").lower() in ("true", "1", "yes")
+    
+    # Remote save settings
+    REMOTE_SAVE_ENABLED: bool = os.getenv("REMOTE_SAVE_ENABLED", "false").lower() in ("true", "1", "yes")
+    REMOTE_HOST: str = os.getenv("REMOTE_HOST", "")
+    REMOTE_PORT: int = int(os.getenv("REMOTE_PORT", "22"))
+    REMOTE_USER: str = os.getenv("REMOTE_USER", "")
+    REMOTE_PASSWORD: str = os.getenv("REMOTE_PASSWORD", "")
+    REMOTE_PATH: str = os.getenv("REMOTE_PATH", "")
+    REMOTE_POLL_INTERVAL: int = int(os.getenv("REMOTE_POLL_INTERVAL", "60"))  # seconds
+    
+    @classmethod
+    def get_remote_protocol(cls) -> Literal["sftp", "ftp"]:
+        """Determine protocol from port: 22=SFTP, 21=FTP, default=SFTP"""
+        return "ftp" if cls.REMOTE_PORT == 21 else "sftp"
     
     # Authentication settings
     ENABLE_LOGIN: bool = os.getenv("ENABLE_LOGIN", "false").lower() in ("true", "1", "yes")

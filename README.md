@@ -15,13 +15,14 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 - 📱 **Mobile-First Design** - Responsive UI built with Tailwind CSS
 - 🔄 **Auto-Load & Reload** - Automatically loads saves on startup with manual reload button
--   **Real-Time Updates** - Auto-watch save files for live updates (toggleable)
--  👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
+- 👁️ **Real-Time Updates** - Auto-watch save files for live updates (toggleable)
+- 🌐 **Remote Save Loading** - Download saves from remote SFTP/FTP servers with automatic polling
+- 👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
-- �️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
-- �🐳 **Containerized** - Single Docker container with nginx + FastAPI
+- 🖥️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
+- 🐳 **Containerized** - Single Docker container with nginx + FastAPI
 - 🚫 **Read-Only** - No editing functionality, just viewing
 
 ## 🚀 Quick Start
@@ -109,7 +110,7 @@ Edit `docker-compose.yml` environment variables:
 
 ```yaml
 environment:
-  - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves
+  - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves (local mode only)
   - ENABLE_AUTO_WATCH=true             # Enable automatic file watching for live updates on backend.  Can still be toggled on/off on UI as long as this is set to true.
   - LOG_LEVEL=INFO                     # Logging level: DEBUG, INFO, WARNING, ERROR
   - TZ=America/New_York                # Your local timezone (e.g., America/Los_Angeles, Europe/London, Asia/Tokyo, etc.)
@@ -124,6 +125,15 @@ environment:
   - RCON_HOST=your-palworld-server-ip  # IP/hostname of your Palworld server
   - RCON_PORT=8212                     # RCON port (default: 8212)
   - RCON_PASSWORD=your_admin_password  # RCON admin password
+  
+  # Remote Save Loading (optional - for SFTP/FTP servers)
+  - REMOTE_SAVE_ENABLED=false          # Set to true to enable remote save loading (Overrides ENABLE_AUTO_WATCH)
+  - REMOTE_HOST=your-server-ip         # Remote server IP/hostname
+  - REMOTE_PORT=22                     # Port: 22 for SFTP, 21 for FTP (auto-detected)
+  - REMOTE_USER=username               # Remote server username
+  - REMOTE_PASSWORD=password           # Remote server password
+  - REMOTE_PATH=/path/to/saves         # Remote path to save directory
+  - REMOTE_POLL_INTERVAL=60            # Polling interval in seconds (default: 60, set to 0 to disable toggling)
 ```
 
 **Auto-Watch**: When enabled, the viewer automatically detects save file changes and pushes updates to the browser in real-time via Server-Sent Events (SSE). The toggle can be controlled from the frontend UI.
@@ -137,6 +147,33 @@ environment:
 - All server configuration settings
 
 Requires your Palworld server to have RCON enabled and accessible.
+
+**Remote Save Loading**: When `REMOTE_SAVE_ENABLED=true`, Palworld Lens will periodically download save files from a remote SFTP or FTP server instead of using local file mounts. This is useful when:
+- Your Palworld server is hosted remotely
+- You want to access saves over the network
+- You need automatic periodic save downloads
+
+**How Remote Mode Works:**
+- Replaces local file watching with periodic polling
+- Downloads saves to a temporary directory on each poll
+- Protocol automatically determined by port (22=SFTP, 21=FTP)
+- Password authentication only (key-based auth coming later)
+- Manual reload still works and triggers an immediate download
+- Polling interval configurable via `REMOTE_POLL_INTERVAL`
+
+**Remote Mode Example:**
+```yaml
+environment:
+  - REMOTE_SAVE_ENABLED=true
+  - REMOTE_HOST=gameserverz.server.me
+  - REMOTE_PORT=22  # 22 for SFTP, 21 for FTP
+  - REMOTE_USER=palworld
+  - REMOTE_PASSWORD=your_password
+  - REMOTE_PATH=/home/palworld/.steam/steamapps/common/PalServer/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D
+  - REMOTE_POLL_INTERVAL=120  # Check every 2 minutes
+```
+
+**Note:** When using remote mode, you don't need to mount local save files. The `SAVE_MOUNT_PATH` is ignored.
 
 ## 📊 Viewing Options
 
