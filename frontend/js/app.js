@@ -49,6 +49,9 @@ export function app() {
         autoWatchActive: false,
         autoWatchAllowed: true,
         watchToggling: false,
+        remoteMode: false,
+        remotePollInterval: null,
+        remoteProtocol: null,
         lastRefreshTime: 0,
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
         
@@ -131,8 +134,19 @@ export function app() {
         async checkWatchStatus() {
             try {
                 const data = await this.watchService.checkStatus();
+                this.remoteMode = data.remote_mode || false;
+                this.remotePollInterval = data.remote_config?.poll_interval || null;
+                this.remoteProtocol = data.remote_config?.protocol || null;
+                this.remoteUser = data.remote_config?.user || null;
+                this.remoteHost = data.remote_config?.host || null;
+                
+                // Auto-watch/polling is active?
                 this.autoWatchActive = data.active;
+                
+                // Toggle is allowed based on backend's 'allowed' flag
+                // (ENABLE_AUTO_WATCH for local, REMOTE_POLL_INTERVAL > 0 for remote)
                 this.autoWatchAllowed = data.allowed;
+                
                 console.log('👀 Watch status:', data);
             } catch (err) {
                 console.error('Failed to check watch status:', err);
