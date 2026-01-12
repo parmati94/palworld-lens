@@ -29,20 +29,26 @@ class RemoteSaveLoader:
         username: str,
         password: str,
         remote_path: str,
-        local_temp_dir: Path
+        local_temp_dir: Path,
+        key_path: Optional[str] = None,
+        key_passphrase: Optional[str] = None
     ):
         self.protocol = protocol.lower()
         self.host = host
         self.port = port
         self.username = username
         self.password = password
+        self.key_path = key_path
+        self.key_passphrase = key_passphrase
         self.remote_path = remote_path
         self.local_temp_dir = Path(local_temp_dir)
         
         # Ensure local temp directory exists
         self.local_temp_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info(f"🌐 RemoteSaveLoader initialized: {protocol}://{username}@{host}:{port}{remote_path}")
+        # Determine auth method for logging
+        auth_method = "key" if key_path and Path(key_path).exists() else "password"
+        logger.info(f"🌐 RemoteSaveLoader initialized: {protocol}://{username}@{host}:{port}{remote_path} (auth: {auth_method})")
     
     def _download_via_sftp(self) -> bool:
         """Download save files via SFTP"""
@@ -57,14 +63,45 @@ class RemoteSaveLoader:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             
-            # Connect
-            ssh.connect(
-                hostname=self.host,
-                port=self.port,
-                username=self.username,
-                password=self.password,
-                timeout=10
-            )
+            # Prepare connection parameters
+            connect_kwargs = {
+                'hostname': self.host,
+                'port': self.port,
+                'username': self.username,
+                'timeout': 10
+            }
+            
+            # Try key authentication first if key path provided
+            key_path = Path(self.key_path) if self.key_path else None
+            if key_path and key_path.exists():
+                try:
+                    logger.debug(f"🔑 Attempting SSH key authentication: {key_path}")
+                    connect_kwargs['key_filename'] = str(key_path)
+                    if self.key_passphrase:
+                        connect_kwargs['passphrase'] = self.key_passphrase
+                    # Don't set password - force key auth
+                    ssh.connect(**connect_kwargs)
+                    logger.info("✅ Connected using SSH key authentication")
+                except (paramiko.AuthenticationException, paramiko.SSHException) as e:
+                    logger.warning(f"⚠️ Key authentication failed: {e}")
+                    # Fall back to password auth if key fails and password provided
+                    if self.password:
+                        logger.debug("🔄 Falling back to password authentication")
+                        connect_kwargs.pop('key_filename', None)
+                        connect_kwargs.pop('passphrase', None)
+                        connect_kwargs['password'] = self.password
+                        ssh.connect(**connect_kwargs)
+                        logger.info("✅ Connected using password authentication (fallback)")
+                    else:
+                        raise
+            elif self.password:
+                # Use password authentication
+                logger.debug("🔐 Using password authentication")
+                connect_kwargs['password'] = self.password
+                ssh.connect(**connect_kwargs)
+                logger.info("✅ Connected using password authentication")
+            else:
+                raise ValueError("No authentication method available (no key or password)")
             
             # Open SFTP session
             sftp = ssh.open_sftp()
@@ -78,13 +115,12 @@ class RemoteSaveLoader:
                 ssh.close()
                 return False
             
-            # Download Level.sav
-            level_sav = Path(self.remote_path) / "Level.sav"
+            # Download Level.sav (use relative path after chdir)
             local_level = self.local_temp_dir / "Level.sav"
             
             try:
-                sftp.get(str(level_sav), str(local_level))
-                logger.debug(f"✅ Downloaded {level_sav}")
+                sftp.get("Level.sav", str(local_level))
+                logger.debug(f"✅ Downloaded Level.sav")
             except FileNotFoundError:
                 logger.error(f"❌ Level.sav not found on remote server")
                 sftp.close()
@@ -92,17 +128,15 @@ class RemoteSaveLoader:
                 return False
             
             # Download LevelMeta.sav (optional)
-            level_meta = Path(self.remote_path) / "LevelMeta.sav"
             local_meta = self.local_temp_dir / "LevelMeta.sav"
             
             try:
-                sftp.get(str(level_meta), str(local_meta))
-                logger.debug(f"✅ Downloaded {level_meta}")
+                sftp.get("LevelMeta.sav", str(local_meta))
+                logger.debug(f"✅ Downloaded LevelMeta.sav")
             except FileNotFoundError:
                 logger.debug(f"ℹ️  LevelMeta.sav not found (optional)")
             
             # Download Players directory
-            players_remote = Path(self.remote_path) / "Players"
             players_local = self.local_temp_dir / "Players"
             
             # Clean and recreate local Players directory
@@ -111,14 +145,13 @@ class RemoteSaveLoader:
             players_local.mkdir()
             
             try:
-                # List files in remote Players directory
-                remote_players_path = str(players_remote)
-                player_files = sftp.listdir(remote_players_path)
+                # List files in remote Players directory (relative to current dir)
+                player_files = sftp.listdir("Players")
                 
                 # Download each player file
                 for filename in player_files:
                     if filename.endswith('.sav'):
-                        remote_file = f"{remote_players_path}/{filename}"
+                        remote_file = f"Players/{filename}"
                         local_file = players_local / filename
                         sftp.get(remote_file, str(local_file))
                         logger.debug(f"✅ Downloaded player: {filename}")

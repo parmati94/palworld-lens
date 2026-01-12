@@ -131,7 +131,9 @@ environment:
   - REMOTE_HOST=your-server-ip         # Remote server IP/hostname
   - REMOTE_PORT=22                     # Port: 22 for SFTP, 21 for FTP (auto-detected)
   - REMOTE_USER=username               # Remote server username
-  - REMOTE_PASSWORD=password           # Remote server password
+  - REMOTE_PASSWORD=password           # Remote server password (optional if using SSH key)
+  - REMOTE_KEY_PATH=/app/.ssh/id_rsa   # Path to SSH private key (default: /app/.ssh/id_rsa)
+  - REMOTE_KEY_PASSPHRASE=             # Passphrase for encrypted SSH keys (optional)
   - REMOTE_PATH=/path/to/saves         # Remote path to save directory
   - REMOTE_POLL_INTERVAL=60            # Polling interval in seconds (default: 60, set to 0 to disable toggling)
 ```
@@ -148,54 +150,60 @@ environment:
 
 Requires your Palworld server to have RCON enabled and accessible.
 
-**Remote Save Loading**: When `REMOTE_SAVE_ENABLED=true`, Palworld Lens will periodically download save files from a remote SFTP or FTP server instead of using local file mounts. This is useful when:
-- Your Palworld server is hosted remotely
-- You want to access saves over the network
-- You need automatic periodic save downloads
+**Remote Save Loading**: When `REMOTE_SAVE_ENABLED=true`, downloads saves from remote SFTP/FTP servers with automatic polling instead of using local file mounts.
 
-**How Remote Mode Works:**
-- Replaces local file watching with periodic polling
-- Downloads saves to a temporary directory on each poll
-- Protocol automatically determined by port (22=SFTP, 21=FTP)
-- Password authentication only (key-based auth coming later)
-- Manual reload still works and triggers an immediate download
+- Protocol auto-detected by port (22=SFTP, 21=FTP)
+- SFTP supports SSH key or password auth (key tried first)
+- FTP uses password auth only
 - Polling interval configurable via `REMOTE_POLL_INTERVAL`
 
-**Remote Mode Example:**
+**SFTP with SSH Key**:
+```yaml
+volumes:
+  - ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro
+environment:
+  - REMOTE_SAVE_ENABLED=true
+  - REMOTE_HOST=your-server.com
+  - REMOTE_PORT=22
+  - REMOTE_USER=username
+  - REMOTE_PATH=/path/to/saves
+  # - REMOTE_KEY_PASSPHRASE=passphrase  # If key is encrypted
+  # - REMOTE_PASSWORD=fallback_pass  # Optional fallback
+```
+
+**SFTP/FTP with Password**:
 ```yaml
 environment:
   - REMOTE_SAVE_ENABLED=true
-  - REMOTE_HOST=gameserverz.server.me
-  - REMOTE_PORT=22  # 22 for SFTP, 21 for FTP
-  - REMOTE_USER=palworld
-  - REMOTE_PASSWORD=your_password
-  - REMOTE_PATH=/home/palworld/.steam/steamapps/common/PalServer/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D
-  - REMOTE_POLL_INTERVAL=120  # Check every 2 minutes
+  - REMOTE_HOST=your-server.com
+  - REMOTE_PORT=22  # or 21 for FTP
+  - REMOTE_USER=username
+  - REMOTE_PASSWORD=password
+  - REMOTE_PATH=/path/to/saves
 ```
-
-**Note:** When using remote mode, you don't need to mount local save files. The `SAVE_MOUNT_PATH` is ignored.
 
 ## 📊 Viewing Options
 
-### Overview Tab
-- World information
-- Player count, pal count, guild count
-- Save file details
+### Overview
+World info, player/pal/guild counts, save file metadata
 
-### Players Tab
-- All players with stats
-- HP, hunger, and SAN levels
-- Guild membership
+### Players
+Player stats with HP, hunger, SAN levels, and guild membership
 
-### Pals Tab
-- Searchable list of all pals
-- Level, stats, owner information
-- Lucky/Shiny and Boss indicators
+### Guilds
+Guild roster, admin info, and base locations with coordinates
 
-### Bases Tab
-- Pals organized by guild/base
-- **Hunger and SAN monitoring** (color-coded warnings)
-- Health bars for each pal
+### Pals
+Searchable pal database with stats, skills, work suitabilities, and owner info. Filters for lucky/shiny/boss pals.
+
+### Bases
+Base assignments showing pals at each guild base with status/hunger/SAN monitoring
+
+### Base Containers
+Food bowls and storage chests by base with item inventories
+
+### Map
+Interactive world map with guild bases, fast travel points, and alpha pal spawn locations
 
 
 
