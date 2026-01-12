@@ -18,6 +18,8 @@ class Config:
     REMOTE_PORT: int = int(os.getenv("REMOTE_PORT", "22"))
     REMOTE_USER: str = os.getenv("REMOTE_USER", "")
     REMOTE_PASSWORD: str = os.getenv("REMOTE_PASSWORD", "")
+    REMOTE_KEY_PATH: str = os.getenv("REMOTE_KEY_PATH", "/app/.ssh/id_rsa")  # SSH private key path
+    REMOTE_KEY_PASSPHRASE: str = os.getenv("REMOTE_KEY_PASSPHRASE", "")  # Optional passphrase for encrypted keys
     REMOTE_PATH: str = os.getenv("REMOTE_PATH", "")
     REMOTE_POLL_INTERVAL: int = int(os.getenv("REMOTE_POLL_INTERVAL", "60"))  # seconds
     

@@ -86,7 +86,9 @@ async def lifespan(app):
                 username=config.REMOTE_USER,
                 password=config.REMOTE_PASSWORD,
                 remote_path=config.REMOTE_PATH,
-                local_temp_dir=temp_dir
+                local_temp_dir=temp_dir,
+                key_path=config.REMOTE_KEY_PATH,
+                key_passphrase=config.REMOTE_KEY_PASSPHRASE
             )
             
             # Try initial download
