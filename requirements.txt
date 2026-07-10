@@ -9,4 +9,6 @@ itsdangerous==2.2.0
 Pillow==11.0.0
 httpx==0.28.1
 paramiko==3.5.0
-git+https://github.com/oMaN-Rod/palworld-save-tools.git@main
+# palworld-save-tools is installed in its own cache-busted Dockerfile layer so each
+# build re-resolves @main (or a ref passed via the SAVETOOLS_REF build-arg) without a
+# manual pin. Kept out of here to keep this layer cacheable.

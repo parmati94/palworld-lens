@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      savetools_ref:
+        description: 'palworld-save-tools git ref (branch/tag/SHA). Leave as main to float on the latest.'
+        default: 'main'
+        required: false
 
 jobs:
   build-and-push:
@@ -36,6 +42,9 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            SAVETOOLS_REF=${{ github.event.inputs.savetools_ref || 'main' }}
+            SAVETOOLS_CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha

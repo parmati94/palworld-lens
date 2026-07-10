@@ -16,6 +16,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install palworld-save-tools in its own layer so the deps above stay cached.
+# SAVETOOLS_REF defaults to main (floats — each CI build gets upstream's latest).
+# SAVETOOLS_CACHEBUST is referenced in the RUN so a changing value (CI passes the
+# run id) busts ONLY this layer's cache, forcing @main to re-resolve. Pass a fixed
+# ref (tag/SHA) via SAVETOOLS_REF for a reproducible, frozen build on demand.
+ARG SAVETOOLS_REF=main
+ARG SAVETOOLS_CACHEBUST=dev
+RUN echo "savetools-cachebust=${SAVETOOLS_CACHEBUST}" && \
+    pip install --no-cache-dir \
+    "palworld-save-tools @ git+https://github.com/oMaN-Rod/palworld-save-tools.git@${SAVETOOLS_REF}"
+
 # Copy map tile generation script and source image
 COPY scripts/slice_map.py /app/scripts/
 COPY frontend/public/img/World_Map_8k.webp /app/frontend/public/img/
