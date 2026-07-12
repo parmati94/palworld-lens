@@ -1,0 +1,3 @@
+# Data-generation pipeline deps. Install into a venv:
+#   python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
+Pillow==11.0.0   # decode raw RGBA (from the extractor) → webp
