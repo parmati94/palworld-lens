@@ -9,18 +9,30 @@ breakage is drift, not a rewrite.
 
 | Surface | What | Status |
 |---|---|---|
-| **A. Parsing** (`palworld-save-tools`) | save decodes at all | ✅ **DONE** (2026-07-11) |
-| **B. Static JSON** (`data/json/`) | pal/item/skill names & stats | ⏳ **TODO** — re-sync from palworld-save-pal v0.17.4 |
-| **C. Icon images** (`frontend/public/img/`) | pal/item/building icons | ⏳ **TODO** — extract from local pak |
+| **A. Parsing** (`palworld-save-tools`) | save decodes at all | ✅ **DONE** — deployed, 1.0 save parses |
+| **B. Static JSON** (`data/json/`) | pal/item/skill names & stats | ✅ **DONE** — re-synced from palworld-save-pal v0.17.4 |
+| **C. Icon images** (`frontend/public/img/`) | pal/item/building icons | ✅ **DONE** — 334 new icons extracted from client pak |
 
-**What we need to finish 1.0 (short version):**
-1. **B:** re-sync `data/json/` from palworld-save-pal `v0.17.4`, reconciling any schema
-   drift our `data_loader.py` reads.
-2. **C:** build a small CUE4Parse extractor (ported from satisfactory-lens) to pull the
-   new/changed icon textures from the **local Palworld pak** → PNG → webp. Inputs are
-   already on this host and the pak is **unencrypted** (no AES key, no usmap needed for
-   raw texture extraction — see Surface C).
-3. Then verify end-to-end in the UI, add a repeatable sync/extract doc, ship.
+All three surfaces complete on branch `feature/datagen-extractor` (2026-07-11):
+`f93684d` (datagen pipeline), `8df0376` (1.0 data + icons). Remaining: rebuild/redeploy
++ verify new pals show names & icons in the app; merge to main.
+
+**Key deviations from the original plan (what we learned executing):**
+- **A** wasn't just data — it was a hard parser crash. Two 1.0 decoder gaps
+  (`PalMapObjectLampModel` trailing 4→12, `ColorSetting` module). Filed issue #5;
+  oMaN fixed both (`c5805b2a4`, `fd6bd52d6`). Now on `0.23.2.dev81+g3d491dadc`.
+- **C needed a usmap after all.** Original plan said "no usmap" — wrong. The *client*
+  pak uses unversioned properties → needs one (community
+  [PalworldModding/UsefulFiles](https://github.com/PalworldModding/UsefulFiles) usmap
+  works, since icons are the engine `UTexture2D` class). AES still not needed (pak is
+  unencrypted).
+- **The dedicated-server pak is texture-stripped** (0 `.ubulk`, ~195-byte texture
+  stubs). Must use the **client** `Pal-Windows.pak` (40 GB) for pixel data.
+- **SkiaSharp unusable** on this host (native lib missing) → extractor writes raw
+  `CTexture.Data` + a sidecar, PIL encodes webp.
+- Extraction is driven by `data/json` `icon` references (Surface B first), not by
+  scraping the pak — so it pulls exactly what the app needs (342 referenced-but-missing
+  → 334 decoded; 8 are save-pal placeholder names with no texture).
 
 ---
 
