@@ -1,0 +1,16 @@
+# Build artifacts
+extractor/bin/
+extractor/obj/
+
+# Vendored native deps — reproduced by extractor/fetch-*.sh (large; not committed).
+# On dev machines these may be symlinks to a sibling checkout.
+extractor/vendor
+extractor/runtime
+
+# Extraction temp output + generated lists
+_rgba/
+icons_missing.txt
+icons_all.txt
+
+# Python venv
+.venv/

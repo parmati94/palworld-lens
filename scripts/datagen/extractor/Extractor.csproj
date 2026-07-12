@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <AssemblyName>pal-extract</AssemblyName>
+    <RootNamespace>PalworldLens.Extractor</RootNamespace>
+  </PropertyGroup>
+
+  <!-- vendor/ holds the CUE4Parse source we reference as projects; keep it out of
+       THIS project's default compile glob so we don't compile it twice. -->
+  <ItemGroup>
+    <Compile Remove="vendor/**" />
+    <Content Remove="vendor/**" />
+    <None Remove="vendor/**" />
+  </ItemGroup>
+
+  <!-- Reference CUE4Parse from source. vendor/ is gitignored; re-clone with
+       fetch-cue4parse.sh (currently symlinked to satisfactory-lens' vendored copy). -->
+  <ItemGroup>
+    <ProjectReference Include="vendor/CUE4Parse/CUE4Parse/CUE4Parse.csproj" />
+    <ProjectReference Include="vendor/CUE4Parse/CUE4Parse-Conversion/CUE4Parse-Conversion.csproj" />
+  </ItemGroup>
+
+  <!-- Ship the Oodle native lib (fetched by fetch-oodle.sh) next to the binary. -->
+  <ItemGroup>
+    <None Include="runtime/*.so" Condition="Exists('runtime')">
+      <Link>runtime/%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
