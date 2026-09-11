@@ -30,10 +30,37 @@ Put these where the tools look (override paths with env vars):
 
 | Input | Default location | Notes |
 |---|---|---|
-| Client pak | `~/.gamedata/palworld-pak-data/Pal-Windows.pak` | **Client** `Pal-Windows.pak` from a Steam install — NOT the dedicated-server pak (its textures are stripped). Unencrypted → no AES key. |
-| usmap | `PALWORLD_USMAP=/path/Palworld.usmap` | Palworld ships unversioned client properties, so CUE4Parse needs a usmap. A community usmap works (icons are the engine `UTexture2D` class): [PalworldModding/UsefulFiles](https://github.com/PalworldModding/UsefulFiles). |
+| Client pak | `~/.gamedata/palworld-pak-data/Pal-Windows.pak` | **Client** `Pal-Windows.pak` from a Steam install — NOT the dedicated-server pak (its textures are stripped). Unencrypted → no AES key. On Windows: `C:\Program Files (x86)\Steam\steamapps\common\Palworld\Pal\Content\Paks\Pal-Windows.pak` (swap the prefix for another Steam library drive). |
+| usmap | `~/.gamedata/palworld-pak-data/Palworld.usmap` | Palworld ships unversioned client properties, so CUE4Parse needs a usmap. A community usmap works (icons are the engine `UTexture2D` class). Fetch it (see gotchas below):<br>`curl -sL https://raw.githubusercontent.com/PalworldModding/UsefulFiles/master/Mappings.usmap -o ~/.gamedata/palworld-pak-data/Palworld.usmap` |
 
 Env vars: `PALWORLD_PAK_DIR` (dir containing the pak), `PALWORLD_USMAP` (usmap path).
+
+### usmap gotchas
+
+- The file is **`Mappings.usmap`** on branch **`master`** — not `Palworld.usmap`, not `main`.
+  A URL with `main/` or the renamed path returns an HTML 404 page that saves as a ~269 KB
+  "usmap" and fails much later with `ParserException: Usmap has invalid magic`.
+- **Verify after downloading:** ~2.3 MB, and `xxd -l 8 Palworld.usmap` starts `c430`
+  (magic `0x30C4`). All-`0a` bytes means you downloaded HTML.
+- It is **not published per patch** — as of 2026-09-11 the newest dump is 1.0.3
+  (2026-08-12) while the game is on 1.0.4. Fine for icons, since `UTexture2D` is an
+  engine class whose properties don't shift between patches. If decodes misbehave after
+  a pak update, a stale usmap is the first suspect — it misreads properties rather than
+  erroring cleanly.
+- Neither input is committed; both are disposable and get cleaned up. Expect to re-fetch
+  the usmap whenever you re-run this pipeline.
+
+Smoke-test the inputs before a full run (no `--extract` needed):
+
+```bash
+cd scripts/datagen/extractor
+PALWORLD_PAK_DIR=~/.gamedata/palworld-pak-data \
+PALWORLD_USMAP=~/.gamedata/palworld-pak-data/Palworld.usmap \
+  dotnet bin/Release/net8.0/pal-extract.dll tex Alpaca_icon /tmp
+```
+
+Expect `usmap=<path>`, `tagged properties: ...`, `format=PF_DXT5`, and a decoded
+`.rgba` — that exercises pak mount, Oodle, usmap parsing and texture decode in one go.
 
 ## Updating game data
 

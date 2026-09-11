@@ -8306,7 +8306,7 @@
   },
   "CubeTurtle": {
     "is_pal": true,
-    "tribe": "PyramidTurtle",
+    "tribe": "CubeTurtle",
     "pal_deck_index": 142,
     "size": "XL",
     "rarity": 8,
@@ -8370,7 +8370,7 @@
       "Tremor": 22,
       "RockLance": 30,
       "SandTwister": 40,
-      "Unique_PyramidTurtle_PyramidPress": 50,
+      "Unique_CubeTurtle_CubePress": 50,
       "RockBeat": 70
     },
     "passive_skills": [],
@@ -8379,7 +8379,7 @@
   },
   "CubeTurtle_Neutral": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "CubeTurtle_Neutral",
     "pal_deck_index": 142,
     "size": "XL",
     "rarity": 8,
@@ -8444,7 +8444,7 @@
       "HyperBeam": 30,
       "DiamondFall": 40,
       "HolyBlast": 50,
-      "Unique_PyramidTurtle_Neutral_HolyPress": 70
+      "Unique_CubeTurtle_Neutral_HolyPress": 70
     },
     "passive_skills": [],
     "disabled": false,
@@ -9538,7 +9538,7 @@
   },
   "DomeArmorDragon": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "DomeArmorDragon",
     "pal_deck_index": 184,
     "size": "XL",
     "rarity": 8,
@@ -10266,7 +10266,7 @@
   },
   "ElecSnail_Ground": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "ElecSnail_Ground",
     "pal_deck_index": 163,
     "size": "S",
     "rarity": 3,
@@ -15511,7 +15511,7 @@
   },
   "FlowerDoll_Fire": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "FlowerDoll_Fire",
     "pal_deck_index": 89,
     "size": "M",
     "rarity": 9,
@@ -15585,7 +15585,7 @@
   },
   "FlowerPrince": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "FlowerPrince",
     "pal_deck_index": 194,
     "size": "M",
     "rarity": 8,
@@ -17583,7 +17583,7 @@
   },
   "GYM_WorldTreeDragon": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "WorldTreeDragon",
     "pal_deck_index": -1,
     "size": "XL",
     "rarity": 8,
@@ -17654,7 +17654,7 @@
   },
   "GYM_WorldTreeDragon_2": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "WorldTreeDragon",
     "pal_deck_index": -1,
     "size": "XL",
     "rarity": 8,
@@ -18149,7 +18149,7 @@
   },
   "GhostDragon": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "GhostDragon",
     "pal_deck_index": 171,
     "size": "L",
     "rarity": 7,
@@ -18223,7 +18223,7 @@
   },
   "GhostDragon_Fire": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "GhostDragon_Fire",
     "pal_deck_index": 171,
     "size": "L",
     "rarity": 8,
@@ -18871,7 +18871,7 @@
   },
   "GrassGolem_Dark": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "GrassGolem_Dark",
     "pal_deck_index": 138,
     "size": "XL",
     "rarity": 8,
@@ -19172,7 +19172,7 @@
   },
   "GrassMinotaur_Ice": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "GrassMinotaur_Ice",
     "pal_deck_index": 81,
     "size": "L",
     "rarity": 7,
@@ -24959,7 +24959,7 @@
   },
   "IceSeal_Ground": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "IceSeal_Ground",
     "pal_deck_index": 72,
     "size": "S",
     "rarity": 6,
@@ -25393,7 +25393,7 @@
   },
   "KabukiMan": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "KabukiMan",
     "pal_deck_index": 183,
     "size": "L",
     "rarity": 7,
@@ -26135,7 +26135,7 @@
   },
   "KingSunfish_Thunder": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "KingSunfish_Thunder",
     "pal_deck_index": 169,
     "size": "M",
     "rarity": 5,
@@ -26240,6 +26240,79 @@
     "ride_sprint_speed": 3000,
     "transport_speed": 3000,
     "is_boss": false,
+    "is_tower_boss": false,
+    "is_raid_boss": false,
+    "nocturnal": false,
+    "predator": false,
+    "edible": true,
+    "max_full_stomach": 600,
+    "food_amount": 9,
+    "biological_grade": 5,
+    "stamina": 100,
+    "male_probability": 50,
+    "combi_rank": 20,
+    "work_suitability": {
+      "EmitFlame": 0,
+      "Watering": 0,
+      "Seeding": 0,
+      "GenerateElectricity": 0,
+      "Handcraft": 0,
+      "Collection": 0,
+      "Deforest": 0,
+      "Mining": 0,
+      "OilExtraction": 0,
+      "ProductMedicine": 0,
+      "Cool": 0,
+      "Transport": 0,
+      "MonsterFarm": 0
+    },
+    "skill_set": {
+      "Unique_KingWhale_HomingBubble": 1,
+      "CreepingBubble": 7,
+      "Unique_KingWhale_AquaBlade": 15,
+      "Unique_KingWhale_WaveTackle": 22,
+      "Unique_KingWhale_Maelstrom": 30,
+      "Unique_KingWhale_Breaching": 40,
+      "HolyBlast": 50,
+      "Unique_KingWhale_AquaTornado": 60
+    },
+    "passive_skills": [],
+    "disabled": true,
+    "icon": "t_kingwhale_icon_normal"
+  },
+  "BOSS_KingWhale_Otomo": {
+    "is_pal": true,
+    "tribe": "KingWhale",
+    "pal_deck_index": 203,
+    "size": "XL",
+    "rarity": 10,
+    "element_types": [
+      "Water"
+    ],
+    "genus_category": "Fish",
+    "weapon": "None",
+    "weapon_equip": false,
+    "scaling": {
+      "hp": 180,
+      "attack": 120,
+      "defense": 200
+    },
+    "friendship_hp": 0.1,
+    "friendship_shotattack": 1.7,
+    "friendship_defense": 1.0,
+    "friendship_craftspeed": 0.0,
+    "enemy_max_hp_rate": 1.0,
+    "enemy_receive_damage_rate": 1.0,
+    "enemy_inflict_damage_rate": 1.0,
+    "capture_rate_correct": 1.0,
+    "exp_ratio": 1.0,
+    "price": 4913.0,
+    "slow_walk_speed": 3000,
+    "walk_speed": 3000,
+    "run_speed": 3000,
+    "ride_sprint_speed": 3000,
+    "transport_speed": 3000,
+    "is_boss": true,
     "is_tower_boss": false,
     "is_raid_boss": false,
     "nocturnal": false,
@@ -32842,7 +32915,7 @@
   },
   "Monkey_Fire": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "Monkey_Fire",
     "pal_deck_index": 23,
     "size": "None",
     "rarity": 2,
@@ -33283,7 +33356,7 @@
   },
   "Mothman": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "Mothman",
     "pal_deck_index": 193,
     "size": "L",
     "rarity": 8,
@@ -36853,7 +36926,7 @@
   },
   "PREDATOR_GrassMinotaur_Ice": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "GrassMinotaur_Ice",
     "pal_deck_index": -1,
     "size": "XL",
     "rarity": 8,
@@ -49855,7 +49928,7 @@
   },
   "SwordCutlassfish_Fire": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "SwordCutlassfish_Fire",
     "pal_deck_index": 128,
     "size": "M",
     "rarity": 5,
@@ -50223,7 +50296,7 @@
   },
   "ThunderBird_Ice": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "ThunderBird_Ice",
     "pal_deck_index": 96,
     "size": "L",
     "rarity": 7,
@@ -52000,7 +52073,7 @@
   },
   "VolcanoDragon_Ice": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "VolcanoDragon_Ice",
     "pal_deck_index": 105,
     "size": "L",
     "rarity": 8,
@@ -52579,7 +52652,7 @@
   },
   "WhiteDeer_Dark": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "WhiteDeer_Dark",
     "pal_deck_index": 157,
     "size": "M",
     "rarity": 7,
@@ -52725,7 +52798,7 @@
   },
   "WhiteMoth_Neutral": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "WhiteMoth_Neutral",
     "pal_deck_index": 116,
     "size": "L",
     "rarity": 8,
@@ -53366,7 +53439,7 @@
   },
   "WingGolem_Fire": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "WingGolem_Fire",
     "pal_deck_index": 159,
     "size": "L",
     "rarity": 10,
@@ -53661,7 +53734,7 @@
   },
   "WorldTreeDragon": {
     "is_pal": true,
-    "tribe": "NONE",
+    "tribe": "WorldTreeDragon",
     "pal_deck_index": 204,
     "size": "XL",
     "rarity": 10,
