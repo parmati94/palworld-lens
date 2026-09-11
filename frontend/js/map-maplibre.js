@@ -130,12 +130,18 @@ export function mapComponent() {
                         // outside it, so don't request (or wrap) beyond it.
                         bounds: [-180, -85.0511, 180, 85.0511],
                     };
+                    // Every layer stays 'visible'; the inactive one is hidden with
+                    // raster-opacity 0 rather than visibility:none. A hidden layer
+                    // doesn't load tiles, so the first switch to it would fade onto
+                    // an empty layer and then pop when its tiles arrived. At opacity
+                    // 0 MapLibre keeps its tiles for the current view loaded, so the
+                    // cross-fade has real pixels on both sides from the first frame.
                     layers.push({
                         id: `map-${name}`,
                         type: 'raster',
                         source: `src-${name}`,
-                        layout: { visibility: name === this.mapLayer ? 'visible' : 'none' },
-                        paint: { 'raster-resampling': 'linear', 'raster-fade-duration': 0 },
+                        paint: { 'raster-resampling': 'linear', 'raster-fade-duration': 0,
+                                 'raster-opacity': name === this.mapLayer ? 1 : 0 },
                     });
                 }
 
@@ -197,7 +203,7 @@ export function mapComponent() {
 
             const from = this.mapLayer;
             this.mapLayer = layer;               // button tint updates immediately
-            const FADE = 550;
+            const FADE = 280;
 
             // Old markers off first so they don't hang over the wrong texture.
             this.setVisible(this.markers, false);
@@ -208,27 +214,20 @@ export function mapComponent() {
             const inId = `map-${layer}`, outId = `map-${from}`;
             this.map.setPaintProperty(inId, 'raster-opacity-transition', { duration: FADE, delay: 0 });
             this.map.setPaintProperty(outId, 'raster-opacity-transition', { duration: FADE, delay: 0 });
-            this.map.setPaintProperty(inId, 'raster-opacity', 0);
-            this.map.setLayoutProperty(inId, 'visibility', 'visible');
-            // Next frame, so the incoming layer starts from 0 rather than popping in.
-            requestAnimationFrame(() => {
-                this.map.setPaintProperty(inId, 'raster-opacity', 1);
-                this.map.setPaintProperty(outId, 'raster-opacity', 0);
-            });
+            this.map.setPaintProperty(inId, 'raster-opacity', 1);
+            this.map.setPaintProperty(outId, 'raster-opacity', 0);
 
             // Both textures share the same Mercator square; pull back to the
             // whole-map view of the new one.
-            this.map.easeTo({ center: [0, 0], zoom: this.fitZoom(), duration: FADE + 150,
+            this.map.easeTo({ center: [0, 0], zoom: this.fitZoom(), duration: FADE + 80,
                               easing: t => 1 - Math.pow(1 - t, 3) });
 
             setTimeout(() => {
-                this.map.setLayoutProperty(outId, 'visibility', 'none');
-                this.map.setPaintProperty(outId, 'raster-opacity', 1);   // ready for next time
                 this._switching = false;
                 this.loadBases();
                 this.loadPlayers();
                 this.renderStaticMapObjects();
-            }, FADE + 50);
+            }, FADE + 20);
         },
 
         // ------------------------------------------------------------------
