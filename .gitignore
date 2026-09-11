@@ -26,6 +26,7 @@ local-dev/
 # NB: the path is frontend/PUBLIC/img/tiles -- an earlier rule missed the
 # public/ segment, so these were tracked by accident until 2026-09-11.
 frontend/public/img/tiles/
+frontend/public/img/tiles_tree/
 
 
 # Local working docs (planning, internal notes) — not published

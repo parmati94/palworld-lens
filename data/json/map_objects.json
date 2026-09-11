@@ -1,2474 +1,3163 @@
 [
-    {
-        "x": -327531.78,
-        "y": -70410.55,
-        "type": "fast_travel",
-        "localized_name": "Mount Obsidian - Midpoint"
-    },
-    {
-        "x": -367707.78,
-        "y": -114950.9,
-        "type": "fast_travel",
-        "localized_name": "Eternal Pyre Tower Entrance"
-    },
-    {
-        "x": -414446.72,
-        "y": -24603.322,
-        "type": "fast_travel",
-        "localized_name": "Ancient Civilization Ruins"
-    },
-    {
-        "x": -465895,
-        "y": -62137.754,
-        "type": "fast_travel",
-        "localized_name": "Fisherman's Point"
-    },
-    {
-        "x": -416557.53,
-        "y": -90012.16,
-        "type": "fast_travel",
-        "localized_name": "Mount Obsidian - Anubis Statue"
-    },
-    {
-        "x": -383183.16,
-        "y": -210790.92,
-        "type": "fast_travel",
-        "localized_name": "Beach of Everlasting Summer"
-    },
-    {
-        "x": -236773.34,
-        "y": -100042.35,
-        "type": "fast_travel",
-        "localized_name": "Ruined Fortress City"
-    },
-    {
-        "x": 29780.533,
-        "y": 406913.2,
-        "type": "fast_travel",
-        "localized_name": "PIDF Tower Entrance"
-    },
-    {
-        "x": -50300.984,
-        "y": 287392.38,
-        "type": "fast_travel",
-        "localized_name": "Sand Dunes Entrance"
-    },
-    {
-        "x": 35588.66,
-        "y": 321331.25,
-        "type": "fast_travel",
-        "localized_name": "Duneshelter"
-    },
-    {
-        "x": 117624.25,
-        "y": 400134.78,
-        "type": "fast_travel",
-        "localized_name": "Deep Sand Dunes"
-    },
-    {
-        "x": -119037.29,
-        "y": 138340.36,
-        "type": "fast_travel",
-        "localized_name": "Cold Shore"
-    },
-    {
-        "x": -80506.16,
-        "y": 141464.77,
-        "type": "fast_travel",
-        "localized_name": "No Man's Trail"
-    },
-    {
-        "x": -39402.426,
-        "y": 159611.86,
-        "type": "fast_travel",
-        "localized_name": "Icy Weasel Hill"
-    },
-    {
-        "x": 8000.5303,
-        "y": 111770.55,
-        "type": "fast_travel",
-        "localized_name": "Unthawable Lake"
-    },
-    {
-        "x": 102159.82,
-        "y": 48527.027,
-        "type": "fast_travel",
-        "localized_name": "Land of Absolute Zero"
-    },
-    {
-        "x": 89644.01,
-        "y": 94542.2,
-        "type": "fast_travel",
-        "localized_name": "PAL Genetic Research Unit Tower Entrance"
-    },
-    {
-        "x": -798776.8,
-        "y": -479574.8,
-        "type": "fast_travel",
-        "localized_name": "Feybreak Shipwreck"
-    },
-    {
-        "x": -117215.02,
-        "y": 446689.97,
-        "type": "fast_travel",
-        "localized_name": "Arena Entrance"
-    },
-    {
-        "x": -63520.734,
-        "y": -55005.938,
-        "type": "fast_travel",
-        "localized_name": "Sakurajima - Mushroom Wetlands"
-    },
-    {
-        "x": -86709.57,
-        "y": -140441.75,
-        "type": "fast_travel",
-        "localized_name": "Sakurajima - Southern Sandbar"
-    },
-    {
-        "x": -25522.21,
-        "y": -118365.34,
-        "type": "fast_travel",
-        "localized_name": "Moonflower Tower Entrance"
-    },
-    {
-        "x": -25915.371,
-        "y": -78926.164,
-        "type": "fast_travel",
-        "localized_name": "Cherry Blossom Crossroads"
-    },
-    {
-        "x": 32787.098,
-        "y": -81420.33,
-        "type": "fast_travel",
-        "localized_name": "Sakurajima - Northern Rock Field"
-    },
-    {
-        "x": -2188.7988,
-        "y": -148545.86,
-        "type": "fast_travel",
-        "localized_name": "Secluded Cemetery"
-    },
-    {
-        "x": -503990,
-        "y": -214380,
-        "type": "fast_travel",
-        "localized_name": "Scorched Ashland"
-    },
-    {
-        "x": -588140,
-        "y": -253780,
-        "type": "fast_travel",
-        "localized_name": "Stone Pillar Cave Entrance"
-    },
-    {
-        "x": -792350,
-        "y": -251110,
-        "type": "fast_travel",
-        "localized_name": "Loess Plains"
-    },
-    {
-        "x": -698514.94,
-        "y": -322880.4,
-        "type": "fast_travel",
-        "localized_name": "Hidden Passage to the Oculus Gate"
-    },
-    {
-        "x": -760285.44,
-        "y": -354966.22,
-        "type": "fast_travel",
-        "localized_name": "The Oculus Gate, Tower in Sight"
-    },
-    {
-        "x": -888080,
-        "y": -433080,
-        "type": "fast_travel",
-        "localized_name": "Feybreak Tower Entrance"
-    },
-    {
-        "x": -699510,
-        "y": -389030,
-        "type": "fast_travel",
-        "localized_name": "Scorched Hill"
-    },
-    {
-        "x": -591120,
-        "y": -484260,
-        "type": "fast_travel",
-        "localized_name": "Deserted Ash Plateau"
-    },
-    {
-        "x": -671901.25,
-        "y": -172407.56,
-        "type": "fast_travel",
-        "localized_name": "Emberstone Plateau"
-    },
-    {
-        "x": -572461.56,
-        "y": -287224.06,
-        "type": "fast_travel",
-        "localized_name": "Shield Dragon Tunnel"
-    },
-    {
-        "x": -130060.375,
-        "y": -53406.69,
-        "type": "fast_travel",
-        "localized_name": "Forgotten Island Church Ruins"
-    },
-    {
-        "x": -250506.48,
-        "y": 341109.6,
-        "type": "fast_travel",
-        "localized_name": "Marsh Island Church Ruins"
-    },
-    {
-        "x": -294830,
-        "y": 152240,
-        "type": "fast_travel",
-        "localized_name": "Bridge of the Twin Knights"
-    },
-    {
-        "x": -319000,
-        "y": 127170,
-        "type": "fast_travel",
-        "localized_name": "Ravine Entrance"
-    },
-    {
-        "x": -137210,
-        "y": -91340,
-        "type": "fast_travel",
-        "localized_name": "Forgotten Island"
-    },
-    {
-        "x": -88645.85,
-        "y": -3922.8848,
-        "type": "fast_travel",
-        "localized_name": "Ice Wind Island"
-    },
-    {
-        "x": -170400,
-        "y": -29240,
-        "type": "fast_travel",
-        "localized_name": "Kelpsea Hill"
-    },
-    {
-        "x": -450320,
-        "y": 112630,
-        "type": "fast_travel",
-        "localized_name": "Sea Breeze Archipelago - Castaway Beach"
-    },
-    {
-        "x": -376750,
-        "y": 124630,
-        "type": "fast_travel",
-        "localized_name": "Sea Breeze Archipelago Church"
-    },
-    {
-        "x": -374180,
-        "y": 63960,
-        "type": "fast_travel",
-        "localized_name": "Small Cove"
-    },
-    {
-        "x": -265980,
-        "y": 268690,
-        "type": "fast_travel",
-        "localized_name": "Islandhopper Coast"
-    },
-    {
-        "x": -282110,
-        "y": 355570,
-        "type": "fast_travel",
-        "localized_name": "Marsh Island"
-    },
-    {
-        "x": -170718.69,
-        "y": 409753.16,
-        "type": "fast_travel",
-        "localized_name": "Eastern Wild Island"
-    },
-    {
-        "x": -221399.27,
-        "y": 330684.53,
-        "type": "fast_travel",
-        "localized_name": "Natural Bridge"
-    },
-    {
-        "x": -248770.11,
-        "y": 126205.84,
-        "type": "fast_travel",
-        "localized_name": "Cinnamoth Forest"
-    },
-    {
-        "x": -338560,
-        "y": 107660,
-        "type": "fast_travel",
-        "localized_name": "Sealed Realm of the Swordmaster"
-    },
-    {
-        "x": -215388.52,
-        "y": 8854.223,
-        "type": "fast_travel",
-        "localized_name": "Deep Bamboo Thicket"
-    },
-    {
-        "x": -195236.17,
-        "y": 36718.49,
-        "type": "fast_travel",
-        "localized_name": "Sealed Realm of the Winged Tyrant"
-    },
-    {
-        "x": 6.0000005,
-        "y": -4.8830407e-05,
-        "type": "fast_travel",
-        "localized_name": "Pristine Snow Field"
-    },
-    {
-        "x": -326403.84,
-        "y": 55136.727,
-        "type": "fast_travel",
-        "localized_name": "Ascetic Falls"
-    },
-    {
-        "x": -349535.5,
-        "y": -4035.1057,
-        "type": "fast_travel",
-        "localized_name": "Foot of the Volcano"
-    },
-    {
-        "x": -283781,
-        "y": 59352.684,
-        "type": "fast_travel",
-        "localized_name": "Sealed Realm of the Thunder Dragon"
-    },
-    {
-        "x": -218636.78,
-        "y": 58528.145,
-        "type": "fast_travel",
-        "localized_name": "Investigator's Fork"
-    },
-    {
-        "x": -257951.39,
-        "y": 151247.84,
-        "type": "fast_travel",
-        "localized_name": "Ancient Ritual Site"
-    },
-    {
-        "x": -167684.92,
-        "y": 167519.23,
-        "type": "fast_travel",
-        "localized_name": "Mount Flopie Summit"
-    },
-    {
-        "x": -221230,
-        "y": 165130,
-        "type": "fast_travel",
-        "localized_name": "Lake Center"
-    },
-    {
-        "x": -237610,
-        "y": 190610,
-        "type": "fast_travel",
-        "localized_name": "Hypocrite Hill"
-    },
-    {
-        "x": -151783.97,
-        "y": 213200.86,
-        "type": "fast_travel",
-        "localized_name": "Sealed Realm of the Guardian"
-    },
-    {
-        "x": -125290,
-        "y": 201720,
-        "type": "fast_travel",
-        "localized_name": "Snowy Mountain Crossroads"
-    },
-    {
-        "x": -103434.984,
-        "y": 234761.17,
-        "type": "fast_travel",
-        "localized_name": "Free Pal Alliance Tower Entrance"
-    },
-    {
-        "x": -115430,
-        "y": 289090,
-        "type": "fast_travel",
-        "localized_name": "Sealed Realm of the Swift"
-    },
-    {
-        "x": -177770,
-        "y": 265010,
-        "type": "fast_travel",
-        "localized_name": "Mossanda Forest"
-    },
-    {
-        "x": -219172.86,
-        "y": 226394.84,
-        "type": "fast_travel",
-        "localized_name": "Gobfin's Turf"
-    },
-    {
-        "x": -317777.2,
-        "y": 212103.31,
-        "type": "fast_travel",
-        "localized_name": "Rayne Syndicate Tower Entrance"
-    },
-    {
-        "x": -342035,
-        "y": 236885,
-        "type": "fast_travel",
-        "localized_name": "Grassy Behemoth Hills"
-    },
-    {
-        "x": -314840,
-        "y": 186850,
-        "type": "fast_travel",
-        "localized_name": "Desolate Church"
-    },
-    {
-        "x": -358785,
-        "y": 267940,
-        "type": "fast_travel",
-        "localized_name": "Plateau of Beginnings"
-    },
-    {
-        "x": -346617.56,
-        "y": 191706.6,
-        "type": "fast_travel",
-        "localized_name": "Small Settlement"
-    },
-    {
-        "x": -278468.03,
-        "y": 212679.42,
-        "type": "fast_travel",
-        "localized_name": "Sealed Realm of the Frozen Wings"
-    },
-    {
-        "x": -302825,
-        "y": 241060,
-        "type": "fast_travel",
-        "localized_name": "Fort Ruins"
-    },
-    {
-        "x": 139611.05,
-        "y": 324306.53,
-        "type": "dungeon"
-    },
-    {
-        "x": -74916.76,
-        "y": 372458.47,
-        "type": "dungeon"
-    },
-    {
-        "x": 21557.568,
-        "y": 309214.78,
-        "type": "dungeon"
-    },
-    {
-        "x": 15729.527,
-        "y": 267188.94,
-        "type": "dungeon"
-    },
-    {
-        "x": -6205.632,
-        "y": 255610.88,
-        "type": "dungeon"
-    },
-    {
-        "x": 14688.691,
-        "y": 384880.8,
-        "type": "dungeon"
-    },
-    {
-        "x": 63496.098,
-        "y": 333388.16,
-        "type": "dungeon"
-    },
-    {
-        "x": -36843.145,
-        "y": 454971.78,
-        "type": "dungeon"
-    },
-    {
-        "x": 101675.28,
-        "y": 373450.72,
-        "type": "dungeon"
-    },
-    {
-        "x": -22520.576,
-        "y": 313714.28,
-        "type": "dungeon"
-    },
-    {
-        "x": 61320,
-        "y": 418400,
-        "type": "dungeon"
-    },
-    {
-        "x": -4513.043,
-        "y": 424323.72,
-        "type": "dungeon"
-    },
-    {
-        "x": -62924.047,
-        "y": 412516.97,
-        "type": "dungeon"
-    },
-    {
-        "x": -26780,
-        "y": 354640,
-        "type": "dungeon"
-    },
-    {
-        "x": 85201.234,
-        "y": 312813.88,
-        "type": "dungeon"
-    },
-    {
-        "x": -257638.36,
-        "y": 141158.6,
-        "type": "dungeon"
-    },
-    {
-        "x": -265204.06,
-        "y": 131385.12,
-        "type": "dungeon"
-    },
-    {
-        "x": -250341.31,
-        "y": 183436.67,
-        "type": "dungeon"
-    },
-    {
-        "x": -251818.6,
-        "y": 164041.66,
-        "type": "dungeon"
-    },
-    {
-        "x": -211384.67,
-        "y": 182474.86,
-        "type": "dungeon"
-    },
-    {
-        "x": -209589.38,
-        "y": 163211.5,
-        "type": "dungeon"
-    },
-    {
-        "x": -173408.44,
-        "y": 166837,
-        "type": "dungeon"
-    },
-    {
-        "x": -180769.03,
-        "y": 163430.77,
-        "type": "dungeon"
-    },
-    {
-        "x": -219424.83,
-        "y": 165811.12,
-        "type": "dungeon"
-    },
-    {
-        "x": -239159.88,
-        "y": 205386.8,
-        "type": "dungeon"
-    },
-    {
-        "x": -219180,
-        "y": 139690,
-        "type": "dungeon"
-    },
-    {
-        "x": -250000.34,
-        "y": 120261.4,
-        "type": "dungeon"
-    },
-    {
-        "x": -196751.97,
-        "y": 176316.2,
-        "type": "dungeon"
-    },
-    {
-        "x": -164661.72,
-        "y": 153125.2,
-        "type": "dungeon"
-    },
-    {
-        "x": -194214.64,
-        "y": 239238.69,
-        "type": "dungeon"
-    },
-    {
-        "x": -130866.33,
-        "y": 230761.69,
-        "type": "dungeon"
-    },
-    {
-        "x": -84794.05,
-        "y": 286150.22,
-        "type": "dungeon"
-    },
-    {
-        "x": -129471.89,
-        "y": 253439.78,
-        "type": "dungeon"
-    },
-    {
-        "x": -215213.8,
-        "y": 265367.6,
-        "type": "dungeon"
-    },
-    {
-        "x": -155066.94,
-        "y": 296284.66,
-        "type": "dungeon"
-    },
-    {
-        "x": -101785.07,
-        "y": 205029.23,
-        "type": "dungeon"
-    },
-    {
-        "x": -121016.87,
-        "y": 212487.1,
-        "type": "dungeon"
-    },
-    {
-        "x": -61859.875,
-        "y": 204435.4,
-        "type": "dungeon"
-    },
-    {
-        "x": -125215.914,
-        "y": 174427.38,
-        "type": "dungeon"
-    },
-    {
-        "x": -163447.64,
-        "y": 229313.19,
-        "type": "dungeon"
-    },
-    {
-        "x": -220790,
-        "y": 234113.03,
-        "type": "dungeon"
-    },
-    {
-        "x": -176948.36,
-        "y": 200393.8,
-        "type": "dungeon"
-    },
-    {
-        "x": -186504.7,
-        "y": 268455.56,
-        "type": "dungeon"
-    },
-    {
-        "x": -57776.305,
-        "y": 228600.25,
-        "type": "dungeon"
-    },
-    {
-        "x": -217124.6,
-        "y": 138061.36,
-        "type": "dungeon"
-    },
-    {
-        "x": -120225.01,
-        "y": 25862.928,
-        "type": "dungeon"
-    },
-    {
-        "x": -134629.19,
-        "y": 6185.443,
-        "type": "dungeon"
-    },
-    {
-        "x": -107243.01,
-        "y": 24362.996,
-        "type": "dungeon"
-    },
-    {
-        "x": -110032.664,
-        "y": -71996.586,
-        "type": "dungeon"
-    },
-    {
-        "x": -124929,
-        "y": -79963.57,
-        "type": "dungeon"
-    },
-    {
-        "x": -137086.11,
-        "y": -50427.562,
-        "type": "dungeon"
-    },
-    {
-        "x": -389335.2,
-        "y": 108597.555,
-        "type": "dungeon"
-    },
-    {
-        "x": -383502.84,
-        "y": 99617.95,
-        "type": "dungeon"
-    },
-    {
-        "x": -429603.38,
-        "y": 94092.695,
-        "type": "dungeon"
-    },
-    {
-        "x": -431538.06,
-        "y": 82092.4,
-        "type": "dungeon"
-    },
-    {
-        "x": -404448.4,
-        "y": 64664.34,
-        "type": "dungeon"
-    },
-    {
-        "x": -376218.16,
-        "y": 48671.656,
-        "type": "dungeon"
-    },
-    {
-        "x": -245011.25,
-        "y": 335769,
-        "type": "dungeon"
-    },
-    {
-        "x": -267882.53,
-        "y": 327448.2,
-        "type": "dungeon"
-    },
-    {
-        "x": -259060.98,
-        "y": 280351.5,
-        "type": "dungeon"
-    },
-    {
-        "x": -189599.53,
-        "y": 372690.3,
-        "type": "dungeon"
-    },
-    {
-        "x": -213940,
-        "y": 398860,
-        "type": "dungeon"
-    },
-    {
-        "x": -181432.97,
-        "y": 350147.84,
-        "type": "dungeon"
-    },
-    {
-        "x": -288304.3,
-        "y": 227049.95,
-        "type": "dungeon"
-    },
-    {
-        "x": -281167.4,
-        "y": 88738.35,
-        "type": "dungeon"
-    },
-    {
-        "x": -256755.73,
-        "y": 26900.877,
-        "type": "dungeon"
-    },
-    {
-        "x": -61090.59,
-        "y": -5748.064,
-        "type": "dungeon"
-    },
-    {
-        "x": -39021.598,
-        "y": -39231.305,
-        "type": "dungeon"
-    },
-    {
-        "x": -74146.06,
-        "y": -63473.688,
-        "type": "dungeon"
-    },
-    {
-        "x": -2514.634,
-        "y": -106358.336,
-        "type": "dungeon"
-    },
-    {
-        "x": 10312.326,
-        "y": -115227.17,
-        "type": "dungeon"
-    },
-    {
-        "x": 890.78125,
-        "y": -128930.5,
-        "type": "dungeon"
-    },
-    {
-        "x": -37363.293,
-        "y": -152096.67,
-        "type": "dungeon"
-    },
-    {
-        "x": 9258.159,
-        "y": -142072.25,
-        "type": "dungeon"
-    },
-    {
-        "x": -17730.912,
-        "y": -73667.055,
-        "type": "dungeon"
-    },
-    {
-        "x": -42658.46,
-        "y": -122726.34,
-        "type": "dungeon"
-    },
-    {
-        "x": -32453.781,
-        "y": -106978.17,
-        "type": "dungeon"
-    },
-    {
-        "x": -13807.568,
-        "y": -152802.98,
-        "type": "dungeon"
-    },
-    {
-        "x": -15641.818,
-        "y": -137406.38,
-        "type": "dungeon"
-    },
-    {
-        "x": -24131.918,
-        "y": -110237.734,
-        "type": "dungeon"
-    },
-    {
-        "x": -57139.156,
-        "y": -86089.53,
-        "type": "dungeon"
-    },
-    {
-        "x": 135090.5,
-        "y": 64370.324,
-        "type": "dungeon"
-    },
-    {
-        "x": 136262.53,
-        "y": 88305.4,
-        "type": "dungeon"
-    },
-    {
-        "x": 2547.9534,
-        "y": 172474.5,
-        "type": "dungeon"
-    },
-    {
-        "x": -58507.242,
-        "y": 157466.9,
-        "type": "dungeon"
-    },
-    {
-        "x": 20555.752,
-        "y": 102617.6,
-        "type": "dungeon"
-    },
-    {
-        "x": -3297.4807,
-        "y": 53484.938,
-        "type": "dungeon"
-    },
-    {
-        "x": 101576.625,
-        "y": 18990.648,
-        "type": "dungeon"
-    },
-    {
-        "x": -36660.12,
-        "y": 148978.95,
-        "type": "dungeon"
-    },
-    {
-        "x": 41444.24,
-        "y": 27335.725,
-        "type": "dungeon"
-    },
-    {
-        "x": 47436.184,
-        "y": -9661.415,
-        "type": "dungeon"
-    },
-    {
-        "x": -25056.857,
-        "y": 113597.305,
-        "type": "dungeon"
-    },
-    {
-        "x": 26498.53,
-        "y": 75921.09,
-        "type": "dungeon"
-    },
-    {
-        "x": 42530.336,
-        "y": 203883.6,
-        "type": "dungeon"
-    },
-    {
-        "x": 80038.95,
-        "y": 6386.8164,
-        "type": "dungeon"
-    },
-    {
-        "x": 143019.12,
-        "y": 9658.513,
-        "type": "dungeon"
-    },
-    {
-        "x": -798439.8,
-        "y": -331101.8,
-        "type": "dungeon"
-    },
-    {
-        "x": -800228.8,
-        "y": -286975.7,
-        "type": "dungeon"
-    },
-    {
-        "x": -733449,
-        "y": -320729.53,
-        "type": "dungeon"
-    },
-    {
-        "x": -843324.4,
-        "y": -404753.84,
-        "type": "dungeon"
-    },
-    {
-        "x": -796816.5,
-        "y": -365816.16,
-        "type": "dungeon"
-    },
-    {
-        "x": -563204.8,
-        "y": -229685.1,
-        "type": "dungeon"
-    },
-    {
-        "x": -502169.7,
-        "y": -346285.5,
-        "type": "dungeon"
-    },
-    {
-        "x": -652504.44,
-        "y": -439189.22,
-        "type": "dungeon"
-    },
-    {
-        "x": -671787,
-        "y": -192539.98,
-        "type": "dungeon"
-    },
-    {
-        "x": -624781.9,
-        "y": -247472.5,
-        "type": "dungeon"
-    },
-    {
-        "x": -669586.3,
-        "y": -394684.16,
-        "type": "dungeon"
-    },
-    {
-        "x": -640033.75,
-        "y": -344681.72,
-        "type": "dungeon"
-    },
-    {
-        "x": -585393.8,
-        "y": -338144.72,
-        "type": "dungeon"
-    },
-    {
-        "x": -739658.9,
-        "y": -310238.78,
-        "type": "dungeon"
-    },
-    {
-        "x": -597250.44,
-        "y": -301345.4,
-        "type": "dungeon"
-    },
-    {
-        "x": -335586.6,
-        "y": -104884.1,
-        "type": "dungeon"
-    },
-    {
-        "x": -287925.97,
-        "y": -191141.92,
-        "type": "dungeon"
-    },
-    {
-        "x": -333902.78,
-        "y": -205767.4,
-        "type": "dungeon"
-    },
-    {
-        "x": -320921.66,
-        "y": -100230.68,
-        "type": "dungeon"
-    },
-    {
-        "x": -268094.03,
-        "y": -53009.18,
-        "type": "dungeon"
-    },
-    {
-        "x": -368225.28,
-        "y": -74478.06,
-        "type": "dungeon"
-    },
-    {
-        "x": -238650.75,
-        "y": -121688.11,
-        "type": "dungeon"
-    },
-    {
-        "x": -315091.6,
-        "y": -52063.6,
-        "type": "dungeon"
-    },
-    {
-        "x": -374132.75,
-        "y": -89184.65,
-        "type": "dungeon"
-    },
-    {
-        "x": -392681.62,
-        "y": -208957.25,
-        "type": "dungeon"
-    },
-    {
-        "x": -405155.94,
-        "y": -176237.36,
-        "type": "dungeon"
-    },
-    {
-        "x": -386508.1,
-        "y": -12226.478,
-        "type": "dungeon"
-    },
-    {
-        "x": -400575.6,
-        "y": -35335.31,
-        "type": "dungeon"
-    },
-    {
-        "x": -289138.2,
-        "y": -209876.05,
-        "type": "dungeon"
-    },
-    {
-        "x": -265755.38,
-        "y": -164168.52,
-        "type": "dungeon"
-    },
-    {
-        "x": -372024.53,
-        "y": 278564.66,
-        "type": "dungeon"
-    },
-    {
-        "x": -346468.22,
-        "y": 214850.02,
-        "type": "dungeon"
-    },
-    {
-        "x": -301121.12,
-        "y": 179718.17,
-        "type": "dungeon"
-    },
-    {
-        "x": -320588.1,
-        "y": 113800.28,
-        "type": "dungeon"
-    },
-    {
-        "x": -315807.78,
-        "y": 107247.59,
-        "type": "dungeon"
-    },
-    {
-        "x": -325692.12,
-        "y": 83869.57,
-        "type": "dungeon"
-    },
-    {
-        "x": -340404.62,
-        "y": 58438.676,
-        "type": "dungeon"
-    },
-    {
-        "x": -337808.62,
-        "y": 30763.018,
-        "type": "dungeon"
-    },
-    {
-        "x": -315044.72,
-        "y": 54365.902,
-        "type": "dungeon"
-    },
-    {
-        "x": -302529.38,
-        "y": 52391.465,
-        "type": "dungeon"
-    },
-    {
-        "x": -203748.6,
-        "y": 90007.32,
-        "type": "dungeon"
-    },
-    {
-        "x": -202257.86,
-        "y": 31403.273,
-        "type": "dungeon"
-    },
-    {
-        "x": -225251.94,
-        "y": -13333.923,
-        "type": "dungeon"
-    },
-    {
-        "x": -221494.6,
-        "y": 27971.861,
-        "type": "dungeon"
-    },
-    {
-        "type": "pal",
-        "pal": "GrassMammoth",
-        "pal_type": "predator",
-        "x": -343155,
-        "y": 244585
-    },
-    {
-        "type": "pal",
-        "pal": "KingAlpaca",
-        "pal_type": "predator",
-        "x": -335225,
-        "y": 180735
-    },
-    {
-        "type": "pal",
-        "pal": "SakuraSaurus_Water",
-        "pal_type": "predator",
-        "x": -329427.8,
-        "y": 81512.31
-    },
-    {
-        "type": "pal",
-        "pal": "BlueDragon",
-        "pal_type": "predator",
-        "x": -301505,
-        "y": 133775
-    },
-    {
-        "type": "pal",
-        "pal": "Anubis",
-        "pal_type": "predator",
-        "x": -167230,
-        "y": 96430
-    },
-    {
-        "type": "pal",
-        "pal": "ThunderBird",
-        "pal_type": "predator",
-        "x": -239970,
-        "y": -450
-    },
-    {
-        "type": "pal",
-        "pal": "FengyunDeeper",
-        "pal_type": "predator",
-        "x": -333940,
-        "y": 39610
-    },
-    {
-        "type": "pal",
-        "pal": "WeaselDragon",
-        "pal_type": "predator",
-        "x": -315583.53,
-        "y": 237116.97
-    },
-    {
-        "type": "pal",
-        "pal": "QueenBee",
-        "pal_type": "predator",
-        "x": -196380,
-        "y": 166870
-    },
-    {
-        "type": "pal",
-        "pal": "FairyDragon",
-        "pal_type": "predator",
-        "x": -254060,
-        "y": 178050
-    },
-    {
-        "type": "pal",
-        "pal": "DarkScorpion",
-        "pal_type": "predator",
-        "x": -77080.266,
-        "y": 394535.8
-    },
-    {
-        "type": "pal",
-        "pal": "Suzaku",
-        "pal_type": "predator",
-        "x": -6430,
-        "y": 343440
-    },
-    {
-        "type": "pal",
-        "pal": "FlowerDinosaur_Electric",
-        "pal_type": "predator",
-        "x": 122760,
-        "y": 318710
-    },
-    {
-        "type": "pal",
-        "pal": "SaintCentaur",
-        "pal_type": "predator",
-        "x": 187860,
-        "y": 363020
-    },
-    {
-        "type": "pal",
-        "pal": "BlackCentaur",
-        "pal_type": "predator",
-        "x": 187860,
-        "y": 363020
-    },
-    {
-        "type": "pal",
-        "pal": "BlackMetalDragon",
-        "pal_type": "predator",
-        "x": -320870,
-        "y": -124090
-    },
-    {
-        "type": "pal",
-        "pal": "KingBahamut",
-        "pal_type": "predator",
-        "x": -381240,
-        "y": -44760
-    },
-    {
-        "type": "pal",
-        "pal": "JetDragon",
-        "pal_type": "predator",
-        "x": -271220,
-        "y": -204190
-    },
-    {
-        "type": "pal",
-        "pal": "IceHorse",
-        "pal_type": "predator",
-        "x": 109790,
-        "y": -5880
-    },
-    {
-        "type": "pal",
-        "pal": "LilyQueen_Dark",
-        "pal_type": "predator",
-        "x": 33500,
-        "y": 84430
-    },
-    {
-        "type": "pal",
-        "pal": "KingAlpaca_Ice",
-        "pal_type": "predator",
-        "x": 91527.57,
-        "y": 53307.61
-    },
-    {
-        "type": "pal",
-        "pal": "WingGolem",
-        "pal_type": "predator",
-        "x": -44230,
-        "y": -152230
-    },
-    {
-        "type": "pal",
-        "pal": "DarkScorpion_Ground",
-        "pal_type": "predator",
-        "x": 28540,
-        "y": -105820
-    },
-    {
-        "type": "pal",
-        "pal": "SakuraSaurus",
-        "pal_type": "predator",
-        "x": -431050.44,
-        "y": 56140.586
-    },
-    {
-        "type": "pal",
-        "pal": "PlantSlime",
-        "pal_type": "predator",
-        "x": -412259.28,
-        "y": 106237.67
-    },
-    {
-        "type": "pal",
-        "pal": "MopKing",
-        "pal_type": "predator",
-        "x": -396003.12,
-        "y": 53772.16
-    },
-    {
-        "type": "pal",
-        "pal": "Kirin",
-        "pal_type": "predator",
-        "x": -372950,
-        "y": 104400
-    },
-    {
-        "type": "pal",
-        "pal": "NaughtyCat",
-        "pal_type": "predator",
-        "x": -236727.1,
-        "y": 321310.12
-    },
-    {
-        "type": "pal",
-        "pal": "HawkBird",
-        "pal_type": "predator",
-        "x": -155950,
-        "y": 31260
-    },
-    {
-        "type": "pal",
-        "pal": "LazyCatfish",
-        "pal_type": "predator",
-        "x": -122060,
-        "y": 15810
-    },
-    {
-        "type": "pal",
-        "pal": "Yeti_Grass",
-        "pal_type": "predator",
-        "x": -147370,
-        "y": 364010
-    },
-    {
-        "type": "pal",
-        "pal": "GrassPanda_Electric",
-        "pal_type": "predator",
-        "x": -206970,
-        "y": 363810
-    },
-    {
-        "type": "pal",
-        "pal": "NightBlueHorse",
-        "pal_type": "predator",
-        "x": -555190,
-        "y": -188780
-    },
-    {
-        "type": "pal",
-        "pal": "BerryGoat_Dark",
-        "pal_type": "predator",
-        "x": -882660,
-        "y": -376490
-    },
-    {
-        "type": "pal",
-        "pal": "FengyunDeeper_Electric",
-        "pal_type": "predator",
-        "x": -635928.44,
-        "y": -224786.02
-    },
-    {
-        "type": "pal",
-        "pal": "Werewolf_Ice",
-        "pal_type": "predator",
-        "x": -502070,
-        "y": -276210
-    },
-    {
-        "type": "pal",
-        "pal": "Horus_Water",
-        "pal_type": "predator",
-        "x": -605010.5,
-        "y": -130144.8
-    },
-    {
-        "type": "pal",
-        "pal": "NightBlueHorse",
-        "pal_type": "predator",
-        "x": -555190,
-        "y": -188780
-    },
-    {
-        "type": "pal",
-        "pal": "RaijinDaughter_Water",
-        "pal_type": "predator",
-        "x": -848870,
-        "y": -458610
-    },
-    {
-        "type": "pal",
-        "pal": "WhiteTiger_Ground",
-        "pal_type": "predator",
-        "x": -838350,
-        "y": -376940
-    },
-    {
-        "type": "pal",
-        "pal": "PurpleSpider",
-        "pal_type": "predator",
-        "x": -779670,
-        "y": -457500
-    },
-    {
-        "type": "pal",
-        "pal": "Kitsunebi_Ice",
-        "pal_type": "predator",
-        "x": -722610,
-        "y": -431080
-    },
-    {
-        "type": "pal",
-        "pal": "MysteryMask",
-        "pal_type": "predator",
-        "x": -807770,
-        "y": -385160
-    },
-    {
-        "type": "pal",
-        "pal": "HerculesBeetle_Ground",
-        "pal_type": "predator",
-        "x": -788310,
-        "y": -310830
-    },
-    {
-        "type": "pal",
-        "pal": "PinkRabbit_Grass",
-        "pal_type": "predator",
-        "x": -745180,
-        "y": -398020
-    },
-    {
-        "type": "pal",
-        "pal": "GrimGirl",
-        "pal_type": "predator",
-        "x": -732424.9,
-        "y": -396803.44
-    },
-    {
-        "type": "pal",
-        "pal": "BlueThunderHorse",
-        "pal_type": "predator",
-        "x": -727685.3,
-        "y": -349625.47
-    },
-    {
-        "type": "pal",
-        "pal": "AmaterasuWolf_Dark",
-        "pal_type": "predator",
-        "x": -649355.75,
-        "y": -317586.72
-    },
-    {
-        "type": "pal",
-        "pal": "WhiteDeer",
-        "pal_type": "predator",
-        "x": -663312.1,
-        "y": -284782.62
-    },
-    {
-        "type": "pal",
-        "pal": "GoldenHorse",
-        "pal_type": "predator",
-        "x": -685460,
-        "y": -191380
-    },
-    {
-        "type": "pal",
-        "pal": "BadCatgirl",
-        "pal_type": "predator",
-        "x": -555394.56,
-        "y": -353314.03
-    },
-    {
-        "type": "pal",
-        "pal": "WhiteShieldDragon",
-        "pal_type": "predator",
-        "x": -593142.44,
-        "y": -293751.53
-    },
-    {
-        "type": "pal",
-        "pal": "CatVampire",
-        "pal_type": "predator",
-        "x": -149060,
-        "y": -34010
-    },
-    {
-        "type": "pal",
-        "pal": "SkyDragon",
-        "pal_type": "predator",
-        "x": -184230,
-        "y": 37430
-    },
-    {
-        "type": "pal",
-        "pal": "Umihebi",
-        "pal_type": "predator",
-        "x": -244230,
-        "y": 72430
-    },
-    {
-        "type": "pal",
-        "pal": "LazyDragon_Electric",
-        "pal_type": "predator",
-        "x": -283230,
-        "y": 61430
-    },
-    {
-        "type": "pal",
-        "pal": "Ronin",
-        "pal_type": "predator",
-        "x": -350230,
-        "y": 101930
-    },
-    {
-        "type": "pal",
-        "pal": "Mutant",
-        "pal_type": "predator",
-        "x": -428230,
-        "y": 87930
-    },
-    {
-        "type": "pal",
-        "pal": "CaptainPenguin",
-        "pal_type": "predator",
-        "x": -285230,
-        "y": 207930
-    },
-    {
-        "type": "pal",
-        "pal": "FlowerDoll",
-        "pal_type": "predator",
-        "x": -245230,
-        "y": 147000.0
-    },
-    {
-        "type": "pal",
-        "pal": "HerculesBeetle",
-        "pal_type": "predator",
-        "x": -227500,
-        "y": 232000.0
-    },
-    {
-        "type": "pal",
-        "pal": "VioletFairy",
-        "pal_type": "predator",
-        "x": -147500,
-        "y": 215000.0
-    },
-    {
-        "type": "pal",
-        "pal": "GrassRabbitMan",
-        "pal_type": "predator",
-        "x": -118000.0,
-        "y": 287500
-    },
-    {
-        "type": "pal",
-        "pal": "WhiteMoth",
-        "pal_type": "predator",
-        "x": -91000.0,
-        "y": 273000.0
-    },
-    {
-        "type": "pal",
-        "pal": "Umihebi",
-        "pal_type": "predator",
-        "x": -161000.0,
-        "y": 316000.0
-    },
-    {
-        "type": "pal",
-        "pal": "CatMage",
-        "pal_type": "predator",
-        "x": -277000.0,
-        "y": 268000.0
-    },
-    {
-        "type": "pal",
-        "pal": "PinkLizard",
-        "pal_type": "predator",
-        "x": -318898.75,
-        "y": 86800.91
-    },
-    {
-        "type": "pal",
-        "pal": "SifuDog",
-        "pal_type": "predator",
-        "x": -249150,
-        "y": 47780
-    },
-    {
-        "type": "pal",
-        "pal": "GrassPanda",
-        "pal_type": "predator",
-        "x": -198120,
-        "y": 12210
-    },
-    {
-        "type": "pal",
-        "pal": "MysteryMask",
-        "pal_type": "predator",
-        "x": -225550,
-        "y": 161970
-    },
-    {
-        "type": "pal",
-        "pal": "LazyDragon",
-        "pal_type": "predator",
-        "x": -283650,
-        "y": 147100
-    },
-    {
-        "type": "pal",
-        "pal": "PurpleSpider",
-        "pal_type": "predator",
-        "x": -260656.53,
-        "y": 129341.76
-    },
-    {
-        "type": "pal",
-        "pal": "NightBlueHorse",
-        "pal_type": "predator",
-        "x": -181520,
-        "y": 167290
-    },
-    {
-        "type": "pal",
-        "pal": "RedArmorBird",
-        "pal_type": "predator",
-        "x": -155820.36,
-        "y": 314737.6
-    },
-    {
-        "type": "pal",
-        "pal": "FlowerDinosaur",
-        "pal_type": "predator",
-        "x": -107400,
-        "y": 180590
-    },
-    {
-        "type": "pal",
-        "pal": "ThunderDog",
-        "pal_type": "predator",
-        "x": -172100,
-        "y": 271020
-    },
-    {
-        "type": "pal",
-        "pal": "GhostBeast",
-        "pal_type": "predator",
-        "x": -147040,
-        "y": 234240
-    },
-    {
-        "type": "pal",
-        "pal": "VolcanicMonster_Ice",
-        "pal_type": "predator",
-        "x": -80710,
-        "y": 241410
-    },
-    {
-        "type": "pal",
-        "pal": "FeatherOstrich",
-        "pal_type": "predator",
-        "x": 20638.32,
-        "y": 329931.44
-    },
-    {
-        "type": "pal",
-        "pal": "ScorpionMan",
-        "pal_type": "predator",
-        "x": -26610,
-        "y": 385860
-    },
-    {
-        "type": "pal",
-        "pal": "WhiteTiger_Ground",
-        "pal_type": "predator",
-        "x": 42910,
-        "y": 279290
-    },
-    {
-        "type": "pal",
-        "pal": "DrillGame",
-        "pal_type": "predator",
-        "x": -464660,
-        "y": -115480
-    },
-    {
-        "type": "pal",
-        "pal": "GoldenHorse",
-        "pal_type": "predator",
-        "x": -227181.38,
-        "y": -116672.16
-    },
-    {
-        "type": "pal",
-        "pal": "Umihebi_Fire",
-        "pal_type": "predator",
-        "x": -329220,
-        "y": -51630
-    },
-    {
-        "type": "pal",
-        "pal": "Werewolf_Ice",
-        "pal_type": "predator",
-        "x": -11000.0,
-        "y": 69160
-    },
-    {
-        "type": "pal",
-        "pal": "Horus_Water",
-        "pal_type": "predator",
-        "x": -59150,
-        "y": 107330
-    },
-    {
-        "type": "pal",
-        "pal": "AmaterasuWolf",
-        "pal_type": "predator",
-        "x": -47628.453,
-        "y": 147755.06
-    },
-    {
-        "type": "pal",
-        "pal": "Yeti",
-        "pal_type": "predator",
-        "x": 50780,
-        "y": 23130
-    },
-    {
-        "type": "pal",
-        "pal": "Manticore_Dark",
-        "pal_type": "predator",
-        "x": 94990,
-        "y": 32590
-    },
-    {
-        "type": "pal",
-        "pal": "MushroomDragon",
-        "pal_type": "predator",
-        "x": -46930,
-        "y": -63680
-    },
-    {
-        "type": "pal",
-        "pal": "Gorilla",
-        "pal_type": "predator",
-        "x": -377810,
-        "y": 31720
-    },
-    {
-        "type": "pal",
-        "pal": "BirdDragon",
-        "pal_type": "predator",
-        "x": -205400,
-        "y": 324230
-    },
-    {
-        "type": "pal",
-        "pal": "Garm",
-        "pal_type": "predator",
-        "x": -139220,
-        "y": 8790
-    },
-    {
-        "type": "pal",
-        "pal": "FairyDragon",
-        "pal_type": "predator",
-        "x": -63920,
-        "y": 2010
-    },
-    {
-        "type": "pal",
-        "pal": "GrimGirl",
-        "pal_type": "predator",
-        "x": -21460,
-        "y": -123580
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "GrassMammoth",
-        "x": -343155,
-        "y": 244585,
-        "level": 38
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "KingAlpaca",
-        "x": -335225,
-        "y": 180735,
-        "level": 23
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "SakuraSaurus_Water",
-        "x": -329427.8,
-        "y": 81512.31,
-        "level": 30
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "BlueDragon",
-        "x": -301505,
-        "y": 133775,
-        "level": 17
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Anubis",
-        "x": -167230,
-        "y": 96430,
-        "level": 47
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "ThunderBird",
-        "x": -239970,
-        "y": -450,
-        "level": 29
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "FengyunDeeper",
-        "x": -333940,
-        "y": 39610,
-        "level": 25
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "WeaselDragon",
-        "x": -315583.53,
-        "y": 237116.97,
-        "level": 11
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "QueenBee",
-        "x": -196380,
-        "y": 166870,
-        "level": 31
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "FairyDragon",
-        "x": -254060,
-        "y": 178050,
-        "level": 30
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "DarkScorpion",
-        "x": -77080.266,
-        "y": 394535.8,
-        "level": 44
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Suzaku",
-        "x": -6430,
-        "y": 343440,
-        "level": 45
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "FlowerDinosaur_Electric",
-        "x": 122760,
-        "y": 318710,
-        "level": 47
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "SaintCentaur",
-        "x": 187860,
-        "y": 363020,
-        "level": 60
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "BlackCentaur",
-        "x": 187860,
-        "y": 363020,
-        "level": 60
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "BlackMetalDragon",
-        "x": -320870,
-        "y": -124090,
-        "level": 48
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "KingBahamut",
-        "x": -381240,
-        "y": -44760,
-        "level": 49
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "JetDragon",
-        "x": -271220,
-        "y": -204190,
-        "level": 60
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "IceHorse",
-        "x": 109790,
-        "y": -5880,
-        "level": 60
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "LilyQueen_Dark",
-        "x": 33500,
-        "y": 84430,
-        "level": 49
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "KingAlpaca_Ice",
-        "x": 91527.57,
-        "y": 53307.61,
-        "level": 46
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "WingGolem",
-        "x": -44230,
-        "y": -152230,
-        "level": 55
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "DarkScorpion_Ground",
-        "x": 28540,
-        "y": -105820,
-        "level": 54
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "SakuraSaurus",
-        "x": -431050.44,
-        "y": 56140.586,
-        "level": 23
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "PlantSlime",
-        "x": -412259.28,
-        "y": 106237.67,
-        "level": 11
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "MopKing",
-        "x": -396003.12,
-        "y": 53772.16,
-        "level": 11
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Kirin",
-        "x": -372950,
-        "y": 104400,
-        "level": 31
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "NaughtyCat",
-        "x": -236727.1,
-        "y": 321310.12,
-        "level": 17
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "HawkBird",
-        "x": -155950,
-        "y": 31260,
-        "level": 18
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "LazyCatfish",
-        "x": -122060,
-        "y": 15810,
-        "level": 14
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Yeti_Grass",
-        "x": -147370,
-        "y": 364010,
-        "level": 38
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "GrassPanda_Electric",
-        "x": -206970,
-        "y": 363810,
-        "level": 31
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "NightBlueHorse",
-        "x": -555190,
-        "y": -188780,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "BerryGoat_Dark",
-        "x": -882660,
-        "y": -376490,
-        "level": 55
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "FengyunDeeper_Electric",
-        "x": -635928.44,
-        "y": -224786.02,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Werewolf_Ice",
-        "x": -502070,
-        "y": -276210,
-        "level": 54
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Horus_Water",
-        "x": -605010.5,
-        "y": -130144.8,
-        "level": 56
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "NightBlueHorse",
-        "x": -555190,
-        "y": -188780,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "RaijinDaughter_Water",
-        "x": -848870,
-        "y": -458610,
-        "level": 53
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "WhiteTiger_Ground",
-        "x": -838350,
-        "y": -376940,
-        "level": 58
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "PurpleSpider",
-        "x": -779670,
-        "y": -457500,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Kitsunebi_Ice",
-        "x": -722610,
-        "y": -431080,
-        "level": 52
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "MysteryMask",
-        "x": -807770,
-        "y": -385160,
-        "level": 55
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "HerculesBeetle_Ground",
-        "x": -788310,
-        "y": -310830,
-        "level": 59
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "PinkRabbit_Grass",
-        "x": -745180,
-        "y": -398020,
-        "level": 53
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "GrimGirl",
-        "x": -732424.9,
-        "y": -396803.44,
-        "level": 58
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "BlueThunderHorse",
-        "x": -727685.3,
-        "y": -349625.47,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "AmaterasuWolf_Dark",
-        "x": -649355.75,
-        "y": -317586.72,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "WhiteDeer",
-        "x": -663312.1,
-        "y": -284782.62,
-        "level": 60
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "GoldenHorse",
-        "x": -685460,
-        "y": -191380,
-        "level": 58
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "BadCatgirl",
-        "x": -555394.56,
-        "y": -353314.03,
-        "level": 57
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "WhiteShieldDragon",
-        "x": -593142.44,
-        "y": -293751.53,
-        "level": 59
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "CatVampire",
-        "x": -149060,
-        "y": -34010,
-        "level": 23
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "SkyDragon",
-        "x": -184230,
-        "y": 37430,
-        "level": 23
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Umihebi",
-        "x": -244230,
-        "y": 72430,
-        "level": 45
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "LazyDragon_Electric",
-        "x": -283230,
-        "y": 61430,
-        "level": 31
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Ronin",
-        "x": -350230,
-        "y": 101930,
-        "level": 23
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Mutant",
-        "x": -428230,
-        "y": 87930,
-        "level": 32
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "CaptainPenguin",
-        "x": -285230,
-        "y": 207930,
-        "level": 15
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "FlowerDoll",
-        "x": -245230,
-        "y": 147000.0,
-        "level": 28
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "HerculesBeetle",
-        "x": -227500,
-        "y": 232000.0,
-        "level": 30
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "VioletFairy",
-        "x": -147500,
-        "y": 215000.0,
-        "level": 38
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "GrassRabbitMan",
-        "x": -118000.0,
-        "y": 287500,
-        "level": 35
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "WhiteMoth",
-        "x": -91000.0,
-        "y": 273000.0,
-        "level": 40
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "Umihebi",
-        "x": -161000.0,
-        "y": 316000.0,
-        "level": 45
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "CatMage",
-        "x": -277000.0,
-        "y": 268000.0,
-        "level": 23
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "PoseidonOrca",
-        "x": 175142.77,
-        "y": 221586.5,
-        "level": 60
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "IceNarwhal",
-        "x": 262730.0,
-        "y": 75740.0,
-        "level": 55
-    },
-    {
-        "type": "alpha_pal",
-        "pal": "IceNarwhal_Fire",
-        "x": -370720.0,
-        "y": -287050.0,
-        "level": 58
-    },
-    {
-        "type": "predator_pal",
-        "pal": "PinkLizard",
-        "x": -318898.75,
-        "y": 86800.91
-    },
-    {
-        "type": "predator_pal",
-        "pal": "SifuDog",
-        "x": -249150,
-        "y": 47780
-    },
-    {
-        "type": "predator_pal",
-        "pal": "GrassPanda",
-        "x": -198120,
-        "y": 12210
-    },
-    {
-        "type": "predator_pal",
-        "pal": "MysteryMask",
-        "x": -225550,
-        "y": 161970
-    },
-    {
-        "type": "predator_pal",
-        "pal": "LazyDragon",
-        "x": -283650,
-        "y": 147100
-    },
-    {
-        "type": "predator_pal",
-        "pal": "PurpleSpider",
-        "x": -260656.53,
-        "y": 129341.76
-    },
-    {
-        "type": "predator_pal",
-        "pal": "NightBlueHorse",
-        "x": -181520,
-        "y": 167290
-    },
-    {
-        "type": "predator_pal",
-        "pal": "RedArmorBird",
-        "x": -155820.36,
-        "y": 314737.6
-    },
-    {
-        "type": "predator_pal",
-        "pal": "FlowerDinosaur",
-        "x": -107400,
-        "y": 180590
-    },
-    {
-        "type": "predator_pal",
-        "pal": "ThunderDog",
-        "x": -172100,
-        "y": 271020
-    },
-    {
-        "type": "predator_pal",
-        "pal": "GhostBeast",
-        "x": -147040,
-        "y": 234240
-    },
-    {
-        "type": "predator_pal",
-        "pal": "VolcanicMonster_Ice",
-        "x": -80710,
-        "y": 241410
-    },
-    {
-        "type": "predator_pal",
-        "pal": "FeatherOstrich",
-        "x": 20638.32,
-        "y": 329931.44
-    },
-    {
-        "type": "predator_pal",
-        "pal": "ScorpionMan",
-        "x": -26610,
-        "y": 385860
-    },
-    {
-        "type": "predator_pal",
-        "pal": "WhiteTiger_Ground",
-        "x": 42910,
-        "y": 279290
-    },
-    {
-        "type": "predator_pal",
-        "pal": "DrillGame",
-        "x": -464660,
-        "y": -115480
-    },
-    {
-        "type": "predator_pal",
-        "pal": "GoldenHorse",
-        "x": -227181.38,
-        "y": -116672.16
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Umihebi_Fire",
-        "x": -329220,
-        "y": -51630
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Werewolf_Ice",
-        "x": -11000.0,
-        "y": 69160
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Horus_Water",
-        "x": -59150,
-        "y": 107330
-    },
-    {
-        "type": "predator_pal",
-        "pal": "AmaterasuWolf",
-        "x": -47628.453,
-        "y": 147755.06
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Yeti",
-        "x": 50780,
-        "y": 23130
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Manticore_Dark",
-        "x": 94990,
-        "y": 32590
-    },
-    {
-        "type": "predator_pal",
-        "pal": "MushroomDragon",
-        "x": -46930,
-        "y": -63680
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Gorilla",
-        "x": -377810,
-        "y": 31720
-    },
-    {
-        "type": "predator_pal",
-        "pal": "BirdDragon",
-        "x": -205400,
-        "y": 324230
-    },
-    {
-        "type": "predator_pal",
-        "pal": "Garm",
-        "x": -139220,
-        "y": 8790
-    },
-    {
-        "type": "predator_pal",
-        "pal": "FairyDragon",
-        "x": -63920,
-        "y": 2010
-    },
-    {
-        "type": "predator_pal",
-        "pal": "GrimGirl",
-        "x": -21460,
-        "y": -123580
-    }
+  {
+    "x": -383183.16,
+    "y": -210790.92,
+    "type": "fast_travel",
+    "localized_name": "Beach of Everlasting Summer",
+    "map": "MainMap"
+  },
+  {
+    "x": 69604.09,
+    "y": 196989.27,
+    "type": "fast_travel",
+    "localized_name": "Thawtide Cape",
+    "map": "MainMap"
+  },
+  {
+    "x": 192505.83,
+    "y": -227006.47,
+    "type": "fast_travel",
+    "localized_name": "Foot of the World Tree",
+    "map": "MainMap"
+  },
+  {
+    "x": -194570.64,
+    "y": 14375.1,
+    "type": "fast_travel",
+    "localized_name": "Deep Bamboo Thicket Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -771309.94,
+    "y": 8647.21,
+    "type": "fast_travel",
+    "localized_name": "Farcry Marsh",
+    "map": "MainMap"
+  },
+  {
+    "x": -503990.0,
+    "y": -214380.0,
+    "type": "fast_travel",
+    "localized_name": "Scorched Ashland",
+    "map": "MainMap"
+  },
+  {
+    "x": -348065.06,
+    "y": 151660.97,
+    "type": "fast_travel",
+    "localized_name": "Windswept Island Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -248770.11,
+    "y": 126205.84,
+    "type": "fast_travel",
+    "localized_name": "Cinnamoth Forest",
+    "map": "MainMap"
+  },
+  {
+    "x": -131353.92,
+    "y": 54481.74,
+    "type": "fast_travel",
+    "localized_name": "Isle of Murmurs Beach",
+    "map": "MainMap"
+  },
+  {
+    "x": 512111.75,
+    "y": -510662.66,
+    "type": "fast_travel",
+    "localized_name": "The Verdant Rootpath",
+    "map": "Tree"
+  },
+  {
+    "x": -257951.39,
+    "y": 151247.84,
+    "type": "fast_travel",
+    "localized_name": "Ancient Ritual Site",
+    "map": "MainMap"
+  },
+  {
+    "x": -25915.37,
+    "y": -78926.16,
+    "type": "fast_travel",
+    "localized_name": "Cherry Blossom Crossroads",
+    "map": "MainMap"
+  },
+  {
+    "x": -103434.98,
+    "y": 234761.17,
+    "type": "fast_travel",
+    "localized_name": "Frostbound Mountains Summit",
+    "map": "MainMap"
+  },
+  {
+    "x": -415272.22,
+    "y": -162408.61,
+    "type": "fast_travel",
+    "localized_name": "Dry Dunes",
+    "map": "MainMap"
+  },
+  {
+    "x": 107940.74,
+    "y": -28036.3,
+    "type": "fast_travel",
+    "localized_name": "Garden Beneath the Astral Mountains",
+    "map": "MainMap"
+  },
+  {
+    "x": 102159.82,
+    "y": 48527.03,
+    "type": "fast_travel",
+    "localized_name": "Land of Absolute Zero",
+    "map": "MainMap"
+  },
+  {
+    "x": -326403.84,
+    "y": 55136.73,
+    "type": "fast_travel",
+    "localized_name": "Ascetic Falls",
+    "map": "MainMap"
+  },
+  {
+    "x": -572461.56,
+    "y": -287224.06,
+    "type": "fast_travel",
+    "localized_name": "Shield Dragon Tunnel",
+    "map": "MainMap"
+  },
+  {
+    "x": -758105.0,
+    "y": -61810.0,
+    "type": "fast_travel",
+    "localized_name": "The Azure Tapestry",
+    "map": "MainMap"
+  },
+  {
+    "x": -209326.02,
+    "y": -249227.56,
+    "type": "fast_travel",
+    "localized_name": "Phantom Isle",
+    "map": "MainMap"
+  },
+  {
+    "x": -167684.92,
+    "y": 167519.23,
+    "type": "fast_travel",
+    "localized_name": "Mount Flopie Summit",
+    "map": "MainMap"
+  },
+  {
+    "x": 178736.56,
+    "y": 305772.44,
+    "type": "fast_travel",
+    "localized_name": "Seaward Passage",
+    "map": "MainMap"
+  },
+  {
+    "x": 8000.53,
+    "y": 111770.55,
+    "type": "fast_travel",
+    "localized_name": "Unthawable Lake",
+    "map": "MainMap"
+  },
+  {
+    "x": -50300.98,
+    "y": 287392.38,
+    "type": "fast_travel",
+    "localized_name": "Sand Dunes Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -177770.0,
+    "y": 265010.0,
+    "type": "fast_travel",
+    "localized_name": "Mossanda Forest",
+    "map": "MainMap"
+  },
+  {
+    "x": -414446.72,
+    "y": -24603.32,
+    "type": "fast_travel",
+    "localized_name": "Ancient Civilization Ruins",
+    "map": "MainMap"
+  },
+  {
+    "x": 168489.0,
+    "y": 221797.6,
+    "type": "fast_travel",
+    "localized_name": "Isle of the Glacial Core",
+    "map": "MainMap"
+  },
+  {
+    "x": 12156.85,
+    "y": 249201.39,
+    "type": "fast_travel",
+    "localized_name": "Windwatch Outlook",
+    "map": "MainMap"
+  },
+  {
+    "x": -153135.81,
+    "y": 589409.5,
+    "type": "fast_travel",
+    "localized_name": "Islet of Circular Ruins",
+    "map": "MainMap"
+  },
+  {
+    "x": 524166.12,
+    "y": -567334.4,
+    "type": "fast_travel",
+    "localized_name": "Whimsical Wisteria Grove",
+    "map": "Tree"
+  },
+  {
+    "x": -741294.8,
+    "y": -283378.06,
+    "type": "fast_travel",
+    "localized_name": "Loess Plains Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -568698.6,
+    "y": -603451.94,
+    "type": "fast_travel",
+    "localized_name": "Glacial Memento Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": -43926.75,
+    "y": -173600.95,
+    "type": "fast_travel",
+    "localized_name": "Sakurajima: West Coast",
+    "map": "MainMap"
+  },
+  {
+    "x": 35588.66,
+    "y": 321331.25,
+    "type": "fast_travel",
+    "localized_name": "Duneshelter",
+    "map": "MainMap"
+  },
+  {
+    "x": -311508.88,
+    "y": 76832.29,
+    "type": "fast_travel",
+    "localized_name": "Windscream Valley",
+    "map": "MainMap"
+  },
+  {
+    "x": -195236.17,
+    "y": 36718.49,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of the Myriad Flames",
+    "map": "MainMap"
+  },
+  {
+    "x": -671901.25,
+    "y": -172407.56,
+    "type": "fast_travel",
+    "localized_name": "Emberstone Plateau",
+    "map": "MainMap"
+  },
+  {
+    "x": -440660.47,
+    "y": -159426.78,
+    "type": "fast_travel",
+    "localized_name": "Dry Sandy Beach Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -376750.0,
+    "y": 124630.0,
+    "type": "fast_travel",
+    "localized_name": "Sea Breeze Archipelago Church",
+    "map": "MainMap"
+  },
+  {
+    "x": -302825.0,
+    "y": 241060.0,
+    "type": "fast_travel",
+    "localized_name": "Fort Ruins",
+    "map": "MainMap"
+  },
+  {
+    "x": -137210.0,
+    "y": -91340.0,
+    "type": "fast_travel",
+    "localized_name": "Isle of Silence",
+    "map": "MainMap"
+  },
+  {
+    "x": -810648.44,
+    "y": -393963.72,
+    "type": "fast_travel",
+    "localized_name": "Silent Lake",
+    "map": "MainMap"
+  },
+  {
+    "x": -119900.85,
+    "y": 351109.22,
+    "type": "fast_travel",
+    "localized_name": "Dustview Coast",
+    "map": "MainMap"
+  },
+  {
+    "x": 117624.25,
+    "y": 400134.78,
+    "type": "fast_travel",
+    "localized_name": "Deep Sand Dunes",
+    "map": "MainMap"
+  },
+  {
+    "x": -634614.8,
+    "y": -310380.88,
+    "type": "fast_travel",
+    "localized_name": "Arid Wasteland Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": 564135.0,
+    "y": -574054.25,
+    "type": "fast_travel",
+    "localized_name": "Dusty Ravine Watchtower",
+    "map": "Tree"
+  },
+  {
+    "x": -25522.21,
+    "y": -118365.34,
+    "type": "fast_travel",
+    "localized_name": "Moonflower Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": 592964.0,
+    "y": -625779.6,
+    "type": "fast_travel",
+    "localized_name": "Remnant Riverside",
+    "map": "Tree"
+  },
+  {
+    "x": -651722.9,
+    "y": -373365.22,
+    "type": "fast_travel",
+    "localized_name": "Crimson Labyrinth",
+    "map": "MainMap"
+  },
+  {
+    "x": -428372.0,
+    "y": 81104.96,
+    "type": "fast_travel",
+    "localized_name": "Sea Breeze Archipelago Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -117215.02,
+    "y": 446689.97,
+    "type": "fast_travel",
+    "localized_name": "Arena Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -451245.0,
+    "y": 363338.16,
+    "type": "fast_travel",
+    "localized_name": "Scouring Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": -125476.0,
+    "y": 201720.0,
+    "type": "fast_travel",
+    "localized_name": "Snowy Mountain Crossroads",
+    "map": "MainMap"
+  },
+  {
+    "x": -105662.5,
+    "y": 400797.0,
+    "type": "fast_travel",
+    "localized_name": "Sandbar of Solitude",
+    "map": "MainMap"
+  },
+  {
+    "x": -259198.7,
+    "y": -59353.41,
+    "type": "fast_travel",
+    "localized_name": "Mount Obsidian - Second Ascent",
+    "map": "MainMap"
+  },
+  {
+    "x": -282110.0,
+    "y": 355570.0,
+    "type": "fast_travel",
+    "localized_name": "Marsh Island",
+    "map": "MainMap"
+  },
+  {
+    "x": -197915.22,
+    "y": 438001.44,
+    "type": "fast_travel",
+    "localized_name": "Isle of Decayed Treasures",
+    "map": "MainMap"
+  },
+  {
+    "x": 621794.3,
+    "y": -757914.56,
+    "type": "fast_travel",
+    "localized_name": "Forbidden Laboratory",
+    "map": "Tree"
+  },
+  {
+    "x": -558410.44,
+    "y": 121112.1,
+    "type": "fast_travel",
+    "localized_name": "Frostbitten Isle",
+    "map": "MainMap"
+  },
+  {
+    "x": -192413.88,
+    "y": 393187.28,
+    "type": "fast_travel",
+    "localized_name": "Eastern Wild Island Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -450320.0,
+    "y": 112630.0,
+    "type": "fast_travel",
+    "localized_name": "Sea Breeze Archipelago - Castaway Beach",
+    "map": "MainMap"
+  },
+  {
+    "x": -367707.78,
+    "y": -114950.9,
+    "type": "fast_travel",
+    "localized_name": "Eternal Pyre Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -509887.22,
+    "y": -299269.03,
+    "type": "fast_travel",
+    "localized_name": "Hill Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": 621850.0,
+    "y": -742575.0,
+    "type": "fast_travel",
+    "localized_name": "Abandoned Laboratory",
+    "map": "Tree"
+  },
+  {
+    "x": -465895.0,
+    "y": -62137.75,
+    "type": "fast_travel",
+    "localized_name": "Fisherman's Point",
+    "map": "MainMap"
+  },
+  {
+    "x": -784793.9,
+    "y": -354726.72,
+    "type": "fast_travel",
+    "localized_name": "Frozen Coral Hill Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -317777.2,
+    "y": 212103.31,
+    "type": "fast_travel",
+    "localized_name": "Rayne Syndicate Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -301681.94,
+    "y": -5184.11,
+    "type": "fast_travel",
+    "localized_name": "Heatwave Gate",
+    "map": "MainMap"
+  },
+  {
+    "x": -170718.69,
+    "y": 409753.16,
+    "type": "fast_travel",
+    "localized_name": "Eastern Wild Island",
+    "map": "MainMap"
+  },
+  {
+    "x": -314840.0,
+    "y": 186850.0,
+    "type": "fast_travel",
+    "localized_name": "Desolate Church",
+    "map": "MainMap"
+  },
+  {
+    "x": 477460.0,
+    "y": -724635.0,
+    "type": "fast_travel",
+    "localized_name": "Lacrymal Shoal",
+    "map": "Tree"
+  },
+  {
+    "x": 29780.53,
+    "y": 406913.2,
+    "type": "fast_travel",
+    "localized_name": "PIDF Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -627561.25,
+    "y": -208730.97,
+    "type": "fast_travel",
+    "localized_name": "Burning Fault Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -714540.9,
+    "y": -458346.56,
+    "type": "fast_travel",
+    "localized_name": "Oilfield Overlook",
+    "map": "MainMap"
+  },
+  {
+    "x": -591120.0,
+    "y": -484260.0,
+    "type": "fast_travel",
+    "localized_name": "Deserted Ash Plateau",
+    "map": "MainMap"
+  },
+  {
+    "x": -760285.44,
+    "y": -354966.22,
+    "type": "fast_travel",
+    "localized_name": "The Oculus Gate, Tower in Sight",
+    "map": "MainMap"
+  },
+  {
+    "x": -294830.0,
+    "y": 152240.0,
+    "type": "fast_travel",
+    "localized_name": "Bridge of the Twin Knights",
+    "map": "MainMap"
+  },
+  {
+    "x": -358785.0,
+    "y": 267940.0,
+    "type": "fast_travel",
+    "localized_name": "Hill of Beginnings",
+    "map": "MainMap"
+  },
+  {
+    "x": 602911.06,
+    "y": -680562.44,
+    "type": "fast_travel",
+    "localized_name": "Boreal Summit",
+    "map": "Tree"
+  },
+  {
+    "x": -829095.7,
+    "y": -19262.85,
+    "type": "fast_travel",
+    "localized_name": "Crystalline Archipelago",
+    "map": "MainMap"
+  },
+  {
+    "x": -265980.0,
+    "y": 268690.0,
+    "type": "fast_travel",
+    "localized_name": "Islandhopper Coast",
+    "map": "MainMap"
+  },
+  {
+    "x": -80506.16,
+    "y": 141464.77,
+    "type": "fast_travel",
+    "localized_name": "No Man's Trail",
+    "map": "MainMap"
+  },
+  {
+    "x": -699510.0,
+    "y": -389030.0,
+    "type": "fast_travel",
+    "localized_name": "Scorched Hill",
+    "map": "MainMap"
+  },
+  {
+    "x": -319000.0,
+    "y": 127170.0,
+    "type": "fast_travel",
+    "localized_name": "Ravine Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": 6.0,
+    "y": -0.0,
+    "type": "fast_travel",
+    "localized_name": "Pristine Snow Field",
+    "map": "MainMap"
+  },
+  {
+    "x": -130060.38,
+    "y": -53406.69,
+    "type": "fast_travel",
+    "localized_name": "Isle of Silence Church Ruins",
+    "map": "MainMap"
+  },
+  {
+    "x": -108666.75,
+    "y": 79119.87,
+    "type": "fast_travel",
+    "localized_name": "Deserted Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": -283781.0,
+    "y": 59352.68,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of the Swordmaster",
+    "map": "MainMap"
+  },
+  {
+    "x": -426910.2,
+    "y": -436850.9,
+    "type": "fast_travel",
+    "localized_name": "Sandstone Gate Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": -771223.4,
+    "y": -441798.28,
+    "type": "fast_travel",
+    "localized_name": "Shady Mushroom Cliffs",
+    "map": "MainMap"
+  },
+  {
+    "x": -38212.0,
+    "y": 406147.06,
+    "type": "fast_travel",
+    "localized_name": "Desert Backbone",
+    "map": "MainMap"
+  },
+  {
+    "x": -725188.75,
+    "y": -238441.89,
+    "type": "fast_travel",
+    "localized_name": "Wildlands Floodgate",
+    "map": "MainMap"
+  },
+  {
+    "x": -287201.44,
+    "y": -217568.95,
+    "type": "fast_travel",
+    "localized_name": "Mount Obsidian Trail",
+    "map": "MainMap"
+  },
+  {
+    "x": 518900.25,
+    "y": -671976.2,
+    "type": "fast_travel",
+    "localized_name": "Gilded City Ruins",
+    "map": "Tree"
+  },
+  {
+    "x": 80120.2,
+    "y": 21277.26,
+    "type": "fast_travel",
+    "localized_name": "Astral Mountains Garden Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -250506.48,
+    "y": 341109.6,
+    "type": "fast_travel",
+    "localized_name": "Marsh Island Church Ruins",
+    "map": "MainMap"
+  },
+  {
+    "x": 85482.98,
+    "y": 306597.12,
+    "type": "fast_travel",
+    "localized_name": "Sandstone Plateau Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -644486.0,
+    "y": -276536.5,
+    "type": "fast_travel",
+    "localized_name": "Crystallized Great Tree",
+    "map": "MainMap"
+  },
+  {
+    "x": -374180.0,
+    "y": 63960.0,
+    "type": "fast_travel",
+    "localized_name": "Small Cove",
+    "map": "MainMap"
+  },
+  {
+    "x": -798776.8,
+    "y": -479574.8,
+    "type": "fast_travel",
+    "localized_name": "Feybreak Shipwreck",
+    "map": "MainMap"
+  },
+  {
+    "x": -588140.0,
+    "y": -253780.0,
+    "type": "fast_travel",
+    "localized_name": "Stone Pillar Cave Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -170400.0,
+    "y": -29240.0,
+    "type": "fast_travel",
+    "localized_name": "Kelpsea Hill",
+    "map": "MainMap"
+  },
+  {
+    "x": -237610.0,
+    "y": 190610.0,
+    "type": "fast_travel",
+    "localized_name": "Hypocrite Hill",
+    "map": "MainMap"
+  },
+  {
+    "x": -888080.0,
+    "y": -433080.0,
+    "type": "fast_travel",
+    "localized_name": "Feybreak Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -346617.56,
+    "y": 191706.6,
+    "type": "fast_travel",
+    "localized_name": "Small Settlement",
+    "map": "MainMap"
+  },
+  {
+    "x": -278468.03,
+    "y": 212679.42,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of the Frozen Wings",
+    "map": "MainMap"
+  },
+  {
+    "x": 600577.56,
+    "y": -599143.06,
+    "type": "fast_travel",
+    "localized_name": "Corroded Hollow",
+    "map": "Tree"
+  },
+  {
+    "x": -63520.73,
+    "y": -55005.94,
+    "type": "fast_travel",
+    "localized_name": "Sakurajima - Mushroom Wetlands",
+    "map": "MainMap"
+  },
+  {
+    "x": -603491.1,
+    "y": -338965.25,
+    "type": "fast_travel",
+    "localized_name": "Scarlet Outlook",
+    "map": "MainMap"
+  },
+  {
+    "x": -349535.5,
+    "y": -4035.11,
+    "type": "fast_travel",
+    "localized_name": "Foot of the Volcano",
+    "map": "MainMap"
+  },
+  {
+    "x": -115430.0,
+    "y": 289090.0,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of the Swift",
+    "map": "MainMap"
+  },
+  {
+    "x": -265220.0,
+    "y": 173530.0,
+    "type": "fast_travel",
+    "localized_name": "Free Pal Alliance Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": 501010.0,
+    "y": -748555.0,
+    "type": "fast_travel",
+    "localized_name": "Within the Seal",
+    "map": "Tree"
+  },
+  {
+    "x": 508240.53,
+    "y": -696869.5,
+    "type": "fast_travel",
+    "localized_name": "Gilded City Ruins Watchtower",
+    "map": "Tree"
+  },
+  {
+    "x": -151842.0,
+    "y": 213101.45,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of the Mystic",
+    "map": "MainMap"
+  },
+  {
+    "x": -777490.0,
+    "y": -40589.0,
+    "type": "fast_travel",
+    "localized_name": "Azure Covenant Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -327531.78,
+    "y": -70410.55,
+    "type": "fast_travel",
+    "localized_name": "Mount Obsidian - Midpoint",
+    "map": "MainMap"
+  },
+  {
+    "x": -218636.78,
+    "y": 58528.14,
+    "type": "fast_travel",
+    "localized_name": "Investigator's Fork",
+    "map": "MainMap"
+  },
+  {
+    "x": -266957.53,
+    "y": 93228.6,
+    "type": "fast_travel",
+    "localized_name": "Whisperwind Cliffs",
+    "map": "MainMap"
+  },
+  {
+    "x": -421434.34,
+    "y": 29307.67,
+    "type": "fast_travel",
+    "localized_name": "Sea Breeze Coast",
+    "map": "MainMap"
+  },
+  {
+    "x": -811466.56,
+    "y": -85874.31,
+    "type": "fast_travel",
+    "localized_name": "Waterlily Gorge",
+    "map": "MainMap"
+  },
+  {
+    "x": -215388.52,
+    "y": 8854.22,
+    "type": "fast_travel",
+    "localized_name": "Deep Bamboo Thicket",
+    "map": "MainMap"
+  },
+  {
+    "x": -61819.01,
+    "y": -246053.52,
+    "type": "fast_travel",
+    "localized_name": "Suncrest Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": -886234.25,
+    "y": -483745.94,
+    "type": "fast_travel",
+    "localized_name": "Exile's Cape",
+    "map": "MainMap"
+  },
+  {
+    "x": 14388.18,
+    "y": 476545.6,
+    "type": "fast_travel",
+    "localized_name": "Desiccated Coast",
+    "map": "MainMap"
+  },
+  {
+    "x": -219172.86,
+    "y": 226394.84,
+    "type": "fast_travel",
+    "localized_name": "Gobfin's Turf",
+    "map": "MainMap"
+  },
+  {
+    "x": 63442.54,
+    "y": 507395.38,
+    "type": "fast_travel",
+    "localized_name": "Flamepulse Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": 125988.7,
+    "y": 274597.84,
+    "type": "fast_travel",
+    "localized_name": "Frozen Dune Cape",
+    "map": "MainMap"
+  },
+  {
+    "x": -818013.06,
+    "y": 59827.72,
+    "type": "fast_travel",
+    "localized_name": "Enchanted Firmament",
+    "map": "MainMap"
+  },
+  {
+    "x": 32787.1,
+    "y": -81420.33,
+    "type": "fast_travel",
+    "localized_name": "Sakurajima - Northern Rock Field",
+    "map": "MainMap"
+  },
+  {
+    "x": -160345.17,
+    "y": 98540.79,
+    "type": "fast_travel",
+    "localized_name": "Anubis Dunes",
+    "map": "MainMap"
+  },
+  {
+    "x": -629186.6,
+    "y": -425621.62,
+    "type": "fast_travel",
+    "localized_name": "Scorched Plateau Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": 483205.0,
+    "y": -672790.0,
+    "type": "fast_travel",
+    "localized_name": "Spore Cloister",
+    "map": "Tree"
+  },
+  {
+    "x": -156482.23,
+    "y": 317415.3,
+    "type": "fast_travel",
+    "localized_name": "Altar of the Windcaller",
+    "map": "MainMap"
+  },
+  {
+    "x": -2188.8,
+    "y": -148545.86,
+    "type": "fast_travel",
+    "localized_name": "Secluded Cemetery",
+    "map": "MainMap"
+  },
+  {
+    "x": 191211.2,
+    "y": 375334.7,
+    "type": "fast_travel",
+    "localized_name": "The Furthest Flats",
+    "map": "MainMap"
+  },
+  {
+    "x": -506737.8,
+    "y": -396063.44,
+    "type": "fast_travel",
+    "localized_name": "Curved Redrock",
+    "map": "MainMap"
+  },
+  {
+    "x": -30426.69,
+    "y": 364547.25,
+    "type": "fast_travel",
+    "localized_name": "Searing Dunes Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -237086.58,
+    "y": -100489.86,
+    "type": "fast_travel",
+    "localized_name": "Ruined Fortress City",
+    "map": "MainMap"
+  },
+  {
+    "x": -984033.7,
+    "y": -371189.75,
+    "type": "fast_travel",
+    "localized_name": "Bicornis Islet",
+    "map": "MainMap"
+  },
+  {
+    "x": -33882.15,
+    "y": 564292.5,
+    "type": "fast_travel",
+    "localized_name": "Oasis Isle",
+    "map": "MainMap"
+  },
+  {
+    "x": 570652.3,
+    "y": -558439.5,
+    "type": "fast_travel",
+    "localized_name": "Dusty Ravine",
+    "map": "Tree"
+  },
+  {
+    "x": 491660.0,
+    "y": -593705.0,
+    "type": "fast_travel",
+    "localized_name": "Alluvion Lakefront",
+    "map": "Tree"
+  },
+  {
+    "x": -197246.98,
+    "y": 140509.75,
+    "type": "fast_travel",
+    "localized_name": "Crescent Moon Shore Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -119037.29,
+    "y": 138340.36,
+    "type": "fast_travel",
+    "localized_name": "Cold Shore",
+    "map": "MainMap"
+  },
+  {
+    "x": -865524.3,
+    "y": -352355.03,
+    "type": "fast_travel",
+    "localized_name": "Azure Cliffs",
+    "map": "MainMap"
+  },
+  {
+    "x": -38097.32,
+    "y": 53412.52,
+    "type": "fast_travel",
+    "localized_name": "Garden Beneath the Cliffs",
+    "map": "MainMap"
+  },
+  {
+    "x": -342035.0,
+    "y": 236885.0,
+    "type": "fast_travel",
+    "localized_name": "Grassy Behemoth Hills",
+    "map": "MainMap"
+  },
+  {
+    "x": -792350.0,
+    "y": -251110.0,
+    "type": "fast_travel",
+    "localized_name": "Loess Plains",
+    "map": "MainMap"
+  },
+  {
+    "x": -169159.0,
+    "y": 251231.89,
+    "type": "fast_travel",
+    "localized_name": "Verdant Stream Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -338560.0,
+    "y": 107660.0,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of the Ardent",
+    "map": "MainMap"
+  },
+  {
+    "x": 89624.98,
+    "y": 94363.32,
+    "type": "fast_travel",
+    "localized_name": "PAL Genetic Research Unit Tower Entrance",
+    "map": "MainMap"
+  },
+  {
+    "x": -335853.84,
+    "y": 335361.28,
+    "type": "fast_travel",
+    "localized_name": "Sunlit Isle",
+    "map": "MainMap"
+  },
+  {
+    "x": -364381.7,
+    "y": -55619.27,
+    "type": "fast_travel",
+    "localized_name": "Scorched Obsidian Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -71914.8,
+    "y": 472172.2,
+    "type": "fast_travel",
+    "localized_name": "Thirst's End",
+    "map": "MainMap"
+  },
+  {
+    "x": -26445.19,
+    "y": 140098.22,
+    "type": "fast_travel",
+    "localized_name": "Icy Weasel Hill Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": 405904.9,
+    "y": -729214.1,
+    "type": "fast_travel",
+    "localized_name": "Shinespore Root",
+    "map": "Tree"
+  },
+  {
+    "x": -74928.58,
+    "y": 212787.06,
+    "type": "fast_travel",
+    "localized_name": "Verdant Stream",
+    "map": "MainMap"
+  },
+  {
+    "x": -39402.43,
+    "y": 159611.86,
+    "type": "fast_travel",
+    "localized_name": "Icy Weasel Hill",
+    "map": "MainMap"
+  },
+  {
+    "x": -291317.66,
+    "y": 50195.65,
+    "type": "fast_travel",
+    "localized_name": "Bamboo Groves Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -86709.57,
+    "y": -140441.75,
+    "type": "fast_travel",
+    "localized_name": "Sakurajima - Southern Sandbar",
+    "map": "MainMap"
+  },
+  {
+    "x": -698514.94,
+    "y": -322880.4,
+    "type": "fast_travel",
+    "localized_name": "Hidden Passage to the Oculus Gate",
+    "map": "MainMap"
+  },
+  {
+    "x": -224958.11,
+    "y": 285919.22,
+    "type": "fast_travel",
+    "localized_name": "Mossanda Inner Coast",
+    "map": "MainMap"
+  },
+  {
+    "x": -88645.85,
+    "y": -3922.88,
+    "type": "fast_travel",
+    "localized_name": "Isle of Murmurs",
+    "map": "MainMap"
+  },
+  {
+    "x": -236840.52,
+    "y": 34772.58,
+    "type": "fast_travel",
+    "localized_name": "Whisperwind Hill",
+    "map": "MainMap"
+  },
+  {
+    "x": -49811.68,
+    "y": -104909.2,
+    "type": "fast_travel",
+    "localized_name": "Sakurajima Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "x": -488718.2,
+    "y": -35724.94,
+    "type": "fast_travel",
+    "localized_name": "Sealed Realm of Terraria",
+    "map": "MainMap"
+  },
+  {
+    "x": -221399.27,
+    "y": 330684.53,
+    "type": "fast_travel",
+    "localized_name": "Natural Bridge",
+    "map": "MainMap"
+  },
+  {
+    "x": -923275.1,
+    "y": -385109.12,
+    "type": "fast_travel",
+    "localized_name": "Amethyst Outcrop",
+    "map": "MainMap"
+  },
+  {
+    "x": -221230.0,
+    "y": 165130.0,
+    "type": "fast_travel",
+    "localized_name": "Lake Center",
+    "map": "MainMap"
+  },
+  {
+    "x": -416557.53,
+    "y": -90012.16,
+    "type": "fast_travel",
+    "localized_name": "Mount Obsidian - Anubis Statue",
+    "map": "MainMap"
+  },
+  {
+    "x": 628791.56,
+    "y": -610720.44,
+    "type": "fast_travel",
+    "localized_name": "Rotmist Root",
+    "map": "Tree"
+  },
+  {
+    "x": -578061.0,
+    "y": -158216.08,
+    "type": "fast_travel",
+    "localized_name": "Crimson Cliffs",
+    "map": "MainMap"
+  },
+  {
+    "x": -809414.25,
+    "y": 23955.22,
+    "type": "fast_travel",
+    "localized_name": "Sunreach Watchtower",
+    "map": "MainMap"
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Horus_Water",
+    "x": -867560.9,
+    "y": -441338.22,
+    "map": "MainMap",
+    "level": 66
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrimGirl",
+    "x": -791868.2,
+    "y": -337175.94,
+    "map": "MainMap",
+    "level": 65
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WhiteDeer",
+    "x": -661871.9,
+    "y": -284991.84,
+    "map": "MainMap",
+    "level": 65
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "PoseidonOrca",
+    "x": 175142.77,
+    "y": 221586.5,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrassRabbitMan",
+    "x": -119314.52,
+    "y": 288958.4,
+    "map": "MainMap",
+    "level": 35
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "CaptainPenguin",
+    "x": -285331.3,
+    "y": 210162.69,
+    "map": "MainMap",
+    "level": 15
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BerryGoat_Dark",
+    "x": -426590.0,
+    "y": 90670.0,
+    "map": "MainMap",
+    "level": 23
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GhostRabbit",
+    "x": -589257.2,
+    "y": -265874.4,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BadCatgirl",
+    "x": -544943.3,
+    "y": -264111.88,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BlackPuppy",
+    "x": -797364.2,
+    "y": -245386.88,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FoxMage",
+    "x": -226362.23,
+    "y": 231993.33,
+    "map": "MainMap",
+    "level": 28
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "IceFox",
+    "x": -276240.0,
+    "y": 268990.0,
+    "map": "MainMap",
+    "level": 15
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Mutant",
+    "x": -147025.53,
+    "y": 217379.17,
+    "map": "MainMap",
+    "level": 35
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WhiteMoth",
+    "x": -92059.77,
+    "y": 273741.9,
+    "map": "MainMap",
+    "level": 40
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "VioletFairy",
+    "x": -245458.9,
+    "y": 149122.0,
+    "map": "MainMap",
+    "level": 27
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "MoonChild",
+    "x": -773523.9,
+    "y": 51495.86,
+    "map": "MainMap",
+    "level": 66
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Ronin",
+    "x": -282853.72,
+    "y": 64952.2,
+    "map": "MainMap",
+    "level": 25
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "CubeTurtle_Neutral",
+    "x": -729794.06,
+    "y": -338535.5,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Manticore",
+    "x": -183818.9,
+    "y": 40647.84,
+    "map": "MainMap",
+    "level": 30
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WhiteShieldDragon",
+    "x": -593253.1,
+    "y": -294034.56,
+    "map": "MainMap",
+    "level": 62
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FlameBuffalo",
+    "x": -349072.88,
+    "y": 104534.98,
+    "map": "MainMap",
+    "level": 15
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BlueberryFairy",
+    "x": -568029.2,
+    "y": -464143.12,
+    "map": "MainMap",
+    "level": 63
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Kitsunebi_Ice",
+    "x": -149050.0,
+    "y": -30550.0,
+    "map": "MainMap",
+    "level": 15
+  },
+  {
+    "type": "predator_pal",
+    "pal": "SifuDog",
+    "x": -249150.0,
+    "y": 47780.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "PurpleSpider",
+    "x": -260656.53,
+    "y": 129341.76,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "LazyDragon",
+    "x": -283650.0,
+    "y": 147100.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Umihebi_Fire",
+    "x": -329220.0,
+    "y": -51630.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FengyunDeeper_Electric",
+    "x": -649837.06,
+    "y": -235616.66,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "predator_pal",
+    "pal": "PinkLizard",
+    "x": -318898.75,
+    "y": 86800.91,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Gorilla",
+    "x": -377810.0,
+    "y": 31720.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "DrillGame",
+    "x": -464660.0,
+    "y": -115480.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "GrimGirl",
+    "x": -21460.0,
+    "y": -123580.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Werewolf_Ice",
+    "x": -11000.0,
+    "y": 69160.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "MushroomDragon",
+    "x": -46930.0,
+    "y": -63680.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "ScorpionMan",
+    "x": -26610.0,
+    "y": 385860.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "AmaterasuWolf",
+    "x": -47628.45,
+    "y": 147755.06,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "FairyDragon",
+    "x": -63920.0,
+    "y": 2010.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Horus_Water",
+    "x": -59150.0,
+    "y": 107330.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Werewolf_Ice",
+    "x": -773027.4,
+    "y": -368265.88,
+    "map": "MainMap",
+    "level": 66
+  },
+  {
+    "type": "predator_pal",
+    "pal": "VolcanicMonster_Ice",
+    "x": -80710.0,
+    "y": 241410.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "FlowerDinosaur",
+    "x": -107400.0,
+    "y": 180590.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Garm",
+    "x": -139220.0,
+    "y": 8790.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "GhostBeast",
+    "x": -147040.0,
+    "y": 234240.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "ThunderDog",
+    "x": -172100.0,
+    "y": 271020.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "RedArmorBird",
+    "x": -155820.36,
+    "y": 314737.6,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "GrassPanda",
+    "x": -198120.0,
+    "y": 12210.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "NightBlueHorse",
+    "x": -181520.0,
+    "y": 167290.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "GoldenHorse",
+    "x": -227181.38,
+    "y": -116672.16,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "BirdDragon",
+    "x": -205400.0,
+    "y": 324230.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrassGolem",
+    "x": 517450.0,
+    "y": -626940.0,
+    "map": "Tree",
+    "level": 75
+  },
+  {
+    "type": "predator_pal",
+    "pal": "MysteryMask",
+    "x": -225550.0,
+    "y": 161970.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "FeatherOstrich",
+    "x": 20638.32,
+    "y": 329931.44,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Yeti",
+    "x": 50780.0,
+    "y": 23130.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "WhiteTiger_Ground",
+    "x": 42910.0,
+    "y": 279290.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "predator_pal",
+    "pal": "Manticore_Dark",
+    "x": 94990.0,
+    "y": 32590.0,
+    "map": "MainMap"
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WhiteDeer_Dark",
+    "x": 520440.0,
+    "y": -727175.0,
+    "map": "Tree",
+    "level": 79
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "IceNarwhal_Fire",
+    "x": 526910.2,
+    "y": -581727.6,
+    "map": "Tree",
+    "level": 74
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "MushroomLady",
+    "x": 458095.0,
+    "y": -694560.0,
+    "map": "Tree",
+    "level": 78
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "VolcanoDragon_Ice",
+    "x": 571870.0,
+    "y": -733420.0,
+    "map": "Tree",
+    "level": 78
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "HerculesBeetle_Ground",
+    "x": -691248.6,
+    "y": -309680.34,
+    "map": "MainMap",
+    "level": 64
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "KabukiMan",
+    "x": 601096.75,
+    "y": -572063.06,
+    "map": "Tree",
+    "level": 78
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "DomeArmorDragon",
+    "x": 491580.78,
+    "y": -725697.06,
+    "map": "Tree",
+    "level": 79
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FlowerDinosaur_Electric",
+    "x": -46108.39,
+    "y": 302547.8,
+    "map": "MainMap",
+    "level": 47
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Suzaku",
+    "x": 97716.31,
+    "y": 307499.7,
+    "map": "MainMap",
+    "level": 45
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "DarkScorpion",
+    "x": 122760.0,
+    "y": 318710.0,
+    "map": "MainMap",
+    "level": 44
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "CubeTurtle",
+    "x": 50564.78,
+    "y": 357757.47,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "SaintCentaur",
+    "x": 187731.2,
+    "y": 359897.25,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "VolcanoDragon",
+    "x": -1033347.94,
+    "y": -358750.8,
+    "map": "MainMap",
+    "level": 70
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "RockBeast",
+    "x": 90345.45,
+    "y": 534007.8,
+    "map": "MainMap",
+    "level": 50
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "CactusDoll",
+    "x": -450359.53,
+    "y": 356886.22,
+    "map": "MainMap",
+    "level": 40
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GoldenHorse",
+    "x": -772213.2,
+    "y": -273563.47,
+    "map": "MainMap",
+    "level": 63
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "ScorpionMan_Electric",
+    "x": -404768.2,
+    "y": -444910.75,
+    "map": "MainMap",
+    "level": 70
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrassGolem_Dark",
+    "x": -558869.94,
+    "y": -619480.75,
+    "map": "MainMap",
+    "level": 70
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrassGolem",
+    "x": -169138.25,
+    "y": 575683.1,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "KingAlpaca_Ice",
+    "x": 39324.88,
+    "y": -18772.69,
+    "map": "MainMap",
+    "level": 46
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "IceNarwhal",
+    "x": 262730.0,
+    "y": 75740.0,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "IceHorse",
+    "x": 109790.0,
+    "y": -5880.0,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "LilyQueen",
+    "x": 14681.05,
+    "y": -132067.56,
+    "map": "MainMap",
+    "level": 58
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "DarkScorpion_Ground",
+    "x": 21745.54,
+    "y": -109001.64,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "LilyQueen_Dark",
+    "x": 15843.52,
+    "y": -130382.9,
+    "map": "MainMap",
+    "level": 58
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FoxExorcist",
+    "x": -821552.1,
+    "y": 46132.06,
+    "map": "MainMap",
+    "level": 68
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "MysteryMask",
+    "x": -550552.06,
+    "y": -166886.31,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GhostDragon",
+    "x": -822007.0,
+    "y": -66402.0,
+    "map": "MainMap",
+    "level": 69
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "JetDragon",
+    "x": -735438.4,
+    "y": -95932.93,
+    "map": "MainMap",
+    "level": 70
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "ThunderFluffyBird",
+    "x": -822824.0,
+    "y": 16747.0,
+    "map": "MainMap",
+    "level": 67
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "ElecLizard",
+    "x": -746847.06,
+    "y": -10678.01,
+    "map": "MainMap",
+    "level": 66
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "LotusDragon",
+    "x": -802420.0,
+    "y": -112610.0,
+    "map": "MainMap",
+    "level": 69
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "ElecSnail",
+    "x": -772844.0,
+    "y": -11173.0,
+    "map": "MainMap",
+    "level": 65
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Anubis",
+    "x": -167230.0,
+    "y": 96430.0,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrassMammoth",
+    "x": -343155.0,
+    "y": 244585.0,
+    "map": "MainMap",
+    "level": 38
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WeaselDragon",
+    "x": -315583.53,
+    "y": 237116.97,
+    "map": "MainMap",
+    "level": 11
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FengyunDeeper",
+    "x": -333940.0,
+    "y": 39610.0,
+    "map": "MainMap",
+    "level": 25
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WhiteTiger_Ground",
+    "x": -721639.0,
+    "y": -432015.0,
+    "map": "MainMap",
+    "level": 62
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Kirin",
+    "x": -372950.0,
+    "y": 104400.0,
+    "map": "MainMap",
+    "level": 31
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "ThunderBird",
+    "x": -113197.67,
+    "y": 201490.47,
+    "map": "MainMap",
+    "level": 37
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BlueDragon",
+    "x": -246100.0,
+    "y": 77200.0,
+    "map": "MainMap",
+    "level": 40
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "NaughtyCat",
+    "x": -236727.1,
+    "y": 321310.12,
+    "map": "MainMap",
+    "level": 17
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "KingAlpaca",
+    "x": -335225.0,
+    "y": 180735.0,
+    "map": "MainMap",
+    "level": 23
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "SakuraSaurus",
+    "x": -431050.44,
+    "y": 56140.59,
+    "map": "MainMap",
+    "level": 23
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Umihebi",
+    "x": -162910.0,
+    "y": 318720.0,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "FairyDragon",
+    "x": -254060.0,
+    "y": 178050.0,
+    "map": "MainMap",
+    "level": 30
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "LazyCatfish",
+    "x": -122060.0,
+    "y": 15810.0,
+    "map": "MainMap",
+    "level": 14
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "HawkBird",
+    "x": -155950.0,
+    "y": 31260.0,
+    "map": "MainMap",
+    "level": 18
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "NightBlueHorse",
+    "x": -717565.94,
+    "y": -251787.33,
+    "map": "MainMap",
+    "level": 63
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "PurpleSpider",
+    "x": -239436.58,
+    "y": 345.75,
+    "map": "MainMap",
+    "level": 35
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "PlantSlime",
+    "x": -412259.28,
+    "y": 106237.67,
+    "map": "MainMap",
+    "level": 11
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "MopKing",
+    "x": -396003.12,
+    "y": 53772.16,
+    "map": "MainMap",
+    "level": 11
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "GrassPanda_Electric",
+    "x": -206970.0,
+    "y": 363810.0,
+    "map": "MainMap",
+    "level": 31
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "Yeti_Grass",
+    "x": -147370.0,
+    "y": 364010.0,
+    "map": "MainMap",
+    "level": 38
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "QueenBee",
+    "x": -162481.34,
+    "y": 233115.23,
+    "map": "MainMap",
+    "level": 39
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "WingGolem",
+    "x": -238810.95,
+    "y": -110487.63,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "VolcanicMonster",
+    "x": -322819.97,
+    "y": -93429.84,
+    "map": "MainMap",
+    "level": 50
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "KingBahamut",
+    "x": -276069.47,
+    "y": -180092.97,
+    "map": "MainMap",
+    "level": 52
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BlackMetalDragon",
+    "x": -174578.95,
+    "y": -158213.75,
+    "map": "MainMap",
+    "level": 55
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "RaijinDaughter_Water",
+    "x": -516157.0,
+    "y": -393151.12,
+    "map": "MainMap",
+    "level": 60
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "ElecPanda",
+    "x": -443860.8,
+    "y": 183689.42,
+    "map": "MainMap",
+    "level": 30
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "IceHorse_Dark",
+    "x": 173548.3,
+    "y": 474295.44,
+    "map": "MainMap",
+    "level": 65
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "AmaterasuWolf_Dark",
+    "x": -723782.7,
+    "y": -230996.66,
+    "map": "MainMap",
+    "level": 65
+  },
+  {
+    "type": "alpha_pal",
+    "pal": "BlueThunderHorse",
+    "x": -889441.3,
+    "y": -361294.3,
+    "map": "MainMap",
+    "level": 66
+  },
+  {
+    "x": 936.83,
+    "y": -128792.5,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -585393.8,
+    "y": -338144.72,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -36660.12,
+    "y": 148978.95,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -265204.06,
+    "y": 131385.12,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -346468.22,
+    "y": 214850.02,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 136262.53,
+    "y": 88305.4,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -250000.34,
+    "y": 120261.4,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -287925.97,
+    "y": -191141.92,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -173408.44,
+    "y": 166837.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -15641.82,
+    "y": -137406.38,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -485315.12,
+    "y": -34972.19,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -22520.58,
+    "y": 313714.28,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -307418.28,
+    "y": 225000.78,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -338708.5,
+    "y": 161823.08,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -155066.94,
+    "y": 296284.66,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -652504.44,
+    "y": -439189.22,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -37363.29,
+    "y": -152096.67,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -186504.7,
+    "y": 268455.56,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -121016.87,
+    "y": 212487.1,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -110032.66,
+    "y": -71996.59,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 15729.53,
+    "y": 267188.94,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -125215.91,
+    "y": 174427.38,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -211384.67,
+    "y": 182474.86,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -137086.11,
+    "y": -50427.56,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -364797.3,
+    "y": 181681.66,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -251818.6,
+    "y": 164041.66,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -671787.0,
+    "y": -192539.98,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 135090.5,
+    "y": 64370.32,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 85201.23,
+    "y": 312813.88,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -3297.48,
+    "y": 53484.94,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -315091.6,
+    "y": -52063.6,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -363251.12,
+    "y": 167049.92,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -219424.83,
+    "y": 165811.12,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -203748.6,
+    "y": 90007.32,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -289138.2,
+    "y": -209876.05,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -279321.47,
+    "y": 101902.94,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 61320.0,
+    "y": 418400.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 2547.95,
+    "y": 172474.5,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -36843.14,
+    "y": 454971.78,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 41444.24,
+    "y": 27335.72,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -340404.62,
+    "y": 58438.68,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -221494.6,
+    "y": 27971.86,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -330139.03,
+    "y": 200216.97,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -209589.38,
+    "y": 163211.5,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -213940.0,
+    "y": 398860.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -84794.05,
+    "y": 286150.22,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -315044.72,
+    "y": 54365.9,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -588020.0,
+    "y": -254710.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -877132.9,
+    "y": -430141.72,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 101675.28,
+    "y": 373450.72,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -61090.59,
+    "y": -5748.06,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -837426.0,
+    "y": -9351.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -189599.53,
+    "y": 372690.3,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -4513.04,
+    "y": 424323.72,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -404448.4,
+    "y": 64664.34,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -400575.6,
+    "y": -35335.31,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -130866.33,
+    "y": 230761.69,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -386508.1,
+    "y": -12226.48,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 143019.12,
+    "y": 9658.51,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -24131.92,
+    "y": -110237.73,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -322793.12,
+    "y": 185433.95,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -405155.94,
+    "y": -176237.36,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -843324.4,
+    "y": -404753.84,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -798439.8,
+    "y": -331101.8,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -683335.7,
+    "y": -279554.97,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -339127.47,
+    "y": 193425.61,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -669586.3,
+    "y": -394684.16,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -120225.01,
+    "y": 25862.93,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -296998.28,
+    "y": 212680.78,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -335586.6,
+    "y": -104884.1,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -733449.0,
+    "y": -320729.53,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -58507.24,
+    "y": 157466.9,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -61859.88,
+    "y": 204435.4,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -42658.46,
+    "y": -122726.34,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -267882.53,
+    "y": 327448.2,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -597250.44,
+    "y": -301345.4,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -325692.12,
+    "y": 83869.57,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -180769.03,
+    "y": 163430.77,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -702808.5,
+    "y": -335070.7,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -176948.36,
+    "y": 200393.8,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -768983.8,
+    "y": -257968.58,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -311425.0,
+    "y": 151135.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 42530.34,
+    "y": 203883.6,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -163447.64,
+    "y": 229313.19,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -13807.57,
+    "y": -152802.98,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -26780.0,
+    "y": 354640.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -281167.4,
+    "y": 88738.35,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 20555.75,
+    "y": 102617.6,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -101785.07,
+    "y": 205029.23,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -164661.72,
+    "y": 153125.2,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -817170.0,
+    "y": -461060.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -739658.9,
+    "y": -310238.78,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -215213.8,
+    "y": 265367.6,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -17730.91,
+    "y": -73667.05,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -374132.75,
+    "y": -89184.65,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -2514.63,
+    "y": -106358.34,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 63496.1,
+    "y": 333388.16,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -431538.06,
+    "y": 82092.4,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -800228.8,
+    "y": -286975.7,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -624781.9,
+    "y": -247472.5,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -74146.06,
+    "y": -63473.69,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 101576.62,
+    "y": 18990.65,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -245011.25,
+    "y": 335769.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -554303.94,
+    "y": -314140.56,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -337808.62,
+    "y": 30763.02,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -320921.66,
+    "y": -100230.68,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 26498.53,
+    "y": 75921.09,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -268094.03,
+    "y": -53009.18,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -217124.6,
+    "y": 138061.36,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 14688.69,
+    "y": 384880.8,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -333902.78,
+    "y": -205767.4,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -372111.75,
+    "y": 161187.75,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 10312.33,
+    "y": -115227.17,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -194214.64,
+    "y": 239238.69,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -753200.0,
+    "y": -274400.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -107243.01,
+    "y": 24363.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -230933.7,
+    "y": 152106.48,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -372024.53,
+    "y": 278564.66,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -32453.78,
+    "y": -106978.17,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -181432.97,
+    "y": 350147.84,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 9258.16,
+    "y": -142072.25,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -635848.56,
+    "y": -271258.94,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -640033.75,
+    "y": -344681.72,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -225251.94,
+    "y": -13333.92,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -196751.97,
+    "y": 176316.2,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -74916.76,
+    "y": 372458.47,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -231307.81,
+    "y": 73146.88,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -124929.0,
+    "y": -79963.57,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -256755.73,
+    "y": 26900.88,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -389335.2,
+    "y": 108597.55,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -302529.38,
+    "y": 52391.46,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -202257.86,
+    "y": 31403.27,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -429603.38,
+    "y": 94092.7,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -320588.1,
+    "y": 113800.28,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 47436.18,
+    "y": -9661.42,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -368225.28,
+    "y": -74478.06,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -220790.0,
+    "y": 234113.03,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 21557.57,
+    "y": 309214.78,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -62924.05,
+    "y": 412516.97,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -57776.31,
+    "y": 228600.25,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -39021.6,
+    "y": -39231.31,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -301121.12,
+    "y": 179718.17,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -259060.98,
+    "y": 280351.5,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -288304.3,
+    "y": 227049.95,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -57139.16,
+    "y": -86089.53,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -376218.16,
+    "y": 48671.66,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -696510.0,
+    "y": -309770.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -502169.7,
+    "y": -346285.5,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -250341.31,
+    "y": 183436.67,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -238650.75,
+    "y": -121688.11,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -383502.84,
+    "y": 99617.95,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -563204.8,
+    "y": -229685.1,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -315807.78,
+    "y": 107247.59,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -740400.0,
+    "y": -345130.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -265755.38,
+    "y": -164168.52,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -778536.75,
+    "y": -381700.44,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -613348.6,
+    "y": -320523.06,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -239159.88,
+    "y": 205386.8,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -129471.89,
+    "y": 253439.78,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -257638.36,
+    "y": 141158.6,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -512833.9,
+    "y": -284233.53,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -134629.19,
+    "y": 6185.44,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -319255.0,
+    "y": 213145.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -796816.5,
+    "y": -365816.16,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 139611.05,
+    "y": 324306.53,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -392681.62,
+    "y": -208957.25,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -744310.0,
+    "y": -372750.0,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": 80038.95,
+    "y": 6386.82,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -25056.86,
+    "y": 113597.3,
+    "type": "dungeon",
+    "map": "MainMap"
+  },
+  {
+    "x": -6205.63,
+    "y": 255610.88,
+    "type": "dungeon",
+    "map": "MainMap"
+  }
 ]

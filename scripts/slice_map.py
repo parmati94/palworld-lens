@@ -23,10 +23,17 @@ Image.MAX_IMAGE_PIXELS = None
 
 SCRIPTS_DIR  = Path(__file__).parent
 PROJECT_ROOT = SCRIPTS_DIR.parent
-INPUT_IMAGE  = PROJECT_ROOT / 'frontend' / 'public' / 'img' / 'World_Map_8k.webp'
-OUTPUT_DIR   = PROJECT_ROOT / 'frontend' / 'public' / 'img' / 'tiles'
+IMG_DIR      = PROJECT_ROOT / 'frontend' / 'public' / 'img'
+
+# One entry per map layer the game ships (see DT_WorldMapUIData). Palworld 1.0
+# added the World Tree as a second layer with its own texture and bounds.
+MAPS = [
+    ('World_Map_8k.webp', 'tiles'),        # MainMap -- Palpagos
+    ('Tree_Map_8k.webp',  'tiles_tree'),   # Tree    -- World Tree region
+]
 
 TILE_PX       = 256
+OUTPUT_DIR    = None             # set per-map by slice_one()
 OUTPUT_ZOOMS  = range(0, 6)      # z5 = 8192/256 = 32 tiles = native
 WEBP_QUALITY  = 90
 WEBP_METHOD   = 4                # 0=fast .. 6=slowest; 4 is ~6's size, far faster
@@ -49,20 +56,21 @@ def _write_column(args):
     return n
 
 
-def slice_map():
-    global _SCALED
+def slice_one(input_image, output_dir):
+    global _SCALED, OUTPUT_DIR
+    OUTPUT_DIR = output_dir
 
-    if not INPUT_IMAGE.exists():
-        print(f"Error: source image not found: {INPUT_IMAGE}")
+    if not input_image.exists():
+        print(f"Error: source image not found: {input_image}")
         return 1
 
-    print(f"Loading {INPUT_IMAGE.name} ...")
-    src = Image.open(INPUT_IMAGE).convert('RGB')
+    print(f"Loading {input_image.name} ...")
+    src = Image.open(input_image).convert('RGB')
     print(f"  {src.width}x{src.height}")
 
     ctx   = get_context('fork')
     nproc = os.cpu_count() or 4
-    print(f"Slicing zooms {list(OUTPUT_ZOOMS)} -> {OUTPUT_DIR} "
+    print(f"Slicing zooms {list(OUTPUT_ZOOMS)} -> {OUTPUT_DIR.name} "
           f"(WebP q{WEBP_QUALITY}, {nproc} workers)")
 
     # Walk high->low zoom so each level downsamples from the previous (2x larger)
@@ -96,8 +104,15 @@ def slice_map():
     _SCALED = None
     total = sum(1 for _ in OUTPUT_DIR.rglob('*.webp'))
     mb    = sum(f.stat().st_size for f in OUTPUT_DIR.rglob('*.webp')) / 1e6
-    print(f"Done in {time.time()-t_all:.1f}s. {total:,} tiles, {mb:.1f} MB")
+    print(f"  done in {time.time()-t_all:.1f}s: {total:,} tiles, {mb:.1f} MB\n")
     return 0
+
+
+def slice_map():
+    rc = 0
+    for name, out in MAPS:
+        rc |= slice_one(IMG_DIR / name, IMG_DIR / out)
+    return rc
 
 
 if __name__ == "__main__":

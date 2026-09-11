@@ -2,7 +2,7 @@
  * Alpine.js + Leaflet Map Component
  * Note: saveToMapCoords is now in utils.js
  */
-import { saveToMapCoords } from './utils.js';
+import { saveToMapCoords, layerForCoords, MAP_LAYERS } from './utils.js';
 
 export function leafletMapComponent() {
     return {
@@ -26,6 +26,12 @@ export function leafletMapComponent() {
         // Static map objects (loaded once)
         mapObjects: null,
         mapObjectsLoaded: false,
+
+        // Which map texture is showing. Palworld 1.0 added the World Tree as a
+        // separate map layer with its own texture and coordinate bounds; objects
+        // are tagged with `map` and only the active layer's are drawn.
+        mapLayer: 'MainMap',
+        tileLayer: null,
         
         init() {
             if (typeof L === 'undefined') return;
@@ -92,7 +98,7 @@ export function leafletMapComponent() {
                 });
 
                 // TILE LAYER
-                L.tileLayer('/img/tiles/{z}/{x}/{y}.webp', {
+                this.tileLayer = L.tileLayer(MAP_LAYERS[this.mapLayer].tiles + '/{z}/{x}/{y}.webp', {
                     minZoom: 0,
                     maxZoom: 7,        // Allow zooming to level 7
                     maxNativeZoom: 5,  // Real tiles up to level 5, digital zoom for 7
@@ -131,6 +137,23 @@ export function leafletMapComponent() {
             }
         },
 
+        /** Swap the visible map texture and redraw everything for that layer. */
+        switchMapLayer(layer) {
+            if (!this.map || layer === this.mapLayer || !MAP_LAYERS[layer]) return;
+            this.mapLayer = layer;
+
+            this.tileLayer.setUrl(MAP_LAYERS[layer].tiles + '/{z}/{x}/{y}.webp');
+
+            // Both textures share the same 0..256 Leaflet space, so recentre
+            // rather than trying to preserve a position that means nothing on
+            // the other layer.
+            this.map.setView([-128, 128], this.map.getZoom());
+
+            this.loadBases();
+            this.loadPlayers();
+            this.renderStaticMapObjects();
+        },
+
         loadBases(retries = 0) {
             // 1. Clear old markers
             this.markers.forEach(marker => marker.remove());
@@ -152,7 +175,10 @@ export function leafletMapComponent() {
             for (const guild of guilds) {
                 if (guild.base_locations) {
                     for (const base of guild.base_locations) {
-                        if (base.x !== undefined && base.y !== undefined) {
+                        // Skip bases that live on the other map layer -- projecting
+                        // them with this layer's bounds would scatter them off-texture.
+                        if (base.x !== undefined && base.y !== undefined
+                            && layerForCoords(base.x, base.y) === this.mapLayer) {
                             this.addBaseMarker(base, guild);
                         }
                     }
@@ -161,7 +187,7 @@ export function leafletMapComponent() {
         },
 
         addBaseMarker(base, guild) {
-            const coords = saveToMapCoords(base.x, base.y);
+            const coords = saveToMapCoords(base.x, base.y, this.mapLayer);
             
             // Calculate real in-game coordinates for display
             const gameX = (base.y - 158000) / 625;
@@ -215,14 +241,15 @@ export function leafletMapComponent() {
             console.log(`👤 Loading markers for ${players.length} players...`);
 
             for (const player of players) {
-                if (player.location && player.location.x !== undefined && player.location.y !== undefined) {
+                if (player.location && player.location.x !== undefined && player.location.y !== undefined
+                    && layerForCoords(player.location.x, player.location.y) === this.mapLayer) {
                     this.addPlayerMarker(player);
                 }
             }
         },
 
         addPlayerMarker(player) {
-            const coords = saveToMapCoords(player.location.x, player.location.y);
+            const coords = saveToMapCoords(player.location.x, player.location.y, this.mapLayer);
             
             // Calculate real in-game coordinates for display
             const gameX = (player.location.y - 158000) / 625;
@@ -293,6 +320,12 @@ export function leafletMapComponent() {
             return bases;
         },
         
+        /** Redraw the static markers for the active layer (no refetch). */
+        renderStaticMapObjects() {
+            this.loadAlphaPals();
+            this.loadFastTravelPoints();
+        },
+
         async loadStaticMapObjects() {
             // Only load once
             if (this.mapObjectsLoaded) {
@@ -335,7 +368,11 @@ export function leafletMapComponent() {
             this.alphaPalMarkers.forEach(marker => marker.remove());
             this.alphaPalMarkers = [];
             
-            const alphaPals = this.mapObjects.filter(obj => obj.type === 'alpha_pal');
+            // Only objects belonging to the visible layer -- a Tree object projected
+            // with MainMap bounds lands far off the texture. Older data has no
+            // 'map' field, so treat missing as MainMap.
+            const alphaPals = this.mapObjects.filter(
+                obj => obj.type === 'alpha_pal' && (obj.map ?? 'MainMap') === this.mapLayer);
             console.log(`🐲 Loading ${alphaPals.length} alpha pal markers...`);
             
             for (const alphaPal of alphaPals) {
@@ -346,7 +383,7 @@ export function leafletMapComponent() {
         },
         
         addAlphaPalMarker(alphaPal) {
-            const coords = saveToMapCoords(alphaPal.x, alphaPal.y);
+            const coords = saveToMapCoords(alphaPal.x, alphaPal.y, this.mapLayer);
             
             // Get pal image ID in the format: t_{paild}_icon_normal.webp
             let imageId = alphaPal.pal.toLowerCase();
@@ -364,7 +401,7 @@ export function leafletMapComponent() {
                 html: `
                     <div class="relative group">
                         <div class="w-8 h-8 bg-black rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
-                            <img src="${iconPath}" class="w-6 h-6 object-contain" alt="${palName}" onerror="this.src='/img/t_icon_item_pal.webp'" />
+                            <img src="${iconPath}" class="w-6 h-6 object-contain" alt="${palName}" onerror="this.onerror=null; this.src='/img/unknown.webp'" />
                         </div>
                         <div class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                             <div class="font-semibold text-yellow-400 break-words">⚔️ ${palName}</div>
@@ -395,7 +432,8 @@ export function leafletMapComponent() {
             this.fastTravelMarkers.forEach(marker => marker.remove());
             this.fastTravelMarkers = [];
             
-            const fastTravelPoints = this.mapObjects.filter(obj => obj.type === 'fast_travel');
+            const fastTravelPoints = this.mapObjects.filter(
+                obj => obj.type === 'fast_travel' && (obj.map ?? 'MainMap') === this.mapLayer);
             console.log(`🚀 Loading ${fastTravelPoints.length} fast travel markers...`);
             
             for (const point of fastTravelPoints) {
@@ -406,7 +444,7 @@ export function leafletMapComponent() {
         },
         
         addFastTravelMarker(point) {
-            const coords = saveToMapCoords(point.x, point.y);
+            const coords = saveToMapCoords(point.x, point.y, this.mapLayer);
             
             const icon = L.divIcon({
                 className: 'fast-travel-marker',
@@ -498,7 +536,7 @@ export function leafletMapComponent() {
         
         centerOnLocation(x, y, zoom = 5) {
             if (this.map && x !== undefined && y !== undefined) {
-                const coords = saveToMapCoords(x, y);
+                const coords = saveToMapCoords(x, y, this.mapLayer);
                 this.map.setView(coords, zoom);
             }
         }
