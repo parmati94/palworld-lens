@@ -180,22 +180,55 @@ export function mapComponent() {
             }
         },
 
-        /** Swap the visible map texture and redraw everything for that layer. */
+        /**
+         * Swap the visible map texture with a cross-fade, and redraw everything
+         * for the new layer.
+         *
+         * Both raster layers are kept in the style; the outgoing one fades to
+         * raster-opacity 0 while the incoming fades to 1 (a GPU paint transition,
+         * so it's free), and the camera eases back out to the full-map view at
+         * the same time so the switch reads as travelling to the other map rather
+         * than a hard cut. Markers come off at the start and go on once the new
+         * texture is fully in.
+         */
         switchMapLayer(layer) {
-            if (!this.map || layer === this.mapLayer || !MAP_LAYERS[layer]) return;
-            this.mapLayer = layer;
+            if (!this.map || layer === this.mapLayer || !MAP_LAYERS[layer] || this._switching) return;
+            this._switching = true;
 
-            for (const name of Object.keys(MAP_LAYERS)) {
-                this.map.setLayoutProperty(`map-${name}`, 'visibility', name === layer ? 'visible' : 'none');
-            }
+            const from = this.mapLayer;
+            this.mapLayer = layer;               // button tint updates immediately
+            const FADE = 550;
 
-            // Both textures share the same Mercator square, so recentre rather
-            // than keep a position that means nothing on the other layer.
-            this.map.jumpTo({ center: [0, 0], zoom: this.map.getZoom() });
+            // Old markers off first so they don't hang over the wrong texture.
+            this.setVisible(this.markers, false);
+            this.setVisible(this.playerMarkers, false);
+            this.setVisible(this.alphaPalMarkers, false);
+            this.setVisible(this.fastTravelMarkers, false);
 
-            this.loadBases();
-            this.loadPlayers();
-            this.renderStaticMapObjects();
+            const inId = `map-${layer}`, outId = `map-${from}`;
+            this.map.setPaintProperty(inId, 'raster-opacity-transition', { duration: FADE, delay: 0 });
+            this.map.setPaintProperty(outId, 'raster-opacity-transition', { duration: FADE, delay: 0 });
+            this.map.setPaintProperty(inId, 'raster-opacity', 0);
+            this.map.setLayoutProperty(inId, 'visibility', 'visible');
+            // Next frame, so the incoming layer starts from 0 rather than popping in.
+            requestAnimationFrame(() => {
+                this.map.setPaintProperty(inId, 'raster-opacity', 1);
+                this.map.setPaintProperty(outId, 'raster-opacity', 0);
+            });
+
+            // Both textures share the same Mercator square; pull back to the
+            // whole-map view of the new one.
+            this.map.easeTo({ center: [0, 0], zoom: this.fitZoom(), duration: FADE + 150,
+                              easing: t => 1 - Math.pow(1 - t, 3) });
+
+            setTimeout(() => {
+                this.map.setLayoutProperty(outId, 'visibility', 'none');
+                this.map.setPaintProperty(outId, 'raster-opacity', 1);   // ready for next time
+                this._switching = false;
+                this.loadBases();
+                this.loadPlayers();
+                this.renderStaticMapObjects();
+            }, FADE + 50);
         },
 
         // ------------------------------------------------------------------
