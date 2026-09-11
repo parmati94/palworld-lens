@@ -27,15 +27,18 @@ RUN echo "savetools-cachebust=${SAVETOOLS_CACHEBUST}" && \
     pip install --no-cache-dir \
     "palworld-save-tools @ git+https://github.com/oMaN-Rod/palworld-save-tools.git@${SAVETOOLS_REF}"
 
-# Copy map tile generation script and source image
-COPY scripts/slice_map.py /app/scripts/
-COPY frontend/public/img/World_Map_8k.webp /app/frontend/public/img/
-
-# Generate map tiles at build time
-RUN python /app/scripts/slice_map.py
-
 # Build frontend with Vite
 COPY frontend/ /app/frontend/
+
+# Generate map tiles from the committed source image. This MUST run after the
+# frontend COPY above -- it writes into frontend/public/img/tiles, and copying
+# frontend/ afterwards would clobber the freshly generated tiles (which is what
+# used to happen: the build sliced tiles, then overwrote them with the stale
+# committed set). Tiles are gitignored and .dockerignored, so this is the only
+# thing that produces them in the image.
+COPY scripts/slice_map.py /app/scripts/
+RUN python /app/scripts/slice_map.py
+
 WORKDIR /app/frontend
 RUN npm install && npm run build
 

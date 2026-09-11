@@ -21,8 +21,11 @@ frontend/node_modules/
 saves/
 local-dev/
 
-# Generated map tiles (created at build time by scripts/slice_map.py)
-frontend/img/tiles/
+# Generated map tiles -- derived from World_Map_8k.webp by scripts/slice_map.py
+# (also regenerated at Docker build time). 1365 files, ~7MB; not committed.
+# NB: the path is frontend/PUBLIC/img/tiles -- an earlier rule missed the
+# public/ segment, so these were tracked by accident until 2026-09-11.
+frontend/public/img/tiles/
 
 
 # Local working docs (planning, internal notes) — not published

@@ -92,7 +92,7 @@ export function leafletMapComponent() {
                 });
 
                 // TILE LAYER
-                L.tileLayer('/img/tiles/{z}/{x}/{y}.png', {
+                L.tileLayer('/img/tiles/{z}/{x}/{y}.webp', {
                     minZoom: 0,
                     maxZoom: 7,        // Allow zooming to level 7
                     maxNativeZoom: 5,  // Real tiles up to level 5, digital zoom for 7
