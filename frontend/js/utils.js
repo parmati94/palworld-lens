@@ -217,24 +217,22 @@ export function layerForCoords(saveX, saveY) {
 }
 
 /**
- * Convert Palworld save coordinates to Leaflet coordinates for a given layer.
- * Leaflet uses CRS.Simple with bounds [[0,0],[-256,256]]: lat 0 at the top down
- * to -256, lng 0..256 left to right. The map's horizontal axis is world Y; the
- * vertical axis is world X, inverted (world X increases toward the top).
+ * Convert Palworld save coordinates to MapLibre [lng, lat] for a given layer.
+ *
+ * The tile pyramids are cut from a square image that fills the entire z0 Web
+ * Mercator tile, so a normalised image position (u right, v down, both 0..1)
+ * IS a Mercator fraction. Inverting the Mercator projection gives lng/lat:
+ *   lng = u * 360 - 180
+ *   lat = atan(sinh(pi * (1 - 2v)))
  */
-export function saveToMapCoords(saveX, saveY, layer = 'MainMap') {
+export function saveToLngLat(saveX, saveY, layer = 'MainMap') {
     const m = MAP_LAYERS[layer] || MAP_LAYERS.MainMap;
-    const spanX = m.maxX - m.minX;
-    const spanY = m.maxY - m.minY;
-
-    const normX = (saveY - m.minY) / spanY;
-    const normY = 1 - ((saveX - m.minX) / spanX);
-
-    // Return [Lat, Lng]
-    return [-(normY * 256), normX * 256];
+    const u = (saveY - m.minY) / (m.maxY - m.minY);          // horizontal = world Y
+    const v = 1 - ((saveX - m.minX) / (m.maxX - m.minX));    // vertical = world X, inverted
+    const lng = u * 360 - 180;
+    const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * v))) * 180 / Math.PI;
+    return [lng, lat];
 }
-
-
 
 /**
  * Fetch with automatic retry logic

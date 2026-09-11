@@ -694,7 +694,7 @@
                                             </div>
                                             <button 
                                                 x-show="base.x !== undefined && base.y !== undefined"
-                                                @click="currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#leafletMap'); if (mapEl) { const mapComponent = Alpine.$data(mapEl.parentElement); if (mapComponent && mapComponent.centerOnLocation) mapComponent.centerOnLocation(base.x, base.y); } });"
+                                                @click="currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#worldMap'); if (mapEl) { const mapComponent = Alpine.$data(mapEl.parentElement); if (mapComponent && mapComponent.centerOnLocation) mapComponent.centerOnLocation(base.x, base.y); } });"
                                                 title="Show on map"
                                                 class="w-10 h-10 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/40 hover:border-blue-400/60 rounded-lg flex items-center justify-center transition-all hover:scale-110 group flex-shrink-0">
                                                 <svg class="w-5 h-5 text-blue-300 group-hover:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
