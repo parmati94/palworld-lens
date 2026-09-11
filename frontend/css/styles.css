@@ -27,7 +27,7 @@
 * { transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
 
 /* Ensure map marker tooltips always appear on top */
-.leaflet-marker-icon:has(.group:hover) {
+.maplibregl-marker:has(.group:hover) {
     z-index: 99999 !important;
 }
 
@@ -380,52 +380,20 @@
     border: none !important;
 }
 
-.leaflet-container {
-    background: #0b101b !important; /* Matches Palworld ocean/dark theme */
+.maplibregl-map {
+    background: #0b101b; /* Matches Palworld ocean/dark theme */
     outline: none;
 }
+.maplibregl-canvas { outline: none; }
 
-.leaflet-popup-content-wrapper {
-    background: #1f2937;
-    color: white;
-    border-radius: 0.5rem;
-}
-
-.leaflet-popup-tip {
-    background: #1f2937;
-}
-
-.leaflet-control-zoom a {
-    background: #1f2937 !important;
-    color: white !important;
-}
-
-.leaflet-control-zoom a:hover {
-    background: #374151 !important;
-}
-
-/* Force GPU acceleration for the map pane */
-.leaflet-map-pane {
-    transform: translate3d(0,0,0);
-    will-change: transform;
-}
-
-/* Optimize the huge image layer */
-.gpu-accelerated {
-    will-change: transform;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-/* Reduce marker DOM weight */
-.leaflet-marker-icon {
-    will-change: transform;
-}
-
-/* Specific Leaflet overrides to kill the lag */
-.leaflet-map-pane, 
-.leaflet-tile, 
-.leaflet-marker-icon, 
-.leaflet-popup {
+/* Markers are plain DOM elements positioned by MapLibre; don't let the global
+   transition rule fight its per-frame transform updates. */
+.maplibregl-marker,
+.maplibregl-marker * {
     transition: none !important;
+}
+.maplibregl-marker .group,
+.maplibregl-marker .group img,
+.maplibregl-marker .group > div:last-child {
+    transition: transform 0.2s, opacity 0.2s !important;
 }
