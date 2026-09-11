@@ -509,7 +509,7 @@ export function mapComponent() {
                          scripts/datagen/compose_fast_travel_icon.py (the current pak
                          ships wings only; older builds had this baked). -->
                     <img src="/img/t_icon_compass_fttower_diamond.webp"
-                         class="w-8 h-8 object-contain drop-shadow-[0_0_3px_rgba(0,0,0,0.9)] transition-transform transform group-hover:scale-125 cursor-pointer"
+                         class="w-10 h-10 object-contain drop-shadow-[0_0_3px_rgba(0,0,0,0.9)] transition-transform transform group-hover:scale-125 cursor-pointer"
                          alt="Fast Travel" />
                     <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                         <div class="font-semibold text-cyan-400 break-words">${point.localized_name}</div>
