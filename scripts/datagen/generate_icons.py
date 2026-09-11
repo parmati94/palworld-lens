@@ -31,6 +31,38 @@ PAK_DIR = Path(os.environ.get("PALWORLD_PAK_DIR", str(Path.home() / ".gamedata" 
 USMAP = os.environ.get("PALWORLD_USMAP", "")
 
 
+def collect_derived_pal_icons() -> set[str]:
+    """Icon names the MAP derives from pal ids, rather than reading from `icon`.
+
+    map-leaflet.js builds its marker icons as t_<palid>_icon_normal.webp (with a
+    leading BOSS_ stripped) and ignores the `icon` field entirely. Those names are
+    invisible to collect_needed(), because save-pal often sets `icon` to a generic
+    placeholder (e.g. t_commonhuman_icon_normal) that we already ship -- so the
+    diff came back clean while the map rendered broken icons for Prixter Lux,
+    Flaracle, Kabukiman and Mushroomlady (2026-09-11).
+
+    Only pals actually placed on the map are included; most of the 800+ pal ids
+    never appear as markers and pulling icons for all of them would be wasteful.
+    """
+    needed: set[str] = set()
+    mo = DATA_JSON / "map_objects.json"
+    if not mo.exists():
+        return needed
+    try:
+        objs = json.loads(mo.read_text())
+    except Exception as e:
+        print(f"  warn: could not read map_objects.json: {e}")
+        return needed
+    for o in objs:
+        pid = o.get("pal")
+        if isinstance(pid, str) and pid.strip():
+            base = pid.strip().lower()
+            if base.startswith("boss_"):
+                base = base[5:]
+            needed.add(f"t_{base}_icon_normal")
+    return needed
+
+
 def collect_needed() -> set[str]:
     """Every distinct `icon` string across the top-level data/json files (lowercased)."""
     needed: set[str] = set()
@@ -81,7 +113,11 @@ def main() -> int:
     existing = existing_webp()
     missing = sorted(needed if do_all else (needed - existing))
 
-    print(f"needed icons (distinct, from data/json): {len(needed)}")
+    derived = collect_derived_pal_icons()
+    new_from_derived = derived - needed
+    needed |= derived
+    print(f"needed icons (distinct, from data/json): {len(needed)}"
+          f"  [{len(derived)} map-derived, {len(new_from_derived)} of them only reachable that way]")
     print(f"already shipped (webp):                  {len(existing)}")
     print(f"referenced but MISSING webp:             {len(needed - existing)}")
     print(f"shipped but no longer referenced:        {len(existing - needed)}")

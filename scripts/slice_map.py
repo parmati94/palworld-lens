@@ -1,75 +1,119 @@
+#!/usr/bin/env python3
+"""
+Slice the world map into Leaflet XYZ tiles.
+
+Source is frontend/public/img/World_Map_8k.webp (8192px) -> z5 is native 1:1,
+so zooms 0-5 are generated; the frontend upscales past that via maxNativeZoom.
+
+Tiles are NOT committed -- they're derived from the source image and are
+regenerated here (and at Docker build time). Run this once after a fresh clone
+so the Vite dev server has tiles to serve:
+
+    python3 scripts/slice_map.py
+"""
+
 import os
-import math
+import time
+from multiprocessing import get_context
+from pathlib import Path
+
 from PIL import Image
 
-# CONFIGURATION
-INPUT_IMAGE = "frontend/public/img/World_Map_8k.webp" 
-OUTPUT_DIR = "frontend/public/img/tiles"
-TILE_SIZE = 256
+Image.MAX_IMAGE_PIXELS = None
+
+SCRIPTS_DIR  = Path(__file__).parent
+PROJECT_ROOT = SCRIPTS_DIR.parent
+IMG_DIR      = PROJECT_ROOT / 'frontend' / 'public' / 'img'
+
+# One entry per map layer the game ships (see DT_WorldMapUIData). Palworld 1.0
+# added the World Tree as a second layer with its own texture and bounds.
+MAPS = [
+    ('World_Map_8k.webp', 'tiles'),        # MainMap -- Palpagos
+    ('Tree_Map_8k.webp',  'tiles_tree'),   # Tree    -- World Tree region
+]
+
+TILE_PX       = 256
+OUTPUT_DIR    = None             # set per-map by slice_one()
+OUTPUT_ZOOMS  = range(0, 6)      # z5 = 8192/256 = 32 tiles = native
+WEBP_QUALITY  = 90
+WEBP_METHOD   = 4                # 0=fast .. 6=slowest; 4 is ~6's size, far faster
+
+# Per-zoom scaled image, set in the parent before each pool is created; forked
+# workers inherit it copy-on-write and only ever read from it.
+_SCALED = None
+
+
+def _write_column(args):
+    """Crop and save every tile in one column (tx) of one zoom level."""
+    zoom, tx, n = args
+    col = OUTPUT_DIR / str(zoom) / str(tx)
+    col.mkdir(parents=True, exist_ok=True)
+    for ty in range(n):
+        tile = _SCALED.crop((tx * TILE_PX, ty * TILE_PX,
+                             (tx + 1) * TILE_PX, (ty + 1) * TILE_PX))
+        tile.save(str(col / f'{ty}.webp'), 'WEBP',
+                  quality=WEBP_QUALITY, method=WEBP_METHOD)
+    return n
+
+
+def slice_one(input_image, output_dir):
+    global _SCALED, OUTPUT_DIR
+    OUTPUT_DIR = output_dir
+
+    if not input_image.exists():
+        print(f"Error: source image not found: {input_image}")
+        return 1
+
+    print(f"Loading {input_image.name} ...")
+    src = Image.open(input_image).convert('RGB')
+    print(f"  {src.width}x{src.height}")
+
+    ctx   = get_context('fork')
+    nproc = os.cpu_count() or 4
+    print(f"Slicing zooms {list(OUTPUT_ZOOMS)} -> {OUTPUT_DIR.name} "
+          f"(WebP q{WEBP_QUALITY}, {nproc} workers)")
+
+    # Walk high->low zoom so each level downsamples from the previous (2x larger)
+    # one rather than from the full-res source -- a mip pyramid. Each step halves,
+    # so total resize work is ~1/3 of resizing from full res every time.
+    t_all = time.time()
+    prev = src
+    for zoom in sorted(OUTPUT_ZOOMS, reverse=True):
+        n  = 2 ** zoom
+        px = n * TILE_PX
+
+        t0 = time.time()
+        if px == prev.width:
+            _SCALED = prev                                   # native, no resample
+            note = 'native 1:1'
+        else:
+            _SCALED = prev.resize((px, px), Image.LANCZOS)
+            note = f'downsample {prev.width}->{px}'
+        prev = _SCALED
+        t_resize = time.time() - t0
+
+        # Pool is created after _SCALED is assigned, so each forked worker
+        # inherits this zoom's scaled image.
+        t1 = time.time()
+        with ctx.Pool(nproc) as pool:
+            counts = pool.map(_write_column, [(zoom, tx, n) for tx in range(n)])
+        t_encode = time.time() - t1
+        print(f"  z={zoom}: {sum(counts):>5,} tiles ({note})  "
+              f"resize {t_resize:4.1f}s  encode {t_encode:4.1f}s")
+
+    _SCALED = None
+    total = sum(1 for _ in OUTPUT_DIR.rglob('*.webp'))
+    mb    = sum(f.stat().st_size for f in OUTPUT_DIR.rglob('*.webp')) / 1e6
+    print(f"  done in {time.time()-t_all:.1f}s: {total:,} tiles, {mb:.1f} MB\n")
+    return 0
+
 
 def slice_map():
-    print(f"Loading {INPUT_IMAGE}...")
-    try:
-        im = Image.open(INPUT_IMAGE)
-    except:
-        print(f"Error: Could not find {INPUT_IMAGE}")
-        return
+    rc = 0
+    for name, out in MAPS:
+        rc |= slice_one(IMG_DIR / name, IMG_DIR / out)
+    return rc
 
-    # Standard powers of 2 sizing:
-    # Zoom 0: 256px  (1 tile)
-    # Zoom 1: 512px  (2x2)
-    # Zoom 2: 1024px (4x4)
-    # Zoom 3: 2048px (8x8)
-    # Zoom 4: 4096px (16x16)
-    # Zoom 5: 8192px (32x32) - Native Resolution
-    
-    for zoom in range(0, 6): # 0 to 5
-        print(f"Processing Zoom Level {zoom}...")
-        
-        # Calculate target dimension: 256 * 2^zoom
-        target_size = TILE_SIZE * (2 ** zoom)
-        
-        # Resize image for this zoom level
-        # LANCZOS for high quality downscaling
-        resized_im = im.resize((target_size, target_size), Image.Resampling.LANCZOS)
-        
-        width, height = resized_im.size
-        
-        # Calculate how many columns/rows
-        cols = math.ceil(width / TILE_SIZE)
-        rows = math.ceil(height / TILE_SIZE)
-        
-        # Create zoom directory
-        zoom_dir = os.path.join(OUTPUT_DIR, str(zoom))
-        if not os.path.exists(zoom_dir):
-            os.makedirs(zoom_dir)
-            
-        for x in range(cols):
-            # Create X directory (Leaflet structure is /z/x/y.png)
-            x_dir = os.path.join(zoom_dir, str(x))
-            if not os.path.exists(x_dir):
-                os.makedirs(x_dir)
-                
-            for y in range(rows):
-                # Calculate pixel coordinates
-                left = x * TILE_SIZE
-                top = y * TILE_SIZE
-                right = min(left + TILE_SIZE, width)
-                bottom = min(top + TILE_SIZE, height)
-                
-                # Crop
-                tile = resized_im.crop((left, top, right, bottom))
-                
-                # If tile is smaller than TILE_SIZE (edges), we must pad it to keep the grid consistent
-                if tile.size != (TILE_SIZE, TILE_SIZE):
-                    new_tile = Image.new("RGBA", (TILE_SIZE, TILE_SIZE), (0, 0, 0, 0))
-                    new_tile.paste(tile, (0, 0))
-                    tile = new_tile
-                
-                output_path = os.path.join(x_dir, f"{y}.png")
-                tile.save(output_path, "PNG")
-
-    print("✅ Done! Standard pyramid tiles generated in /frontend/img/tiles/")
 
 if __name__ == "__main__":
-    slice_map()
+    raise SystemExit(slice_map())

@@ -64,22 +64,67 @@ Expect `usmap=<path>`, `tagged properties: ...`, `format=PF_DXT5`, and a decoded
 
 ## Updating game data
 
-```bash
-# 1. Re-sync data/json from a palworld-save-pal release (e.g. v0.17.4), preserving our
-#    custom map_objects.json (alpha-pal / fast-travel locations) and en-only l10n.
-#    (Manual copy for now; see git history for the last sync.)
+One command does the whole ingest:
 
-# 2. Extract the icons the new data references but we don't ship yet:
-cd scripts/datagen/extractor && dotnet build -c Release -m:1 Extractor.csproj
-cd ..
-PALWORLD_PAK_DIR=~/.gamedata/palworld-pak-data \
-PALWORLD_USMAP=~/.gamedata/palworld-pak-data/Palworld.usmap \
-  python3 generate_icons.py --extract        # report-only without --extract
+```bash
+bash scripts/datagen/update.sh --tag v1.4.2      # a palworld-save-pal release tag
+bash scripts/datagen/update.sh --tag v1.4.2 --dry-run
+bash scripts/datagen/update.sh --skip-sync       # data/json already current
 ```
 
-`generate_icons.py` collects every `icon` referenced by `data/json/*.json`, diffs
-against `frontend/public/img/*.webp`, and (with `--extract`) decodes the missing icons
-via the extractor and writes them as webp. Review the `git diff`, then commit.
+It runs, in dependency order:
+
+| # | step | produces | from |
+|---|------|----------|------|
+| 1 | `sync_game_data.py` | `data/json/*.json` + `l10n/en` | a save-pal release |
+| 2 | `generate_map_objects.py` | `data/json/map_objects.json` | that same release |
+| 3 | `generate_icons.py --extract` | missing `frontend/public/img/*.webp` | the game pak |
+| 4 | `slice_map.py` | `img/tiles/`, `img/tiles_tree/` | the committed map images |
+| 5 | `validate.py` | coverage report | everything above |
+
+Steps 3-4 need the pak + usmap (see [Inputs](#inputs-per-game-update));
+`--skip-icons` / `--skip-tiles` run the rest without them. Each script also works
+standalone, and all of them take `--dry-run`.
+
+Only the map textures themselves aren't automated -- they change rarely, and
+re-extracting a 40GB pak isn't worth doing on every run. When a patch redraws the
+map:
+
+```bash
+cd scripts/datagen/extractor
+dotnet bin/Release/net8.0/pal-extract.dll tex T_WorldMap.uasset /tmp/out   # MainMap
+dotnet bin/Release/net8.0/pal-extract.dll tex T_TreeMap.uasset  /tmp/out   # World Tree
+# then convert the raw .rgba to frontend/public/img/{World,Tree}_Map_8k.webp
+```
+
+### What validate.py catches
+
+Silent breakages the 1.0 ingest actually shipped:
+
+- **Markers with no icon.** `map-leaflet.js` derives `t_<palid>_icon_normal.webp`
+  from the pal id, while `generate_icons.py` historically only checked the `icon`
+  *field* -- which upstream often sets to a placeholder that already exists. The
+  two conventions disagreed and four markers rendered broken.
+- **Map objects on a layer with no tiles**, e.g. adding a layer and forgetting to
+  slice it.
+- **A missing map source image.**
+
+Note `nginx.conf` now returns a real 404 for missing `/img/*` assets. Previously
+the SPA fallback served `index.html` with a 200, so a missing icon produced a
+200KB HTML response, `onerror` never fired, and nothing appeared in the logs.
+
+### Map layers
+
+Palworld 1.0 added the World Tree as a **second map layer** with its own texture
+and its own world bounds. Three places list the layers and must agree:
+
+- `scripts/slice_map.py` -> `MAPS` (source image -> tile dir)
+- `frontend/js/utils.js` -> `MAP_LAYERS` (world bounds + tile path)
+- `scripts/datagen/generate_map_objects.py` -> `MAPS` (tagging each object)
+
+Bounds come from the game's own `DT_WorldMapUIData`; dump it with
+`pal-extract dt DT_WorldMapUIData out.json`. Don't hand-fit projection constants
+-- the pre-1.0 code did, and every marker broke when 1.0 redrew the texture.
 
 ## Extractor (`pal-extract`)
 

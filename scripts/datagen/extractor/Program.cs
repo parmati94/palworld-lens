@@ -6,6 +6,8 @@ using CUE4Parse.UE4.Objects.Core.Misc;
 using CUE4Parse.UE4.Versions;
 using CUE4Parse.Compression;
 using CUE4Parse_Conversion.Textures;
+using CUE4Parse.UE4.Assets.Exports.Engine;
+using Newtonsoft.Json;
 
 namespace PalworldLens.Extractor;
 
@@ -44,6 +46,7 @@ internal static class Program
             case "pull":  return Pull(provider, args[1], args[2]);
             case "tex":   return Tex(provider, args[1], args[2]);
             case "icons": return Icons(provider, args[1], args[2]);
+            case "dt":    return Dt(provider, args[1], args.Length > 2 ? args[2] : null);
             case "list":  return List(provider, args.Length > 1 ? args[1] : "", args.Length > 2 ? args[2] : null);
             default:
                 Console.Error.WriteLine($"unknown command: {cmd}");
@@ -156,6 +159,44 @@ internal static class Program
         if (outFile != null) { File.WriteAllLines(outFile, keys); Console.WriteLine($"wrote {keys.Count} keys → {outFile}"); }
         else foreach (var k in keys) Console.WriteLine(k);
         return 0;
+    }
+
+    // Export a UDataTable as JSON. Palworld's game data lives in DataTables and most
+    // of them read cleanly -- DT_ItemDataTable (2466 rows), DT_PassiveSkill_Main (1905),
+    // DT_BuildObjectDataTable (498), the per-language *NameText tables, and
+    // DT_WorldMapUIData, which is where the map layers' world bounds come from.
+    //
+    // NOTE DT_PalMonsterParameter (pal stats) ships with ZERO rows in the client pak --
+    // it declares its RowStruct and nothing else -- which is why data/json still comes
+    // from palworld-save-pal rather than being generated here.
+    private static int Dt(DefaultFileProvider provider, string needle, string? outFile)
+    {
+        var key = provider.Files.Keys.FirstOrDefault(k =>
+            k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) &&
+            Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase));
+        if (key == null) { Console.Error.WriteLine($"no .uasset named '{needle}'"); return 1; }
+        Console.WriteLine($"dt: {key}");
+        try
+        {
+            var pkg = provider.LoadPackage(key);
+            var table = pkg.GetExports().OfType<UDataTable>().FirstOrDefault();
+            if (table == null)
+            {
+                Console.Error.WriteLine($"  not a UDataTable; exports: " +
+                    string.Join(", ", pkg.GetExports().Select(e => e.ExportType)));
+                return 1;
+            }
+            Console.WriteLine($"  rows: {table.RowMap.Count}");
+            var first = table.RowMap.FirstOrDefault();
+            Console.WriteLine($"  first row key: {first.Key}");
+            if (first.Value != null)
+                Console.WriteLine($"  columns ({first.Value.Properties.Count}): " +
+                    string.Join(", ", first.Value.Properties.Take(12).Select(x => x.Name.Text)));
+            var json = JsonConvert.SerializeObject(table, Formatting.Indented);
+            if (outFile != null) { File.WriteAllText(outFile, json); Console.WriteLine($"  wrote {json.Length} chars -> {outFile}"); }
+            return 0;
+        }
+        catch (Exception ex) { Console.Error.WriteLine($"  FAILED: {ex.GetType().Name}: {ex.Message}"); return 1; }
     }
 
     // Full CUE4Parse decode: load the first texture matching <needle> and write PNG.

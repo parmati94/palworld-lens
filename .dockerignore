@@ -48,3 +48,7 @@ saves/
 test/
 tests/
 *.test.py
+
+# tiles are generated in-image by scripts/slice_map.py
+frontend/public/img/tiles/
+frontend/public/img/tiles_tree/

@@ -191,32 +191,50 @@ export function getPassiveDescriptionClass(rank) {
  * SYSTEM: 0-256 Virtual World (Standard Leaflet Scale)
  * [0,0] is Top-Left. [-256, 256] is Bottom-Right.
  */
-export function saveToMapCoords(saveX, saveY) {
-    const scaleDivisor = 630; 
-    const manualOffsetX = 275;
-    const manualOffsetY = 242;
+/**
+ * World rectangles each map texture covers, taken verbatim from the game's own
+ * DT_WorldMapUIData (landScapeRealPositionMin / landScapeRealPositionMax).
+ * Palworld 1.0 added the World Tree as a second map layer with its own texture
+ * and its own bounds, so a coordinate alone doesn't say which map it's on.
+ *
+ * Every span is exactly square and matches the square 8192px texture, so each
+ * projection is an exact linear map -- no hand-fitted constants. (The pre-1.0
+ * code fitted scaleDivisor/manualOffset by eye against the old artwork, which
+ * broke the moment 1.0 redrew it.)
+ */
+export const MAP_LAYERS = {
+    MainMap: { minX: -1099400, maxX:  349400, minY: -724400, maxY:  724400, tiles: '/img/tiles' },
+    Tree:    { minX:   347351.5, maxX: 689148.5, minY: -818197, maxY: -476400, tiles: '/img/tiles_tree' },
+};
 
-    const gameX = (saveY - 158000) / scaleDivisor;
-    const gameY = (saveX + 123888) / scaleDivisor;
-    
-    // Virtual World Bounds (Game Units)
-    const worldMin = -1150;
-    const worldMax = 1150;
-    const worldRange = worldMax - worldMin; 
+/** Which map layer a world coordinate belongs to (MainMap wins on overlap). */
+export function layerForCoords(saveX, saveY) {
+    for (const name of ['MainMap', 'Tree']) {
+        const m = MAP_LAYERS[name];
+        if (saveX >= m.minX && saveX <= m.maxX && saveY >= m.minY && saveY <= m.maxY) return name;
+    }
+    return 'MainMap';
+}
 
-    // 1. Normalize to 0.0 -> 1.0
-    const normX = ((gameX + manualOffsetX) - worldMin) / worldRange;
-    const normY = ((gameY + manualOffsetY) - worldMin) / worldRange;
+/**
+ * Convert Palworld save coordinates to Leaflet coordinates for a given layer.
+ * Leaflet uses CRS.Simple with bounds [[0,0],[-256,256]]: lat 0 at the top down
+ * to -256, lng 0..256 left to right. The map's horizontal axis is world Y; the
+ * vertical axis is world X, inverted (world X increases toward the top).
+ */
+export function saveToMapCoords(saveX, saveY, layer = 'MainMap') {
+    const m = MAP_LAYERS[layer] || MAP_LAYERS.MainMap;
+    const spanX = m.maxX - m.minX;
+    const spanY = m.maxY - m.minY;
 
-    // 2. Scale to Leaflet 256 Unit System
-    const leafletX = normX * 256;
-    
-    // 3. Invert Y Axis for Mapping
-    const leafletY = (1 - normY) * 256; 
+    const normX = (saveY - m.minY) / spanY;
+    const normY = 1 - ((saveX - m.minX) / spanX);
 
     // Return [Lat, Lng]
-    return [-leafletY, leafletX];
+    return [-(normY * 256), normX * 256];
 }
+
+
 
 /**
  * Fetch with automatic retry logic

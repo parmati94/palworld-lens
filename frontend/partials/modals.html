@@ -51,9 +51,9 @@
                                                 <!-- Icon -->
                                                 <div class="w-16 h-16 flex items-center justify-center">
                                                     <img 
-                                                        :src="item.icon ? `/img/${item.icon}.webp` : '/img/item.webp'" 
+                                                        :src="item.icon ? `/img/${item.icon}.webp` : '/img/unknown.webp'" 
                                                         :alt="item.item_name"
-                                                        onerror="this.src='/img/item.webp'"
+                                                        onerror="this.onerror=null; this.src='/img/unknown.webp'"
                                                         class="w-full h-full object-contain">
                                                 </div>
                                                 <!-- Item Name -->
@@ -516,6 +516,28 @@
                     
                     <!-- Enhanced Controls -->
                     <div class="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                        <!-- Map Layer Switcher: Palpagos <-> World Tree. Palworld 1.0
+                             ships these as two separate map textures with their own
+                             coordinate bounds, so this swaps tiles AND the projection,
+                             not just a marker filter. Tinted green while on the Tree. -->
+                        <button
+                            @click="switchMapLayer(mapLayer === 'MainMap' ? 'Tree' : 'MainMap')"
+                            :title="mapLayer === 'MainMap' ? 'Switch to the World Tree map' : 'Back to Palpagos'"
+                            :class="mapLayer === 'Tree'
+                                ? 'bg-emerald-500/25 border-emerald-400/50 shadow-lg shadow-emerald-500/20'
+                                : 'bg-gray-900/95 border-gray-700/50'"
+                            class="group w-11 h-11 hover:bg-emerald-500/25 hover:border-emerald-400/50 hover:shadow-lg hover:shadow-emerald-500/20 text-white rounded-xl shadow-xl transition-all hover:scale-110 backdrop-blur-md flex items-center justify-center border">
+                            <svg class="w-5 h-5 group-hover:text-emerald-300"
+                                 :class="mapLayer === 'Tree' ? 'text-emerald-300' : 'text-gray-300'"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 21V9m0 0l4.5-3.5M12 9L7.5 5.5M12 14l5-3.5M12 14l-5-3.5"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Divider -->
+                        <div class="h-px bg-gray-700/50 my-1"></div>
+
                         <button 
                             @click="resetView()"
                             title="Reset View"
