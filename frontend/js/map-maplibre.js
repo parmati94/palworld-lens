@@ -317,9 +317,17 @@ export function mapComponent() {
                 </div>`;
 
             const marker = this.makeMarker(html, base.x, base.y, Z.base, () => {
-                window.dispatchEvent(new CustomEvent('navigate-to-base', {
-                    detail: { guildId: guild.guild_id, baseId: base.base_id }
-                }));
+                // Open this base in the Bases tab. The tab listens for
+                // navigate-to-base, but it only selects the base -- it doesn't
+                // switch tabs -- so switch first (same as the Overview tab does),
+                // then dispatch on the next tick once it's shown.
+                const app = Alpine.$data(document.body);
+                if (app) app.currentTab = 'bases';
+                this.$nextTick(() => {
+                    window.dispatchEvent(new CustomEvent('navigate-to-base', {
+                        detail: { guildId: guild.guild_id, baseId: base.base_id }
+                    }));
+                });
             });
             if (this.showBases) marker.addTo(this.map);
             this.markers.push(marker);
