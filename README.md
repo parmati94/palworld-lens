@@ -3,12 +3,12 @@
 A lightweight, read-only viewer for Palworld save files. Built to be mobile-friendly and containerized.
 
 <div align="center">
-  <img src="https://i.imgur.com/1CsxLWa.png" alt="Screenshot 1" width="32%"/>
-  <img src="https://i.imgur.com/8VLRdv8.png" alt="Screenshot 2" width="32%"/>
-  <img src="https://i.imgur.com/boV1jx3.png" alt="Screenshot 3" width="32%"/>
+  <img src=".github/screenshots/overview.png" alt="Overview tab" width="32%"/>
+  <img src=".github/screenshots/pals.png" alt="Pals tab" width="32%"/>
+  <img src=".github/screenshots/bases.png" alt="Bases tab" width="32%"/>
   <br/>
-  <img src="https://i.imgur.com/MphZH9m.png" alt="Screenshot 4" width="32%"/>
-  <img src="https://i.imgur.com/GIMIqNR.png" alt="Screenshot 5" width="32%"/>
+  <img src=".github/screenshots/players.png" alt="Players tab" width="32%"/>
+  <img src=".github/screenshots/map.png" alt="Map tab" width="32%"/>
 </div>
 
 ## ✨ Features
