@@ -321,7 +321,7 @@
                                     <span class="md:hidden">Elem</span>
                                     <span class="hidden md:inline">Elements</span>
                                 </th>
-                                <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">
+                                <th class="hidden sm:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">
                                     <span>Work</span>
                                 </th>
                                 <th @click="sortBy('hp')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
@@ -399,12 +399,12 @@
                                             </div>
                                             <!-- Pal Info -->
                                             <div class="flex items-center min-w-0">
-                                                <div class="font-medium text-sm md:text-base truncate" x-text="pal.nickname || pal.display_name"></div>
+                                                <div class="font-medium text-sm md:text-base truncate max-w-[9rem] sm:max-w-none" x-text="pal.nickname || pal.display_name"></div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-2 md:px-4 py-3">
-                                        <span class="text-purple-400 font-bold text-sm md:text-base" x-text="pal.level"></span>
+                                        <span class="text-gray-100 font-semibold text-sm md:text-base" x-text="pal.level"></span>
                                     </td>
                                     <td class="px-2 md:px-4 py-3">
                                         <!-- Element Icons -->
@@ -424,7 +424,7 @@
                                             </template>
                                         </div>
                                     </td>
-                                    <td class="px-2 md:px-4 py-3">
+                                    <td class="hidden sm:table-cell px-2 md:px-4 py-3">
                                         <!-- Work Suitability Icons -->
                                         <div class="flex items-center gap-1 flex-wrap">
                                             <template x-if="pal.work_suitability_display && pal.work_suitability_display.length > 0">
@@ -448,15 +448,15 @@
                                     </td>
                                     <td class="hidden md:table-cell px-2 md:px-4 py-3">
                                         <!-- HP Max Value -->
-                                        <span class="text-red-400 font-semibold text-sm" x-text="Math.round(pal.calculated_hp || pal.max_hp)"></span>
+                                        <span class="text-gray-200 text-sm tabular-nums" x-text="Math.round(pal.calculated_hp || pal.max_hp)"></span>
                                     </td>
                                     <td class="hidden md:table-cell px-2 md:px-4 py-3">
                                         <!-- Attack Stat -->
-                                        <span class="text-orange-400 font-semibold text-sm" x-text="pal.calculated_attack || '-'"></span>
+                                        <span class="text-gray-200 text-sm tabular-nums" x-text="pal.calculated_attack || '-'"></span>
                                     </td>
                                     <td class="hidden md:table-cell px-2 md:px-4 py-3">
                                         <!-- Defense Stat -->
-                                        <span class="text-blue-400 font-semibold text-sm" x-text="pal.calculated_defense || '-'"></span>
+                                        <span class="text-gray-200 text-sm tabular-nums" x-text="pal.calculated_defense || '-'"></span>
                                     </td>
                                     <td class="hidden lg:table-cell px-4 py-3 text-sm text-gray-400">
                                         <span x-text="pal.base_name || '-'"></span>
@@ -510,59 +510,27 @@
 
         <!-- BasesTab -->
         <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ 
-            selectedGuildId: null, 
-            selectedBaseId: null, 
             baseTab: 'pals', 
             basePalPage: 1, 
             basePalPageSize: 10,
             // Helper to count unhealthy pals
             getUnhealthyCount(pals) {
                 return pals.filter(p => p.condition_display).length;
-            },
-            get currentBaseIndex() {
-                if (!selectedGuildId) return -1;
-                const guild = basePals.find(g => g.guild_id === selectedGuildId);
-                if (!guild) return -1;
-                return guild.bases.findIndex(b => b.base_id === selectedBaseId);
-            },
-            get hasPrevBase() {
-                return selectedGuildId && this.currentBaseIndex > 0;
-            },
-            get hasNextBase() {
-                if (!selectedGuildId) return false;
-                const guild = basePals.find(g => g.guild_id === selectedGuildId);
-                return guild && this.currentBaseIndex < guild.bases.length - 1;
-            },
-            navigateToPrevBase() {
-                const guild = basePals.find(g => g.guild_id === selectedGuildId);
-                if (guild && this.hasPrevBase) {
-                    selectedBaseId = guild.bases[this.currentBaseIndex - 1].base_id;
-                    basePalPage = 1;
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            },
-            navigateToNextBase() {
-                const guild = basePals.find(g => g.guild_id === selectedGuildId);
-                if (guild && this.hasNextBase) {
-                    selectedBaseId = guild.bases[this.currentBaseIndex + 1].base_id;
-                    basePalPage = 1;
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
             }
-        }" @navigate-to-base.window="selectedGuildId = $event.detail.guildId; selectedBaseId = $event.detail.baseId; baseTab = 'pals';">
+        }" x-effect="selectedBaseId; baseTab = 'pals'; basePalPage = 1">
             <!-- Guild Selection -->
             <div class="mb-6">
                 <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
                     <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    Select Guild
+                    Guilds
                 </h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <template x-for="guild in basePals" :key="guild.guild_id">
                         <button 
-                            @click="selectedGuildId = guild.guild_id; selectedBaseId = null"
+                            @click="selectedGuildId = guild.guild_id"
                             :class="selectedGuildId === guild.guild_id ? 'bg-green-600 border-green-500 shadow-lg shadow-green-500/30 transform scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600'"
                             class="stat-card border rounded-lg p-5 transition-all duration-200 cursor-pointer text-left">
                             <div class="flex items-start justify-between mb-2">
@@ -611,8 +579,7 @@
                                     <svg class="w-6 h-6 md:w-7 md:h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     </svg>
-                                    <span class="hidden md:inline">Select Base</span>
-                                    <span class="md:hidden">Bases</span>
+                                    <span>Bases</span>
                                 </h2>
                                 <span class="text-sm text-gray-400" x-text="`${guild.bases.length} total`"></span>
                             </div>
@@ -771,7 +738,7 @@
                                             <span class="text-sm text-gray-400">Showing <span class="text-cyan-400 font-medium" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-cyan-400 font-medium" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-cyan-400 font-medium" x-text="base.pals.length"></span></span>
                                             <div class="flex items-center gap-2">
                                                 <span class="text-sm text-gray-400">Show:</span>
-                                                <template x-for="size in [10, 20, 30]" :key="size">
+                                                <template x-for="size in [10, 25, 50]" :key="size">
                                                     <button 
                                                         @click="basePalPageSize = size; basePalPage = 1"
                                                         :class="basePalPageSize === size ? 'bg-cyan-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
@@ -859,7 +826,7 @@
                                                                 <!-- Healthy indicator -->
                                                                 <template x-if="!pal.condition_display">
                                                                     <div 
-                                                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium shadow-sm bg-green-600 text-white border border-green-500"
+                                                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-500/15 text-green-300 border border-green-500/30"
                                                                         data-tooltip="No conditions affecting this Pal">
                                                                         Healthy
                                                                     </div>
@@ -870,39 +837,39 @@
                                                             <!-- Desktop: Bar + Percentage -->
                                                             <div class="hidden md:flex items-center gap-2">
                                                                 <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
-                                                                    <div class="bg-green-500 h-2 rounded-full" :style="`width: ${Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1)}%`"></div>
+                                                                    <div class="h-2 rounded-full" :class="needBarClass(Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1))" :style="`width: ${Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1)}%`"></div>
                                                                 </div>
-                                                                <span class="text-xs text-green-400 min-w-[3ch]" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                                                <span class="text-xs min-w-[3ch]" :class="needTextClass(Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)))" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
                                                             </div>
                                                             <!-- Mobile: Percentage only -->
                                                             <div class="md:hidden">
-                                                                <span class="text-xs text-green-400 font-medium" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                                                <span class="text-xs font-medium" :class="needTextClass(Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)))" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
                                                             </div>
                                                         </td>
                                                         <td class="px-2 md:px-4 py-3">
                                                             <!-- Desktop: Bar + Percentage -->
                                                             <div class="hidden md:flex items-center gap-2">
                                                                 <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
-                                                                    <div class="bg-orange-500 h-2 rounded-full" :style="`width: ${Math.max(pal.hunger, 1)}%`"></div>
+                                                                    <div class="h-2 rounded-full" :class="needBarClass(Math.max(pal.hunger, 1))" :style="`width: ${Math.max(pal.hunger, 1)}%`"></div>
                                                                 </div>
-                                                                <span class="text-xs text-orange-400 min-w-[3ch]" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                                <span class="text-xs min-w-[3ch]" :class="needTextClass(Math.round(pal.hunger))" x-text="Math.round(pal.hunger) + '%'"></span>
                                                             </div>
                                                             <!-- Mobile: Percentage only -->
                                                             <div class="md:hidden">
-                                                                <span class="text-xs text-orange-400 font-medium" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                                <span class="text-xs font-medium" :class="needTextClass(Math.round(pal.hunger))" x-text="Math.round(pal.hunger) + '%'"></span>
                                                             </div>
                                                         </td>
                                                         <td class="px-2 md:px-4 py-3">
                                                             <!-- Desktop: Bar + Percentage -->
                                                             <div class="hidden md:flex items-center gap-2">
                                                                 <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
-                                                                    <div class="bg-blue-500 h-2 rounded-full" :style="`width: ${Math.max(pal.sanity, 1)}%`"></div>
+                                                                    <div class="h-2 rounded-full" :class="needBarClass(Math.max(pal.sanity, 1))" :style="`width: ${Math.max(pal.sanity, 1)}%`"></div>
                                                                 </div>
-                                                                <span class="text-xs text-blue-400 min-w-[3ch]" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                                <span class="text-xs min-w-[3ch]" :class="needTextClass(Math.round(pal.sanity))" x-text="Math.round(pal.sanity) + '%'"></span>
                                                             </div>
                                                             <!-- Mobile: Percentage only -->
                                                             <div class="md:hidden">
-                                                                <span class="text-xs text-blue-400 font-medium" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                                <span class="text-xs font-medium" :class="needTextClass(Math.round(pal.sanity))" x-text="Math.round(pal.sanity) + '%'"></span>
                                                             </div>
                                                         </td>
                                                         <td class="hidden md:table-cell px-2 md:px-4 py-3 text-sm text-gray-400">
@@ -1179,15 +1146,10 @@
                 </div>
             </template>
 
-            <!-- Empty State (no selection) -->
-            <template x-if="!selectedGuildId">
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-12 text-center">
-                    <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-400 mb-2">Select a Guild to View Bases</h3>
-                    <p class="text-gray-500">Choose a guild from above to see their bases and pals</p>
-                </div>
-            </template>
-        </div>
+            <!-- Empty State (no guilds) -->
+            <div x-show="basePals.length === 0" class="bg-gray-800 rounded-lg border border-gray-700 p-10 text-center">
+                <h3 class="text-lg font-semibold text-gray-300 mb-1">No guilds found</h3>
+                <p class="text-sm text-gray-500">Bases appear here once a guild has built one.</p>
+            </div>
 
+        </div>

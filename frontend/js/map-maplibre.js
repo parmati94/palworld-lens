@@ -50,7 +50,7 @@ export function mapComponent() {
         showPlayers: true,
         showAlphaPals: true,
         showFastTravel: false,
-        filtersCollapsed: false,
+        filtersCollapsed: typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
         isRefreshing: false,
 
         // Static map objects (loaded once)

@@ -1,37 +1,18 @@
-        </div>
-
         <!-- Tabs -->
-        <div x-show="saveInfo.loaded" class="mb-6">
-            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory scroll-smooth">
-                <button 
-                    @click="currentTab = 'overview'" 
-                    :class="currentTab === 'overview' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
-                    Overview
-                </button>
-                <button 
-                    @click="currentTab = 'players'" 
-                    :class="currentTab === 'players' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
-                    Players <span class="hidden sm:inline">(<span x-text="players.length"></span>)</span>
-                </button>
-                <button 
-                    @click="currentTab = 'pals'" 
-                    :class="currentTab === 'pals' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
-                    Pals <span class="hidden sm:inline">(<span x-text="pals.length"></span>)</span>
-                </button>
-                <button 
-                    @click="currentTab = 'bases'" 
-                    :class="currentTab === 'bases' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
-                    Bases
-                </button>
-                <button 
-                    @click="currentTab = 'map'" 
-                    :class="currentTab === 'map' ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-700 hover:bg-gray-600'"
-                    class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-all text-sm md:text-base snap-start flex-shrink-0">
-                    Map
-                </button>
+        <nav x-show="saveInfo.loaded" class="mb-4 sm:mb-6" aria-label="Sections">
+            <div class="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <template x-for="tab in tabs" :key="tab.id">
+                    <a :href="'#' + tab.id"
+                       @click.prevent="currentTab = tab.id"
+                       :class="currentTab === tab.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'"
+                       :aria-current="currentTab === tab.id ? 'page' : null"
+                       class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-colors text-sm md:text-base flex-shrink-0 flex items-center gap-1.5">
+                        <span x-text="tab.label"></span>
+                        <span x-show="tab.count !== null"
+                              class="text-xs px-1.5 py-0.5 rounded-full"
+                              :class="currentTab === tab.id ? 'bg-white/20' : 'bg-gray-700 text-gray-400'"
+                              x-text="tab.count"></span>
+                    </a>
+                </template>
             </div>
-        </div>
+        </nav>

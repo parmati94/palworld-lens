@@ -10,7 +10,9 @@
                             <div class="flex-1">
                                 <h3 class="text-xl font-bold text-white" x-text="player.player_name"></h3>
                                 <div class="text-sm text-gray-400">
-                                    Level <span class="text-blue-400 font-bold" x-text="player.level"></span>
+                                    Level <span class="text-gray-100 font-semibold" x-text="player.level"></span>
+                                    <span x-show="player.last_online" class="text-gray-600">·</span>
+                                    <span x-show="player.last_online" :title="formatDate(player.last_online)">seen <span x-text="formatRelativeTime(player.last_online, now)"></span></span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -36,41 +38,49 @@
                             <!-- HP -->
                             <div class="bg-gray-700/50 rounded-lg p-3">
                                 <div class="text-xs text-gray-400 mb-1">Health</div>
-                                <div class="text-lg font-bold text-red-400" x-text="`${player.hp}/${player.max_hp}`"></div>
+                                <div class="text-lg font-bold" :class="needTextClass((player.hp / player.max_hp) * 100)" x-text="`${player.hp}/${player.max_hp}`"></div>
                                 <div class="w-full bg-gray-600 rounded-full h-1.5">
-                                    <div class="bg-red-500 h-1.5 rounded-full" :style="`width: ${(player.hp / player.max_hp) * 100}%`"></div>
+                                    <div class="h-1.5 rounded-full" :class="needBarClass((player.hp / player.max_hp) * 100)" :style="`width: ${(player.hp / player.max_hp) * 100}%`"></div>
                                 </div>
                             </div>
 
                             <!-- EXP -->
                             <div class="bg-gray-700/50 rounded-lg p-3">
                                 <div class="text-xs text-gray-400 mb-1">Experience</div>
-                                <div class="text-lg font-bold text-purple-400" x-text="player.exp.toLocaleString()"></div>
+                                <div class="text-lg font-bold text-gray-100" x-text="player.exp.toLocaleString()"></div>
                             </div>
 
                             <!-- Hunger -->
                             <div class="bg-gray-700/50 rounded-lg p-3">
                                 <div class="text-xs text-gray-400 mb-1">Hunger</div>
-                                <div class="text-lg font-bold text-green-400" x-text="`${Math.round(player.hunger)}%`"></div>
+                                <div class="text-lg font-bold" :class="needTextClass(player.hunger)" x-text="`${Math.round(player.hunger)}%`"></div>
                                 <div class="w-full bg-gray-600 rounded-full h-1.5">
-                                    <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${player.hunger}%`"></div>
+                                    <div class="h-1.5 rounded-full" :class="needBarClass(player.hunger)" :style="`width: ${player.hunger}%`"></div>
                                 </div>
                             </div>
 
                             <!-- Sanity -->
                             <div class="bg-gray-700/50 rounded-lg p-3">
                                 <div class="text-xs text-gray-400 mb-1">Sanity</div>
-                                <div class="text-lg font-bold text-blue-400" x-text="`${Math.round(player.sanity)}%`"></div>
+                                <div class="text-lg font-bold" :class="needTextClass(player.sanity)" x-text="`${Math.round(player.sanity)}%`"></div>
                                 <div class="w-full bg-gray-600 rounded-full h-1.5">
-                                    <div :class="player.sanity > 50 ? 'bg-blue-500' : 'bg-red-500'" class="h-1.5 rounded-full" :style="`width: ${player.sanity}%`"></div>
+                                    <div class="h-1.5 rounded-full" :class="needBarClass(player.sanity)" :style="`width: ${player.sanity}%`"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Guild Info -->
-                        <div class="text-center py-2 bg-gray-700/30 rounded-lg">
-                            <div class="text-xs text-gray-400">Guild</div>
-                            <div class="text-sm font-medium text-cyan-400" x-text="getGuildName(player.guild_id)"></div>
+                        <!-- Guild + link to this player's pals -->
+                        <div class="flex items-center justify-between gap-3 py-2 px-3 bg-gray-700/30 rounded-lg">
+                            <div class="min-w-0">
+                                <div class="text-xs text-gray-400">Guild</div>
+                                <div class="text-sm font-medium text-gray-200 truncate" x-text="getGuildName(player.guild_id)"></div>
+                            </div>
+                            <button
+                                @click="viewPalsOf(player.player_name)"
+                                class="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-200 text-xs font-medium transition-colors">
+                                View pals
+                                <span class="px-1.5 py-0.5 rounded-full bg-blue-500/30 text-[11px]" x-text="pals.filter(p => p.owner_uid === player.player_name).length"></span>
+                            </button>
                         </div>
                     </div>
 </template>
