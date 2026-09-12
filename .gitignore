@@ -31,3 +31,6 @@ frontend/public/img/tiles_tree/
 
 # Local working docs (planning, internal notes) — not published
 /docs/
+
+# Local dev compose with personal values (RCON, remote host, save path)
+docker-compose.local.yml
