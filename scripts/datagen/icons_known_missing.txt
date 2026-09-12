@@ -1,0 +1,11 @@
+# Pals with no icon texture anywhere in the pak (pal-extract list, 2026-09-11).
+# validate.py skips these; it will note if one gains an icon after a patch.
+# Moon Lord raid (Terraria crossover) -- body parts and phases, no PalIcon at all.
+RAID_YakushimaBoss002
+RAID_YakushimaBoss002_2
+RAID_YakushimaBoss002_Hand_Left
+RAID_YakushimaBoss002_Hand_Left_2
+RAID_YakushimaBoss002_Hand_Right
+RAID_YakushimaBoss002_Hand_Right_2
+RAID_YakushimaBoss002_Head
+RAID_YakushimaBoss002_Head_2

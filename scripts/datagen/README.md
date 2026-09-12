@@ -101,10 +101,24 @@ dotnet bin/Release/net8.0/pal-extract.dll tex T_TreeMap.uasset  /tmp/out   # Wor
 
 Silent breakages the 1.0 ingest actually shipped:
 
-- **Markers with no icon.** `map-leaflet.js` derives `t_<palid>_icon_normal.webp`
-  from the pal id, while `generate_icons.py` historically only checked the `icon`
-  *field* -- which upstream often sets to a placeholder that already exists. The
-  two conventions disagreed and four markers rendered broken.
+- **Pals with no icon.** The app never reads the `icon` field for pals. The pals
+  tab, the pal modal and the map all derive `t_<stem>_icon_normal.webp` from the
+  `character_id` -- and upstream sets `icon` to a placeholder that already exists
+  (`t_commonhuman_icon_normal`) for most new species. `generate_icons.py`
+  historically only extracted what `icon` named, so four map markers (July) and
+  then every new 1.0 species in the pals tab (Clovee, Lapiron, Dupin, ... 25 of
+  them, found 2026-09-11 after a map-only fix that same morning) shipped blank.
+
+  The derivation now lives in ONE place, `backend/common/pal_icons.py`
+  (`icon_candidates(character_id)`), used by the API (`image_id`,
+  `image_candidates`), by `generate_icons.py` (what to pull) and by `validate.py`
+  (every `is_pal` row must resolve to a webp on disk). Variant ids (`PREDATOR_`,
+  `GYM_`, `RAID_`, `SUMMON_`, `POLICE_` prefixes; `_Oilrig`, `_Tower`, `_Otomo`,
+  `_2` ... suffixes) mostly have no texture of their own, so the candidate list
+  falls back token by token to the base species, and the frontend walks it on
+  `<img>` error. Pals with no texture anywhere in the pak (the Moon Lord raid
+  parts) are allow-listed in `icons_known_missing.txt`; the validator notes when
+  an allow-listed id gains an icon after a patch.
 - **Map objects on a layer with no tiles**, e.g. adding a layer and forgetting to
   slice it.
 - **A missing map source image.**
