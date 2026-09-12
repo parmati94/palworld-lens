@@ -13,7 +13,8 @@ import {
     getPassiveBackgroundClass,
     getPassiveTextClass,
     getPassiveDescriptionClass,
-    formatUptime
+    formatUptime,
+    buildPageList
 } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
@@ -52,6 +53,8 @@ export function app() {
         remoteMode: false,
         remotePollInterval: null,
         remoteProtocol: null,
+        remoteUser: null,
+        remoteHost: null,
         lastRefreshTime: 0,
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
         
@@ -92,6 +95,7 @@ export function app() {
             this.$watch('filterElement', () => this.currentPage = 1);
             this.$watch('filterWorkType', () => this.currentPage = 1);
             this.$watch('filterPassiveSkill', () => this.currentPage = 1);
+            this.$watch('filterOwner', () => this.currentPage = 1);
             
             // Listen for page visibility changes (e.g., wake from sleep)
             this.setupVisibilityListener();
@@ -459,26 +463,7 @@ export function app() {
         },
         
         get pageNumbers() {
-            const pages = [];
-            const total = this.totalPages;
-            const current = this.currentPage;
-            
-            // Always show first page
-            pages.push(1);
-            
-            // Show pages around current page
-            for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-                if (!pages.includes(i)) {
-                    pages.push(i);
-                }
-            }
-            
-            // Always show last page
-            if (total > 1 && !pages.includes(total)) {
-                pages.push(total);
-            }
-            
-            return pages;
+            return buildPageList(this.totalPages, this.currentPage);
         },
         
         // Filter options getters - get unique values from all pals
@@ -547,6 +532,7 @@ export function app() {
             this.filterElement = '';
             this.filterWorkType = '';
             this.filterPassiveSkill = '';
+            this.filterOwner = '';
         },
         
         // Get count of active filters
@@ -556,6 +542,7 @@ export function app() {
             if (this.filterElement) count++;
             if (this.filterWorkType) count++;
             if (this.filterPassiveSkill) count++;
+            if (this.filterOwner) count++;
             return count;
         },
         

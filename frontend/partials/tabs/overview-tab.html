@@ -93,7 +93,7 @@
                         </h2>
                         
                         <!-- Guild Selector Pills -->
-                        <div class="flex gap-2 overflow-x-auto pb-2 -mb-2" x-init="overviewSelectedGuild = basePals.length > 0 ? basePals[0].guild_id : null">
+                        <div class="flex gap-2 overflow-x-auto pb-2 -mb-2" x-effect="if (basePals.length > 0 && !basePals.some(g => g.guild_id === overviewSelectedGuild)) overviewSelectedGuild = basePals[0].guild_id">
                             <template x-for="guild in basePals" :key="guild.guild_id">
                                 <button
                                     @click="overviewSelectedGuild = guild.guild_id"

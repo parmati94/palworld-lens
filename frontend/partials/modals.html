@@ -3,6 +3,7 @@
              x-show="showContainerModal" 
              x-cloak
              @click.self="closeContainerModal()"
+             @keydown.escape.window="showContainerModal && closeContainerModal()"
              @open-container-modal.window="openContainerModal($event.detail.container)"
              class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
              style="display: none;">
@@ -87,6 +88,7 @@
              x-show="showPalModal" 
              x-cloak
              @click.self="closePalModal()"
+             @keydown.escape.window="showPalModal && closePalModal()"
              class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
              style="display: none;">
             <div @click.stop 
@@ -592,6 +594,7 @@
         x-show="showServerInfo" 
         x-cloak
         @click.self="hide()"
+        @keydown.escape.window="showServerInfo && hide()"
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
         <div 
             @click.stop

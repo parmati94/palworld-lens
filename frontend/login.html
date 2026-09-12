@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png?v=2">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png?v=2">
     <link rel="stylesheet" href="/css/styles.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script type="module" src="/js/login.js" defer></script>
     <style>
         [x-cloak] { display: none !important; }
         
@@ -97,6 +97,7 @@
                             x-model="username"
                             required
                             autofocus
+                            autocomplete="username"
                             class="login-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
                             placeholder="Enter your username"
                             :disabled="loading"
@@ -113,6 +114,7 @@
                             id="password" 
                             x-model="password"
                             required
+                            autocomplete="current-password"
                             class="login-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
                             placeholder="Enter your password"
                             :disabled="loading"
@@ -149,48 +151,5 @@
         </div>
     </div>
 
-    <script>
-        function loginApp() {
-            return {
-                username: '',
-                password: '',
-                loading: false,
-                error: null,
-                
-                async login() {
-                    this.error = null;
-                    this.loading = true;
-                    
-                    try {
-                        const response = await fetch('/api/auth/login', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                username: this.username,
-                                password: this.password
-                            }),
-                            credentials: 'same-origin'
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (response.ok) {
-                            // Redirect to main app
-                            window.location.href = '/';
-                        } else {
-                            this.error = data.detail || 'Login failed. Please try again.';
-                        }
-                    } catch (err) {
-                        console.error('Login error:', err);
-                        this.error = 'Network error. Please check your connection.';
-                    } finally {
-                        this.loading = false;
-                    }
-                }
-            };
-        }
-    </script>
 </body>
 </html>
