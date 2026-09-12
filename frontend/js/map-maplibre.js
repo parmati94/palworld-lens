@@ -511,11 +511,10 @@ export function mapComponent() {
         addFastTravelMarker(point) {
             const html = `
                 <div class="relative group">
-                    <!-- Fast-travel emblem: the compass eagle in a diamond, matching the
-                         base/tower compass icons. Composed by
-                         scripts/datagen/compose_fast_travel_icon.py (the current pak
-                         ships wings only; older builds had this baked). -->
-                    <img src="/img/t_icon_compass_fttower_diamond.webp"
+                    <!-- Fast-travel emblem: the game's compass eagle in the cyan the
+                         in-game world map draws it. Baked from the white pak sprite by
+                         scripts/datagen/compose_fast_travel_icon.py. -->
+                    <img src="/img/t_icon_compass_fttower_cyan.webp"
                          class="w-10 h-10 object-contain drop-shadow-[0_0_3px_rgba(0,0,0,0.9)] transition-transform transform group-hover:scale-125 cursor-pointer"
                          alt="Fast Travel" />
                     <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
