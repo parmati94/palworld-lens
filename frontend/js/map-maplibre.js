@@ -24,6 +24,9 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { saveToLngLat, layerForCoords, MAP_LAYERS } from './utils.js';
+import { loadPrefs, savePref, pref } from './prefs.js';
+
+const prefs = loadPrefs();
 
 const NATIVE_MAX_ZOOM = 4;   // tiles exist through source z5 == map z4
 const MAX_ZOOM = 7;          // 3 levels of GPU overzoom past native
@@ -46,11 +49,12 @@ export function mapComponent() {
         resizeObserver: null,
 
         // Filter state
-        showBases: true,
-        showPlayers: true,
-        showAlphaPals: true,
-        showFastTravel: false,
-        filtersCollapsed: typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+        showBases: pref(prefs, 'mapBases', true),
+        showPlayers: pref(prefs, 'mapPlayers', true),
+        showAlphaPals: pref(prefs, 'mapAlphaPals', true),
+        showFastTravel: pref(prefs, 'mapFastTravel', false),
+        // Panel starts collapsed on phones unless the viewer chose otherwise.
+        filtersCollapsed: pref(prefs, 'mapFiltersCollapsed', typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches),
         isRefreshing: false,
 
         // Static map objects (loaded once)
@@ -530,11 +534,11 @@ export function mapComponent() {
             if (!this.map) return;   // not created yet (tab hidden); 'load' will draw
             list.forEach(m => visible ? m.addTo(this.map) : m.remove());
         },
-        toggleBases()      { this.showBases = !this.showBases;           this.setVisible(this.markers, this.showBases); },
-        togglePlayers()    { this.showPlayers = !this.showPlayers;       this.setVisible(this.playerMarkers, this.showPlayers); },
-        toggleAlphaPals()  { this.showAlphaPals = !this.showAlphaPals;   this.setVisible(this.alphaPalMarkers, this.showAlphaPals); },
-        toggleFastTravel() { this.showFastTravel = !this.showFastTravel; this.setVisible(this.fastTravelMarkers, this.showFastTravel); },
-        toggleFilters()    { this.filtersCollapsed = !this.filtersCollapsed; },
+        toggleBases()      { this.showBases = !this.showBases;           this.setVisible(this.markers, this.showBases);               savePref('mapBases', this.showBases); },
+        togglePlayers()    { this.showPlayers = !this.showPlayers;       this.setVisible(this.playerMarkers, this.showPlayers);       savePref('mapPlayers', this.showPlayers); },
+        toggleAlphaPals()  { this.showAlphaPals = !this.showAlphaPals;   this.setVisible(this.alphaPalMarkers, this.showAlphaPals);   savePref('mapAlphaPals', this.showAlphaPals); },
+        toggleFastTravel() { this.showFastTravel = !this.showFastTravel; this.setVisible(this.fastTravelMarkers, this.showFastTravel); savePref('mapFastTravel', this.showFastTravel); },
+        toggleFilters()    { this.filtersCollapsed = !this.filtersCollapsed; savePref('mapFiltersCollapsed', this.filtersCollapsed); },
 
         zoomIn()  { if (this.map) this.map.zoomIn({ duration: 200 }); },
         zoomOut() { if (this.map) this.map.zoomOut({ duration: 200 }); },

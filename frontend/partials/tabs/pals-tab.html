@@ -510,14 +510,12 @@
 
         <!-- BasesTab -->
         <div x-show="currentTab === 'bases' && saveInfo.loaded" x-data="{ 
-            baseTab: 'pals', 
-            basePalPage: 1, 
-            basePalPageSize: 10,
+            basePalPage: 1,
             // Helper to count unhealthy pals
             getUnhealthyCount(pals) {
                 return pals.filter(p => p.condition_display).length;
             }
-        }" x-effect="selectedBaseId; baseTab = 'pals'; basePalPage = 1">
+        }" x-effect="selectedBaseId; basePalPage = 1">
             <!-- Guild Selection -->
             <div class="mb-6">
                 <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -705,7 +703,7 @@
                                                 </div>
                                             </button>
                                             <button 
-                                                @click="baseTab = 'food'; console.log('Switched to food tab', {selectedBaseId, hasContainers: !!baseContainers})"
+                                                @click="baseTab = 'food'"
                                                 :class="baseTab === 'food' ? 'border-orange-500 text-orange-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
                                                 class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
                                                 <div class="flex items-center gap-2">

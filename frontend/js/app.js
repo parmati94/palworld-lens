@@ -19,10 +19,16 @@ import {
 } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
+import { loadPrefs, savePref, pref } from './prefs.js';
+
+const prefs = loadPrefs();
+const TABS = ['overview', 'players', 'pals', 'bases', 'map'];
+const SORT_COLUMNS = ['name', 'level', 'hp', 'hunger', 'sanity', 'owner', 'base', 'attack', 'defense'];
 
 export function app() {
     return {
-        currentTab: 'overview',
+        // Land on the last tab used unless the URL names one (applyHash runs in init)
+        currentTab: pref(prefs, 'lastTab', 'overview', TABS),
         saveInfo: { loaded: false },
         players: [],
         pals: [],
@@ -33,9 +39,12 @@ export function app() {
         error: null,
         palSearch: '',
         currentPage: 1,
-        pageSize: 10,
-        sortColumn: 'level',
-        sortDirection: 'desc',
+        pageSize: pref(prefs, 'pageSize', 10, [10, 25, 50, 100]),
+        sortColumn: pref(prefs, 'sortColumn', 'level', SORT_COLUMNS),
+        sortDirection: pref(prefs, 'sortDirection', 'desc', ['asc', 'desc']),
+        // Bases tab sub-tab and page size (shared with the Bases partial)
+        baseTab: pref(prefs, 'baseTab', 'pals', ['pals', 'food', 'storage']),
+        basePalPageSize: pref(prefs, 'basePalPageSize', 10, [10, 25, 50]),
         // Filter state
         filterElement: '',
         filterWorkType: '',
@@ -116,6 +125,11 @@ export function app() {
              'filterWorkType', 'filterPassiveSkill', 'filterOwner'].forEach(key => {
                 this.$watch(key, () => this.writeHash());
             });
+
+            // Remember the settings people expect to stick between visits.
+            [['currentTab', 'lastTab'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
+             ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize']]
+                .forEach(([key, name]) => this.$watch(key, v => savePref(name, v)));
 
             // Bases tab: always have a guild and a base selected when data allows it.
             this.$watch('guilds', () => this.ensureBaseSelection());
