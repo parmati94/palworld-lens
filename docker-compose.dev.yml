@@ -15,6 +15,7 @@ services:
       - ./saves:/app/saves:ro
       # Mount source code for live development
       - ./backend:/app/backend
+      - ./data:/app/data:ro
       - ./frontend/dist:/usr/share/nginx/html
     environment:
       - SAVE_MOUNT_PATH=/app/saves
