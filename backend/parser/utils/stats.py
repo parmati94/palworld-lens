@@ -77,7 +77,7 @@ def calculate_pal_stats(
     """
     try:
         if not species_scaling:
-            logger.warning("No species scaling data provided")
+            # Unknown species (build_pals logs them once per load)
             return {"attack": 0, "defense": 0, "hp": 0, "work_speed": 70}
         
         # Base values (Level 0)

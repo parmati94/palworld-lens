@@ -6,6 +6,7 @@ import httpx
 from backend.common.logging_config import get_logger
 from backend.common.auth import require_auth
 from backend.common.config import config
+from backend.common import pal_icons
 from backend.parser import parser
 
 logger = get_logger(__name__)
@@ -74,35 +75,30 @@ async def get_pals():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/game-data", dependencies=[Depends(require_auth)])
+async def get_game_data():
+    """Static reference data the UI keys ids on: elements, work types, conditions, map layers."""
+    return parser.data.reference()
+
+
 @router.get("/map-objects", dependencies=[Depends(require_auth)])
 async def get_map_objects():
-    """Get static map objects (alpha pals, fast travel points, etc.)"""
-    try:
-        map_objects = parser.data.map_objects
-        
-        # Enrich alpha pals with localized names
-        alpha_pals = []
-        for obj in map_objects:
-            if obj.get('type') == 'alpha_pal':
-                enriched = dict(obj)
-                pal_id = obj.get('pal')
-                if pal_id:
-                    # Add localized name
-                    enriched['pal_name'] = parser.data.pal_names.get(pal_id, pal_id)
-                    # Level already comes from map_objects.json
-                alpha_pals.append(enriched)
-        
-        # Fast travel points already have localized_name
-        fast_travel = [obj for obj in map_objects if obj.get('type') == 'fast_travel']
-        
-        return {
-            "alpha_pals": alpha_pals,
-            "fast_travel": fast_travel,
-            "total": len(map_objects)
-        }
-    except Exception as e:
-        logger.error(f"Error getting map objects: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    """Static map markers (fast travel, alpha pals, predators, dungeons).
+
+    Pal markers are enriched with the localized species name and the same
+    icon candidate list the pals tab uses (backend/common/pal_icons.py), so
+    the map never derives an icon name on its own.
+    """
+    objects = []
+    for obj in parser.data.map_objects:
+        out = dict(obj)
+        pal_id = obj.get("pal")
+        if pal_id:
+            species = parser.data.species.resolve(pal_id)
+            out["pal_name"] = parser.data.pal_name(species) if species else pal_id
+            out["image_candidates"] = pal_icons.icon_candidates(pal_id)
+        objects.append(out)
+    return {"objects": objects, "total": len(objects)}
 
 
 @router.get("/rcon/status", dependencies=[Depends(require_auth)])

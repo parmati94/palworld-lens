@@ -178,49 +178,29 @@ def get_storage_containers(world_data: Dict) -> List[Dict]:
     return storage_containers
 
 
-def get_container_contents(world_data: Dict, container_id: str) -> List[Dict]:
-    """Get items from a specific container
-    
-    Args:
-        world_data: World save data from GVAS file
-        container_id: Container ID to look up
-        
-    Returns:
-        List of item dicts with static_id and count
+def index_item_containers(world_data: Dict) -> Dict[str, List[Dict]]:
+    """{container_id: [{static_id, count}, ...]} for every item container.
+
+    Built once per load; build_base_containers looks containers up here instead
+    of scanning ItemContainerSaveData once per container (which was quadratic).
     """
-    if not container_id:
-        return []
-    
-    item_container_data = world_data.get("ItemContainerSaveData", {})
-    containers = item_container_data.get("value", [])
-    
-    for container_entry in containers:
-        if not isinstance(container_entry, dict):
+    index: Dict[str, List[Dict]] = {}
+    containers = (world_data.get("ItemContainerSaveData") or {}).get("value", [])
+    for entry in containers:
+        if not isinstance(entry, dict):
             continue
-        
-        # Check if this is our container
-        entry_container_id = container_entry.get("key", {}).get("ID", {}).get("value")
-        
-        if str(entry_container_id) == str(container_id):
-            # Found it! Extract slots
-            slots = container_entry.get("value", {}).get("Slots", {}).get("value", {}).get("values", [])
-            
-            items = []
-            for slot in slots:
-                if not isinstance(slot, dict):
-                    continue
-                
-                slot_data = slot.get("RawData", {}).get("value", {})
-                item_info = slot_data.get("item", {})
-                item_static_id = item_info.get("static_id")
-                item_count = slot_data.get("count", 0)
-                
-                if item_static_id and item_count > 0:
-                    items.append({
-                        "static_id": item_static_id,
-                        "count": item_count
-                    })
-            
-            return items
-    
-    return []
+        container_id = (entry.get("key") or {}).get("ID", {}).get("value")
+        if not container_id:
+            continue
+        slots = (((entry.get("value") or {}).get("Slots") or {}).get("value") or {}).get("values", [])
+        items = []
+        for slot in slots:
+            if not isinstance(slot, dict):
+                continue
+            slot_data = (slot.get("RawData") or {}).get("value") or {}
+            static_id = (slot_data.get("item") or {}).get("static_id")
+            count = slot_data.get("count", 0)
+            if static_id and count > 0:
+                items.append({"static_id": static_id, "count": count})
+        index[str(container_id)] = items
+    return index

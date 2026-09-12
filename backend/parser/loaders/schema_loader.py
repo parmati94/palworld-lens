@@ -117,32 +117,17 @@ class SchemaLoader:
         path = field_schema.get('path', [])
         default = field_schema.get('default')
         
-        # Support root_key to decouple logical field name from data structure
-        # If root_key is specified, start from that key and follow path
-        # If not specified, the path should contain the full navigation including root
-        if 'root_key' in field_schema:
-            root_key = field_schema['root_key']
-            current = data.get(root_key)
-            if current is None:
+        # Every field names a root_key and a path below it. (An earlier
+        # root-less variant was never used by any schema and was wrong.)
+        root_key = field_schema.get('root_key')
+        if root_key is None:
+            raise ValueError(f"field '{field_name}' in {self.schema_file} has no root_key")
+        current = data.get(root_key)
+        if current is None:
+            return default
+        for path_key in path:
+            if not isinstance(current, dict):
                 return default
-            
-            # Navigate through the path after root_key
-            for path_key in path:
-                if not isinstance(current, dict):
-                    return default
-                current = current.get(path_key)
-                if current is None:
-                    return default
-        else:
-            # No root_key: path includes everything starting from data
-            current = data
-            for path_key in path:
-                if not isinstance(current, dict):
-                    return default
-                current = current.get(path_key)
-                if current is None:
-                    return default
-                break
             current = current.get(path_key)
             if current is None:
                 return default

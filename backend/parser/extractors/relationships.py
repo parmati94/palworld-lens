@@ -3,9 +3,7 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-from backend.parser.extractors.characters import get_player_data
-from backend.parser.extractors.guilds import get_guild_data
-from backend.parser.extractors.bases import get_base_data
+from backend.parser.extractors.bases import BaseMeta
 from backend.parser.extractors.players import extract_player_save_data
 from backend.parser.utils.helpers import get_val
 from backend.parser.loaders.schema_loader import SchemaManager
@@ -14,11 +12,14 @@ from backend.common.logging_config import get_logger
 logger = get_logger(__name__)
 
 
-def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str, Dict], Dict[str, str]]:
+def build_player_mapping(players_data: Dict, guild_data: Dict, base_meta: Dict[str, BaseMeta],
+                         players_dir: Path) -> tuple[Dict[str, Dict], Dict[str, str]]:
     """Build mapping from PlayerUId to player names and their containers
     
     Args:
-        world_data: World save data from GVAS file
+        players_data: {instance_id: SaveParameter} for player characters (Level.sav)
+        guild_data: extracted guild collection
+        base_meta: base metadata from get_base_metadata()
         players_dir: Path to Players directory with .sav files
         
     Returns:
@@ -27,8 +28,6 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
     player_uid_to_containers = {}
     player_names = {}
     
-    # Get players from Level.sav first (for names)
-    players_data = get_player_data(world_data)
     logger.info(f"build_player_mapping: Found {len(players_data)} players in Level.sav")
     
     # Build temporary mapping of instance_id -> player name
@@ -38,9 +37,7 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
         instance_to_name[str(instance_id)] = player_name
         logger.info(f"Player from Level.sav: {player_name} (instance_id: {instance_id[:16]}...)")
     
-    # Load schemas for data extraction
     guild_schema = SchemaManager.get("guilds.yaml")
-    base_schema = SchemaManager.get("bases.yaml")
     
     # Extract player save data from Players/*.sav files
     player_save_data = extract_player_save_data(players_dir)
@@ -61,10 +58,7 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
     
     # Add base worker containers to player mappings
     guild_to_players = {}
-    guild_data = get_guild_data(world_data)
-    
     for guild_id, guild_info in guild_data.items():
-        # Extract player UIDs from guild using schema
         players = guild_schema.extract_field(guild_info, "players")
         if players:
             player_uids = [str(p.get("player_uid")) for p in players if isinstance(p, dict) and p.get("player_uid")]
@@ -73,29 +67,13 @@ def build_player_mapping(world_data: Dict, players_dir: Path) -> tuple[Dict[str,
     
     logger.info(f"Found {len(guild_to_players)} guilds with players")
     
-    # Process base camps and link to players through guilds
-    base_data = get_base_data(world_data)
-    logger.info(f"Checking {len(base_data)} base camps for worker containers")
-    
-    for base_id, base_info in base_data.items():
-        # Extract guild ID and container ID using schema
-        guild_id = base_schema.extract_field(base_info, "guild_id")
-        
-        if guild_id:
-            guild_id_str = str(guild_id)
-            
-            # Extract worker container ID using schema
-            container_id = base_schema.extract_field(base_info, "worker_container_id")
-            
-            if container_id:
-                container_id_str = str(container_id)
-                
-                player_uids = guild_to_players.get(guild_id_str, [])
-                for player_uid in player_uids:
-                    if player_uid in player_uid_to_containers:
-                        player_uid_to_containers[player_uid]["containers"].append(container_id_str)
-                        player_name = player_uid_to_containers[player_uid]["name"]
-                        logger.debug(f"  -> Added base worker container for {player_name}")
+    # Every member of a guild can see the guild's base worker containers
+    for meta in base_meta.values():
+        if not (meta.guild_id and meta.container_id):
+            continue
+        for player_uid in guild_to_players.get(meta.guild_id, []):
+            if player_uid in player_uid_to_containers:
+                player_uid_to_containers[player_uid]["containers"].append(meta.container_id)
     
     logger.info(f"Mapped {len(player_names)} players with containers")
     return player_uid_to_containers, player_names
