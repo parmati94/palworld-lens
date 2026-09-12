@@ -40,6 +40,14 @@ export const api = {
     },
 
     /**
+     * Static reference data: elements, work types, conditions, map layers
+     */
+    async getGameData() {
+        const res = await fetchWithRetry('/api/game-data');
+        return await res.json();
+    },
+
+    /**
      * Get base containers
      */
     async getBaseContainers() {
@@ -51,8 +59,9 @@ export const api = {
      * Load all data in parallel
      */
     async loadAll() {
-        const [saveInfo, players, pals, guilds, baseContainers] = await Promise.all([
+        const [saveInfo, gameData, players, pals, guilds, baseContainers] = await Promise.all([
             this.getSaveInfo(),
+            this.getGameData(),
             this.getPlayers(),
             this.getPals(),
             this.getGuilds(),
@@ -61,6 +70,7 @@ export const api = {
 
         return {
             saveInfo,
+            gameData,
             players,
             pals,
             guilds,

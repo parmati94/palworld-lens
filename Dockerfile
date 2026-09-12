@@ -36,6 +36,9 @@ COPY frontend/ /app/frontend/
 # used to happen: the build sliced tiles, then overwrote them with the stale
 # committed set). Tiles are gitignored and .dockerignored, so this is the only
 # thing that produces them in the image.
+# map_layers.json is the single list of map textures: slice_map.py reads it to
+# know what to slice, and the frontend build imports it for world bounds.
+COPY data/json/map_layers.json /app/data/json/map_layers.json
 COPY scripts/slice_map.py /app/scripts/
 RUN python /app/scripts/slice_map.py
 
@@ -62,8 +65,8 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy generated map tiles from builder
-COPY --from=builder /app/frontend/public/img/tiles /usr/share/nginx/html/img/tiles
+# (Map tiles are inside frontend/dist: Vite copies public/, which the slicer
+# wrote into, so every layer's pyramid ships without listing tile dirs here.)
 
 # Copy Vite-built frontend from builder
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html/

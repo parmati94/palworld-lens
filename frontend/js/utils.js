@@ -1,6 +1,7 @@
 /**
  * Utility functions for Palworld Lens
  */
+import mapLayersJson from '../../data/json/map_layers.json' with { type: 'json' };
 
 /**
  * Format a date string to localized format
@@ -21,95 +22,61 @@ export function formatFileSize(bytes) {
     return Math.round(bytes / Math.pow(1024, i) * 10) / 10 + ' ' + sizes[i];
 }
 
-/**
- * Get element icon filename
- */
-export function getElementIcon(element) {
-    const iconMap = {
-        'Fire': 'fire.webp',
-        'Water': 'water.webp',
-        'Grass': 'grass.webp',
-        'Electric': 'electric.webp',
-        'Ice': 'ice.webp',
-        'Ground': 'ground.webp',
-        'Dark': 'dark.webp',
-        'Dragon': 'dragon.webp',
-        'Neutral': 'neutral.webp',
-        'Normal': 'neutral.webp'
-    };
-    return iconMap[element] || 'neutral.webp';
+// ---------------------------------------------------------------------------
+// Element / work-type reference data. The API sends ids (Leaf, EmitFlame, ...);
+// names, icons and colours come from /api/game-data (data/json/elements.json and
+// l10n/work_suitability.json + backend/common/constants.py). Nothing here
+// hardcodes an element or a work type.
+// ---------------------------------------------------------------------------
+const FALLBACK_ELEMENT = { color: '#6b7280', icon: 'neutral', icon_white: 'neutral_white' };
+
+export function elementInfo(gameData, id) {
+    const e = gameData && gameData.elements && gameData.elements[id];
+    return e || { ...FALLBACK_ELEMENT, name: id || 'Unknown' };
 }
 
-/**
- * Get white element icon filename for active skills
- */
-export function getElementIconWhite(element) {
-    const iconMap = {
-        'Fire': 'fire_white.webp',
-        'Water': 'water_white.webp',
-        'Grass': 'grass_white.webp',
-        'Electric': 'electric_white.webp',
-        'Ice': 'ice_white.webp',
-        'Ground': 'ground_white.webp',
-        'Dark': 'dark_white.webp',
-        'Dragon': 'dragon_white.webp',
-        'Neutral': 'neutral_white.webp',
-        'Normal': 'neutral_white.webp'
-    };
-    return iconMap[element] || 'neutral_white.webp';
+/** Lighten (pct > 0) or darken (pct < 0) a #rrggbb colour by a percentage. */
+export function shadeHex(hex, pct) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return hex;
+    const n = parseInt(m[1], 16);
+    const ch = (v) => Math.max(0, Math.min(255, Math.round(v + (pct >= 0 ? (255 - v) : v) * pct / 100)));
+    const r = ch(n >> 16), g = ch((n >> 8) & 255), b = ch(n & 255);
+    return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
 }
 
-/**
- * Get element color for active skill badges
- */
-export function getElementColor(element) {
-    const colorMap = {
-        'Fire': '#ef4444',      // red-500
-        'Water': '#3b82f6',     // blue-500
-        'Grass': '#22c55e',     // green-500
-        'Electric': '#eab308',  // yellow-500
-        'Ice': '#06b6d4',       // cyan-500
-        'Ground': '#a16207',    // yellow-700
-        'Dark': '#7c3aed',      // violet-600
-        'Dragon': '#9333ea',    // purple-600
-        'Neutral': '#6b7280',   // gray-500
-        'Normal': '#6b7280'     // gray-500
-    };
-    return colorMap[element] || '#6b7280';
+/** Element-themed gradient for the pal modal header (dual-element pals blend both). */
+export function elementGradient(gameData, ids) {
+    if (!ids || ids.length === 0) return 'linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6)';
+    const c1 = elementInfo(gameData, ids[0]).color;
+    const c2 = ids.length > 1 ? elementInfo(gameData, ids[1]).color : c1;
+    return `linear-gradient(135deg, ${shadeHex(c1, -25)}, ${c1}, ${shadeHex(c2, 10)}, ${shadeHex(c1, -25)})`;
 }
 
-/**
- * Generate element-themed gradient for pal header
- */
-export function getPalHeaderGradient(elements) {
-    if (!elements || elements.length === 0) {
-        return 'linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6)';
+export const WORK_LEVEL_COLORS = {
+    1: '#9ca3af',  // gray-400
+    2: '#22c55e',  // green-500
+    3: '#3b82f6',  // blue-500
+    4: '#8b5cf6',  // violet-500
+    5: '#f59e0b',  // amber-500
+};
+
+/** [{type, name, level, icon, color}] for every work type a pal has at level > 0. */
+export function workSuitabilityDisplay(gameData, pal) {
+    const types = (gameData && gameData.work_types) || {};
+    const out = [];
+    for (const [type, level] of Object.entries((pal && pal.work_suitability) || {})) {
+        if (!(level > 0)) continue;
+        const ref = types[type] || {};
+        out.push({
+            type,
+            name: ref.name || type,
+            level,
+            icon: ref.icon || 'unknown',
+            color: WORK_LEVEL_COLORS[level] || '#9ca3af',
+        });
     }
-    
-    const elementColors = {
-        'Fire': ['#dc2626', '#f97316', '#dc2626'],      // red-600 to orange-500
-        'Water': ['#0284c7', '#06b6d4', '#0284c7'],     // sky-600 to cyan-500
-        'Grass': ['#16a34a', '#22c55e', '#16a34a'],     // green-600 to green-500
-        'Electric': ['#ca8a04', '#eab308', '#ca8a04'],  // yellow-600 to yellow-500
-        'Ice': ['#0891b2', '#67e8f9', '#0891b2'],       // cyan-600 to cyan-300
-        'Ground': ['#92400e', '#d97706', '#92400e'],    // yellow-800 to amber-600
-        'Dark': ['#5b21b6', '#7c3aed', '#5b21b6'],      // violet-800 to violet-600
-        'Dragon': ['#7c3aed', '#a855f7', '#7c3aed'],    // violet-600 to purple-500
-        'Neutral': ['#475569', '#64748b', '#475569'],   // slate-600 to slate-500
-        'Normal': ['#475569', '#64748b', '#475569']
-    };
-    
-    const primaryElement = elements[0];
-    const colors = elementColors[primaryElement] || elementColors['Normal'];
-    
-    if (elements.length > 1) {
-        // Dual element - blend both colors
-        const secondaryElement = elements[1];
-        const secondaryColors = elementColors[secondaryElement] || elementColors['Normal'];
-        return `linear-gradient(135deg, ${colors[0]}, ${colors[1]}, ${secondaryColors[1]}, ${colors[2]})`;
-    }
-    
-    return `linear-gradient(135deg, ${colors[0]}, ${colors[1]}, ${colors[2]})`;
+    return out;
 }
 
 /**
@@ -231,14 +198,20 @@ export function palIconError(img, pal) {
     img.src = next;
 }
 
-export const MAP_LAYERS = {
-    MainMap: { minX: -1099400, maxX:  349400, minY: -724400, maxY:  724400, tiles: '/img/tiles' },
-    Tree:    { minX:   347351.5, maxX: 689148.5, minY: -818197, maxY: -476400, tiles: '/img/tiles_tree' },
-};
+// One entry per map texture, from data/json/map_layers.json (shared with
+// scripts/slice_map.py, generate_map_objects.py, validate.py and the API).
+export const MAP_LAYERS = Object.fromEntries(
+    Object.entries(mapLayersJson)
+        .filter(([name]) => !name.startsWith('_'))
+        .map(([name, m]) => [name, {
+            label: m.label, minX: m.x[0], maxX: m.x[1], minY: m.y[0], maxY: m.y[1], tiles: `/img/${m.tiles}`,
+        }])
+);
+export const MAP_LAYER_ORDER = Object.keys(MAP_LAYERS);
 
 /** Which map layer a world coordinate belongs to (MainMap wins on overlap). */
 export function layerForCoords(saveX, saveY) {
-    for (const name of ['MainMap', 'Tree']) {
+    for (const name of MAP_LAYER_ORDER) {
         const m = MAP_LAYERS[name];
         if (saveX >= m.minX && saveX <= m.maxX && saveY >= m.minY && saveY <= m.maxY) return name;
     }

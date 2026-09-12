@@ -10,7 +10,8 @@
 #   5. validate.py             coverage checks
 #
 # Steps 3-4 need the extractor inputs; see README.md. Without them, pass
-# --skip-icons / --skip-tiles and the rest still runs.
+# --skip-icons / --skip-tiles and the rest still runs. The save-pal release is
+# downloaded once and cached under .cache/<tag>/ for steps 1 and 2.
 #
 # Usage:
 #   bash scripts/datagen/update.sh --tag v1.4.2
@@ -81,7 +82,11 @@ else
 fi
 
 step "5/5  validate"
-"$PY" "$HERE/validate.py"
+if [ $SKIP_TILES -eq 1 ] || [ -n "$DRY" ]; then
+  "$PY" "$HERE/validate.py" --skip-tiles
+else
+  "$PY" "$HERE/validate.py"
+fi
 
 echo
 echo "Done. Review 'git diff' (and 'git status' for new icons), then commit."

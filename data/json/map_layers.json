@@ -1,0 +1,17 @@
+{
+  "_comment": "One entry per map texture the game ships (from DT_WorldMapUIData landScapeRealPositionMin/Max). Read by scripts/slice_map.py, scripts/datagen/generate_map_objects.py, scripts/datagen/validate.py, the API (/api/game-data) and the frontend (frontend/js/utils.js). Bounds are world coordinates; every span is square and matches the square 8192px texture. Never hand-fit these.",
+  "MainMap": {
+    "label": "Palpagos",
+    "source": "World_Map_8k.webp",
+    "tiles": "tiles",
+    "x": [-1099400.0, 349400.0],
+    "y": [-724400.0, 724400.0]
+  },
+  "Tree": {
+    "label": "World Tree",
+    "source": "Tree_Map_8k.webp",
+    "tiles": "tiles_tree",
+    "x": [347351.5, 689148.5],
+    "y": [-818197.0, -476400.0]
+  }
+}

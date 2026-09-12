@@ -1,36 +1,9 @@
 """Data models for the application"""
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, computed_field, Field
 from enum import Enum
 from backend.common import pal_icons
-from backend.common.constants import (
-    CONDITION_DISPLAY_NAMES,
-    CONDITION_DESCRIPTIONS,
-    WORK_ICON_MAPPING,
-    WORK_LEVEL_COLORS,
-)
-
-
-class AlphaPalMapObject(BaseModel):
-    """Alpha pal spawn location on map"""
-    type: str = Field(default="alpha_pal", frozen=True)
-    x: float
-    y: float
-    pal: str  # Internal pal ID (e.g., "BlueDragon")
-    pal_name: Optional[str] = None  # Localized name (e.g., "Azurobe")
-    level: Optional[int] = None
-
-
-class FastTravelMapObject(BaseModel):
-    """Fast travel point location on map"""
-    type: str = Field(default="fast_travel", frozen=True)
-    x: float
-    y: float
-    localized_name: str  # Display name of the location
-
-
-# Union type for polymorphic map objects
-MapObject = Union[AlphaPalMapObject, FastTravelMapObject]
+from backend.common.constants import CONDITION_DISPLAY_NAMES, CONDITION_DESCRIPTIONS
 
 
 class SkillInfo(BaseModel):
@@ -60,6 +33,7 @@ class PalInfo(BaseModel):
     """Pal information"""
     instance_id: str
     character_id: str
+    species_id: Optional[str] = None  # pals.json key the character_id resolved to (None = unknown species)
     name: str
     nickname: Optional[str] = None
     level: int
@@ -72,7 +46,6 @@ class PalInfo(BaseModel):
     max_mp: Optional[int] = None
     hunger: float
     sanity: float  # SAN
-    location: Optional[str] = None
     rank: int = 1
     rank_hp: int = 0
     rank_attack: int = 0
@@ -84,9 +57,8 @@ class PalInfo(BaseModel):
     talent_defense: int = 0
     passive_skills: List[SkillInfo] = []
     active_skills: List[SkillInfo] = []
-    element_types: List[str] = []
-    work_suitability: Dict[str, int] = {}  # Maps work type ID to level
-    work_suitability_names: Dict[str, str] = {}  # Maps work type ID to display name
+    element_types: List[str] = []  # element ids (Leaf, Earth, ...); names/icons via /api/game-data
+    work_suitability: Dict[str, int] = {}  # work type id -> level; names/icons via /api/game-data
     is_lucky: bool = False
     is_boss: bool = False
     # Base assignment fields (only set for pals at bases)
@@ -164,26 +136,6 @@ class PalInfo(BaseModel):
         return conditions[0]["description"]
     
     @computed_field
-    def work_suitability_display(self) -> List[Dict[str, Any]]:
-        """Convert work suitability dict to rich display data with names, icons, and color-coded levels"""
-        display_data = []
-        for work_type, level in self.work_suitability.items():
-            if level > 0:
-                display_name = self.work_suitability_names.get(work_type, work_type)
-                icon_num = WORK_ICON_MAPPING.get(work_type, "00")
-                color = WORK_LEVEL_COLORS.get(level, "#9ca3af")
-                
-                display_data.append({
-                    "type": work_type,
-                    "name": display_name,
-                    "level": level,
-                    "icon": f"t_icon_research_palwork_{icon_num}_0",
-                    "color": color
-                })
-        
-        return display_data
-    
-    @computed_field
     def display_name(self) -> str:
         """Clean display name for UI - uses proper localized name"""
         # Always use the localized name (self.name), which comes from l10n/en/pals.json
@@ -256,6 +208,7 @@ class GuildInfo(BaseModel):
     guild_id: str
     guild_name: str
     admin_player_uid: Optional[str] = None
+    admin_player_name: Optional[str] = None
     members: List[str] = []
     base_locations: List[BaseLocation] = []
 

@@ -23,7 +23,7 @@
  */
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { saveToLngLat, layerForCoords, MAP_LAYERS } from './utils.js';
+import { saveToLngLat, layerForCoords, MAP_LAYERS, palIconSrc, palIconError } from './utils.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
 
 const prefs = loadPrefs();
@@ -243,7 +243,7 @@ export function mapComponent() {
             const el = document.createElement('div');
             el.className = 'pw-marker';
             el.style.zIndex = String(zIndex);
-            el.innerHTML = html;
+            if (html instanceof Node) el.appendChild(html); else el.innerHTML = html;
             if (onClick) el.addEventListener('click', onClick);
 
             return new maplibregl.Marker({ element: el, anchor: 'center' })
@@ -440,9 +440,12 @@ export function mapComponent() {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
                 const data = await response.json();
-                this.mapObjects = [...data.alpha_pals, ...data.fast_travel];
+                // Every static marker, any type; each loader filters what it draws.
+                this.mapObjects = data.objects || [];
                 this.mapObjectsLoaded = true;
-                console.log(`📍 Loaded ${data.alpha_pals.length} alpha pals, ${data.fast_travel.length} fast travel points`);
+                const counts = {};
+                for (const o of this.mapObjects) counts[o.type] = (counts[o.type] || 0) + 1;
+                console.log('📍 Loaded static map objects:', counts);
                 this.renderStaticMapObjects();
             } catch (error) {
                 console.error('❌ Failed to load map objects:', error);
@@ -466,27 +469,27 @@ export function mapComponent() {
         },
 
         addAlphaPalMarker(alphaPal) {
-            // Icon is derived from the pal id: t_{palid}_icon_normal.webp
-            let imageId = alphaPal.pal.toLowerCase();
-            if (imageId.startsWith('boss_')) imageId = imageId.substring(5);
-            const iconPath = `/img/t_${imageId}_icon_normal.webp`;
-
             const palName = alphaPal.pal_name || alphaPal.pal;
             const level = alphaPal.level;
 
-            const html = `
-                <div class="relative group">
+            const root = document.createElement('div');
+            root.className = 'relative group';
+            root.innerHTML = `
                     <div class="w-8 h-8 bg-black rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
-                        <img src="${iconPath}" class="w-6 h-6 object-contain" alt="${palName}" onerror="this.onerror=null; this.src='/img/unknown.webp'" />
+                        <img class="w-6 h-6 object-contain" alt="${palName}" />
                     </div>
                     <div class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                         <div class="font-semibold text-yellow-400 break-words">⚔️ ${palName}</div>
                         ${level ? `<div class="text-gray-300 text-[11px]">Level ${level}</div>` : ''}
                         <div class="text-gray-400 text-[10px]">Alpha Pal</div>
-                    </div>
-                </div>`;
+                    </div>`;
+            // Same icon rule and fallback chain as the pals tab (image_candidates
+            // from the API); the map no longer derives icon names itself.
+            const img = root.querySelector('img');
+            img.src = palIconSrc(alphaPal);
+            img.onerror = () => palIconError(img, alphaPal);
 
-            const marker = this.makeMarker(html, alphaPal.x, alphaPal.y, Z.alphaPal);
+            const marker = this.makeMarker(root, alphaPal.x, alphaPal.y, Z.alphaPal);
             if (this.showAlphaPals) marker.addTo(this.map);
             this.alphaPalMarkers.push(marker);
         },

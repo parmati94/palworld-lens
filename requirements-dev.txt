@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==8.3.4
+# The parser package imports the save-tools decoder at import time; tests never parse a save.
+palworld-save-tools @ git+https://github.com/oMaN-Rod/palworld-save-tools.git@main

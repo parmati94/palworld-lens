@@ -75,8 +75,10 @@
                     </ul>
                 </section>
 
-                <!-- Base pals that need attention -->
-                <section class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                <!-- Base pals that need attention. On desktop the card is pinned to the
+                     row height (h-0 + min-h-full: it fills the row the other two cards set
+                     without growing it) and the list scrolls inside; on phones it caps itself. -->
+                <section class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden flex flex-col lg:h-0 lg:min-h-full">
                     <header class="px-4 py-3 border-b border-gray-700 flex items-center justify-between bg-gradient-to-r via-transparent to-transparent"
                             :class="unhealthyBasePals.length ? 'from-amber-500/15' : 'from-green-500/10'">
                         <h2 class="font-bold flex items-center gap-2">
@@ -89,7 +91,7 @@
                               :class="unhealthyBasePals.length ? 'bg-amber-500/20 text-amber-200' : 'bg-gray-700 text-gray-400'"
                               x-text="unhealthyBasePals.length + (unhealthyBasePals.length === 1 ? ' pal' : ' pals')"></span>
                     </header>
-                    <ul class="divide-y divide-gray-700/70 max-h-80 overflow-y-auto custom-scrollbar">
+                    <ul class="divide-y divide-gray-700/70 max-h-80 lg:max-h-none lg:flex-1 min-h-0 overflow-y-auto custom-scrollbar">
                         <template x-for="pal in unhealthyBasePals" :key="pal.instance_id">
                             <li class="px-4 py-2 flex items-center gap-3 hover:bg-gray-700/40 cursor-pointer" @click="$dispatch('open-pal-modal', pal)">
                                 <img :src="palIconSrc(pal)" :alt="pal.display_name" @error="palIconError($el, pal)" class="w-9 h-9 rounded-lg bg-gray-900 object-cover flex-shrink-0">
@@ -102,7 +104,10 @@
                                         <span class="px-1.5 py-0.5 rounded"
                                               :class="getConditionClass(pal.all_conditions && pal.all_conditions[0])"
                                               x-text="pal.condition_display"></span>
-                                        <button @click.stop="goToBase(pal.guild_id, pal.base_id)" class="text-gray-400 hover:text-blue-300 truncate" x-text="pal.base_name"></button>
+                                        <button @click.stop="goToBase(pal.guild_id, pal.base_id)" class="text-gray-400 hover:text-blue-300 truncate" :title="'Owned by ' + baseOwner(pal.guild_id)">
+                                            <span class="text-cyan-300/90" x-text="baseOwner(pal.guild_id)"></span>
+                                            <span class="text-gray-500"> · </span><span x-text="pal.base_name"></span>
+                                        </button>
                                     </div>
                                 </div>
                             </li>

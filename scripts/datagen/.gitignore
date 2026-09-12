@@ -14,3 +14,6 @@ icons_all.txt
 
 # Python venv
 .venv/
+
+# Downloaded save-pal releases (savepal.fetch_release)
+.cache/

@@ -1,287 +1,196 @@
-"""Data loading from JSON files"""
+"""Loads the static game-data tables (data/json) the parser enriches saves with.
+
+Which tables exist is defined once in backend/common/game_tables.py. Each table
+is loaded by the same routine: the DATA file (stats, icons) and the L10N file
+(localized_name, description) are merged per id into one row, so consumers
+never merge them by hand.
+
+A missing or unreadable REQUIRED table raises GameDataError at construction,
+which stops the app at startup with a clear message. The previous loader
+swallowed every failure into a warning and carried on with empty dicts, so a
+bad data sync produced a running app in which every pal was named by its raw id
+and had zero stats -- and nothing failed.
+"""
+from __future__ import annotations
+
 import json
-import logging
-from typing import Dict, Optional
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from backend.common.config import config
+from backend.common.game_tables import TABLES, Table
 from backend.common.logging_config import get_logger
+from backend.common.pal_ids import SpeciesIndex
+from backend.common.constants import (
+    CONDITION_DISPLAY_NAMES,
+    CONDITION_DESCRIPTIONS,
+    WORK_ICON_MAPPING,
+)
 
 logger = get_logger(__name__)
 
 
-class DataLoader:
-    """Handles loading of localization and game data from JSON files"""
-    
-    def __init__(self):
-        self.pal_names: Dict[str, str] = {}
-        self.pal_max_stomach: Dict[str, int] = {}
-        self.pal_species_data: Dict[str, Dict] = {}
-        self.active_skill_names: Dict[str, str] = {}
-        self.passive_skill_names: Dict[str, str] = {}
-        self.work_suitability_names: Dict[str, str] = {}
-        self.active_skill_data: Dict[str, Dict] = {}  # l10n data (name, description)
-        self.passive_skill_data: Dict[str, Dict] = {}  # l10n data (name, description)
-        self.active_skill_full_data: Dict[str, Dict] = {}  # Full data (element, power, etc.)
-        self.passive_skill_full_data: Dict[str, Dict] = {}  # Full data (rank, effects, etc.)
-        self.element_display_names: Dict[str, str] = {}
-        self.trust_thresholds: list = []  # List of (required_points, trust_level) tuples
-        self.item_data: Dict[str, Dict] = {}  # Item names and data
-        self.building_data: Dict[str, Dict] = {}  # Building data (icons, stats, etc.)
-        self.technology_data: Dict[str, Dict] = {}  # Technology/building localized names
-        self.map_objects: list = []  # Static map objects (alpha pals, fast travel, etc.)
-        
-        self._load_pal_names()
-        self._load_pal_data()
-        self._load_skill_names()
-        self._load_full_skill_data()
-        self._load_element_names()
-        self._load_trust_thresholds()
-        self._load_items()
-        self._load_buildings()
-        self._load_technologies()
-        self._load_map_objects()
-    
-    def _load_pal_names(self):
-        """Load pal name mappings from JSON"""
-        try:
-            pals_json = config.DATA_PATH / "json" / "l10n" / "en" / "pals.json"
-            if pals_json.exists():
-                with open(pals_json, 'r') as f:
-                    data = json.load(f)
-                    for pal_id, pal_info in data.items():
-                        if isinstance(pal_info, dict):
-                            self.pal_names[pal_id] = pal_info.get("localized_name", pal_id)
-                logger.debug(f"Loaded {len(self.pal_names)} pal names")
-            else:
-                logger.warning(f"Pal names file not found: {pals_json}")
-        except Exception as e:
-            logger.warning(f"Could not load pal names: {e}")
-    
-    def _load_pal_data(self):
-        """Load pal data including max stomach values from JSON"""
-        try:
-            pals_json = config.DATA_PATH / "json" / "pals.json"
-            if pals_json.exists():
-                with open(pals_json, 'r') as f:
-                    data = json.load(f)
-                    self.pal_species_data = data
-                    for pal_id, pal_info in data.items():
-                        if isinstance(pal_info, dict) and "max_full_stomach" in pal_info:
-                            self.pal_max_stomach[pal_id] = pal_info["max_full_stomach"]
-                logger.debug(f"Loaded max stomach data for {len(self.pal_max_stomach)} pals")
-            else:
-                logger.warning(f"Pal data file not found: {pals_json}")
-        except Exception as e:
-            logger.warning(f"Could not load pal data: {e}")
-    
-    def _load_skill_names(self):
-        """Load localized skill names and descriptions from JSON"""
-        try:
-            # Load active skill data
-            active_skills_json = config.DATA_PATH / "json" / "l10n" / "en" / "active_skills.json"
-            if active_skills_json.exists():
-                with open(active_skills_json, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    for skill_id, skill_data in data.items():
-                        if isinstance(skill_data, dict):
-                            self.active_skill_data[skill_id] = {
-                                "name": skill_data.get("localized_name", skill_id),
-                                "description": skill_data.get("description", "")
-                            }
-                            if "localized_name" in skill_data:
-                                self.active_skill_names[skill_id] = skill_data["localized_name"]
-                logger.debug(f"Loaded {len(self.active_skill_names)} active skill names")
-            
-            # Load passive skill data
-            passive_skills_json = config.DATA_PATH / "json" / "l10n" / "en" / "passive_skills.json"
-            if passive_skills_json.exists():
-                with open(passive_skills_json, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    for skill_id, skill_data in data.items():
-                        if isinstance(skill_data, dict):
-                            self.passive_skill_data[skill_id] = {
-                                "name": skill_data.get("localized_name", skill_id),
-                                "description": skill_data.get("description", "")
-                            }
-                            if "localized_name" in skill_data:
-                                self.passive_skill_names[skill_id] = skill_data["localized_name"]
-                logger.debug(f"Loaded {len(self.passive_skill_names)} passive skill names")
+class GameDataError(RuntimeError):
+    """A required game-data table is missing, unreadable or empty."""
 
-            # Load work suitability data
-            work_suitability_json = config.DATA_PATH / "json" / "l10n" / "en" / "work_suitability.json"
-            if work_suitability_json.exists():
-                with open(work_suitability_json, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    for work_id, work_data in data.items():
-                        if isinstance(work_data, dict) and "localized_name" in work_data:
-                            self.work_suitability_names[work_id] = work_data["localized_name"]
-                logger.debug(f"Loaded {len(self.work_suitability_names)} work suitability names")
-        except Exception as e:
-            logger.warning(f"Could not load skill names: {e}")
-    
-    def _load_full_skill_data(self):
-        """Load full skill data from game data JSON (element, power, rank, etc.)"""
-        try:
-            # Load full active skill data (element, power, cooldown, etc.)
-            active_skills_json = config.DATA_PATH / "json" / "active_skills.json"
-            if active_skills_json.exists():
-                with open(active_skills_json, 'r', encoding='utf-8') as f:
-                    self.active_skill_full_data = json.load(f)
-                logger.debug(f"Loaded full data for {len(self.active_skill_full_data)} active skills")
-            else:
-                logger.warning(f"Active skills data file not found: {active_skills_json}")
-            
-            # Load full passive skill data (rank, effects, etc.)
-            passive_skills_json = config.DATA_PATH / "json" / "passive_skills.json"
-            if passive_skills_json.exists():
-                with open(passive_skills_json, 'r', encoding='utf-8') as f:
-                    self.passive_skill_full_data = json.load(f)
-                logger.debug(f"Loaded full data for {len(self.passive_skill_full_data)} passive skills")
-            else:
-                logger.warning(f"Passive skills data file not found: {passive_skills_json}")
-        except Exception as e:
-            logger.warning(f"Could not load full skill data: {e}")
-    
-    def _load_element_names(self):
-        """Load element display name mappings from JSON"""
-        try:
-            elements_json = config.DATA_PATH / "json" / "l10n" / "en" / "elements.json"
-            if elements_json.exists():
-                with open(elements_json, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    for element_id, element_data in data.items():
-                        if isinstance(element_data, dict) and "localized_name" in element_data:
-                            self.element_display_names[element_id] = element_data["localized_name"]
-                logger.debug(f"Loaded {len(self.element_display_names)} element display names")
-            else:
-                logger.warning(f"Element names file not found: {elements_json}")
-        except Exception as e:
-            logger.warning(f"Could not load element names: {e}")
-    
-    def _load_trust_thresholds(self):
-        """Load Trust Level thresholds from friendship.json"""
-        try:
-            friendship_json = config.DATA_PATH / "json" / "friendship.json"
-            if friendship_json.exists():
-                with open(friendship_json, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                
-                # Convert to sorted list of (threshold, level) tuples
-                thresholds = []
-                for key, value in data.items():
-                    if key.startswith("Friendship_Rank_") and not key.endswith("Minus1") and not key.endswith("Minus2"):
-                        rank = value.get("rank", 0)
-                        required = value.get("required_point", 0)
-                        if rank >= 0 and required >= 0:
-                            thresholds.append((required, rank))
-                
-                # Sort by threshold ascending
-                thresholds.sort(key=lambda x: x[0])
-                self.trust_thresholds = thresholds
-                logger.debug(f"Loaded {len(thresholds)} trust level thresholds")
-            else:
-                logger.warning(f"Trust thresholds file not found: {friendship_json}")
-        except Exception as e:
-            logger.warning(f"Could not load trust thresholds: {e}")
-    
-    def _load_items(self):
-        """Load item names from JSON"""
-        try:
-            # Load full items.json for item data
-            items_json = config.DATA_PATH / "json" / "items.json"
-            if items_json.exists():
-                with open(items_json, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    for item_id, item_info in data.items():
-                        if isinstance(item_info, dict):
-                            self.item_data[item_id] = item_info
-                
-                # Try to load localized names
-                items_l10n_json = config.DATA_PATH / "json" / "l10n" / "en" / "items.json"
-                if items_l10n_json.exists():
-                    with open(items_l10n_json, 'r', encoding='utf-8') as f:
-                        l10n_data = json.load(f)
-                        for item_id, l10n_info in l10n_data.items():
-                            if isinstance(l10n_info, dict) and item_id in self.item_data:
-                                self.item_data[item_id]["name"] = l10n_info.get("localized_name", item_id)
-                
-                # Add default names for items without localization
-                for item_id in self.item_data:
-                    if "name" not in self.item_data[item_id]:
-                        self.item_data[item_id]["name"] = item_id
-                
-                logger.debug(f"Loaded {len(self.item_data)} items")
-            else:
-                logger.warning(f"Items file not found: {items_json}")
-        except Exception as e:
-            logger.warning(f"Could not load items: {e}")
-    
-    def _load_buildings(self):
-        """Load building data from JSON"""
-        try:
-            buildings_json = config.DATA_PATH / "json" / "buildings.json"
-            if buildings_json.exists():
-                with open(buildings_json, 'r', encoding='utf-8') as f:
-                    self.building_data = json.load(f)
-                
-                # Merge localized names from l10n file
-                buildings_l10n_json = config.DATA_PATH / "json" / "l10n" / "en" / "buildings.json"
-                if buildings_l10n_json.exists():
-                    with open(buildings_l10n_json, 'r', encoding='utf-8') as f:
-                        l10n_data = json.load(f)
-                        for building_id, l10n_info in l10n_data.items():
-                            if building_id in self.building_data and isinstance(l10n_info, dict):
-                                if "localized_name" in l10n_info:
-                                    self.building_data[building_id]["localized_name"] = l10n_info["localized_name"]
-                                if "description" in l10n_info:
-                                    self.building_data[building_id]["description"] = l10n_info["description"]
-                
-                logger.debug(f"Loaded {len(self.building_data)} buildings")
-            else:
-                logger.warning(f"Buildings file not found: {buildings_json}")
-        except Exception as e:
-            logger.warning(f"Could not load buildings: {e}")
-    
-    def _load_technologies(self):
-        """Load technology/building localized names from JSON"""
-        try:
-            tech_json = config.DATA_PATH / "json" / "l10n" / "en" / "technologies.json"
-            if tech_json.exists():
-                with open(tech_json, 'r', encoding='utf-8') as f:
-                    self.technology_data = json.load(f)
-                logger.debug(f"Loaded {len(self.technology_data)} technologies")
-            else:
-                logger.warning(f"Technologies file not found: {tech_json}")
-        except Exception as e:
-            logger.warning(f"Could not load technologies: {e}")
-    
-    def _load_map_objects(self):
-        """Load static map objects (alpha pals, fast travel points, etc.)"""
-        try:
-            map_objects_json = config.DATA_PATH / "json" / "map_objects.json"
-            if map_objects_json.exists():
-                with open(map_objects_json, 'r', encoding='utf-8') as f:
-                    self.map_objects = json.load(f)
-                
-                # Count different types
-                alpha_count = sum(1 for obj in self.map_objects if obj.get('type') == 'alpha_pal')
-                travel_count = sum(1 for obj in self.map_objects if obj.get('type') == 'fast_travel')
-                logger.debug(f"Loaded {len(self.map_objects)} map objects ({alpha_count} alpha pals, {travel_count} fast travel)")
-            else:
-                logger.warning(f"Map objects file not found: {map_objects_json}")
-        except Exception as e:
-            logger.warning(f"Could not load map objects: {e}")
-    
-    def get_species_scaling(self, character_id: str) -> Optional[Dict[str, int]]:
-        """Get species scaling values from pals.json"""
-        try:
-            species_data = self.pal_species_data.get(character_id)
-            if species_data and "scaling" in species_data:
-                scaling = species_data["scaling"]
-                return scaling
-            else:
-                logger.warning(f"No scaling data found for character_id: {character_id}")
-        except Exception as e:
-            logger.warning(f"Error getting species scaling for {character_id}: {e}")
-        return None
+
+def _read_json(path: Path) -> Any:
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def load_table(table: Table, root: Path) -> Any:
+    """Load one table: data rows merged with their localisation.
+
+    Dict tables come back as {id: row} with `localized_name`/`description`
+    folded into each row. List tables (map_objects) come back as the list.
+    """
+    data_path, l10n_path = table.data_path(root), table.l10n_path(root)
+    data: Any = None
+    if data_path is not None:
+        if not data_path.exists():
+            if table.required:
+                raise GameDataError(f'required game data missing: {data_path}')
+            logger.warning(f'optional game data missing: {data_path}')
+        else:
+            data = _read_json(data_path)
+
+    if l10n_path is not None and l10n_path.exists():
+        l10n = _read_json(l10n_path)
+        if data is None:
+            data = {}
+        if isinstance(data, dict) and isinstance(l10n, dict):
+            for key, loc in l10n.items():
+                if not isinstance(loc, dict):
+                    continue
+                row = data.setdefault(key, {})
+                if isinstance(row, dict):
+                    for field in ('localized_name', 'description'):
+                        if loc.get(field) is not None:
+                            row[field] = loc[field]
+    elif l10n_path is not None and table.required:
+        raise GameDataError(f'required localisation missing: {l10n_path}')
+
+    if data is None:
+        data = [] if table.name == 'map_objects' else {}
+    if table.required and not data:
+        raise GameDataError(f'required game data is empty: {table.name}')
+    return data
+
+
+class DataLoader:
+    """All static game data, loaded once at startup."""
+
+    def __init__(self, root: Optional[Path] = None):
+        self.root = root or (config.DATA_PATH / 'json')
+        self.tables: Dict[str, Any] = {}
+        for table in TABLES.values():
+            self.tables[table.name] = load_table(table, self.root)
+            n = len(self.tables[table.name])
+            logger.debug(f'game data: {table.name} ({n} rows)')
+
+        # Species ---------------------------------------------------------
+        self.pals: Dict[str, Dict] = self.tables['pals']
+        self.species = SpeciesIndex(self.pals.keys())
+
+        # Skills ----------------------------------------------------------
+        self.active_skills: Dict[str, Dict] = self.tables['active_skills']
+        self.passive_skills: Dict[str, Dict] = self.tables['passive_skills']
+
+        # Names -----------------------------------------------------------
+        self.elements: Dict[str, Dict] = self.tables['elements']
+        self.work_types: Dict[str, Dict] = self.tables['work_suitability']
+        self.items: Dict[str, Dict] = self.tables['items']
+        self._items_lower = {k.lower(): k for k in self.items}
+        self.buildings: Dict[str, Dict] = self.tables['buildings']
+        self.technologies: Dict[str, Dict] = self.tables['technologies']
+
+        # Trust thresholds: sorted (required_points, rank) ----------------
+        self.trust_thresholds: List[Tuple[int, int]] = sorted(
+            (int(v.get('required_point', 0)), int(v.get('rank', 0)))
+            for k, v in self.tables['friendship'].items()
+            if k.startswith('Friendship_Rank_') and not k.endswith(('Minus1', 'Minus2'))
+            and isinstance(v, dict) and v.get('rank', 0) >= 0 and v.get('required_point', 0) >= 0
+        )
+
+        self.map_objects: List[Dict] = self.tables['map_objects']
+        self.map_layers: Dict[str, Dict] = {
+            k: v for k, v in (self.tables.get('map_layers') or {}).items() if not k.startswith('_')
+        }
+
+        self._check_coverage()
+        logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '
+                    f'{len(self.map_objects)} map objects, {len(self.map_layers)} map layers')
+
+    # ------------------------------------------------------------------
+    # Lookups
+    # ------------------------------------------------------------------
+    def pal_name(self, species_id: str) -> str:
+        row = self.pals.get(species_id) or {}
+        return row.get('localized_name') or species_id
+
+    def item(self, item_id: str) -> Dict:
+        """Item row by id, tolerating the save's inconsistent casing."""
+        row = self.items.get(item_id)
+        if row is None:
+            key = self._items_lower.get((item_id or '').lower())
+            row = self.items.get(key) if key else None
+        return row or {}
+
+    def item_name(self, item_id: str) -> str:
+        return self.item(item_id).get('localized_name') or item_id
+
+    def element_name(self, element_id: str) -> str:
+        return (self.elements.get(element_id) or {}).get('localized_name') or element_id
+
+    def work_type_name(self, work_type: str) -> str:
+        return (self.work_types.get(work_type) or {}).get('localized_name') or work_type
+
+    # ------------------------------------------------------------------
+    # Reference data for the UI (/api/game-data)
+    # ------------------------------------------------------------------
+    def reference(self) -> Dict[str, Any]:
+        """Small id -> display lookups the frontend keys everything on.
+
+        Elements and work types are sent to the UI as ids; this is the one
+        place their names, icons and colours come from. Icon values are file
+        stems under /img/ (lowercase; nginx is case-sensitive).
+        """
+        elements = {}
+        for eid, row in self.elements.items():
+            elements[eid] = {
+                'name': row.get('localized_name') or eid,
+                'color': row.get('color') or '#6b7280',
+                'icon': (row.get('icon') or 'neutral').lower(),
+                'icon_white': (row.get('white_icon') or 'neutral_white').lower(),
+            }
+        work_types = {}
+        for wid, row in self.work_types.items():
+            work_types[wid] = {
+                'name': row.get('localized_name') or wid,
+                'icon': f't_icon_research_palwork_{WORK_ICON_MAPPING[wid]}_0' if wid in WORK_ICON_MAPPING else None,
+            }
+        conditions = {
+            cid: {'name': name, 'description': CONDITION_DESCRIPTIONS.get(cid, cid)}
+            for cid, name in CONDITION_DISPLAY_NAMES.items()
+        }
+        return {
+            'elements': elements,
+            'work_types': work_types,
+            'conditions': conditions,
+            'map_layers': self.map_layers,
+        }
+
+    # ------------------------------------------------------------------
+    def _check_coverage(self) -> None:
+        """Log (never fail) known-quiet gaps between tables."""
+        work_in_pals = {w for row in self.pals.values() if isinstance(row, dict)
+                        for w in (row.get('work_suitability') or {})}
+        for w in sorted(work_in_pals - set(WORK_ICON_MAPPING)):
+            logger.warning(f'work type {w!r} has no icon slot in WORK_ICON_MAPPING')
+        for w in sorted(work_in_pals - set(self.work_types)):
+            logger.warning(f'work type {w!r} has no localized name')
+        elems_in_pals = {e for row in self.pals.values() if isinstance(row, dict)
+                         for e in (row.get('element_types') or [])}
+        for e in sorted(elems_in_pals - set(self.elements)):
+            logger.warning(f'element {e!r} has no entry in elements.json')

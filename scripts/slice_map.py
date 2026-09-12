@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Slice the world map into Leaflet XYZ tiles.
+Slice each world map texture into XYZ tiles.
 
-Source is frontend/public/img/World_Map_8k.webp (8192px) -> z5 is native 1:1,
-so zooms 0-5 are generated; the frontend upscales past that via maxNativeZoom.
+The layers (source image -> tile dir) come from data/json/map_layers.json,
+the same file the frontend and the datagen scripts read. Sources are 8192px,
+so z5 is native 1:1; zooms 0-5 are generated and the map overzooms past that.
 
 Tiles are NOT committed -- they're derived from the source image and are
 regenerated here (and at Docker build time). Run this once after a fresh clone
@@ -12,6 +13,7 @@ so the Vite dev server has tiles to serve:
     python3 scripts/slice_map.py
 """
 
+import json
 import os
 import time
 from multiprocessing import get_context
@@ -24,13 +26,7 @@ Image.MAX_IMAGE_PIXELS = None
 SCRIPTS_DIR  = Path(__file__).parent
 PROJECT_ROOT = SCRIPTS_DIR.parent
 IMG_DIR      = PROJECT_ROOT / 'frontend' / 'public' / 'img'
-
-# One entry per map layer the game ships (see DT_WorldMapUIData). Palworld 1.0
-# added the World Tree as a second layer with its own texture and bounds.
-MAPS = [
-    ('World_Map_8k.webp', 'tiles'),        # MainMap -- Palpagos
-    ('Tree_Map_8k.webp',  'tiles_tree'),   # Tree    -- World Tree region
-]
+LAYERS_JSON  = PROJECT_ROOT / 'data' / 'json' / 'map_layers.json'
 
 TILE_PX       = 256
 OUTPUT_DIR    = None             # set per-map by slice_one()
@@ -74,8 +70,7 @@ def slice_one(input_image, output_dir):
           f"(WebP q{WEBP_QUALITY}, {nproc} workers)")
 
     # Walk high->low zoom so each level downsamples from the previous (2x larger)
-    # one rather than from the full-res source -- a mip pyramid. Each step halves,
-    # so total resize work is ~1/3 of resizing from full res every time.
+    # one rather than from the full-res source -- a mip pyramid.
     t_all = time.time()
     prev = src
     for zoom in sorted(OUTPUT_ZOOMS, reverse=True):
@@ -92,8 +87,6 @@ def slice_one(input_image, output_dir):
         prev = _SCALED
         t_resize = time.time() - t0
 
-        # Pool is created after _SCALED is assigned, so each forked worker
-        # inherits this zoom's scaled image.
         t1 = time.time()
         with ctx.Pool(nproc) as pool:
             counts = pool.map(_write_column, [(zoom, tx, n) for tx in range(n)])
@@ -109,9 +102,12 @@ def slice_one(input_image, output_dir):
 
 
 def slice_map():
+    with open(LAYERS_JSON, encoding='utf-8') as f:
+        layers = {k: v for k, v in json.load(f).items() if not k.startswith('_')}
     rc = 0
-    for name, out in MAPS:
-        rc |= slice_one(IMG_DIR / name, IMG_DIR / out)
+    for name, m in layers.items():
+        print(f"== {name}")
+        rc |= slice_one(IMG_DIR / m['source'], IMG_DIR / m['tiles'])
     return rc
 
 

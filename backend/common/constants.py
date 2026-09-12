@@ -38,7 +38,11 @@ CONDITION_DESCRIPTIONS: Dict[str, str] = {
     "GutWrenching": "Severe digestive issues. Cure: High Grade Medical Supplies"
 }
 
-# Work Suitability Mappings (names come from JSON - see data_loader.work_suitability_names)
+# Work Suitability icon slots: t_icon_research_palwork_<NN>_0.webp. Names come
+# from data/json/l10n/en/work_suitability.json. Every work type that appears in
+# pals.json MUST be listed here -- validate.py and tests/test_game_data.py check
+# it, because an unlisted type used to fall through to slot 00 (the Kindling
+# icon), which is how OilExtraction shipped wrong after 1.0.
 WORK_ICON_MAPPING: Dict[str, str] = {
     "EmitFlame": "00",       # Kindling
     "Watering": "01",        # Watering  
@@ -52,6 +56,8 @@ WORK_ICON_MAPPING: Dict[str, str] = {
     "Cool": "09",            # Cooling
     "Transport": "10",       # Transporting (box icon)
     "MonsterFarm": "11",     # Farming
+    "OilExtraction": "13",   # Oil Extraction (1.0). The pak has no _12_ icon;
+                             # 13 is the only research icon added with 1.0.
 }
 
 WORK_LEVEL_COLORS: Dict[int, str] = {

@@ -22,16 +22,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent.parent
-DATA_JSON = REPO / "data" / "json"
-IMG_DIR = REPO / "frontend" / "public" / "img"
-EXTRACTOR = REPO / "scripts" / "datagen" / "extractor" / "bin" / "Release" / "net8.0" / "pal-extract"
+from savepal import ROOT as REPO, DATA_JSON, IMG_DIR
+from backend.common import pal_icons
 
-# backend/common/pal_icons.py is pure python, but importing it as a package drags in
-# backend/common/__init__ (colorlog etc.), which the datagen venv doesn't have.
-import importlib.util as _ilu
-_spec = _ilu.spec_from_file_location('pal_icons', REPO / 'backend' / 'common' / 'pal_icons.py')
-pal_icons = _ilu.module_from_spec(_spec); _spec.loader.exec_module(pal_icons)
+EXTRACTOR = REPO / "scripts" / "datagen" / "extractor" / "bin" / "Release" / "net8.0" / "pal-extract"
 
 PAK_DIR = Path(os.environ.get("PALWORLD_PAK_DIR", str(Path.home() / ".gamedata" / "palworld-pak-data")))
 USMAP = os.environ.get("PALWORLD_USMAP", "")

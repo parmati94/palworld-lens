@@ -1,127 +1,81 @@
-"""Base camp data extraction - schema-driven version"""
-from typing import Dict
+"""Base camp extraction: the one place base metadata (guild, name, worker
+container, coordinates) is derived. build_guilds, build_base_containers and
+the pal base assignments all consume the same BaseMeta rows, so a base is
+named identically everywhere it appears."""
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 from backend.parser.loaders.schema_loader import SchemaManager
-from backend.parser.extractors.characters import get_character_data
 
-# Singleton instance
-_schema = None
+base_schema = SchemaManager.get("bases.yaml")
+pal_schema = SchemaManager.get("pals.yaml")
 
-
-def _get_schema():
-    """Get or create SchemaLoader singleton"""
-    global _schema
-    if _schema is None:
-        _schema = SchemaManager.get("collections.yaml")
-    return _schema
+# The game's placeholder for a base that was never named.
+_TEMPLATE_NAME = "新規生成拠点テンプレート名"
 
 
-def get_base_data(world_data: Dict) -> Dict[str, Dict]:
-    """Get base camp data using schema-driven extraction
-    
-    Args:
-        world_data: World save data from GVAS file
-        
-    Returns:
-        Dict mapping base_id to base raw data
+@dataclass
+class BaseMeta:
+    base_id: str
+    guild_id: Optional[str]
+    name: str
+    container_id: Optional[str]     # worker container: pals assigned to this base live in it
+    x: Optional[float] = None
+    y: Optional[float] = None
+    z: Optional[float] = None
+
+
+def get_base_metadata(base_data: Dict) -> Dict[str, BaseMeta]:
+    """{base_id: BaseMeta} for every base that has a worker container.
+
+    Naming: a real custom name is kept; template/blank names become
+    "Base N", numbered per guild in save order.
     """
-    schema = _get_schema()
-    return schema.extract_collection(world_data, "bases")
-
-
-def get_base_assignments(world_data: Dict) -> Dict[str, Dict[str, str]]:
-    """Get base assignment mapping for pals at bases.
-    
-    Returns dict mapping instance_id -> {base_id, guild_id, base_name}
-    
-    Args:
-        world_data: World save data from GVAS file
-        
-    Returns:
-        Dict mapping pal instance_id to base assignment info
-    """
-    if not world_data:
-        return {}
-    
-    # Load schema for extracting nested fields
-    pal_schema = SchemaManager.get("pals.yaml")
-    base_schema = SchemaManager.get("bases.yaml")
-    
-    # Get base data using schema-driven extraction
-    base_data = get_base_data(world_data)
-    
-    base_to_container = {}
-    base_to_guild = {}
-    base_to_name = {}
-    
-    # Extract base metadata using schema
+    metas: Dict[str, BaseMeta] = {}
     for base_id, base_info in base_data.items():
         base_id = str(base_id)
-        
-        # Extract guild ID using schema
-        guild_id = base_schema.extract_field(base_info, "guild_id")
-        if guild_id:
-            base_to_guild[base_id] = str(guild_id)
-        
-        # Extract name using schema
-        name_str = base_schema.extract_field(base_info, "base_name")
-        
-        # Store raw name - we'll assign sequential numbers later
-        if name_str and "新規生成拠点テンプレート名" in name_str:
-            base_to_name[base_id] = "template"
-        elif not name_str or not name_str.strip():
-            base_to_name[base_id] = "unnamed"
-        else:
-            base_to_name[base_id] = name_str
-        
-        # Extract container ID using schema
         container_id = base_schema.extract_field(base_info, "worker_container_id")
-        if container_id:
-            base_to_container[base_id] = str(container_id)
-    
-    # Assign sequential base names within each guild
-    guild_bases = {}
-    for base_id in base_to_container.keys():
-        guild_id = base_to_guild.get(base_id)
-        if guild_id:
-            if guild_id not in guild_bases:
-                guild_bases[guild_id] = []
-            guild_bases[guild_id].append(base_id)
-    
-    for guild_id, base_ids in guild_bases.items():
-        for i, base_id in enumerate(base_ids):
-            original_name = base_to_name.get(base_id, f"Base {base_id[:8]}")
-            if original_name in ["template", "unnamed"] or original_name.startswith("Base "):
-                base_to_name[base_id] = f"Base {i + 1}"
-    
-    # Get character data using schema-driven extraction
-    char_data = get_character_data(world_data)
-    
-    assignments = {}
-    
-    for instance_id, save_param in char_data.items():
-        # Skip players using schema
-        is_player = pal_schema.extract_field(save_param, "IsPlayer")
-        if is_player:
+        if not container_id:
             continue
-        
-        # Extract pal's container ID - use simpler .get() chain
-        pal_container_id = save_param.get("SlotId", {}).get("value", {}).get("ContainerId", {}).get("value", {}).get("ID", {}).get("value")
-        
-        if pal_container_id:
-            pal_container_id = str(pal_container_id)
-            
-            # Find which base this container belongs to
-            for base_id, container_id in base_to_container.items():
-                if container_id == pal_container_id:
-                    guild_id = base_to_guild.get(base_id)
-                    base_name = base_to_name.get(base_id, f"Base {base_id[:8]}")
-                    
-                    assignments[str(instance_id)] = {
-                        "base_id": base_id,
-                        "guild_id": guild_id,
-                        "base_name": base_name
-                    }
-                    break
-    
+        guild_id = base_schema.extract_field(base_info, "guild_id")
+        raw_name = base_schema.extract_field(base_info, "base_name") or ""
+        if _TEMPLATE_NAME in raw_name or not raw_name.strip():
+            raw_name = ""
+        coords = {}
+        transform = base_schema.extract_field(base_info, "transform")
+        if isinstance(transform, dict):
+            translation = transform.get("translation") or {}
+            coords = {k: translation.get(k) for k in ("x", "y", "z")}
+        metas[base_id] = BaseMeta(
+            base_id=base_id,
+            guild_id=str(guild_id) if guild_id else None,
+            name=raw_name.strip(),
+            container_id=str(container_id),
+            **coords,
+        )
+
+    counters: Dict[Optional[str], int] = {}
+    for meta in metas.values():
+        counters[meta.guild_id] = counters.get(meta.guild_id, 0) + 1
+        if not meta.name:
+            meta.name = f"Base {counters[meta.guild_id]}"
+    return metas
+
+
+def get_base_assignments(char_data: Dict, base_meta: Dict[str, BaseMeta]) -> Dict[str, Dict[str, Optional[str]]]:
+    """{pal instance_id: {base_id, guild_id, base_name}} for pals working at a base."""
+    container_to_base = {m.container_id: m for m in base_meta.values() if m.container_id}
+    assignments = {}
+    for instance_id, save_param in char_data.items():
+        if pal_schema.extract_field(save_param, "IsPlayer"):
+            continue
+        container_id = (((save_param.get("SlotId") or {}).get("value") or {})
+                        .get("ContainerId", {}).get("value", {}).get("ID", {}).get("value"))
+        meta = container_to_base.get(str(container_id)) if container_id else None
+        if meta:
+            assignments[str(instance_id)] = {
+                "base_id": meta.base_id,
+                "guild_id": meta.guild_id,
+                "base_name": meta.name,
+            }
     return assignments

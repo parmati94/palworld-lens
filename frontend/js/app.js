@@ -4,10 +4,9 @@
 import {
     formatDate,
     formatFileSize,
-    getElementIcon,
-    getElementIconWhite,
-    getElementColor,
-    getPalHeaderGradient,
+    elementInfo,
+    elementGradient,
+    workSuitabilityDisplay,
     getRankIcon,
     getRankFilter,
     getPassiveBackgroundClass,
@@ -30,6 +29,9 @@ export function app() {
         // Land on the last tab used unless the URL names one (applyHash runs in init)
         currentTab: pref(prefs, 'lastTab', 'overview', TABS),
         saveInfo: { loaded: false },
+        // Reference data from /api/game-data: elements, work types, conditions, map layers.
+        // Every element/work id the API sends is resolved through this.
+        gameData: { elements: {}, work_types: {}, conditions: {}, map_layers: {} },
         players: [],
         pals: [],
         guilds: [],
@@ -79,6 +81,12 @@ export function app() {
             this.watchService.onUpdate = (data) => this.updateFromSSE(data);
             this.watchService.onError = (error) => { this.error = error; };
             
+            // Reference data (element/work names, icons, colours) is needed on
+            // EVERY data path: the manual load below, and the SSE init event
+            // when auto-watch is already running on the backend (production).
+            // Fetch it once here so neither path can render ids.
+            await this.loadGameData();
+
             // Check auto-watch status from backend
             await this.checkWatchStatus();
 
@@ -369,6 +377,14 @@ export function app() {
             console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
         },
 
+        async loadGameData() {
+            try {
+                this.gameData = await api.getGameData();
+            } catch (err) {
+                console.error('Failed to load game reference data:', err);
+            }
+        },
+
         afterDataLoaded() {
             this.ensureBaseSelection();
             if (this.pendingPalId) this.openPalById(this.pendingPalId);
@@ -384,6 +400,7 @@ export function app() {
                 const data = await api.loadAll();
                 
                 this.saveInfo = data.saveInfo;
+                if (data.gameData) this.gameData = data.gameData;
                 
                 if (this.saveInfo.loaded) {
                     this.players = data.players;
@@ -499,13 +516,25 @@ export function app() {
             return guild ? guild.guild_name : 'Unnamed Guild';
         },
         
+        // Reference-data lookups (ids -> display), bound to this.gameData
+        elementName(id) { return elementInfo(this.gameData, id).name; },
+        elementIcon(id) { return `/img/${elementInfo(this.gameData, id).icon}.webp`; },
+        elementIconWhite(id) { return `/img/${elementInfo(this.gameData, id).icon_white}.webp`; },
+        elementColor(id) { return elementInfo(this.gameData, id).color; },
+        palHeaderGradient(ids) { return elementGradient(this.gameData, ids); },
+        workTypeName(id) { return (this.gameData.work_types[id] || {}).name || id; },
+        workDisplay(pal) { return workSuitabilityDisplay(this.gameData, pal); },
+        
+        // "Envy" for a base owned by Envy's guild; falls back to the guild name.
+        // Bases can't be named in-game, so "Base 2" alone doesn't say whose it is.
+        baseOwner(guildId) {
+            const guild = this.guilds.find(g => g.guild_id === guildId);
+            return guild ? (guild.admin_player_name || guild.guild_name) : '';
+        },
+        
         // Use utility functions from utils.js
         formatDate,
         formatFileSize,
-        getElementIcon,
-        getElementIconWhite,
-        getElementColor,
-        getPalHeaderGradient,
         getRankIcon,
         getRankFilter,
         getPassiveBackgroundClass,
@@ -650,33 +679,24 @@ export function app() {
         },
         
         // Filter options getters - get unique values from all pals
+        // Filter options: [{key, name}] for every element / work type any pal has
         get availableElements() {
             if (!Array.isArray(this.pals)) return [];
-            const elements = new Set();
-            this.pals.forEach(pal => {
-                if (pal.element_types && pal.element_types.length > 0) {
-                    pal.element_types.forEach(element => elements.add(element));
-                }
-            });
-            return Array.from(elements).sort();
+            const keys = new Set();
+            this.pals.forEach(pal => (pal.element_types || []).forEach(e => keys.add(e)));
+            return Array.from(keys)
+                .map(key => ({ key, name: this.elementName(key) }))
+                .sort((a, b) => a.name.localeCompare(b.name));
         },
         
         get availableWorkTypes() {
             if (!Array.isArray(this.pals)) return [];
-            const workTypes = new Map(); // Map of key -> display name
+            const keys = new Set();
             this.pals.forEach(pal => {
-                if (pal.work_suitability && pal.work_suitability_names) {
-                    Object.entries(pal.work_suitability).forEach(([key, level]) => {
-                        // Only include work types with level > 0
-                        if (level > 0 && !workTypes.has(key)) {
-                            workTypes.set(key, pal.work_suitability_names[key] || key);
-                        }
-                    });
-                }
+                Object.entries(pal.work_suitability || {}).forEach(([key, level]) => { if (level > 0) keys.add(key); });
             });
-            // Return array of {key, name} objects sorted by name
-            return Array.from(workTypes.entries())
-                .map(([key, name]) => ({ key, name }))
+            return Array.from(keys)
+                .map(key => ({ key, name: this.workTypeName(key) }))
                 .sort((a, b) => a.name.localeCompare(b.name));
         },
         
