@@ -27,39 +27,60 @@ DATA_JSON = REPO / "data" / "json"
 IMG_DIR = REPO / "frontend" / "public" / "img"
 EXTRACTOR = REPO / "scripts" / "datagen" / "extractor" / "bin" / "Release" / "net8.0" / "pal-extract"
 
+# backend/common/pal_icons.py is pure python, but importing it as a package drags in
+# backend/common/__init__ (colorlog etc.), which the datagen venv doesn't have.
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location('pal_icons', REPO / 'backend' / 'common' / 'pal_icons.py')
+pal_icons = _ilu.module_from_spec(_spec); _spec.loader.exec_module(pal_icons)
+
 PAK_DIR = Path(os.environ.get("PALWORLD_PAK_DIR", str(Path.home() / ".gamedata" / "palworld-pak-data")))
 USMAP = os.environ.get("PALWORLD_USMAP", "")
 
 
 def collect_derived_pal_icons() -> set[str]:
-    """Icon names the MAP derives from pal ids, rather than reading from `icon`.
+    """Icon names the app DERIVES from pal ids, which the `icon` field never covers.
 
-    map-leaflet.js builds its marker icons as t_<palid>_icon_normal.webp (with a
-    leading BOSS_ stripped) and ignores the `icon` field entirely. Those names are
-    invisible to collect_needed(), because save-pal often sets `icon` to a generic
-    placeholder (e.g. t_commonhuman_icon_normal) that we already ship -- so the
-    diff came back clean while the map rendered broken icons for Prixter Lux,
-    Flaracle, Kabukiman and Mushroomlady (2026-09-11).
+    The pals tab, the pal modal and the map all build the file name from the
+    character_id (backend/common/pal_icons.py) and ignore the `icon` field --
+    save-pal sets it to a placeholder (t_commonhuman_icon_normal) for most new
+    pals, so keying extraction on `icon` alone missed every new 1.0 species
+    (Clovee, Lapiron, Dupin, ... 25 of them, found 2026-09-11) even after the
+    map-only version of this pass had already been added the same day.
 
-    Only pals actually placed on the map are included; most of the 800+ pal ids
-    never appear as markers and pulling icons for all of them would be wasteful.
+    For every pal in pals.json plus every pal placed on the map we request each
+    fallback candidate; the extractor skips names that aren't in the pak, so
+    over-requesting costs nothing. Pals that already have any candidate on disk
+    are not re-requested.
     """
     needed: set[str] = set()
+    existing = existing_webp()
+
+    ids: set[str] = set()
+    pj = DATA_JSON / "pals.json"
+    if pj.exists():
+        for cid, row in json.loads(pj.read_text()).items():
+            if isinstance(row, dict) and row.get("is_pal") and not row.get("disabled"):
+                ids.add(cid)
     mo = DATA_JSON / "map_objects.json"
-    if not mo.exists():
-        return needed
-    try:
-        objs = json.loads(mo.read_text())
-    except Exception as e:
-        print(f"  warn: could not read map_objects.json: {e}")
-        return needed
-    for o in objs:
-        pid = o.get("pal")
-        if isinstance(pid, str) and pid.strip():
-            base = pid.strip().lower()
-            if base.startswith("boss_"):
-                base = base[5:]
-            needed.add(f"t_{base}_icon_normal")
+    if mo.exists():
+        try:
+            for o in json.loads(mo.read_text()):
+                pid = o.get("pal")
+                if isinstance(pid, str) and pid.strip():
+                    ids.add(pid.strip())
+        except Exception as e:
+            print(f"  warn: could not read map_objects.json: {e}")
+
+    for cid in ids:
+        cands = pal_icons.icon_candidates(cid)
+        # Always ask for the exact texture: a variant with its own icon (Petallia
+        # Ignis = flowerdoll_fire) must not be left showing the base species just
+        # because the base icon happened to be on disk already.
+        if f"t_{cands[0]}_icon_normal" not in existing and cands[0] not in existing:
+            needed.add(f"t_{cands[0]}_icon_normal")
+        # Only fan out to the fallbacks if nothing in the chain exists yet.
+        if not any(f"t_{c}_icon_normal" in existing or c in existing for c in cands):
+            needed.update(f"t_{c}_icon_normal" for c in cands)
     return needed
 
 
@@ -111,13 +132,15 @@ def main() -> int:
 
     needed = collect_needed()
     existing = existing_webp()
-    missing = sorted(needed if do_all else (needed - existing))
 
     derived = collect_derived_pal_icons()
     new_from_derived = derived - needed
     needed |= derived
+    # Must come AFTER the merge -- it used to be computed before it, so the derived
+    # names were counted in the report but never written to the extract list.
+    missing = sorted(needed if do_all else (needed - existing))
     print(f"needed icons (distinct, from data/json): {len(needed)}"
-          f"  [{len(derived)} map-derived, {len(new_from_derived)} of them only reachable that way]")
+          f"  [{len(derived)} pal-id-derived, {len(new_from_derived)} of them only reachable that way]")
     print(f"already shipped (webp):                  {len(existing)}")
     print(f"referenced but MISSING webp:             {len(needed - existing)}")
     print(f"shipped but no longer referenced:        {len(existing - needed)}")

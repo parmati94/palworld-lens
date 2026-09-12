@@ -2,6 +2,7 @@
 from typing import Optional, List, Dict, Any, Union
 from pydantic import BaseModel, computed_field, Field
 from enum import Enum
+from backend.common import pal_icons
 from backend.common.constants import (
     CONDITION_DISPLAY_NAMES,
     CONDITION_DESCRIPTIONS,
@@ -196,23 +197,14 @@ class PalInfo(BaseModel):
     
     @computed_field
     def image_id(self) -> str:
-        """Get the image filename for this pal"""
-        base_id = self.character_id
-        
-        # Remove boss prefix for image lookup (handle both BOSS_ and Boss_)
-        if base_id.startswith("BOSS_") or base_id.startswith("Boss_"):
-            base_id = base_id[5:]
-        
-        # Remove quest prefix for image lookup (e.g., Quest_Farmer03_PinkCat -> PinkCat)
-        # Quest variants use the base pal's image
-        if base_id.startswith("Quest_"):
-            # Find the last underscore and take everything after it
-            # Quest_Farmer03_PinkCat -> PinkCat
-            parts = base_id.split('_')
-            if len(parts) > 2:  # At least Quest_Something_PalName
-                base_id = parts[-1]
-        
-        return base_id.lower()
+        """Primary icon stem: /img/t_<image_id>_icon_normal.webp (see backend/common/pal_icons.py)"""
+        return pal_icons.image_id(self.character_id)
+
+    @computed_field
+    def image_candidates(self) -> List[str]:
+        """Fallback icon stems, most specific first. Variant ids (PREDATOR_, GYM_, _Oilrig, ...)
+        rarely have their own texture; the frontend walks this list on <img> error."""
+        return pal_icons.icon_candidates(self.character_id)
 
 class PlayerInfo(BaseModel):
     """Player information"""

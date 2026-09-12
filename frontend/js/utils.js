@@ -202,6 +202,31 @@ export function getPassiveDescriptionClass(rank) {
  * code fitted scaleDivisor/manualOffset by eye against the old artwork, which
  * broke the moment 1.0 redrew it.)
  */
+// Pal icons are derived from the character_id, not the data's `icon` field.
+// The backend sends `image_candidates` (backend/common/pal_icons.py), most
+// specific first; on <img> error walk to the next one, then the legacy
+// `<stem>.webp` names, then unknown.webp. Stops for good after that.
+export function palIconSrc(pal) {
+    const c = (pal && pal.image_candidates && pal.image_candidates[0]) || (pal && pal.image_id) || 'unknown';
+    return `/img/t_${c}_icon_normal.webp`;
+}
+
+export function palIconError(img, pal) {
+    const cands = (pal && pal.image_candidates && pal.image_candidates.length)
+        ? pal.image_candidates : [(pal && pal.image_id) || 'unknown'];
+    const chain = [
+        ...cands.map(c => `/img/t_${c}_icon_normal.webp`),
+        ...cands.map(c => `/img/${c}.webp`),
+        '/img/unknown.webp',
+    ];
+    const cur = img.getAttribute('src');
+    const i = chain.indexOf(cur);
+    const next = chain[i + 1];
+    if (!next) { img.onerror = null; return; }
+    if (next === '/img/unknown.webp') img.onerror = null;
+    img.src = next;
+}
+
 export const MAP_LAYERS = {
     MainMap: { minX: -1099400, maxX:  349400, minY: -724400, maxY:  724400, tiles: '/img/tiles' },
     Tree:    { minX:   347351.5, maxX: 689148.5, minY: -818197, maxY: -476400, tiles: '/img/tiles_tree' },

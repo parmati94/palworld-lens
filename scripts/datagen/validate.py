@@ -25,6 +25,16 @@ LAYERS = {'MainMap': ('World_Map_8k.webp', 'tiles'),
 
 problems, notes = [], []
 
+# backend/common/pal_icons.py is pure python, but importing it as a package drags in
+# backend/common/__init__ (colorlog etc.), which the datagen venv doesn't have.
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location('pal_icons', ROOT / 'backend' / 'common' / 'pal_icons.py')
+pal_icons = _ilu.module_from_spec(_spec); _spec.loader.exec_module(pal_icons)
+
+# Pals that genuinely have no icon texture in the pak (checked 2026-09-11).
+# One character_id per line; '#' comments allowed.
+KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
+
 
 def check_map_objects():
     p = DATA / 'map_objects.json'
@@ -59,6 +69,35 @@ def check_marker_icons(objs):
     if missing:
         problems.append(f'{len(missing)} map marker(s) have no derived icon: '
                         + ', '.join(sorted(missing)[:8]) + ('...' if len(missing) > 8 else ''))
+
+
+def _has_icon(cid):
+    return any((IMG / f't_{c}_icon_normal.webp').exists() or (IMG / f'{c}.webp').exists()
+               for c in pal_icons.icon_candidates(cid))
+
+
+def check_pal_icons():
+    """Every pal in pals.json must resolve to an icon via pal_icons.icon_candidates().
+
+    This is what the pals tab and pal modal use; the map check above only covers
+    pals placed on the map. Clovee (CloverFairy) shipped with no image because
+    the earlier check stopped there."""
+    allow = set()
+    if KNOWN_MISSING.exists():
+        allow = {l.strip() for l in KNOWN_MISSING.read_text().splitlines()
+                 if l.strip() and not l.startswith('#')}
+    pals = json.loads((DATA / 'pals.json').read_text())
+    missing = sorted(cid for cid, row in pals.items()
+                     if isinstance(row, dict) and row.get('is_pal') and not row.get('disabled')
+                     and cid not in allow and not _has_icon(cid))
+    stale = sorted(cid for cid in allow if cid in pals and _has_icon(cid))
+    if missing:
+        problems.append(f'{len(missing)} pal(s) have no icon on disk (run generate_icons.py --extract, '
+                        f'or add to {KNOWN_MISSING.name} if the pak has none): '
+                        + ', '.join(missing[:8]) + ('...' if len(missing) > 8 else ''))
+    if stale:
+        notes.append(f'{len(stale)} entr(y/ies) in {KNOWN_MISSING.name} now have an icon: ' + ', '.join(stale))
+    notes.append(f'{len(pals)} pals checked for a derived icon, {len(allow)} allow-listed')
 
 
 def check_referenced_icons():
@@ -97,6 +136,7 @@ def check_layers(objs):
 def main():
     objs = check_map_objects()
     check_marker_icons(objs)
+    check_pal_icons()
     check_referenced_icons()
     check_layers(objs)
 
