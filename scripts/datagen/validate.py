@@ -1,92 +1,118 @@
 #!/usr/bin/env python3
 """
-Coverage checks for the generated game-data assets.
+Coverage checks for the shipped game-data assets.
 
-Exists because the 1.0 ingest shipped several silent breakages: markers with no
-icon (the frontend derives icon names a different way than generate_icons.py
-checked), map objects on a layer that had no tiles, and a map texture that was
-never re-extracted. Each failed invisibly -- nginx's SPA fallback serves
-index.html with a 200 for missing files, so nothing 404s.
+Exists because the 1.0 ingest shipped several silent breakages: pals with no
+icon (the app derives icon names differently from what the extractor pulled),
+a work type with no icon slot (fell through to the Kindling icon), map objects
+on a layer with no tiles, and a map texture that was never re-extracted.
 
-Run after any ingest. Non-zero exit on a real problem.
+Every check here uses the SAME module the app uses for the same derivation
+(backend/common/{game_tables,pal_ids,pal_icons,map_layers,constants}.py), so
+the validator cannot drift from the app.
+
+Run after any ingest, and in CI (--skip-tiles there: tiles are built in the
+Docker image). Non-zero exit on a real problem.
 """
 
+import argparse
 import json
 import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-DATA = ROOT / 'data' / 'json'
-IMG = ROOT / 'frontend' / 'public' / 'img'
+from savepal import ROOT, DATA_JSON, IMG_DIR
+from backend.common import pal_icons
+from backend.common.constants import WORK_ICON_MAPPING
+from backend.common.game_tables import TABLES, expected_files
+from backend.common.map_layers import load_map_layers
+from backend.common.pal_ids import SpeciesIndex
 
-# Keep in step with scripts/slice_map.py MAPS and utils.js MAP_LAYERS.
-LAYERS = {'MainMap': ('World_Map_8k.webp', 'tiles'),
-          'Tree':    ('Tree_Map_8k.webp',  'tiles_tree')}
+# Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
+KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
 
 problems, notes = [], []
 
-# backend/common/pal_icons.py is pure python, but importing it as a package drags in
-# backend/common/__init__ (colorlog etc.), which the datagen venv doesn't have.
-import importlib.util as _ilu
-_spec = _ilu.spec_from_file_location('pal_icons', ROOT / 'backend' / 'common' / 'pal_icons.py')
-pal_icons = _ilu.module_from_spec(_spec); _spec.loader.exec_module(pal_icons)
 
-# Pals that genuinely have no icon texture in the pak (checked 2026-09-11).
-# One character_id per line; '#' comments allowed.
-KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
+def _json(path):
+    return json.loads(path.read_text(encoding='utf-8'))
 
 
-def check_map_objects():
-    p = DATA / 'map_objects.json'
+def _has_icon(cid):
+    return any((IMG_DIR / f't_{c}_icon_normal.webp').exists() or (IMG_DIR / f'{c}.webp').exists()
+               for c in pal_icons.icon_candidates(cid))
+
+
+def check_tables():
+    """Every registered table exists; nothing unregistered is lying around."""
+    for table in TABLES.values():
+        for p in table.paths(DATA_JSON):
+            if not p.exists():
+                (problems if table.required else notes).append(f'{table.name}: missing {p.relative_to(ROOT)}')
+    stray = sorted(p.relative_to(DATA_JSON) for p in DATA_JSON.rglob('*.json') if p not in expected_files(DATA_JSON))
+    if stray:
+        notes.append('unregistered file(s) in data/json (add to game_tables.py or delete): ' + ', '.join(map(str, stray)))
+
+
+def check_work_types(pals):
+    """Every work type any pal has must have an icon slot, a name and an icon on disk."""
+    used = {w for row in pals.values() if isinstance(row, dict) for w in (row.get('work_suitability') or {})}
+    names = _json(DATA_JSON / 'l10n' / 'en' / 'work_suitability.json')
+    for w in sorted(used):
+        slot = WORK_ICON_MAPPING.get(w)
+        if slot is None:
+            problems.append(f'work type {w!r} has no slot in WORK_ICON_MAPPING (constants.py) -- it would show the Kindling icon')
+            continue
+        if not (IMG_DIR / f't_icon_research_palwork_{slot}_0.webp').exists():
+            problems.append(f'work type {w!r}: icon t_icon_research_palwork_{slot}_0.webp missing')
+        if w not in names:
+            problems.append(f'work type {w!r} has no localized name')
+    notes.append(f'{len(used)} work types checked')
+
+
+def check_elements(pals):
+    elements = _json(DATA_JSON / 'elements.json')
+    used = {e for row in pals.values() if isinstance(row, dict) for e in (row.get('element_types') or [])}
+    for e in sorted(used):
+        row = elements.get(e)
+        if not row:
+            problems.append(f'element {e!r} used by pals but not in elements.json')
+            continue
+        for key in ('icon', 'white_icon'):
+            stem = (row.get(key) or '').lower()
+            if not stem or not (IMG_DIR / f'{stem}.webp').exists():
+                problems.append(f'element {e!r}: {key} {stem!r} has no webp')
+    notes.append(f'{len(used)} elements checked')
+
+
+def check_map_objects(layers, species):
+    p = DATA_JSON / 'map_objects.json'
     if not p.exists():
         problems.append('map_objects.json missing -- run generate_map_objects.py')
         return []
-    objs = json.loads(p.read_text())
+    objs = _json(p)
     if not objs:
         problems.append('map_objects.json is empty')
     for o in objs:
-        if o.get('map') and o['map'] not in LAYERS:
+        if o.get('map') and o['map'] not in layers:
             problems.append(f"map_objects: unknown layer {o['map']!r}")
             break
     untagged = [o for o in objs if 'map' not in o]
     if untagged:
-        notes.append(f'{len(untagged)} map object(s) have no "map" field (treated as MainMap)')
+        notes.append(f'{len(untagged)} map object(s) have no "map" field (treated as the first layer)')
+
+    unresolved = sorted({o['pal'] for o in objs if o.get('pal') and species.resolve(o['pal']) is None})
+    if unresolved:
+        problems.append(f'{len(unresolved)} map marker(s) name a pal not in pals.json: ' + ', '.join(unresolved[:8]))
+    missing = sorted({o['pal'] for o in objs if o.get('pal') and not _has_icon(o['pal'])})
+    if missing:
+        problems.append(f'{len(missing)} map marker(s) have no icon on disk: ' + ', '.join(missing[:8]))
     return objs
 
 
-def check_marker_icons(objs):
-    """Every pal placed on the map must have the icon the frontend derives."""
-    missing = set()
-    for o in objs:
-        pid = o.get('pal')
-        if not pid:
-            continue
-        base = pid.lower()
-        if base.startswith('boss_'):
-            base = base[5:]
-        if not (IMG / f't_{base}_icon_normal.webp').exists():
-            missing.add(pid)
-    if missing:
-        problems.append(f'{len(missing)} map marker(s) have no derived icon: '
-                        + ', '.join(sorted(missing)[:8]) + ('...' if len(missing) > 8 else ''))
-
-
-def _has_icon(cid):
-    return any((IMG / f't_{c}_icon_normal.webp').exists() or (IMG / f'{c}.webp').exists()
-               for c in pal_icons.icon_candidates(cid))
-
-
-def check_pal_icons():
-    """Every pal in pals.json must resolve to an icon via pal_icons.icon_candidates().
-
-    This is what the pals tab and pal modal use; the map check above only covers
-    pals placed on the map. Clovee (CloverFairy) shipped with no image because
-    the earlier check stopped there."""
+def check_pal_icons(pals):
+    """Every pal in pals.json must resolve to an icon via pal_icons.icon_candidates()."""
     allow = set()
     if KNOWN_MISSING.exists():
-        allow = {l.strip() for l in KNOWN_MISSING.read_text().splitlines()
-                 if l.strip() and not l.startswith('#')}
-    pals = json.loads((DATA / 'pals.json').read_text())
+        allow = {l.strip() for l in KNOWN_MISSING.read_text().splitlines() if l.strip() and not l.startswith('#')}
     missing = sorted(cid for cid, row in pals.items()
                      if isinstance(row, dict) and row.get('is_pal') and not row.get('disabled')
                      and cid not in allow and not _has_icon(cid))
@@ -101,44 +127,53 @@ def check_pal_icons():
 
 
 def check_referenced_icons():
-    """Every `icon` field in data/json must resolve to a shipped webp."""
+    """Every `icon` field in data/json should resolve to a shipped webp (note only: upstream placeholders exist)."""
     needed = set()
-    for jf in DATA.glob('*.json'):
-        try:
-            data = json.loads(jf.read_text())
-        except Exception:
-            continue
+    for jf in DATA_JSON.glob('*.json'):
+        data = _json(jf)
         for e in (data.values() if isinstance(data, dict) else data):
             if isinstance(e, dict) and isinstance(e.get('icon'), str) and e['icon'].strip():
                 needed.add(e['icon'].strip().lower())
-    missing = {i for i in needed if not (IMG / f'{i}.webp').exists()}
+    missing = {i for i in needed if not (IMG_DIR / f'{i}.webp').exists()}
     if missing:
-        # Some upstream rows point at placeholder names that aren't real assets;
-        # those are expected and reported as a note rather than a failure.
-        notes.append(f'{len(missing)} `icon` value(s) have no webp (upstream placeholders): '
-                     + ', '.join(sorted(missing)[:6]))
+        notes.append(f'{len(missing)} `icon` value(s) have no webp (upstream placeholders): ' + ', '.join(sorted(missing)[:6]))
 
 
-def check_layers(objs):
-    used = {o.get('map', 'MainMap') for o in objs}
-    for layer, (source, tiledir) in LAYERS.items():
-        if not (IMG / source).exists():
-            problems.append(f'{layer}: source image {source} missing')
-        td = IMG / tiledir
+def check_layers(layers, objs, skip_tiles):
+    used = {o.get('map', next(iter(layers))) for o in objs}
+    for name, m in layers.items():
+        if not (IMG_DIR / m['source']).exists():
+            problems.append(f"{name}: source image {m['source']} missing")
+        if skip_tiles:
+            continue
+        td = IMG_DIR / m['tiles']
         n = len(list(td.rglob('*.webp'))) if td.exists() else 0
         if n == 0:
-            msg = f'{layer}: no tiles in {tiledir}/ -- run scripts/slice_map.py'
-            (problems if layer in used else notes).append(msg)
+            (problems if name in used else notes).append(f"{name}: no tiles in {m['tiles']}/ -- run scripts/slice_map.py")
         else:
-            notes.append(f'{layer}: {n} tiles, source {source}')
+            notes.append(f"{name}: {n} tiles, source {m['source']}")
 
 
 def main():
-    objs = check_map_objects()
-    check_marker_icons(objs)
-    check_pal_icons()
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--skip-tiles', action='store_true', help='do not require sliced tiles (CI)')
+    args = ap.parse_args()
+
+    check_tables()
+    if problems:
+        for p in problems:
+            print(f'  - {p}')
+        return 1
+    pals = _json(DATA_JSON / 'pals.json')
+    layers = load_map_layers(DATA_JSON / 'map_layers.json')
+    species = SpeciesIndex(pals.keys())
+
+    check_work_types(pals)
+    check_elements(pals)
+    objs = check_map_objects(layers, species)
+    check_pal_icons(pals)
     check_referenced_icons()
-    check_layers(objs)
+    check_layers(layers, objs, args.skip_tiles)
 
     for n in notes:
         print(f'  note: {n}')

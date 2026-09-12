@@ -122,6 +122,14 @@ Silent breakages the 1.0 ingest actually shipped:
 - **Map objects on a layer with no tiles**, e.g. adding a layer and forgetting to
   slice it.
 - **A missing map source image.**
+- **A work type with no icon slot.** `OilExtraction` (1.0) wasn't in
+  `WORK_ICON_MAPPING`, so every oil pal showed the Kindling icon (slot 00).
+  Every work type in `pals.json` must now have a slot, a name and a webp.
+- **A registered table that's missing, or a stray file nobody reads.**
+
+`--skip-tiles` runs everything except the tile check (CI uses it; tiles are
+built in the Docker image). `tests/test_game_data.py` covers the same ground
+under pytest so a bad sync fails a pull request.
 
 Note `nginx.conf` now returns a real 404 for missing `/img/*` assets. Previously
 the SPA fallback served `index.html` with a 200, so a missing icon produced a
@@ -130,15 +138,38 @@ the SPA fallback served `index.html` with a 200, so a missing icon produced a
 ### Map layers
 
 Palworld 1.0 added the World Tree as a **second map layer** with its own texture
-and its own world bounds. Three places list the layers and must agree:
+and its own world bounds. The layers live in ONE file, `data/json/map_layers.json`
+(name, label, source image, tile dir, world bounds), read by:
 
-- `scripts/slice_map.py` -> `MAPS` (source image -> tile dir)
-- `frontend/js/utils.js` -> `MAP_LAYERS` (world bounds + tile path)
-- `scripts/datagen/generate_map_objects.py` -> `MAPS` (tagging each object)
+- `scripts/slice_map.py` (what to slice, where to)
+- `scripts/datagen/generate_map_objects.py` (tagging each object with its layer)
+- `scripts/datagen/validate.py` (tiles + sources exist for every layer)
+- `backend/common/map_layers.py` -> `/api/game-data`
+- `frontend/js/utils.js` -> `MAP_LAYERS` (imported at build time)
 
-Bounds come from the game's own `DT_WorldMapUIData`; dump it with
-`pal-extract dt DT_WorldMapUIData out.json`. Don't hand-fit projection constants
--- the pre-1.0 code did, and every marker broke when 1.0 redrew the texture.
+Adding a layer = one entry there plus its source image. Bounds come from the
+game's own `DT_WorldMapUIData`; dump it with `pal-extract dt DT_WorldMapUIData
+out.json`. Don't hand-fit projection constants -- the pre-1.0 code did, and every
+marker broke when 1.0 redrew the texture.
+
+### One rule per derivation
+
+Everything that maps game data to something the app shows lives in a pure-python
+module under `backend/common/`, and the datagen scripts, the app and the tests
+import the SAME module:
+
+| derivation | module | used by |
+|---|---|---|
+| which tables ship | `game_tables.py` | data_loader, sync_game_data, validate, tests |
+| character_id -> species | `pal_ids.py` | pal builder, /api/map-objects, generate_map_objects, validate |
+| character_id -> icon | `pal_icons.py` | PalInfo.image_candidates, /api/map-objects, generate_icons, validate |
+| work type -> icon slot | `constants.py` | /api/game-data, validate, tests |
+| map layer bounds | `map_layers.py` | generate_map_objects, validate, /api/game-data |
+
+`backend/common/__init__.py` is deliberately empty so these import without the
+backend's dependencies. `savepal.py` puts the repo root on `sys.path` for the
+scripts, and caches downloaded save-pal releases under `.cache/<tag>/` so one
+`update.sh` run downloads once.
 
 ## Extractor (`pal-extract`)
 

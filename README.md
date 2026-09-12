@@ -228,6 +228,25 @@ docker-compose -f docker-compose.dev.yml down
 - **Auto-watch disabled**: Set to `false` in dev to allow instant uvicorn reloads (SSE connections prevent fast reloads)
 - **Frontend changes**: After making changes, run `npm run build` in the `frontend/` folder to rebuild the Vite bundle, then refresh your browser
 - **Backend changes**: Auto-reloaded by uvicorn within 1-2 seconds
+- **Game data changes**: `data/` is bind-mounted read-only, so edits to `data/json` are picked up on the next backend reload
+
+### Tests
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest                       # backend: id resolution, stats, schemas, shipped data
+python scripts/datagen/validate.py --skip-tiles  # shipped data ↔ icons ↔ map objects coverage
+cd frontend && node --test 'tests/*.test.mjs'               # projection, reference-data lookups, paging
+```
+
+The same three run in CI on every pull request (`.github/workflows/ci.yml`).
+
+### Game data
+
+`data/json` is synced from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal);
+icons and map tiles are derived from the game files. The list of tables the app ships is
+`backend/common/game_tables.py`, and the app refuses to start if a required one is missing.
+See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command ingest.
 
 ## 📜 API Endpoints
 
@@ -239,8 +258,13 @@ docker-compose -f docker-compose.dev.yml down
 
 ### Data Endpoints
 - `GET /api/players` - List all players with stats
-- `GET /api/guilds` - List all guilds
+- `GET /api/guilds` - List all guilds (with base locations and the admin player's name)
 - `GET /api/pals` - List all pals (non-player characters)
+- `GET /api/base-containers` - Food boxes and storage per base, with contents
+- `GET /api/game-data` - Reference data the UI keys ids on: elements, work types, conditions, map layers
+- `GET /api/map-objects` - Static map markers (fast travel, alpha pals, predators, dungeons)
+
+Everything above is served from a snapshot built once per save load; a reload swaps it atomically.
 
 ### Auto-Watch Endpoints
 - `GET /api/watch` - Server-Sent Events stream for real-time updates
@@ -255,14 +279,6 @@ docker-compose -f docker-compose.dev.yml down
 
 ### Server Info Endpoints (RCON)
 - `GET /api/rcon/status` - Aggregated server information from RCON API (requires RCON configuration)
-
-### Debug Endpoints
-Various debug endpoints available for development:
-- `/api/debug/world-keys` - Inspect world data structure
-- `/api/debug/base-camps` - View base camp data
-- `/api/debug/char-containers` - Character container inspection
-- `/api/debug/player-mapping` - Player UID mappings
-- And more...
 
 ## 🙏 Credits
 
@@ -288,27 +304,35 @@ palworld-lens/
 │   │
 │   ├── common/                    # Shared configuration and utilities
 │   │   ├── config.py             # Environment configuration
-│   │   ├── constants.py          # App-wide constants
+│   │   ├── constants.py          # Condition names, work-icon slots
+│   │   ├── game_tables.py        # THE list of data/json tables (loader, sync, validate, tests)
+│   │   ├── pal_ids.py            # character_id -> species resolution (one rule, everywhere)
+│   │   ├── pal_icons.py          # character_id -> icon candidates (one rule, everywhere)
+│   │   ├── map_layers.py         # map textures + world bounds (from data/json/map_layers.json)
 │   │   └── logging_config.py     # Colored logging setup
 │   │
 │   ├── models/                    # Pydantic data models
 │   │   └── models.py             # PalInfo, PlayerInfo, GuildInfo schemas
 │   │
 │   ├── parser/                    # Save file parsing module
-│   │   ├── __init__.py           # SaveFileParser class (main orchestrator)
+│   │   ├── __init__.py           # SaveFileParser: loads a save, builds the Snapshot the API serves
 │   │   │
 │   │   ├── builders/             # Build model objects from raw data
 │   │   │   ├── pals.py          # Build PalInfo from character data
 │   │   │   ├── players.py       # Build PlayerInfo from player data
-│   │   │   └── guilds.py        # Build GuildInfo from guild data
+│   │   │   ├── guilds.py        # Build GuildInfo from guild data + base metadata
+│   │   │   └── base_containers.py # Food boxes / storage per base
 │   │   │
 │   │   ├── extractors/          # Extract raw data from save structures
-│   │   │   ├── characters.py    # Get character save parameter map
-│   │   │   ├── guilds.py        # Get guild group data
-│   │   │   └── bases.py         # Get base camp assignments
+│   │   │   ├── characters.py    # Character save parameter map
+│   │   │   ├── guilds.py        # Guild and base-camp collections
+│   │   │   ├── bases.py         # BaseMeta (guild, name, container, coords) + pal assignments
+│   │   │   ├── structures.py    # Food bowls, storage, item-container index
+│   │   │   └── relationships.py # Player <-> container <-> pal ownership
 │   │   │
-│   │   ├── loader/              # Load game data and save files
-│   │   │   ├── data_loader.py   # Load JSON game data (names, stats, skills)
+│   │   ├── loaders/             # Load game data and save files
+│   │   │   ├── data_loader.py   # Load the registered tables (fails fast), reference() for the UI
+│   │   │   ├── schema_loader.py # YAML schema parser and field extractor
 │   │   │   └── gvas_handler.py  # GVAS file decompression and parsing
 │   │   │
 │   │   ├── schemas/             # YAML field extraction schemas
@@ -317,11 +341,9 @@ palworld-lens/
 │   │   │   └── guilds.yaml      # Guild field definitions
 │   │   │
 │   │   └── utils/               # Parser utility functions
-│   │       ├── schema_loader.py # YAML schema parser and field extractor
 │   │       ├── helpers.py       # Basic value extraction helpers
-│   │       ├── mappers.py       # Map IDs to display names
-│   │       ├── stats.py         # Calculate pal/player stats
-│   │       └── relationships.py # Build pal-to-owner mappings
+│   │       ├── mappers.py       # Skill / building id -> display
+│   │       └── stats.py         # Calculate pal/player stats
 │   │
 │   └── utils/                    # Backend utilities
 │       └── watcher.py            # File system watcher for auto-reload
