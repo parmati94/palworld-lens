@@ -14,14 +14,21 @@ import {
     getPassiveTextClass,
     getPassiveDescriptionClass,
     formatUptime,
-    buildPageList
+    buildPageList,
+    formatRelativeTime
 } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
+import { loadPrefs, savePref, pref } from './prefs.js';
+
+const prefs = loadPrefs();
+const TABS = ['overview', 'players', 'pals', 'bases', 'map'];
+const SORT_COLUMNS = ['name', 'level', 'hp', 'hunger', 'sanity', 'owner', 'base', 'attack', 'defense'];
 
 export function app() {
     return {
-        currentTab: 'overview',
+        // Land on the last tab used unless the URL names one (applyHash runs in init)
+        currentTab: pref(prefs, 'lastTab', 'overview', TABS),
         saveInfo: { loaded: false },
         players: [],
         pals: [],
@@ -32,19 +39,25 @@ export function app() {
         error: null,
         palSearch: '',
         currentPage: 1,
-        pageSize: 10,
-        sortColumn: 'level',
-        sortDirection: 'desc',
+        pageSize: pref(prefs, 'pageSize', 10, [10, 25, 50, 100]),
+        sortColumn: pref(prefs, 'sortColumn', 'level', SORT_COLUMNS),
+        sortDirection: pref(prefs, 'sortDirection', 'desc', ['asc', 'desc']),
+        // Bases tab sub-tab and page size (shared with the Bases partial)
+        baseTab: pref(prefs, 'baseTab', 'pals', ['pals', 'food', 'storage']),
+        basePalPageSize: pref(prefs, 'basePalPageSize', 10, [10, 25, 50]),
         // Filter state
         filterElement: '',
         filterWorkType: '',
         filterPassiveSkill: '',
         filterOwner: '',
-        // Base navigation state
+        // Base navigation state (shared with the Bases tab and deep links)
         selectedGuildId: null,
         selectedBaseId: null,
-        hasPrevBase: false,
-        hasNextBase: false,
+        // Ticks once a minute so "Updated 3m ago" stays honest
+        now: Date.now(),
+        // Set when the URL names a pal to open once data has loaded
+        pendingPalId: null,
+        hashSyncing: false,
         // Watch service state
         watchService: null,
         autoWatchActive: false,
@@ -99,6 +112,168 @@ export function app() {
             
             // Listen for page visibility changes (e.g., wake from sleep)
             this.setupVisibilityListener();
+
+            // Keep relative timestamps fresh
+            setInterval(() => { this.now = Date.now(); }, 60000);
+
+            // URL hash carries tab + selection so refreshes and shared links land
+            // on the same view. Read it once now, re-apply after data loads (ids
+            // may not resolve until then), and write it whenever state changes.
+            this.applyHash();
+            window.addEventListener('hashchange', () => this.applyHash());
+            ['currentTab', 'selectedGuildId', 'selectedBaseId', 'palSearch', 'filterElement',
+             'filterWorkType', 'filterPassiveSkill', 'filterOwner'].forEach(key => {
+                this.$watch(key, () => this.writeHash());
+            });
+
+            // Remember the settings people expect to stick between visits.
+            [['currentTab', 'lastTab'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
+             ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize']]
+                .forEach(([key, name]) => this.$watch(key, v => savePref(name, v)));
+
+            // Bases tab: always have a guild and a base selected when data allows it.
+            this.$watch('guilds', () => this.ensureBaseSelection());
+            this.$watch('pals', () => this.ensureBaseSelection());
+            this.$watch('selectedGuildId', () => this.ensureBaseSelection());
+        },
+
+        get tabs() {
+            return [
+                { id: 'overview', label: 'Overview', count: null },
+                { id: 'players', label: 'Players', count: this.players.length },
+                { id: 'pals', label: 'Pals', count: this.pals.length },
+                { id: 'bases', label: 'Bases', count: this.basePals.reduce((n, g) => n + g.bases.length, 0) },
+                { id: 'map', label: 'Map', count: null }
+            ];
+        },
+
+        // ---- URL hash state -------------------------------------------------
+
+        applyHash() {
+            const raw = window.location.hash.replace(/^#\/?/, '');
+            if (!raw) return;
+            const [tab, query = ''] = raw.split('?');
+            const params = new URLSearchParams(query);
+            this.hashSyncing = true;
+            try {
+                if (['overview', 'players', 'pals', 'bases', 'map'].includes(tab)) this.currentTab = tab;
+                if (params.has('guild')) this.selectedGuildId = params.get('guild');
+                if (params.has('base')) this.selectedBaseId = params.get('base');
+                if (tab === 'pals') {
+                    this.palSearch = params.get('q') || '';
+                    this.filterElement = params.get('element') || '';
+                    this.filterWorkType = params.get('work') || '';
+                    this.filterPassiveSkill = params.get('passive') || '';
+                    this.filterOwner = params.get('owner') || '';
+                }
+                if (params.has('pal')) this.openPalById(params.get('pal'));
+            } finally {
+                this.hashSyncing = false;
+            }
+        },
+
+        writeHash() {
+            if (this.hashSyncing) return;
+            const params = new URLSearchParams();
+            if (this.currentTab === 'bases') {
+                if (this.selectedGuildId) params.set('guild', this.selectedGuildId);
+                if (this.selectedBaseId) params.set('base', this.selectedBaseId);
+            }
+            if (this.currentTab === 'pals') {
+                if (this.palSearch) params.set('q', this.palSearch);
+                if (this.filterElement) params.set('element', this.filterElement);
+                if (this.filterWorkType) params.set('work', this.filterWorkType);
+                if (this.filterPassiveSkill) params.set('passive', this.filterPassiveSkill);
+                if (this.filterOwner) params.set('owner', this.filterOwner);
+            }
+            const qs = params.toString();
+            const next = '#' + this.currentTab + (qs ? '?' + qs : '');
+            if (window.location.hash !== next) history.replaceState(null, '', next);
+        },
+
+        // ---- Cross-tab navigation -------------------------------------------
+
+        /** Open the Pals tab filtered to one owner (player name). */
+        viewPalsOf(owner) {
+            this.clearFilters();
+            this.filterOwner = owner || '';
+            this.currentTab = 'pals';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        /** Open the Bases tab on a specific base. */
+        goToBase(guildId, baseId) {
+            this.selectedGuildId = guildId || null;
+            this.selectedBaseId = baseId || null;
+            this.currentTab = 'bases';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        /** Open the pal modal for a pal by instance id (used by deep links). */
+        openPalById(instanceId) {
+            const pal = this.pals.find(p => p.instance_id === instanceId);
+            if (pal) {
+                this.pendingPalId = null;
+                window.dispatchEvent(new CustomEvent('open-pal-modal', { detail: pal }));
+            } else {
+                this.pendingPalId = instanceId;
+            }
+        },
+
+        get currentBaseIndex() {
+            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
+            return guild ? guild.bases.findIndex(b => b.base_id === this.selectedBaseId) : -1;
+        },
+        get hasPrevBase() {
+            return this.currentBaseIndex > 0;
+        },
+        get hasNextBase() {
+            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
+            return !!guild && this.currentBaseIndex >= 0 && this.currentBaseIndex < guild.bases.length - 1;
+        },
+        navigateToPrevBase() {
+            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
+            if (guild && this.hasPrevBase) {
+                this.selectedBaseId = guild.bases[this.currentBaseIndex - 1].base_id;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        navigateToNextBase() {
+            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
+            if (guild && this.hasNextBase) {
+                this.selectedBaseId = guild.bases[this.currentBaseIndex + 1].base_id;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        /** Keep guild/base selection valid; pick the first of each when nothing is chosen. */
+        ensureBaseSelection() {
+            const guilds = this.basePals;
+            if (guilds.length === 0) return;
+            let guild = guilds.find(g => g.guild_id === this.selectedGuildId);
+            if (!guild) {
+                guild = guilds[0];
+                this.selectedGuildId = guild.guild_id;
+            }
+            if (!guild.bases.some(b => b.base_id === this.selectedBaseId)) {
+                this.selectedBaseId = guild.bases.length ? guild.bases[0].base_id : null;
+            }
+        },
+
+        /** Base pals with an active condition, for the Overview attention list. */
+        get unhealthyBasePals() {
+            return this.pals
+                .filter(p => p.base_id && p.condition_display)
+                .sort((a, b) => (a.base_name || '').localeCompare(b.base_name || '') || (a.level || 0) - (b.level || 0));
+        },
+
+        /** Players ordered by most recent activity. */
+        get playersByActivity() {
+            return [...this.players].sort((a, b) => {
+                const ta = a.last_online ? Date.parse(a.last_online) : 0;
+                const tb = b.last_online ? Date.parse(b.last_online) : 0;
+                return tb - ta;
+            });
         },
         
         setupVisibilityListener() {
@@ -190,7 +365,14 @@ export function app() {
             this.baseContainers = data.base_containers || null;
             this.loading = false;
             this.error = null;
+            this.afterDataLoaded();
             console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
+        },
+
+        afterDataLoaded() {
+            this.ensureBaseSelection();
+            if (this.pendingPalId) this.openPalById(this.pendingPalId);
+            this.writeHash();
         },
         
         async loadAllData(silent = false) {
@@ -209,6 +391,7 @@ export function app() {
                     this.guilds = data.guilds;
                     this.baseContainers = data.baseContainers;
                     this.error = null;
+                    this.afterDataLoaded();
                 }
                 
                 // Track last successful refresh time
@@ -582,6 +765,7 @@ export function app() {
         
         
         // Expose utility functions for use in HTML
-        formatUptime
+        formatUptime,
+        formatRelativeTime
     }
 }

@@ -11,6 +11,8 @@
                                 <h3 class="text-xl font-bold text-white" x-text="player.player_name"></h3>
                                 <div class="text-sm text-gray-400">
                                     Level <span class="text-blue-400 font-bold" x-text="player.level"></span>
+                                    <span x-show="player.last_online" class="text-gray-600">·</span>
+                                    <span x-show="player.last_online" :title="formatDate(player.last_online)">seen <span x-text="formatRelativeTime(player.last_online, now)"></span></span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -31,46 +33,63 @@
                             </div>
                         </div>
 
-                        <!-- Stats Grid -->
-                        <div class="grid grid-cols-2 gap-4 mb-4">
+                        <!-- Stats Grid: tinted tiles with the game's own stat icons; bar colour tracks the value -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
                             <!-- HP -->
-                            <div class="bg-gray-700/50 rounded-lg p-3">
-                                <div class="text-xs text-gray-400 mb-1">Health</div>
-                                <div class="text-lg font-bold text-red-400" x-text="`${player.hp}/${player.max_hp}`"></div>
-                                <div class="w-full bg-gray-600 rounded-full h-1.5">
-                                    <div class="bg-red-500 h-1.5 rounded-full" :style="`width: ${(player.hp / player.max_hp) * 100}%`"></div>
+                            <div class="rounded-lg p-3 bg-gray-700/50">
+                                <div class="flex items-center gap-1.5 text-xs text-gray-400 mb-1">
+                                    <img src="/img/health.webp" alt="" class="w-3.5 h-3.5 opacity-80"> Health
+                                </div>
+                                <div class="text-lg font-bold tabular-nums" :class="needTextClass((player.hp / player.max_hp) * 100)" x-text="`${player.hp}/${player.max_hp}`"></div>
+                                <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                                    <div class="h-1.5 rounded-full" :class="needBarClass((player.hp / player.max_hp) * 100)" :style="`width: ${(player.hp / player.max_hp) * 100}%`"></div>
                                 </div>
                             </div>
 
                             <!-- EXP -->
-                            <div class="bg-gray-700/50 rounded-lg p-3">
-                                <div class="text-xs text-gray-400 mb-1">Experience</div>
-                                <div class="text-lg font-bold text-purple-400" x-text="player.exp.toLocaleString()"></div>
+                            <div class="rounded-lg p-3 bg-gray-700/50">
+                                <div class="flex items-center gap-1.5 text-xs text-gray-400 mb-1">
+                                    <svg class="w-3.5 h-3.5 opacity-80" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg> Experience
+                                </div>
+                                <div class="text-lg font-bold text-purple-400 tabular-nums" x-text="player.exp.toLocaleString()"></div>
                             </div>
 
                             <!-- Hunger -->
-                            <div class="bg-gray-700/50 rounded-lg p-3">
-                                <div class="text-xs text-gray-400 mb-1">Hunger</div>
-                                <div class="text-lg font-bold text-green-400" x-text="`${Math.round(player.hunger)}%`"></div>
-                                <div class="w-full bg-gray-600 rounded-full h-1.5">
-                                    <div class="bg-green-500 h-1.5 rounded-full" :style="`width: ${player.hunger}%`"></div>
+                            <div class="rounded-lg p-3 bg-gray-700/50">
+                                <div class="flex items-center gap-1.5 text-xs text-gray-400 mb-1">
+                                    <img src="/img/food.webp" alt="" class="w-3.5 h-3.5 opacity-80"> Hunger
+                                </div>
+                                <div class="text-lg font-bold tabular-nums" :class="needTextClass(player.hunger)" x-text="`${Math.round(player.hunger)}%`"></div>
+                                <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                                    <div class="h-1.5 rounded-full" :class="needBarClass(player.hunger)" :style="`width: ${player.hunger}%`"></div>
                                 </div>
                             </div>
 
                             <!-- Sanity -->
-                            <div class="bg-gray-700/50 rounded-lg p-3">
-                                <div class="text-xs text-gray-400 mb-1">Sanity</div>
-                                <div class="text-lg font-bold text-blue-400" x-text="`${Math.round(player.sanity)}%`"></div>
-                                <div class="w-full bg-gray-600 rounded-full h-1.5">
-                                    <div :class="player.sanity > 50 ? 'bg-blue-500' : 'bg-red-500'" class="h-1.5 rounded-full" :style="`width: ${player.sanity}%`"></div>
+                            <div class="rounded-lg p-3 bg-gray-700/50">
+                                <div class="flex items-center gap-1.5 text-xs text-gray-400 mb-1">
+                                    <img src="/img/heart.webp" alt="" class="w-3.5 h-3.5 opacity-80"> Sanity
+                                </div>
+                                <div class="text-lg font-bold tabular-nums" :class="needTextClass(player.sanity)" x-text="`${Math.round(player.sanity)}%`"></div>
+                                <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                                    <div class="h-1.5 rounded-full" :class="needBarClass(player.sanity)" :style="`width: ${player.sanity}%`"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Guild Info -->
-                        <div class="text-center py-2 bg-gray-700/30 rounded-lg">
-                            <div class="text-xs text-gray-400">Guild</div>
-                            <div class="text-sm font-medium text-cyan-400" x-text="getGuildName(player.guild_id)"></div>
+                        <!-- Guild + link to this player's pals -->
+                        <div class="flex items-center justify-between gap-3 py-2 px-3 bg-gray-700/30 rounded-lg">
+                            <div class="min-w-0">
+                                <div class="text-xs text-gray-400">Guild</div>
+                                <div class="text-sm font-medium text-cyan-400 truncate" x-text="getGuildName(player.guild_id)"></div>
+                            </div>
+                            <button
+                                @click="viewPalsOf(player.player_name)"
+                                class="flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-200 text-xs font-medium transition-colors">
+                                <img src="/img/capture.webp" alt="" class="w-3.5 h-3.5 opacity-80">
+                                View pals
+                                <span class="px-1.5 py-0.5 rounded-full bg-blue-500/30 text-[11px]" x-text="pals.filter(p => p.owner_uid === player.player_name).length"></span>
+                            </button>
                         </div>
                     </div>
 </template>

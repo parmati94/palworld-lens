@@ -11,7 +11,7 @@ export function containerModal() {
         closeContainerModal() {
             this.showContainerModal = false;
             setTimeout(() => {
-                this.selectedContainer = null;
+                if (!this.showContainerModal) this.selectedContainer = null;
             }, 200);
         },
 

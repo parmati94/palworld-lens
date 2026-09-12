@@ -23,8 +23,8 @@
 ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
-/* Smooth transitions */
-* { transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+/* Smooth hover transitions on interactive things only (a global `*` rule fought MapLibre's per-frame marker transforms) */
+button, a, tr, input, select, .stat-card { transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s; }
 
 /* Ensure map marker tooltips always appear on top */
 .maplibregl-marker:has(.group:hover) {
@@ -230,11 +230,24 @@
     background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #7f1d1d 100%);
 }
 
-/* Title glow effect */
-.header-title {
-    text-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(34, 211, 238, 0.2);
-    letter-spacing: 0.05em;
-    font-weight: 900;
+/* Title: solid light-blue with the blue glow behind it. (The earlier version was a
+   hollow text-stroke outline, which had character but poor contrast.) */
+.glow-title {
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #bfdbfe; /* blue-200 */
+    text-shadow:
+        0 0 6px rgba(96, 165, 250, 0.55),
+        0 0 14px rgba(59, 130, 246, 0.35),
+        0 0 28px rgba(37, 99, 235, 0.2);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+.glow-title:hover {
+    color: #dbeafe; /* blue-100 */
+    text-shadow:
+        0 0 8px rgba(96, 165, 250, 0.8),
+        0 0 18px rgba(59, 130, 246, 0.5),
+        0 0 36px rgba(37, 99, 235, 0.3);
 }
 
 /* Custom tooltip styling */
@@ -338,41 +351,6 @@
 .work-icon-cooling { filter: brightness(0) saturate(100%) invert(77%) sepia(18%) saturate(1336%) hue-rotate(163deg) brightness(99%) contrast(96%); }
 .work-icon-transporting { filter: brightness(0) saturate(100%) invert(64%) sepia(17%) saturate(638%) hue-rotate(358deg) brightness(91%) contrast(88%); }
 .work-icon-farming { filter: brightness(0) saturate(100%) invert(44%) sepia(89%) saturate(2453%) hue-rotate(346deg) brightness(99%) contrast(93%); }
-
-/* Seamless header-to-content transition */
-.header-fade::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    height: 20px;
-    background: linear-gradient(to bottom, rgba(17, 24, 39, 0.6), rgba(17, 24, 39, 0));
-    pointer-events: none;
-    z-index: -1;
-}
-
-/* Glowing outline title effect */
-.glow-title {
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    color: rgba(147, 197, 253, 0.15);
-    -webkit-text-stroke: 1px rgba(96, 165, 250, 0.7);
-    text-shadow: 
-        0 0 8px rgba(96, 165, 250, 0.4),
-        0 0 12px rgba(59, 130, 246, 0.2);
-    position: relative;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.glow-title:hover {
-    color: rgba(147, 197, 253, 0.25);
-    -webkit-text-stroke: 1px rgba(96, 165, 250, 0.85);
-    text-shadow: 
-        0 0 12px rgba(96, 165, 250, 0.6),
-        0 0 16px rgba(59, 130, 246, 0.3);
-}
 
 /* Leaflet custom styles */
 .base-marker {

@@ -34,6 +34,7 @@ export function getElementIcon(element) {
         'Ground': 'ground.webp',
         'Dark': 'dark.webp',
         'Dragon': 'dragon.webp',
+        'Neutral': 'neutral.webp',
         'Normal': 'neutral.webp'
     };
     return iconMap[element] || 'neutral.webp';
@@ -52,6 +53,7 @@ export function getElementIconWhite(element) {
         'Ground': 'ground_white.webp',
         'Dark': 'dark_white.webp',
         'Dragon': 'dragon_white.webp',
+        'Neutral': 'neutral_white.webp',
         'Normal': 'neutral_white.webp'
     };
     return iconMap[element] || 'neutral_white.webp';
@@ -70,6 +72,7 @@ export function getElementColor(element) {
         'Ground': '#a16207',    // yellow-700
         'Dark': '#7c3aed',      // violet-600
         'Dragon': '#9333ea',    // purple-600
+        'Neutral': '#6b7280',   // gray-500
         'Normal': '#6b7280'     // gray-500
     };
     return colorMap[element] || '#6b7280';
@@ -92,7 +95,8 @@ export function getPalHeaderGradient(elements) {
         'Ground': ['#92400e', '#d97706', '#92400e'],    // yellow-800 to amber-600
         'Dark': ['#5b21b6', '#7c3aed', '#5b21b6'],      // violet-800 to violet-600
         'Dragon': ['#7c3aed', '#a855f7', '#7c3aed'],    // violet-600 to purple-500
-        'Normal': ['#4b5563', '#6b7280', '#4b5563']     // gray-600 to gray-500
+        'Neutral': ['#475569', '#64748b', '#475569'],   // slate-600 to slate-500
+        'Normal': ['#475569', '#64748b', '#475569']
     };
     
     const primaryElement = elements[0];
@@ -330,4 +334,48 @@ export function buildPageList(total, current) {
         out.push(pages[i]);
     }
     return out;
+}
+
+/**
+ * Human relative time: "just now", "4m ago", "3h ago", "2d ago". `now` is passed
+ * in (rather than read) so Alpine re-renders when the caller's clock ticks.
+ */
+export function formatRelativeTime(dateStr, now = Date.now()) {
+    if (!dateStr) return 'N/A';
+    const t = new Date(dateStr).getTime();
+    if (Number.isNaN(t)) return 'N/A';
+    const s = Math.max(0, Math.round((now - t) / 1000));
+    if (s < 45) return 'just now';
+    const m = Math.round(s / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.round(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.round(h / 24);
+    if (d < 30) return `${d}d ago`;
+    return new Date(dateStr).toLocaleDateString();
+}
+
+/**
+ * Colour class for a 0–100 need bar (hunger, sanity, hp%). Green is fine,
+ * amber is getting low, red needs attention.
+ */
+export function needBarClass(pct) {
+    const v = Number(pct) || 0;
+    if (v >= 50) return 'bg-green-500';
+    if (v >= 25) return 'bg-amber-500';
+    return 'bg-red-500';
+}
+export function needTextClass(pct) {
+    const v = Number(pct) || 0;
+    if (v >= 50) return 'text-green-400';
+    if (v >= 25) return 'text-amber-400';
+    return 'text-red-400';
+}
+
+/** Tinted chip classes for a 0–100 need value (icon + percentage pills). */
+export function needChipClass(pct) {
+    const v = Number(pct) || 0;
+    if (v >= 50) return 'bg-green-500/15 text-green-300 border-green-500/30';
+    if (v >= 25) return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+    return 'bg-red-500/15 text-red-300 border-red-500/30';
 }
