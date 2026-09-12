@@ -224,24 +224,24 @@
                             <div>
                                 <h3 class="text-lg font-bold text-gray-200 mb-3">Stats</h3>
                                 <div class="grid grid-cols-3 gap-3 sm:gap-4">
-                                    <div class="bg-gray-700/50 rounded-lg p-3">
-                                        <div class="text-xs text-gray-400 mb-1">HP</div>
+                                    <div class="rounded-lg p-3 bg-red-500/10 border border-red-500/20">
+                                        <div class="flex items-center gap-1.5 text-xs text-red-300/80 mb-1"><img src="/img/health.webp" alt="" class="w-3.5 h-3.5 opacity-80"> HP</div>
                                         <div class="text-lg font-bold" :class="needTextClass(Math.min((selectedPal.hp/(selectedPal.calculated_hp || selectedPal.max_hp))*100, 100))" x-text="Math.round(Math.min((selectedPal.hp/(selectedPal.calculated_hp || selectedPal.max_hp))*100, 100)) + '%'"></div>
-                                        <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                                        <div class="w-full bg-gray-900/50 rounded-full h-1.5 mt-1">
                                             <div class="h-1.5 rounded-full" :class="needBarClass(Math.min((selectedPal.hp/(selectedPal.calculated_hp || selectedPal.max_hp))*100, 100))" :style="`width: ${Math.min((selectedPal.hp/(selectedPal.calculated_hp || selectedPal.max_hp))*100, 100)}%`"></div>
                                         </div>
                                     </div>
-                                    <div class="bg-gray-700/50 rounded-lg p-3">
-                                        <div class="text-xs text-gray-400 mb-1">Hunger</div>
+                                    <div class="rounded-lg p-3 bg-amber-500/10 border border-amber-500/20">
+                                        <div class="flex items-center gap-1.5 text-xs text-amber-300/80 mb-1"><img src="/img/food.webp" alt="" class="w-3.5 h-3.5 opacity-80"> Hunger</div>
                                         <div class="text-lg font-bold" :class="needTextClass(selectedPal.hunger)" x-text="`${Math.round(selectedPal.hunger)}%`"></div>
-                                        <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                                        <div class="w-full bg-gray-900/50 rounded-full h-1.5 mt-1">
                                             <div class="h-1.5 rounded-full" :class="needBarClass(selectedPal.hunger)" :style="`width: ${selectedPal.hunger}%`"></div>
                                         </div>
                                     </div>
-                                    <div class="bg-gray-700/50 rounded-lg p-3">
-                                        <div class="text-xs text-gray-400 mb-1">SAN</div>
+                                    <div class="rounded-lg p-3 bg-pink-500/10 border border-pink-500/20">
+                                        <div class="flex items-center gap-1.5 text-xs text-pink-300/80 mb-1"><img src="/img/heart.webp" alt="" class="w-3.5 h-3.5 opacity-80"> SAN</div>
                                         <div class="text-lg font-bold" :class="needTextClass(selectedPal.sanity)" x-text="`${Math.round(selectedPal.sanity)}%`"></div>
-                                        <div class="w-full bg-gray-600 rounded-full h-1.5 mt-1">
+                                        <div class="w-full bg-gray-900/50 rounded-full h-1.5 mt-1">
                                             <div class="h-1.5 rounded-full" :class="needBarClass(selectedPal.sanity)" :style="`width: ${selectedPal.sanity}%`"></div>
                                         </div>
                                     </div>

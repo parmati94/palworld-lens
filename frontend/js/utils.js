@@ -371,3 +371,11 @@ export function needTextClass(pct) {
     if (v >= 25) return 'text-amber-400';
     return 'text-red-400';
 }
+
+/** Tinted chip classes for a 0–100 need value (icon + percentage pills). */
+export function needChipClass(pct) {
+    const v = Number(pct) || 0;
+    if (v >= 50) return 'bg-green-500/15 text-green-300 border-green-500/30';
+    if (v >= 25) return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+    return 'bg-red-500/15 text-red-300 border-red-500/30';
+}
