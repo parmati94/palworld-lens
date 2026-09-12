@@ -81,6 +81,12 @@ export function app() {
             this.watchService.onUpdate = (data) => this.updateFromSSE(data);
             this.watchService.onError = (error) => { this.error = error; };
             
+            // Reference data (element/work names, icons, colours) is needed on
+            // EVERY data path: the manual load below, and the SSE init event
+            // when auto-watch is already running on the backend (production).
+            // Fetch it once here so neither path can render ids.
+            await this.loadGameData();
+
             // Check auto-watch status from backend
             await this.checkWatchStatus();
 
@@ -369,6 +375,14 @@ export function app() {
             this.error = null;
             this.afterDataLoaded();
             console.log('✅ Data updated from SSE, last_updated:', this.saveInfo.last_updated);
+        },
+
+        async loadGameData() {
+            try {
+                this.gameData = await api.getGameData();
+            } catch (err) {
+                console.error('Failed to load game reference data:', err);
+            }
         },
 
         afterDataLoaded() {

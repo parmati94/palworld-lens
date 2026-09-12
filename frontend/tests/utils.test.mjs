@@ -51,7 +51,7 @@ test('workSuitabilityDisplay only lists levels > 0 with names and icons', () => 
     const out = workSuitabilityDisplay(gameData, { work_suitability: { EmitFlame: 2, Mining: 0, Unknown: 1 } });
     assert.deepEqual(out, [
         { type: 'EmitFlame', name: 'Kindling', level: 2, icon: 't_icon_research_palwork_00_0', color: '#22c55e' },
-        { type: 'Unknown', name: 'Unknown', level: 1, icon: 'work', color: '#9ca3af' },
+        { type: 'Unknown', name: 'Unknown', level: 1, icon: 'unknown', color: '#9ca3af' },
     ]);
 });
 

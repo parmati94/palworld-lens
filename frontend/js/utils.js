@@ -72,7 +72,7 @@ export function workSuitabilityDisplay(gameData, pal) {
             type,
             name: ref.name || type,
             level,
-            icon: ref.icon || 'work',
+            icon: ref.icon || 'unknown',
             color: WORK_LEVEL_COLORS[level] || '#9ca3af',
         });
     }

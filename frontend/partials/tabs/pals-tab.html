@@ -415,7 +415,7 @@
                                                         :src="elementIcon(element)" 
                                                         :alt="elementName(element)"
                                                         :title="elementName(element)"
-                                                        :onerror="`this.src='/img/element.webp'`"
+                                                        :onerror="`this.onerror=null; this.src='/img/neutral.webp'`"
                                                         class="w-4 h-4 md:w-5 md:h-5">
                                                 </template>
                                             </template>
@@ -433,7 +433,7 @@
                                                         <img 
                                                             :src="`/img/${work.icon}.webp`" 
                                                             :alt="work.name"
-                                                            :onerror="`this.src='/img/work.webp'`"
+                                                            :onerror="`this.onerror=null; this.src='/img/unknown.webp'`"
                                                             :class="`work-icon-${work.name.toLowerCase().replace(/\s+/g, '_')} w-5 h-5 md:w-6 md:h-6`">
                                                         <span 
                                                             class="absolute -bottom-0.5 -right-0.5 bg-gray-900 text-white text-[9px] font-bold rounded-full w-3 h-3 flex items-center justify-center border border-gray-700"
@@ -982,7 +982,7 @@
                                                                     <img 
                                                                         :src="item.icon ? `/img/${item.icon}.webp` : '/img/food.webp'" 
                                                                         :alt="item.item_name"
-                                                                        :onerror="`this.src='/img/food.webp'`"
+                                                                        :onerror="`this.onerror=null; this.src='/img/food.webp'`"
                                                                         class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
                                                                     <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                 </div>
@@ -1106,7 +1106,7 @@
                                                                             <img 
                                                                                 :src="item.icon ? `/img/${item.icon}.webp` : '/img/item.webp'" 
                                                                                 :alt="item.item_name"
-                                                                                :onerror="`this.src='/img/item.webp'`"
+                                                                                :onerror="`this.onerror=null; this.src='/img/unknown.webp'`"
                                                                                 class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
                                                                             <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                         </div>
