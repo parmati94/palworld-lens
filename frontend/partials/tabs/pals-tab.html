@@ -281,8 +281,18 @@
             </div>
             
             <!-- Results Info -->
-            <div class="mb-3 text-sm text-gray-400">
-                <span>Showing <span class="text-white font-medium" x-text="((currentPage - 1) * pageSize + 1)"></span> - <span class="text-white font-medium" x-text="Math.min(currentPage * pageSize, filteredPals.length)"></span> of <span class="text-white font-medium" x-text="filteredPals.length"></span> pals</span>
+            <div class="mb-3 text-sm text-gray-400 flex items-center justify-between gap-3 flex-wrap">
+                <span x-show="filteredPals.length > 0">Showing <span class="text-white font-medium" x-text="((currentPage - 1) * pageSize + 1)"></span> - <span class="text-white font-medium" x-text="Math.min(currentPage * pageSize, filteredPals.length)"></span> of <span class="text-white font-medium" x-text="filteredPals.length"></span> pals</span>
+                <span x-show="filteredPals.length === 0">No pals match the current filters</span>
+                <button
+                    x-show="activeFilterCount > 0"
+                    @click="clearFilters()"
+                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-700/60 hover:bg-gray-700 border border-gray-600/50 text-gray-200 text-xs font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Clear filters (<span x-text="activeFilterCount"></span>)</span>
+                </button>
             </div>
             
             <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
@@ -357,6 +367,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-700">
+                            <tr x-show="filteredPals.length === 0">
+                                <td colspan="9" class="px-4 py-10 text-center text-gray-400">
+                                    <div class="font-medium text-gray-300 mb-1">No pals found</div>
+                                    <div class="text-sm">Try a different search or clear the active filters.</div>
+                                </td>
+                            </tr>
                             <template x-for="pal in paginatedPals" :key="pal.instance_id">
                                 <tr @click="$dispatch('open-pal-modal', pal)" class="hover:bg-gray-700/50 transition-colors cursor-pointer">
                                     <td class="px-2 md:px-4 py-3">
@@ -469,11 +485,12 @@
                 </button>
                 
                 <!-- Page Numbers -->
-                <template x-for="page in pageNumbers" :key="page">
+                <template x-for="(page, i) in pageNumbers" :key="i">
                     <button 
-                        @click="changePage(page)"
-                        :class="currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
-                        class="px-4 py-2 border border-gray-700 rounded-lg font-medium transition-colors"
+                        @click="typeof page === 'number' && changePage(page)"
+                        :disabled="typeof page !== 'number'"
+                        :class="typeof page !== 'number' ? 'text-gray-500 cursor-default border-transparent' : (currentPage === page ? 'bg-blue-600 text-white border-gray-700' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-700')"
+                        class="px-4 py-2 border rounded-lg font-medium transition-colors"
                         x-text="page">
                     </button>
                 </template>

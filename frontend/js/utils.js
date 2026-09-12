@@ -315,3 +315,19 @@ export function formatUptime(seconds) {
     
     return parts.join(' ');
 }
+
+/**
+ * Build a compact page list for pagination controls.
+ * Returns numbers plus '…' gap markers, e.g. [1, '…', 4, 5, 6, '…', 12].
+ */
+export function buildPageList(total, current) {
+    if (total <= 1) return [1];
+    const wanted = new Set([1, total, current - 1, current, current + 1]);
+    const pages = [...wanted].filter(p => p >= 1 && p <= total).sort((a, b) => a - b);
+    const out = [];
+    for (let i = 0; i < pages.length; i++) {
+        if (i > 0 && pages[i] - pages[i - 1] > 1) out.push('…');
+        out.push(pages[i]);
+    }
+    return out;
+}
