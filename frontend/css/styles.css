@@ -230,6 +230,26 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #7f1d1d 100%);
 }
 
+/* Title: solid light-blue with the blue glow behind it. (The earlier version was a
+   hollow text-stroke outline, which had character but poor contrast.) */
+.glow-title {
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #bfdbfe; /* blue-200 */
+    text-shadow:
+        0 0 6px rgba(96, 165, 250, 0.55),
+        0 0 14px rgba(59, 130, 246, 0.35),
+        0 0 28px rgba(37, 99, 235, 0.2);
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+}
+.glow-title:hover {
+    color: #dbeafe; /* blue-100 */
+    text-shadow:
+        0 0 8px rgba(96, 165, 250, 0.8),
+        0 0 18px rgba(59, 130, 246, 0.5),
+        0 0 36px rgba(37, 99, 235, 0.3);
+}
+
 /* Custom tooltip styling */
 [data-tooltip] {
     position: relative;
