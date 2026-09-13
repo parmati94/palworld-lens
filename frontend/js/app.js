@@ -23,6 +23,14 @@ import { breedingState, BREED_MODES } from './breeding-state.js';
 
 const prefs = loadPrefs();
 const TABS = ['overview', 'players', 'pals', 'bases', 'breeding', 'map'];
+// Accent themes: ids match the [data-theme] blocks in css/styles.css.
+export const THEMES = [
+    { id: 'sky', label: 'Sky', swatch: '#0ea5e9' },
+    { id: 'blue', label: 'Blue', swatch: '#3b82f6' },
+    { id: 'emerald', label: 'Emerald', swatch: '#10b981' },
+    { id: 'violet', label: 'Violet', swatch: '#8b5cf6' },
+    { id: 'rose', label: 'Rose', swatch: '#f43f5e' },
+];
 const SORT_COLUMNS = ['name', 'level', 'hp', 'hunger', 'sanity', 'owner', 'base', 'attack', 'defense'];
 
 export function app() {
@@ -63,6 +71,11 @@ export function app() {
         hashSyncing: false,
         // Watch service state
         watchService: null,
+        // Settings modal: device-local preferences (head.html applies them before first paint)
+        showSettings: false,
+        themes: THEMES,
+        theme: pref(prefs, 'theme', 'sky', THEMES.map(t => t.id)),
+        reduceMotion: pref(prefs, 'reduceMotion', false),
         autoWatchActive: false,
         autoWatchAllowed: true,
         watchToggling: false,
@@ -139,8 +152,11 @@ export function app() {
 
             // Remember the settings people expect to stick between visits.
             [['currentTab', 'lastTab'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
-             ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize']]
+             ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize'],
+             ['theme', 'theme'], ['reduceMotion', 'reduceMotion']]
                 .forEach(([key, name]) => this.$watch(key, v => savePref(name, v)));
+            this.applyTheme(this.theme);
+            this.applyReduceMotion();
 
             // Bases tab: always have a guild and a base selected when data allows it.
             this.$watch('guilds', () => this.ensureBaseSelection());
@@ -384,6 +400,22 @@ export function app() {
             }
         },
         
+        /** Sets the accent: flips `data-theme` on <html> so every accent-* utility retints. */
+        applyTheme(id) {
+            if (!THEMES.some(t => t.id === id)) id = 'sky';
+            this.theme = id;
+            document.documentElement.setAttribute('data-theme', id);
+        },
+
+        toggleReduceMotion() {
+            this.reduceMotion = !this.reduceMotion;
+            this.applyReduceMotion();
+        },
+
+        applyReduceMotion() {
+            document.documentElement.classList.toggle('reduce-motion', !!this.reduceMotion);
+        },
+
         async toggleAutoWatch() {
             if (!this.autoWatchAllowed) {
                 return; // Can't toggle if not allowed
