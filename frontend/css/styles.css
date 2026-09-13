@@ -43,11 +43,11 @@
     --accent-600: 124 58 237;  --accent-700: 109 40 217;  --accent-800: 91 33 182;
     --accent-900: 76 29 149;
 }
-[data-theme="orange"] {
-    --accent-50: 255 247 237;  --accent-100: 255 237 213; --accent-200: 254 215 170;
-    --accent-300: 253 186 116; --accent-400: 251 146 60;  --accent-500: 249 115 22;
-    --accent-600: 234 88 12;   --accent-700: 194 65 12;   --accent-800: 154 52 18;
-    --accent-900: 124 45 18;
+[data-theme="rose"] {
+    --accent-50: 255 241 242;  --accent-100: 255 228 230; --accent-200: 254 205 211;
+    --accent-300: 253 164 175; --accent-400: 251 113 133; --accent-500: 244 63 94;
+    --accent-600: 225 29 72;   --accent-700: 190 18 60;   --accent-800: 159 18 57;
+    --accent-900: 136 19 55;
 }
 
 /* ── Meaning colours ────────────────────────────────────────────────────────
@@ -72,6 +72,19 @@
 
 [x-cloak] {
     display: none !important;
+}
+
+/* Reduce motion: a Settings switch (seeded from nothing; the OS preference is
+   honoured separately where it matters). Neutralises animations and
+   transitions app-wide without removing final states. MapLibre markers keep
+   their own short transitions because a snapping map reads as broken. */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
 }
 
 /* ── Page ground ────────────────────────────────────────────────────────────

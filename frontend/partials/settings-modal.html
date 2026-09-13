@@ -1,0 +1,104 @@
+    <!-- Settings: device-local preferences plus the save watcher. Opened from the
+         header gear; state lives in app.js (showSettings, theme, reduceMotion,
+         autoWatch*). -->
+    <div x-show="showSettings" x-cloak
+         x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         @click.self="showSettings = false"
+         @keydown.escape.window="showSettings = false"
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-xl w-full max-w-md border border-gray-700/60 shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-700/60">
+                <div class="flex items-center gap-2.5">
+                    <svg class="w-5 h-5 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <h2 class="text-base font-semibold text-white">Settings</h2>
+                </div>
+                <button @click="showSettings = false" aria-label="Close" class="btn-quiet p-1.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-5">
+                <!-- Auto-Watch / remote polling -->
+                <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <h3 class="text-sm font-semibold text-gray-200 flex items-center gap-2">
+                            <span x-text="remoteMode ? 'Poll the server' : 'Auto-Watch'"></span>
+                            <span x-show="autoWatchActive" class="inline-flex items-center gap-1 text-[11px] font-medium text-ok-400">
+                                <span class="w-1.5 h-1.5 rounded-full bg-ok-400 pulse-active"></span> on
+                            </span>
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            <template x-if="autoWatchAllowed && !remoteMode">
+                                <span>Watches the save folder and refreshes the page whenever the game writes a new save.</span>
+                            </template>
+                            <template x-if="autoWatchAllowed && remoteMode">
+                                <span>Polls <span class="text-accent-300 font-mono" x-text="remoteUser + '@' + remoteHost"></span> over <span class="text-accent-300 uppercase" x-text="remoteProtocol"></span> every <span class="text-accent-300" x-text="remotePollInterval + 's'"></span> for a newer save.</span>
+                            </template>
+                            <template x-if="!autoWatchAllowed && !remoteMode">
+                                <span class="text-warn-300">Disabled on the server. Set <code class="bg-gray-900 px-1 rounded">ENABLE_AUTO_WATCH=true</code> in the environment to watch the save folder.</span>
+                            </template>
+                            <template x-if="!autoWatchAllowed && remoteMode">
+                                <span class="text-warn-300">Disabled on the server. Set <code class="bg-gray-900 px-1 rounded">REMOTE_POLL_INTERVAL</code> above 0 to poll the remote server. It is 0 now (manual reload only).</span>
+                            </template>
+                        </p>
+                    </div>
+                    <button type="button" role="switch"
+                            :aria-checked="autoWatchActive"
+                            :aria-label="remoteMode ? 'Toggle polling' : 'Toggle auto-watch'"
+                            @click="toggleAutoWatch()"
+                            :disabled="!autoWatchAllowed || watchToggling"
+                            class="relative w-9 h-5 rounded-full transition-colors flex-shrink-0 mt-0.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                            :class="autoWatchActive ? 'bg-ok-500' : 'bg-gray-600'">
+                        <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform shadow-sm"
+                              :class="autoWatchActive ? 'translate-x-4' : ''"></span>
+                    </button>
+                </div>
+
+                <div class="border-t border-gray-700/60"></div>
+
+                <!-- Accent colour -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="text-sm font-semibold text-gray-200">Accent colour</h3>
+                        <span class="text-xs text-gray-500" x-text="(themes.find(t => t.id === theme) || {}).label"></span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">Re-tints the header, tabs and controls. Pals keep their own colours. Saved on this device.</p>
+                    <div class="flex items-center gap-3">
+                        <template x-for="t in themes" :key="t.id">
+                            <button type="button" @click="applyTheme(t.id)" :title="t.label" :aria-label="t.label"
+                                    class="relative h-9 w-9 rounded-full transition-transform hover:scale-110 focus:outline-none ring-offset-2 ring-offset-gray-800"
+                                    :class="theme === t.id ? 'ring-2 ring-white' : 'ring-1 ring-white/10'"
+                                    :style="`background-color:${t.swatch}`">
+                                <svg x-show="theme === t.id" class="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-700/60"></div>
+
+                <!-- Reduce motion -->
+                <div class="flex items-center justify-between gap-4">
+                    <div class="min-w-0">
+                        <h3 class="text-sm font-semibold text-gray-200">Reduce motion</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Stills the glow drift, pulses and hover effects.</p>
+                    </div>
+                    <button type="button" role="switch" :aria-checked="reduceMotion" aria-label="Toggle reduced motion"
+                            @click="toggleReduceMotion()"
+                            class="relative w-9 h-5 rounded-full transition-colors flex-shrink-0"
+                            :class="reduceMotion ? 'bg-accent-500' : 'bg-gray-600'">
+                        <span class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform shadow-sm"
+                              :class="reduceMotion ? 'translate-x-4' : ''"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>

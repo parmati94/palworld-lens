@@ -12,6 +12,14 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/img/favicon/android-chrome-192x192.png?v=2">
     <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon/android-chrome-512x512.png?v=2">
     
+    <!-- Saved accent + motion preference, applied before first paint (see Settings in js/app.js) -->
+    <script>
+        try {
+            var prefs = JSON.parse(localStorage.getItem('palworld-lens:prefs') || '{}');
+            if (prefs.theme) document.documentElement.setAttribute('data-theme', prefs.theme);
+            if (prefs.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        } catch (e) {}
+    </script>
     <!-- Tailwind CSS (built with PostCSS) -->
     <link rel="stylesheet" href="/css/styles.css">
 

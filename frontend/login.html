@@ -9,6 +9,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png?v=2">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png?v=2">
     <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon.png?v=2">
+    <!-- Saved accent + motion preference, applied before first paint (see Settings in js/app.js) -->
+    <script>
+        try {
+            var prefs = JSON.parse(localStorage.getItem('palworld-lens:prefs') || '{}');
+            if (prefs.theme) document.documentElement.setAttribute('data-theme', prefs.theme);
+            if (prefs.reduceMotion) document.documentElement.classList.add('reduce-motion');
+        } catch (e) {}
+    </script>
     <link rel="stylesheet" href="/css/styles.css">
     <script type="module" src="/js/login.js" defer></script>
     <style>
