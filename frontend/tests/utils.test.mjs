@@ -54,8 +54,15 @@ test('shadeHex, hexAlpha and elementBackdrop', () => {
 test('workSuitabilityDisplay only lists levels > 0 with names and icons', () => {
     const out = workSuitabilityDisplay(gameData, { work_suitability: { EmitFlame: 2, Mining: 0, Unknown: 1 } });
     assert.deepEqual(out, [
-        { type: 'EmitFlame', name: 'Kindling', level: 2, icon: 't_icon_research_palwork_00_0', color: '#22c55e' },
-        { type: 'Unknown', name: 'Unknown', level: 1, icon: 'unknown', color: '#9ca3af' },
+        { type: 'EmitFlame', name: 'Kindling', level: 2, icon: 't_icon_research_palwork_00_0', color: '#22c55e', badge: '' },
+        { type: 'Unknown', name: 'Unknown', level: 1, icon: 'unknown', color: '#9ca3af', badge: '' },
+    ]);
+});
+
+test('work suitability colours run to 8, then 9 and 10 get the legendary badge', () => {
+    const out = workSuitabilityDisplay(gameData, { work_suitability: { EmitFlame: 8, Mining: 9, Unknown: 10 } });
+    assert.deepEqual(out.map(w => [w.level, w.color, w.badge]), [
+        [8, '#f43f5e', ''], [9, '#f43f5e', 'work-badge-legendary'], [10, '#f43f5e', 'work-badge-max'],
     ]);
 });
 

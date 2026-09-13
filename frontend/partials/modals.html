@@ -321,8 +321,9 @@
                                                 <span class="text-sm text-gray-200 font-medium" x-text="work.name"></span>
                                             </div>
                                             <span 
-                                                class="text-xs font-bold px-2 py-1 rounded" 
-                                                :style="`color: ${work.color}; border: 1px solid ${work.color}`"
+                                                class="text-xs font-bold px-2 py-1 rounded"
+                                                :class="work.badge"
+                                                :style="work.badge ? '' : `color: ${work.color}; border: 1px solid ${work.color}`"
                                                 x-text="`Lv.${work.level}`">
                                             </span>
                                         </div>

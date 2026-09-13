@@ -67,13 +67,29 @@ export function elementBackdrop(gameData, ids) {
          + `radial-gradient(40rem 18rem at 100% 120%, ${hexAlpha(c2, 0.3)}, transparent 60%), ${base}`;
 }
 
+/**
+ * Work suitability runs 1..10 since 1.0 (pals are born with up to 7-8; 9 and 10
+ * come from condensing, Applied Technique books and base auras). Levels get
+ * hotter as they climb; 9 and 10 borrow the legendary passive treatment via
+ * `workLevelBadgeClass` and have no flat colour.
+ */
 export const WORK_LEVEL_COLORS = {
     1: '#9ca3af',  // gray-400
-    2: '#22c55e',  // ok-500
-    3: '#3b82f6',  // accent-500
+    2: '#22c55e',  // green-500
+    3: '#3b82f6',  // blue-500
     4: '#8b5cf6',  // violet-500
-    5: '#f59e0b',  // warn-500
+    5: '#f59e0b',  // amber-500
+    6: '#f97316',  // orange-500
+    7: '#ef4444',  // red-500
+    8: '#f43f5e',  // rose-500
 };
+
+/** Extra class for the modal badge: the legendary gradient at 9, gold-ringed at 10. */
+export function workLevelBadgeClass(level) {
+    if (level >= 10) return 'work-badge-max';
+    if (level >= 9) return 'work-badge-legendary';
+    return '';
+}
 
 /** [{type, name, level, icon, color}] for every work type a pal has at level > 0. */
 export function workSuitabilityDisplay(gameData, pal) {
@@ -87,7 +103,8 @@ export function workSuitabilityDisplay(gameData, pal) {
             name: ref.name || type,
             level,
             icon: ref.icon || 'unknown',
-            color: WORK_LEVEL_COLORS[level] || '#9ca3af',
+            color: WORK_LEVEL_COLORS[Math.min(level, 8)] || '#9ca3af',
+            badge: workLevelBadgeClass(level),
         });
     }
     return out;

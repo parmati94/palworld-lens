@@ -302,6 +302,19 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     box-shadow: 0 0 16px rgba(139, 92, 246, 0.6);
 }
 
+/* WORK SUITABILITY 9 / 10 - the legendary passive look, gold-ringed at the cap */
+.work-badge-legendary,
+.work-badge-max {
+    color: #fff;
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #06b6d4 100%);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.45);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+.work-badge-max {
+    box-shadow: 0 0 0 1px #fbbf24, 0 0 12px rgba(251, 191, 36, 0.45);
+}
+
 /* NEGATIVE GRADIENTS - Bad passives */
 .passive-bg-negative {
     background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #991b1b 100%);
