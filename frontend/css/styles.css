@@ -233,6 +233,21 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 }
 
 
+/* Pal modal header: the element glows drift slowly across the dark surface.
+   The backdrop is sized to 120% so a full position sweep moves it by a fifth
+   of the header, enough to breathe, not enough to slide the colour away. */
+@keyframes headerDrift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+.pal-header-drift {
+    animation: headerDrift 10s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .pal-header-drift { animation: none; }
+}
+
 /* GOLD GRADIENTS - Rank 2-3 */
 .passive-bg-gold {
     background: linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #d97706 100%);

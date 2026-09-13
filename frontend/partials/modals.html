@@ -106,8 +106,8 @@
                         <!-- Header -->
                         <!-- Dark header; the element colour glows through from the corners
                              and behind the portrait instead of filling the block. -->
-                        <div class="relative p-5 sm:p-6 rounded-t-xl border-b border-gray-700/60"
-                             :style="`background: ${palHeaderBackdrop(selectedPal.element_types)}`">
+                        <div class="relative p-5 sm:p-6 rounded-t-xl border-b border-gray-700/60 pal-header-drift"
+                             :style="`background: ${palHeaderBackdrop(selectedPal.element_types)}; background-size: 120% 120%;`">
                             <button @click="closePalModal()" aria-label="Close"
                                     class="absolute top-3 right-3 btn-quiet p-1.5">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
