@@ -20,39 +20,51 @@
     <!-- Header: one 56px bar. Wordmark, then the section tabs (md+), controls on
          the right. On phones the tabs move to the bottom bar (tab-navigation.html). -->
     <header class="sticky top-0 z-50 bg-gray-900/85 backdrop-blur-md border-b border-gray-800">
-        <div class="container mx-auto px-4 h-14 flex items-stretch justify-between gap-3">
+        <!-- Full width up to the largest container size: `container` alone caps the bar
+             at 768px on tablets and landscape phones, which starved the tabs. -->
+        <div class="w-full max-w-screen-2xl mx-auto px-4 h-14 flex items-stretch justify-between gap-3">
             <!-- Left: wordmark + tabs -->
-            <div class="flex items-stretch gap-1 min-w-0">
-                <a href="#overview" @click.prevent="currentTab = 'overview'" title="Overview"
-                   class="flex items-center gap-2.5 group min-w-0 -ml-1 px-1 rounded-lg">
-                    <div class="h-8 w-8 flex items-center justify-center bg-gray-800 rounded-lg border border-accent-500/40 group-hover:border-accent-500/70 transition-colors flex-shrink-0 p-1">
+            <div class="flex items-stretch gap-1 min-w-0 flex-1">
+                <div class="flex items-center gap-2.5 group min-w-0 shrink-0 -ml-1 px-1">
+                    <a href="#overview" @click.prevent="currentTab = 'overview'" title="Overview"
+                       class="h-8 w-8 flex items-center justify-center bg-gray-800 rounded-lg border border-accent-500/40 group-hover:border-accent-500/70 transition-colors flex-shrink-0 p-1">
                         <img src="/img/favicon/apple-touch-icon.png?v=2" alt="Palworld Lens logo" class="w-full h-full object-contain rounded-md">
-                    </div>
+                    </a>
                     <div class="min-w-0 leading-none">
-                        <h1 class="text-lg font-display font-bold tracking-tight leading-none whitespace-nowrap">
-                            <span class="text-gray-200 group-hover:text-white transition-colors">Palworld</span><span class="bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgb(var(--accent-500)_/_0.35)] group-hover:drop-shadow-[0_0_17px_rgb(var(--accent-400)_/_0.8)] transition-all duration-300"> Lens</span>
-                        </h1>
-                        <!-- World + freshness: under the wordmark where there is room (phones, lg+) -->
-                        <div x-show="saveInfo.loaded" class="md:hidden lg:flex flex items-center gap-1.5 text-[11px] leading-4 text-gray-500 truncate mt-0.5">
+                        <a href="#overview" @click.prevent="currentTab = 'overview'" title="Overview" class="block">
+                            <h1 class="text-lg font-display font-bold tracking-tight leading-none whitespace-nowrap">
+                                <span class="text-gray-200 group-hover:text-white transition-colors">Palworld</span><span class="bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgb(var(--accent-500)_/_0.35)] group-hover:drop-shadow-[0_0_17px_rgb(var(--accent-400)_/_0.8)] transition-all duration-300"> Lens</span>
+                            </h1>
+                        </a>
+                        <!-- World + freshness + watcher state, under the wordmark where there is
+                             room (phones, lg+). The dot pulses while the save is being watched or
+                             polled; "manual" appears when it is not. Tap opens Settings. -->
+                        <button x-show="saveInfo.loaded" @click="showSettings = true" type="button"
+                                :title="autoWatchActive ? (remoteMode ? 'Polling the remote server for save changes' : 'Watching the save folder for changes') : 'Not watching for changes. Reload by hand, or turn Auto-Watch on in Settings.'"
+                                class="md:hidden lg:flex flex items-center gap-1.5 text-[11px] leading-4 text-gray-500 mt-0.5 min-w-0 max-w-full hover:text-gray-300 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="autoWatchActive ? 'bg-ok-400 pulse-active' : 'bg-gray-600'"></span>
                             <span class="text-gray-400 font-medium truncate" x-text="saveInfo.world_name"></span>
                             <span x-show="saveInfo.last_updated" class="text-gray-700">·</span>
-                            <span x-show="saveInfo.last_updated" class="truncate" :title="formatDate(saveInfo.last_updated)">
+                            <span x-show="saveInfo.last_updated" class="truncate whitespace-nowrap" :title="formatDate(saveInfo.last_updated)">
                                 Updated <span x-text="formatRelativeTime(saveInfo.last_updated, now)"></span>
                             </span>
-                        </div>
+                            <span x-show="!autoWatchActive" class="text-gray-600 whitespace-nowrap flex-shrink-0">· manual</span>
+                        </button>
                     </div>
-                </a>
+                </div>
 
                 <div class="hidden md:block w-px self-center h-6 bg-gray-800 mx-2 shrink-0"></div>
 
                 <!-- Section tabs (md+): underline style. Tools sit after a divider with an icon. -->
-                <nav x-show="saveInfo.loaded" class="hidden md:flex items-stretch gap-0.5" aria-label="Sections">
+                <!-- Between md and lg (tablets, phones on their side) the tabs tighten and the
+                     nav scrolls sideways instead of running into the controls. -->
+                <nav x-show="saveInfo.loaded" class="hidden md:flex items-stretch gap-0.5 min-w-0 overflow-x-auto scrollbar-hide" aria-label="Sections">
                     <template x-for="tab in tabs.filter(t => !t.tool)" :key="tab.id">
                         <a :href="'#' + tab.id"
                            @click.prevent="currentTab = tab.id"
                            :class="currentTab === tab.id ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
                            :aria-current="currentTab === tab.id ? 'page' : null"
-                           class="flex items-center gap-1.5 px-3 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap">
+                           class="flex items-center gap-1.5 px-1.5 lg:px-3 text-[13px] lg:text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap shrink-0">
                             <span x-text="tab.label"></span>
                             <span x-show="tab.count !== null" class="hidden lg:inline text-[11px] tabular-nums"
                                   :class="currentTab === tab.id ? 'text-accent-400/70' : 'text-gray-600'" x-text="tab.count"></span>
@@ -65,7 +77,7 @@
                            :class="currentTab === tab.id ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
                            :aria-current="currentTab === tab.id ? 'page' : null"
                            :title="tab.title"
-                           class="flex items-center gap-1.5 px-3 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap">
+                           class="flex items-center gap-1.5 px-1.5 lg:px-3 text-[13px] lg:text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap shrink-0">
                             <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" /></svg>
                             <span x-text="tab.label"></span>
                         </a>
@@ -74,16 +86,7 @@
             </div>
 
             <!-- Right: watch state, reload, server, logout -->
-            <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-                <!-- Watching / polling: a quiet status pill while the save is being watched.
-                     The switch itself lives in Settings (settings-modal.html). -->
-                <button x-show="autoWatchActive" @click="showSettings = true" type="button"
-                        :title="remoteMode ? 'Polling the remote server for save changes' : 'Watching the save folder for changes'"
-                        class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-ok-900/40 text-ok-400 border border-ok-800/70 hover:bg-ok-900/60 transition-colors shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-ok-400 pulse-active"></span>
-                    <span class="hidden sm:inline" x-text="remoteMode ? 'Polling' : 'Watching'"></span>
-                </button>
-
+            <div class="flex items-center gap-0.5 sm:gap-1.5 flex-shrink-0">
                 <!-- Reload: an occasional action, so it is quiet. Auto-Watch above is the primary state. -->
                 <button
                     @click="reloadSave()"
