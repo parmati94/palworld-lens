@@ -152,6 +152,7 @@ export function app() {
             this.$watch('currentTab', t => { if (t === 'breeding') this.ensureBreedingSpecies(); });
             if (this.currentTab === 'breeding') this.ensureBreedingSpecies();
             this.$watch('pals', () => this.breedInvalidateOwned());
+            this.$watch('breedOwner', () => { this.breedInvalidateOwned(); this.writeHash(); });
             ['breedMode', 'breedA', 'breedB', 'breedChild'].forEach(key => {
                 this.$watch(key, () => { this.runBreeding(); this.writeHash(); });
             });
@@ -197,6 +198,7 @@ export function app() {
                     if (params.has('a')) this.breedA = params.get('a');
                     if (params.has('b')) this.breedB = params.get('b');
                     if (params.has('child')) this.breedChild = params.get('child');
+                    this.breedOwner = params.get('owner') || '';
                 }
                 if (params.has('pal')) this.openPalById(params.get('pal'));
             } finally {
@@ -220,6 +222,7 @@ export function app() {
             }
             if (this.currentTab === 'breeding') {
                 params.set('mode', this.breedMode);
+                if (this.breedOwner) params.set('owner', this.breedOwner);
                 if (this.breedMode === 'child') {
                     if (this.breedA) params.set('a', this.breedA);
                     if (this.breedB) params.set('b', this.breedB);

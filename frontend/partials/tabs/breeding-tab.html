@@ -2,19 +2,27 @@
         <div x-show="currentTab === 'breeding' && saveInfo.loaded" class="tab-content">
             <!-- Controls -->
             <div class="mb-4 bg-gray-800/40 border border-gray-700/50 rounded-xl p-4">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-                    <div class="inline-flex rounded-lg border border-gray-700 overflow-hidden text-sm font-medium flex-shrink-0" role="tablist">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <!-- Mode toggle fills the row on phones, sits left on wider screens -->
+                    <div class="flex w-full sm:w-auto sm:inline-flex rounded-lg border border-gray-700 overflow-hidden text-sm font-medium flex-shrink-0" role="tablist">
                         <button @click="breedMode = 'parents'" role="tab" :aria-selected="breedMode === 'parents'"
                                 :class="breedMode === 'parents' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
-                                class="px-3 py-2 transition-colors">Child → Parents</button>
+                                class="flex-1 sm:flex-none px-3 py-2 transition-colors">Child → Parents</button>
                         <button @click="breedMode = 'child'" role="tab" :aria-selected="breedMode === 'child'"
                                 :class="breedMode === 'child' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
-                                class="px-3 py-2 transition-colors border-l border-gray-700">Parents → Child</button>
+                                class="flex-1 sm:flex-none px-3 py-2 transition-colors border-l border-gray-700">Parents → Child</button>
                     </div>
-                    <p class="text-xs text-gray-400 leading-relaxed">
-                        <span x-show="breedMode === 'child'">Pick two parents to see what the egg hatches into, and which of your pals can make it.</span>
-                        <span x-show="breedMode === 'parents'">Pick the pal you want. Every pair that produces it is listed, with the ones you can breed right now first.</span>
-                    </p>
+                    <!-- Whose pals count as "owned": one player, or the whole server. Full width on phones. -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <span class="text-xs font-medium text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            Whose pals
+                        </span>
+                        <div class="flex-1 sm:flex-none sm:w-44" x-data="selectMenu({ options: () => availableOwners.map(o => ({ value: o, label: o })), placeholder: 'Everyone' })"
+                             x-modelable="value" x-model="breedOwner">
+                            {{> select-menu }}
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Parents -> Child pickers -->
@@ -38,24 +46,18 @@
                 </div>
 
                 <!-- Child -> Parents picker -->
-                <div x-show="breedMode === 'parents'" class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-2">Child</label>
-                        <div x-data="speciesPicker({ placeholder: 'Choose the pal you want' })" x-modelable="value" x-model="breedChild">
-                            {{> species-picker }}
-                        </div>
+                <div x-show="breedMode === 'parents'">
+                    <label class="block text-xs font-medium text-gray-400 mb-2">Child</label>
+                    <div x-data="speciesPicker({ placeholder: 'Choose the pal you want' })" x-modelable="value" x-model="breedChild">
+                        {{> species-picker }}
                     </div>
-                    <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none md:mb-3 whitespace-nowrap">
-                        <input type="checkbox" x-model="breedOwnedOnly" class="rounded border-gray-500 bg-gray-800 text-blue-600 focus:ring-blue-500">
-                        Only pairs I can breed now
-                    </label>
                 </div>
 
                 <!-- Target passives -->
                 <div class="mt-4">
                     <label class="block text-xs font-medium text-gray-400 mb-2">
                         Passives you want on the child
-                        <span class="text-gray-500 font-normal">(from pals you own; best couples are ranked by how many they carry)</span>
+                        <span class="text-gray-500 font-normal">(from <span x-text="breedOwner ? breedOwner + '\'s' : 'owned'"></span> pals; best couples are ranked by how many they carry)</span>
                     </label>
                     <div class="flex flex-wrap items-center gap-2">
                         <template x-for="id in breedTargets" :key="id">
@@ -103,7 +105,7 @@
                 <div>
                     <div x-show="!breedA || !breedB" class="bg-gray-800/40 border border-gray-700/50 border-dashed rounded-xl px-4 py-10 text-center text-gray-400">
                         <div class="font-medium text-gray-300 mb-1">Choose both parents</div>
-                        <div class="text-sm">Tick "Owned" in a picker to see only species you have. Two of the same species always make that species.</div>
+                        <div class="text-sm">Tick "Owned" in a picker to see only species <span x-text="breedOwner || 'someone'"></span> has. Two of the same species always make that species.</div>
                     </div>
                     <div x-show="breedA && breedB && !breedLoading && breedResults.length === 0 && !breedError" class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-8 text-center text-gray-400 text-sm">
                         These two can't breed together. <span x-show="breedSpecies(breedA).ignore_combi || breedSpecies(breedB).ignore_combi">One of them only breeds with its own species.</span>
@@ -162,16 +164,20 @@
                     </div>
                     <template x-if="breedChild && !breedLoading">
                         <div>
-                            <div class="flex items-center justify-between gap-3 mb-3 px-1 text-sm text-gray-400">
-                                <div>
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3 px-1 text-sm text-gray-400">
+                                <div class="flex-1 min-w-max">
                                     <span class="text-gray-200 font-semibold tabular-nums" x-text="breedPairs.length"></span> pairs make
                                     <span class="text-gray-200 font-semibold" x-text="breedSpecies(breedChild).name"></span>
-                                    <span x-show="breedPairs.length">· <span class="text-emerald-300 font-semibold tabular-nums" x-text="breedFeasibleCount()"></span> you can breed now</span>
+                                    <span x-show="breedPairs.length">· <span class="text-emerald-300 font-semibold tabular-nums" x-text="breedFeasibleCount()"></span> <span x-text="breedOwner ? breedOwner + ' can breed now' : 'breedable now'"></span></span>
                                 </div>
+                                <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none whitespace-nowrap">
+                                    <input type="checkbox" x-model="breedOwnedOnly" class="rounded border-gray-500 bg-gray-800 text-blue-600 focus:ring-blue-500">
+                                    Only breedable now
+                                </label>
                                 <button @click="breedFrom(breedChild)" class="text-blue-400 hover:text-blue-300 whitespace-nowrap text-xs">Use as a parent →</button>
                             </div>
                             <div x-show="breedRows().length === 0" class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-8 text-center text-gray-400 text-sm">
-                                <span x-show="breedPairs.length && breedOwnedOnly">None of these pairs can be bred from your pals yet. Untick "Only pairs I can breed now" to see them all.</span>
+                                <span x-show="breedPairs.length && breedOwnedOnly">None of these pairs can be bred from <span x-text="breedOwner ? breedOwner + '\'s' : 'the owned'"></span> pals yet. Untick "Only breedable now" to see them all.</span>
                                 <span x-show="!breedPairs.length">No known pair produces this pal.</span>
                             </div>
                             <div class="space-y-2">

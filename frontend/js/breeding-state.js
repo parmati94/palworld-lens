@@ -23,6 +23,7 @@ export function breedingState() {
         breedResults: [],           // /child results for (breedA, breedB)
         breedPairs: [],             // /parents pairs for breedChild
         breedTargets: [],           // passive skill ids the child should end up with
+        breedOwner: '',             // player name whose pals count as "owned" ('' = everyone)
         breedOwnedOnly: false,      // parents mode: hide pairs we cannot breed right now
         breedExpanded: {},          // pair key -> candidates shown
         breedLimit: 50,             // parents mode: rows rendered (Show more adds 50)
@@ -64,8 +65,17 @@ export function breedingState() {
             this._breedCandidates = new Map();
         },
 
+        /** The pals the calculator may use: one player's, or everyone's. */
+        breedPool() {
+            return this.breedOwner ? this.pals.filter(p => p.owner_uid === this.breedOwner) : this.pals;
+        },
+
+        breedOwnerLabel() {
+            return this.breedOwner || 'anyone';
+        },
+
         breedOwned() {
-            if (!this._breedOwned) this._breedOwned = palsBySpecies(this.pals);
+            if (!this._breedOwned) this._breedOwned = palsBySpecies(this.breedPool());
             return this._breedOwned;
         },
 
@@ -75,7 +85,7 @@ export function breedingState() {
         },
 
         breedPassiveOptions() {
-            if (!this._breedPassives) this._breedPassives = ownedPassives(this.pals);
+            if (!this._breedPassives) this._breedPassives = ownedPassives(this.breedPool());
             return this._breedPassives;
         },
 

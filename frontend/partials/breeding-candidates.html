@@ -20,9 +20,9 @@
 
                     <template x-if="!row.owned.feasible">
                         <p class="text-sm text-gray-400">
-                            <template x-if="!row.owned.ownsA && !row.owned.ownsB"><span>You don't own either parent.</span></template>
-                            <template x-if="row.owned.ownsA !== row.owned.ownsB"><span>You own <span x-text="row.owned.ownsA ? row.nameA : row.nameB"></span> but not <span x-text="row.owned.ownsA ? row.nameB : row.nameA"></span>.</span></template>
-                            <template x-if="row.owned.ownsA && row.owned.ownsB"><span>You own both, but not a male and a female that fit this pair.</span></template>
+                            <template x-if="!row.owned.ownsA && !row.owned.ownsB"><span><span x-text="breedOwner || 'Nobody'"></span> <span x-text="breedOwner ? 'doesn\'t own' : 'owns'"></span> either parent.</span></template>
+                            <template x-if="row.owned.ownsA !== row.owned.ownsB"><span><span x-text="breedOwner || 'Someone'"></span> owns <span x-text="row.owned.ownsA ? row.nameA : row.nameB"></span> but not <span x-text="row.owned.ownsA ? row.nameB : row.nameA"></span>.</span></template>
+                            <template x-if="row.owned.ownsA && row.owned.ownsB"><span><span x-text="breedOwner || 'Someone'"></span> owns both, but not a male and a female that fit this pair.</span></template>
                         </p>
                     </template>
 
