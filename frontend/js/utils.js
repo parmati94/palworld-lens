@@ -45,20 +45,34 @@ export function shadeHex(hex, pct) {
     return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
 }
 
-/** Element-themed gradient for the pal modal header (dual-element pals blend both). */
-export function elementGradient(gameData, ids) {
-    if (!ids || ids.length === 0) return 'linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6)';
+/** `#rrggbb` + alpha (0..1) -> `#rrggbbaa`, for inline element tints. */
+export function hexAlpha(hex, alpha) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return hex;
+    return '#' + m[1] + Math.round(Math.max(0, Math.min(1, alpha)) * 255).toString(16).padStart(2, '0');
+}
+
+/**
+ * Pal modal header backdrop: the dark card surface with the element colour(s)
+ * glowing through from the corners. Dual-element pals get one glow each.
+ */
+export function elementBackdrop(gameData, ids) {
+    const base = '#111827';
+    if (!ids || ids.length === 0) {
+        return `radial-gradient(50rem 22rem at 12% -10%, rgb(var(--accent-500) / 0.3), transparent 60%), ${base}`;
+    }
     const c1 = elementInfo(gameData, ids[0]).color;
     const c2 = ids.length > 1 ? elementInfo(gameData, ids[1]).color : c1;
-    return `linear-gradient(135deg, ${shadeHex(c1, -25)}, ${c1}, ${shadeHex(c2, 10)}, ${shadeHex(c1, -25)})`;
+    return `radial-gradient(50rem 22rem at 12% -10%, ${hexAlpha(c1, 0.45)}, transparent 60%), `
+         + `radial-gradient(40rem 18rem at 100% 120%, ${hexAlpha(c2, 0.3)}, transparent 60%), ${base}`;
 }
 
 export const WORK_LEVEL_COLORS = {
     1: '#9ca3af',  // gray-400
-    2: '#22c55e',  // green-500
-    3: '#3b82f6',  // blue-500
+    2: '#22c55e',  // ok-500
+    3: '#3b82f6',  // accent-500
     4: '#8b5cf6',  // violet-500
-    5: '#f59e0b',  // amber-500
+    5: '#f59e0b',  // warn-500
 };
 
 /** [{type, name, level, icon, color}] for every work type a pal has at level > 0. */
@@ -334,21 +348,21 @@ export function formatRelativeTime(dateStr, now = Date.now()) {
  */
 export function needBarClass(pct) {
     const v = Number(pct) || 0;
-    if (v >= 50) return 'bg-green-500';
-    if (v >= 25) return 'bg-amber-500';
-    return 'bg-red-500';
+    if (v >= 50) return 'bg-ok-500';
+    if (v >= 25) return 'bg-warn-500';
+    return 'bg-danger-500';
 }
 export function needTextClass(pct) {
     const v = Number(pct) || 0;
-    if (v >= 50) return 'text-green-400';
-    if (v >= 25) return 'text-amber-400';
-    return 'text-red-400';
+    if (v >= 50) return 'text-ok-400';
+    if (v >= 25) return 'text-warn-400';
+    return 'text-danger-400';
 }
 
 /** Tinted chip classes for a 0–100 need value (icon + percentage pills). */
 export function needChipClass(pct) {
     const v = Number(pct) || 0;
-    if (v >= 50) return 'bg-green-500/15 text-green-300 border-green-500/30';
-    if (v >= 25) return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-    return 'bg-red-500/15 text-red-300 border-red-500/30';
+    if (v >= 50) return 'bg-ok-500/15 text-ok-300 border-ok-500/30';
+    if (v >= 25) return 'bg-warn-500/15 text-warn-300 border-warn-500/30';
+    return 'bg-danger-500/15 text-danger-300 border-danger-500/30';
 }

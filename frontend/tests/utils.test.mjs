@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-    MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementGradient, shadeHex,
+    MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
     workSuitabilityDisplay, buildPageList, palIconSrc,
 } from '../js/utils.js';
 
@@ -39,12 +39,16 @@ test('elementInfo resolves ids and falls back safely', () => {
     assert.equal(elementInfo(null, undefined).name, 'Unknown');
 });
 
-test('shadeHex and elementGradient', () => {
+test('shadeHex, hexAlpha and elementBackdrop', () => {
+    assert.equal(shadeHex('#2e8b57', 0), '#2e8b57');
     assert.equal(shadeHex('#000000', 50), '#808080');
-    assert.equal(shadeHex('#ffffff', -50), '#808080');
     assert.equal(shadeHex('nope', 10), 'nope');
-    assert.match(elementGradient(gameData, ['Leaf']), /^linear-gradient\(135deg, #[0-9a-f]{6}, #2e8b57, /);
-    assert.match(elementGradient(gameData, []), /^linear-gradient/);
+    assert.equal(hexAlpha('#2e8b57', 0.5), '#2e8b5780');
+    assert.equal(hexAlpha('#2e8b57', 2), '#2e8b57ff');
+    assert.equal(hexAlpha('nope', 0.5), 'nope');
+    // First element glows from the top-left, second from the bottom-right, over the card surface
+    assert.match(elementBackdrop(gameData, ['Leaf']), /^radial-gradient\(.*#2e8b5773, transparent 60%\), radial-gradient\(.*#2e8b574d.*\), #111827$/);
+    assert.match(elementBackdrop(gameData, []), /^radial-gradient\(.*var\(--accent-500\).*\), #111827$/);
 });
 
 test('workSuitabilityDisplay only lists levels > 0 with names and icons', () => {

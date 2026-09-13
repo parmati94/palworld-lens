@@ -374,7 +374,7 @@ export function mapComponent() {
 
             const html = `
                 <div class="relative group">
-                    <div class="w-6 h-6 bg-green-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer">
+                    <div class="w-6 h-6 bg-ok-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer">
                         <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                         </svg>
@@ -382,7 +382,7 @@ export function mapComponent() {
                     <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="font-semibold">${player.player_name}</span>
-                            <span class="text-green-400 text-[10px]">Lv ${player.level}</span>
+                            <span class="text-ok-400 text-[10px]">Lv ${player.level}</span>
                         </div>
                         <div class="text-gray-400">X: ${Math.round(gameX)} | Y: ${Math.round(gameY)}</div>
                     </div>
@@ -479,7 +479,7 @@ export function mapComponent() {
                         <img class="w-6 h-6 object-contain" alt="${palName}" />
                     </div>
                     <div class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
-                        <div class="font-semibold text-yellow-400 break-words">⚔️ ${palName}</div>
+                        <div class="font-semibold text-warn-400 break-words">⚔️ ${palName}</div>
                         ${level ? `<div class="text-gray-300 text-[11px]">Level ${level}</div>` : ''}
                         <div class="text-gray-400 text-[10px]">Alpha Pal</div>
                     </div>`;
@@ -518,7 +518,7 @@ export function mapComponent() {
                          class="w-10 h-10 object-contain drop-shadow-[0_0_3px_rgba(0,0,0,0.9)] transition-transform transform group-hover:scale-125 cursor-pointer"
                          alt="Fast Travel" />
                     <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
-                        <div class="font-semibold text-cyan-400 break-words">${point.localized_name}</div>
+                        <div class="font-semibold text-accent-400 break-words">${point.localized_name}</div>
                         <div class="text-gray-400 text-[10px] mt-1">Fast Travel Point</div>
                     </div>
                 </div>`;

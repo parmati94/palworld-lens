@@ -3,132 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Palworld Lens</title>
+    <title>Palworld Lens — Sign In</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico?v=2">
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png?v=2">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png?v=2">
+    <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon.png?v=2">
     <link rel="stylesheet" href="/css/styles.css">
     <script type="module" src="/js/login.js" defer></script>
     <style>
-        [x-cloak] { display: none !important; }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        
-        /* Gradient background - matches main app */
-        .gradient-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            min-height: 100vh;
-        }
-        
-        /* Card animation */
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .login-card {
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        /* Input focus effects */
-        .login-input:focus {
-            border-color: rgba(96, 165, 250, 0.5);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 0 12px rgba(59, 130, 246, 0.2);
-        }
+        .login-card { animation: slideIn 0.4s ease-out; }
     </style>
 </head>
-<body class="gradient-bg">
-    <div x-data="loginApp()" x-cloak class="flex items-center justify-center min-h-screen p-4">
-        <div class="login-card w-full max-w-md">
-            <!-- Logo/Title -->
-            <div class="text-center mb-8">
-                <div class="flex items-center justify-center gap-3 mb-4">
-                    <div class="h-16 w-16 flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-400/40 backdrop-blur-sm p-2 shadow-lg shadow-blue-500/20">
-                        <img src="/img/favicon/apple-touch-icon.png?v=2" alt="Palworld Lens Logo" class="w-full h-full object-contain rounded-lg">
-                    </div>
-                    <h1 class="text-4xl glow-title">Palworld Lens</h1>
-                </div>
-                <p class="text-gray-400 text-lg">Sign in to continue</p>
-            </div>
-            
-            <!-- Login Card -->
-            <div class="bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-gray-700/50 hover:border-gray-600/50 transition-all duration-300">
-                <form @submit.prevent="login">
-                    <!-- Username Field -->
-                    <div class="mb-6">
-                        <label for="username" class="block text-sm font-medium text-gray-300 mb-2">
-                            Username
-                        </label>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            x-model="username"
-                            required
-                            autofocus
-                            autocomplete="username"
-                            class="login-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
-                            placeholder="Enter your username"
-                            :disabled="loading"
-                        >
-                    </div>
-                    
-                    <!-- Password Field -->
-                    <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
-                            Password
-                        </label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            x-model="password"
-                            required
-                            autocomplete="current-password"
-                            class="login-input w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
-                            placeholder="Enter your password"
-                            :disabled="loading"
-                        >
-                    </div>
-                    
-                    <!-- Error Message -->
-                    <div x-show="error" class="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg">
-                        <p class="text-red-400 text-sm" x-text="error"></p>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit"
-                        :disabled="loading"
-                        class="w-full py-3 px-4 bg-blue-600/90 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                        <span x-show="!loading">Sign In</span>
-                        <span x-show="loading" class="flex items-center">
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Signing in...
-                        </span>
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Footer -->
-            <div class="text-center mt-8 text-gray-500 text-sm">
-                <p>Palworld Lens - Self-Hosted Save Viewer</p>
-            </div>
-        </div>
-    </div>
+<body class="bg-gray-950 text-gray-100 min-h-screen relative overflow-hidden flex items-center justify-center px-4">
+    <!-- Layered backdrop: accent bloom + blueprint grid, the same ground as the app -->
+    <div class="pointer-events-none absolute inset-0"
+         style="background:
+           radial-gradient(48rem 48rem at 50% -8%, rgb(var(--accent-500) / 0.22), transparent 60%),
+           radial-gradient(36rem 36rem at 50% 116%, rgb(var(--accent-700) / 0.10), transparent 60%);"></div>
+    <div class="pointer-events-none absolute inset-0 opacity-[0.06]"
+         style="background-image:
+           linear-gradient(rgb(255 255 255) 1px, transparent 1px),
+           linear-gradient(90deg, rgb(255 255 255) 1px, transparent 1px);
+           background-size: 44px 44px;
+           -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000, transparent 80%);
+           mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000, transparent 80%);"></div>
 
+    <div x-data="loginApp()" x-cloak class="w-full max-w-sm relative login-card">
+        <div class="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-8 border border-white/10 ring-1 ring-black/20 shadow-2xl">
+            <div class="text-center mb-7">
+                <div class="relative h-16 w-16 mx-auto mb-4">
+                    <div class="absolute inset-0 rounded-2xl blur-lg" style="background: rgb(var(--accent-500) / 0.35);"></div>
+                    <div class="relative h-16 w-16 flex items-center justify-center bg-gray-950 rounded-2xl border border-accent-500/50 p-2">
+                        <img src="/img/favicon/apple-touch-icon.png?v=2" alt="Palworld Lens logo" class="w-full h-full object-contain rounded-lg">
+                    </div>
+                </div>
+                <h1 class="text-2xl font-display font-bold tracking-tight leading-none">
+                    <span class="text-gray-100">Palworld</span><span class="bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgb(var(--accent-500)_/_0.4)]"> Lens</span>
+                </h1>
+                <p class="text-sm text-gray-400 mt-2">Sign in to continue</p>
+            </div>
+
+            <form @submit.prevent="login">
+                <div class="mb-4">
+                    <label for="username" class="eyebrow block mb-1.5">Username</label>
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <input type="text" id="username" x-model="username" required autofocus autocomplete="username"
+                               :disabled="loading"
+                               class="w-full bg-gray-800/70 border border-gray-700 rounded-lg pl-9 pr-3 py-2.5 text-white text-sm focus:outline-none focus:border-accent-400 focus:ring-2 focus:ring-accent-500/30 transition-colors disabled:opacity-60">
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label for="password" class="eyebrow block mb-1.5">Password</label>
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v3m-6 5h12a2 2 0 002-2v-5a2 2 0 00-2-2H6a2 2 0 00-2 2v5a2 2 0 002 2zm9-9V7a4 4 0 00-8 0v3h8z" />
+                        </svg>
+                        <input type="password" id="password" x-model="password" required autocomplete="current-password"
+                               :disabled="loading"
+                               class="w-full bg-gray-800/70 border border-gray-700 rounded-lg pl-9 pr-3 py-2.5 text-white text-sm focus:outline-none focus:border-accent-400 focus:ring-2 focus:ring-accent-500/30 transition-colors disabled:opacity-60">
+                    </div>
+                </div>
+
+                <div x-show="error" class="mb-4 p-3 bg-danger-900/50 border border-danger-700 rounded-lg text-danger-300 text-sm" x-text="error"></div>
+
+                <button type="submit" :disabled="loading"
+                        class="w-full bg-accent-500 hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-lg transition-all shadow-lg shadow-accent-500/20 hover:shadow-accent-500/30 text-sm flex items-center justify-center gap-2">
+                    <svg x-show="loading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span x-text="loading ? 'Signing in…' : 'Sign In'"></span>
+                </button>
+            </form>
+        </div>
+
+        <p class="text-center text-xs text-gray-600 mt-5">Palworld Lens · self-hosted save viewer</p>
+    </div>
 </body>
 </html>

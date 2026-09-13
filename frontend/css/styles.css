@@ -2,10 +2,119 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles and animations that Tailwind can't handle */
+/* ── Wordmark face ──────────────────────────────────────────────────────────
+   One weight, self-hosted, swapped in when it lands. Exposed as the Tailwind
+   `font-display` utility (tailwind.config.js). Only the wordmark uses it. */
+@font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/space-grotesk-700.woff2') format('woff2');
+}
 
-[x-cloak] { 
-    display: none !important; 
+/* ── Accent palette ─────────────────────────────────────────────────────────
+   Every `accent-*` utility resolves to these R G B triplets (tailwind.config.js).
+   Palworld Lens defaults to sky: the favicon, the fast-travel marker and the
+   in-game UI all sit there. Setting `data-theme` on <html> retints the app;
+   the other blocks exist so the theme picker from satisfactory-lens can be
+   ported without touching the palette again. */
+:root, [data-theme="sky"] {
+    --accent-50: 240 249 255;  --accent-100: 224 242 254; --accent-200: 186 230 253;
+    --accent-300: 125 211 252; --accent-400: 56 189 248;  --accent-500: 14 165 233;
+    --accent-600: 2 132 199;   --accent-700: 3 105 161;   --accent-800: 7 89 133;
+    --accent-900: 12 74 110;
+}
+[data-theme="blue"] {
+    --accent-50: 239 246 255;  --accent-100: 219 234 254; --accent-200: 191 219 254;
+    --accent-300: 147 197 253; --accent-400: 96 165 250;  --accent-500: 59 130 246;
+    --accent-600: 37 99 235;   --accent-700: 29 78 216;   --accent-800: 30 64 175;
+    --accent-900: 30 58 138;
+}
+[data-theme="emerald"] {
+    --accent-50: 236 253 245;  --accent-100: 209 250 229; --accent-200: 167 243 208;
+    --accent-300: 110 231 183; --accent-400: 52 211 153;  --accent-500: 16 185 129;
+    --accent-600: 5 150 105;   --accent-700: 4 120 87;    --accent-800: 6 95 70;
+    --accent-900: 6 78 59;
+}
+[data-theme="violet"] {
+    --accent-50: 245 243 255;  --accent-100: 237 233 254; --accent-200: 221 214 254;
+    --accent-300: 196 181 253; --accent-400: 167 139 250; --accent-500: 139 92 246;
+    --accent-600: 124 58 237;  --accent-700: 109 40 217;  --accent-800: 91 33 182;
+    --accent-900: 76 29 149;
+}
+[data-theme="orange"] {
+    --accent-50: 255 247 237;  --accent-100: 255 237 213; --accent-200: 254 215 170;
+    --accent-300: 253 186 116; --accent-400: 251 146 60;  --accent-500: 249 115 22;
+    --accent-600: 234 88 12;   --accent-700: 194 65 12;   --accent-800: 154 52 18;
+    --accent-900: 124 45 18;
+}
+
+/* ── Meaning colours ────────────────────────────────────────────────────────
+   Fixed, never themed. ok = healthy / active, warn = hungry / needs attention,
+   danger = starving / injured / error. Mirrors Tailwind green / amber / red. */
+:root {
+    --ok-50: 240 253 244;  --ok-100: 220 252 231; --ok-200: 187 247 208;
+    --ok-300: 134 239 172; --ok-400: 74 222 128;  --ok-500: 34 197 94;
+    --ok-600: 22 163 74;   --ok-700: 21 128 61;   --ok-800: 22 101 52;
+    --ok-900: 20 83 45;
+
+    --warn-50: 255 251 235;  --warn-100: 254 243 199; --warn-200: 253 230 138;
+    --warn-300: 252 211 77;  --warn-400: 251 191 36;  --warn-500: 245 158 11;
+    --warn-600: 217 119 6;   --warn-700: 180 83 9;    --warn-800: 146 64 14;
+    --warn-900: 120 53 15;
+
+    --danger-50: 254 242 242;  --danger-100: 254 226 226; --danger-200: 254 202 202;
+    --danger-300: 252 165 165; --danger-400: 248 113 113; --danger-500: 239 68 68;
+    --danger-600: 220 38 38;   --danger-700: 185 28 28;   --danger-800: 153 27 27;
+    --danger-900: 127 29 29;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* ── Page ground ────────────────────────────────────────────────────────────
+   Near-black with a faint blueprint grid and an accent bloom at the top, the
+   same backdrop the login page and satisfactory-lens use. Painted by one
+   fixed element (`.page-backdrop`, header.html) so cards sit on texture
+   instead of flat grey. */
+.page-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(60rem 28rem at 50% -10%, rgb(var(--accent-500) / 0.14), transparent 60%),
+        radial-gradient(40rem 20rem at 100% 110%, rgb(var(--accent-700) / 0.07), transparent 60%);
+}
+.page-backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.045;
+    background-image:
+        linear-gradient(rgb(255 255 255) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000, transparent 85%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000, transparent 85%);
+}
+
+/* ── Type helpers ───────────────────────────────────────────────────────────
+   One label style app-wide: stat-card captions, table headers, filter labels. */
+@layer components {
+    .eyebrow {
+        @apply text-[10px] font-semibold uppercase tracking-widest text-gray-500;
+    }
+    /* The card surface: every panel, table wrapper and modal body. */
+    .card {
+        @apply bg-gray-800 border border-gray-700/60 rounded-xl;
+    }
+    /* Quiet icon button in the header and toolbars. */
+    .btn-quiet {
+        @apply inline-flex items-center gap-1.5 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-700/60 transition-colors;
+    }
 }
 
 /* Hide scrollbar for navigation but keep functionality */
@@ -17,11 +126,22 @@
     display: none;  /* Chrome, Safari and Opera */
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #1f2937; }
-::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+/* ── Scrollbars ─────────────────────────────────────────────────────────────
+   Thin translucent pill on a transparent track so it blends into any panel. */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(71, 85, 105, 0.7) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+    background-color: rgba(71, 85, 105, 0.7);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background-color: rgba(100, 116, 139, 0.9); }
+*::-webkit-scrollbar-corner { background: transparent; }
 
 /* Smooth hover transitions on interactive things only (a global `*` rule fought MapLibre's per-frame marker transforms) */
 button, a, tr, input, select, .stat-card { transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s; }
@@ -33,8 +153,8 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 
 /* Pulsing animation for active indicator */
 @keyframes pulse-glow {
-    0%, 100% { opacity: 1; box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.6); }
-    50% { opacity: 0.7; box-shadow: 0 0 12px 4px rgba(34, 197, 94, 0.8); }
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px 2px rgb(var(--ok-500) / 0.6); }
+    50% { opacity: 0.7; box-shadow: 0 0 12px 4px rgb(var(--ok-500) / 0.8); }
 }
 .pulse-active {
     animation: pulse-glow 2s ease-in-out infinite;
@@ -46,7 +166,7 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 }
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 8px 16px rgb(var(--accent-500) / 0.12);
 }
 
 /* Tab transitions */
@@ -60,27 +180,9 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 
 /* Search input enhancement */
 .search-input:focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 3px rgb(var(--accent-500) / 0.2);
 }
 
-/* Animated gradient for pal modal header */
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-.pal-header-gradient {
-    position: relative;
-    background-size: 200% 200%;
-    animation: gradientShift 8s ease infinite;
-    overflow: hidden;
-}
 
 /* Compact numbered circles for mobile */
 @media (max-width: 768px) {
@@ -123,32 +225,13 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     gap: 8px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .floating-nav {
-        bottom: 16px;
+        bottom: calc(76px + env(safe-area-inset-bottom));
         right: 16px;
     }
 }
 
-/* Subtle shimmer overlay */
-.pal-header-gradient::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.03) 25%,
-        rgba(255, 255, 255, 0.08) 50%,
-        rgba(255, 255, 255, 0.03) 75%,
-        transparent 100%
-    );
-    animation: shimmer 8s ease-in-out infinite;
-    pointer-events: none;
-}
 
 /* GOLD GRADIENTS - Rank 2-3 */
 .passive-bg-gold {
@@ -230,25 +313,6 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #7f1d1d 100%);
 }
 
-/* Title: solid light-blue with the blue glow behind it. (The earlier version was a
-   hollow text-stroke outline, which had character but poor contrast.) */
-.glow-title {
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    color: #bfdbfe; /* blue-200 */
-    text-shadow:
-        0 0 6px rgba(96, 165, 250, 0.55),
-        0 0 14px rgba(59, 130, 246, 0.35),
-        0 0 28px rgba(37, 99, 235, 0.2);
-    transition: text-shadow 0.3s ease, color 0.3s ease;
-}
-.glow-title:hover {
-    color: #dbeafe; /* blue-100 */
-    text-shadow:
-        0 0 8px rgba(96, 165, 250, 0.8),
-        0 0 18px rgba(59, 130, 246, 0.5),
-        0 0 36px rgba(37, 99, 235, 0.3);
-}
 
 /* Custom tooltip styling */
 [data-tooltip] {
@@ -322,21 +386,6 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     to { opacity: 1; }
 }
 
-/* Custom scrollbar for dropdowns */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #374151;
-    border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #60a5fa;
-    border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #3b82f6;
-}
 
 /* Work suitability icon colors */
 .work-icon-kindling { filter: brightness(0) saturate(100%) invert(44%) sepia(89%) saturate(2453%) hue-rotate(346deg) brightness(99%) contrast(93%); }
@@ -356,6 +405,13 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 .base-marker {
     background: transparent !important;
     border: none !important;
+}
+
+/* The map fills the viewport under the chrome: 56px header, main padding, card
+   padding and the title row. Phones also leave room for the bottom tab bar. */
+#worldMap { height: clamp(420px, calc(100vh - 176px), 900px); }
+@media (max-width: 767px) {
+    #worldMap { height: clamp(380px, calc(100vh - 232px), 900px); }
 }
 
 .maplibregl-map {

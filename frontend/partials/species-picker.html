@@ -1,7 +1,7 @@
                 <!-- Species picker body (scope: speciesPicker component; see js/components/speciesPicker.js) -->
                 <div class="relative" @click.away="open = false" @keydown.escape="open = false">
                     <button type="button" @click="toggle()"
-                            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center gap-2 min-h-[3rem]">
+                            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 transition-all duration-200 cursor-pointer flex items-center gap-2 min-h-[3rem]">
                         <template x-if="selected">
                             <img :src="palIconSrc(selected)" @error="palIconError($el, selected)" :alt="selected.name"
                                  class="w-8 h-8 rounded-md bg-gray-800 object-cover flex-shrink-0">
@@ -23,9 +23,9 @@
                         <div class="p-2 border-b border-gray-600 flex items-center gap-2">
                             <input type="text" x-ref="query" x-model="query" placeholder="Search pals..."
                                    @keydown.enter.prevent="list.length && pick(list[0].id)"
-                                   class="flex-1 min-w-0 px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500">
+                                   class="flex-1 min-w-0 px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-accent-500">
                             <label class="flex items-center gap-1.5 text-xs text-gray-300 whitespace-nowrap cursor-pointer select-none" title="Only species you have at least one of">
-                                <input type="checkbox" x-model="ownedOnly" class="rounded border-gray-500 bg-gray-800 text-blue-600 focus:ring-blue-500">
+                                <input type="checkbox" x-model="ownedOnly" class="rounded border-gray-500 bg-gray-800 text-accent-600 focus:ring-accent-500">
                                 Owned
                             </label>
                         </div>
@@ -35,7 +35,7 @@
                             <template x-for="s in list" :key="s.id">
                                 <div @click="pick(s.id)"
                                      class="px-3 py-1.5 flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
-                                     :class="value === s.id ? 'bg-blue-600 text-white' : 'text-gray-100 hover:bg-gray-600'">
+                                     :class="value === s.id ? 'bg-accent-500 text-white' : 'text-gray-100 hover:bg-gray-600'">
                                     <img :src="palIconSrc(s)" @error="palIconError($el, s)" :alt="s.name" loading="lazy"
                                          class="w-7 h-7 rounded bg-gray-800 object-cover flex-shrink-0">
                                     <span class="flex-1 truncate" x-text="s.name"></span>

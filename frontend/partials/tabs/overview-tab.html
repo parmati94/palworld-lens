@@ -1,43 +1,44 @@
         <!-- Overview Tab: the daily check. Who's been on, what needs attention, where the bases are. -->
         <div x-show="currentTab === 'overview' && saveInfo.loaded" class="tab-content" x-data="{ overviewSelectedGuild: null }">
-            <!-- Stat row: each tile has its own colour and a game icon -->
+            <!-- Stat row: each tile keeps its own Palworld colour and a game icon. The
+                 chrome is single-accent; the content is allowed to be loud. -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
-                <button @click="currentTab = 'players'" class="stat-card relative overflow-hidden text-left bg-gray-800 rounded-lg px-4 py-3 border border-gray-700 border-t-2 border-t-blue-500 hover:border-blue-500/60 hover:border-t-blue-400">
-                    <svg class="absolute right-3 top-3 w-9 h-9 text-blue-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                    <div class="text-blue-300/80 text-xs uppercase tracking-wide mb-0.5">Players</div>
-                    <div class="text-3xl font-bold text-blue-400" x-text="saveInfo.player_count"></div>
+                <button @click="currentTab = 'players'" class="stat-card card relative overflow-hidden text-left px-4 py-3.5 border-t-2 border-t-accent-500 hover:border-accent-500/60 hover:border-t-accent-400">
+                    <svg class="absolute right-3 top-3 w-9 h-9 text-accent-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <div class="eyebrow mb-1.5 text-accent-300/80">Players</div>
+                    <div class="text-2xl sm:text-3xl font-bold text-accent-400 tabular-nums leading-none" x-text="saveInfo.player_count"></div>
                 </button>
-                <button @click="currentTab = 'bases'" class="stat-card relative overflow-hidden text-left bg-gray-800 rounded-lg px-4 py-3 border border-gray-700 border-t-2 border-t-green-500 hover:border-green-500/60 hover:border-t-green-400">
+                <button @click="currentTab = 'bases'" class="stat-card card relative overflow-hidden text-left px-4 py-3.5 border-t-2 border-t-green-500 hover:border-green-500/60 hover:border-t-green-400">
                     <svg class="absolute right-3 top-3 w-9 h-9 text-green-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                    <div class="text-green-300/80 text-xs uppercase tracking-wide mb-0.5">Guilds</div>
-                    <div class="text-3xl font-bold text-green-400" x-text="saveInfo.guild_count"></div>
+                    <div class="eyebrow mb-1.5 text-green-300/80">Guilds</div>
+                    <div class="text-2xl sm:text-3xl font-bold text-green-400 tabular-nums leading-none" x-text="saveInfo.guild_count"></div>
                 </button>
-                <button @click="currentTab = 'bases'" class="stat-card relative overflow-hidden text-left bg-gray-800 rounded-lg px-4 py-3 border border-gray-700 border-t-2 border-t-cyan-500 hover:border-cyan-500/60 hover:border-t-cyan-400">
+                <button @click="currentTab = 'bases'" class="stat-card card relative overflow-hidden text-left px-4 py-3.5 border-t-2 border-t-cyan-500 hover:border-cyan-500/60 hover:border-t-cyan-400">
                     <svg class="absolute right-3 top-3 w-9 h-9 text-cyan-400/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                    <div class="text-cyan-300/80 text-xs uppercase tracking-wide mb-0.5">Bases</div>
-                    <div class="text-3xl font-bold text-cyan-400" x-text="basePals.reduce((n, g) => n + g.bases.length, 0)"></div>
+                    <div class="eyebrow mb-1.5 text-cyan-300/80">Bases</div>
+                    <div class="text-2xl sm:text-3xl font-bold text-cyan-400 tabular-nums leading-none" x-text="basePals.reduce((n, g) => n + g.bases.length, 0)"></div>
                 </button>
-                <button @click="currentTab = 'pals'" class="stat-card relative overflow-hidden text-left bg-gray-800 rounded-lg px-4 py-3 border border-gray-700 border-t-2 border-t-purple-500 hover:border-purple-500/60 hover:border-t-purple-400">
+                <button @click="currentTab = 'pals'" class="stat-card card relative overflow-hidden text-left px-4 py-3.5 border-t-2 border-t-purple-500 hover:border-purple-500/60 hover:border-t-purple-400">
                     <img src="/img/capture.webp" alt="" class="absolute right-3 top-3 w-9 h-9 opacity-25" style="filter: invert(62%) sepia(45%) saturate(2000%) hue-rotate(235deg) brightness(100%) contrast(95%);">
-                    <div class="text-purple-300/80 text-xs uppercase tracking-wide mb-0.5">Pals</div>
-                    <div class="text-3xl font-bold text-purple-400">
+                    <div class="eyebrow mb-1.5 text-purple-300/80">Pals</div>
+                    <div class="text-2xl sm:text-3xl font-bold text-purple-400 tabular-nums leading-none">
                         <span x-text="saveInfo.pal_count"></span>
-                        <span class="text-sm font-normal text-purple-300/70"><span x-text="pals.filter(p => p.base_id).length"></span> at bases</span>
+                        <span class="text-xs font-medium text-purple-300/70 ml-1 tracking-normal"><span x-text="pals.filter(p => p.base_id).length"></span> at bases</span>
                     </div>
                 </button>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
                 <!-- Players by recent activity -->
-                <section class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                    <header class="px-4 py-3 border-b border-gray-700 flex items-center justify-between bg-gradient-to-r from-blue-500/15 via-blue-500/5 to-transparent">
-                        <h2 class="font-bold flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <section class="card overflow-hidden">
+                    <header class="px-4 py-3 border-b border-gray-700/60 flex items-center justify-between bg-gradient-to-r from-accent-500/15 via-accent-500/5 to-transparent">
+                        <h2 class="text-sm font-semibold text-gray-200 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                             Players
                         </h2>
-                        <button @click="currentTab = 'players'" class="text-xs text-blue-300 hover:text-blue-200">All players →</button>
+                        <button @click="currentTab = 'players'" class="text-xs text-accent-400 hover:text-accent-300">All players →</button>
                     </header>
                     <ul class="divide-y divide-gray-700/70">
                         <template x-for="player in playersByActivity" :key="player.uid">
@@ -64,7 +65,7 @@
                                         <span x-text="Math.round(player.sanity) + '%'"></span>
                                     </span>
                                     <button @click="viewPalsOf(player.player_name)" title="View this player's pals"
-                                            class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-blue-600/20 hover:bg-blue-600/35 text-blue-200 border border-blue-500/30">
+                                            class="btn-quiet text-xs px-2 py-1 border border-gray-700/60 text-gray-300 hover:border-gray-600">
                                         <img src="/img/capture.webp" alt="" class="w-3.5 h-3.5 opacity-80">
                                         Pals
                                     </button>
@@ -78,34 +79,34 @@
                 <!-- Base pals that need attention. On desktop the card is pinned to the
                      row height (h-0 + min-h-full: it fills the row the other two cards set
                      without growing it) and the list scrolls inside; on phones it caps itself. -->
-                <section class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden flex flex-col lg:h-0 lg:min-h-full">
-                    <header class="px-4 py-3 border-b border-gray-700 flex items-center justify-between bg-gradient-to-r via-transparent to-transparent"
-                            :class="unhealthyBasePals.length ? 'from-amber-500/15' : 'from-green-500/10'">
-                        <h2 class="font-bold flex items-center gap-2">
-                            <svg class="w-5 h-5" :class="unhealthyBasePals.length ? 'text-amber-400' : 'text-green-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <section class="card overflow-hidden flex flex-col lg:h-0 lg:min-h-full">
+                    <header class="px-4 py-3 border-b border-gray-700/60 flex items-center justify-between bg-gradient-to-r via-transparent to-transparent"
+                            :class="unhealthyBasePals.length ? 'from-warn-500/15' : 'from-ok-500/10'">
+                        <h2 class="text-sm font-semibold text-gray-200 flex items-center gap-2">
+                            <svg class="w-4 h-4" :class="unhealthyBasePals.length ? 'text-warn-400' : 'text-ok-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                             </svg>
                             Needs attention
                         </h2>
                         <span class="text-xs px-2 py-0.5 rounded-full"
-                              :class="unhealthyBasePals.length ? 'bg-amber-500/20 text-amber-200' : 'bg-gray-700 text-gray-400'"
+                              :class="unhealthyBasePals.length ? 'bg-warn-500/15 text-warn-300 border border-warn-500/30' : 'bg-gray-700 text-gray-400'"
                               x-text="unhealthyBasePals.length + (unhealthyBasePals.length === 1 ? ' pal' : ' pals')"></span>
                     </header>
                     <ul class="divide-y divide-gray-700/70 max-h-80 lg:max-h-none lg:flex-1 min-h-0 overflow-y-auto custom-scrollbar">
                         <template x-for="pal in unhealthyBasePals" :key="pal.instance_id">
                             <li class="px-4 py-2 flex items-center gap-3 hover:bg-gray-700/40 cursor-pointer" @click="$dispatch('open-pal-modal', pal)">
-                                <img :src="palIconSrc(pal)" :alt="pal.display_name" @error="palIconError($el, pal)" class="w-9 h-9 rounded-lg bg-gray-900 object-cover flex-shrink-0">
+                                <img :src="palIconSrc(pal)" :alt="pal.display_name" @error="palIconError($el, pal)" class="w-9 h-9 rounded-lg bg-gray-900/80 object-cover flex-shrink-0">
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-2">
                                         <span class="font-medium text-gray-100 truncate" x-text="pal.nickname || pal.display_name"></span>
                                         <span class="text-xs text-gray-400 flex-shrink-0">Lv <span x-text="pal.level"></span></span>
                                     </div>
                                     <div class="flex items-center gap-2 text-xs">
-                                        <span class="px-1.5 py-0.5 rounded"
+                                        <span class="px-1.5 py-0.5 rounded-md font-medium"
                                               :class="getConditionClass(pal.all_conditions && pal.all_conditions[0])"
                                               x-text="pal.condition_display"></span>
-                                        <button @click.stop="goToBase(pal.guild_id, pal.base_id)" class="text-gray-400 hover:text-blue-300 truncate" :title="'Owned by ' + baseOwner(pal.guild_id)">
-                                            <span class="text-cyan-300/90" x-text="baseOwner(pal.guild_id)"></span>
+                                        <button @click.stop="goToBase(pal.guild_id, pal.base_id)" class="text-gray-400 hover:text-accent-300 truncate" :title="'Owned by ' + baseOwner(pal.guild_id)">
+                                            <span class="text-cyan-300" x-text="baseOwner(pal.guild_id)"></span>
                                             <span class="text-gray-500"> · </span><span x-text="pal.base_name"></span>
                                         </button>
                                     </div>
@@ -113,23 +114,23 @@
                             </li>
                         </template>
                         <li x-show="unhealthyBasePals.length === 0" class="px-4 py-8 text-center text-sm text-gray-500">
-                            <div class="text-green-300 font-medium mb-1">All base pals are healthy</div>
+                            <div class="text-ok-400 font-medium mb-1">All base pals are healthy</div>
                             Hungry, sick, or injured pals will show up here.
                         </li>
                     </ul>
                 </section>
 
                 <!-- Bases by guild -->
-                <section class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                    <header class="px-4 py-3 border-b border-gray-700 bg-gradient-to-r from-cyan-500/15 via-cyan-500/5 to-transparent">
+                <section class="card overflow-hidden">
+                    <header class="px-4 py-3 border-b border-gray-700/60 bg-gradient-to-r from-cyan-500/15 via-cyan-500/5 to-transparent">
                         <div class="flex items-center justify-between mb-2">
-                            <h2 class="font-bold flex items-center gap-2">
-                                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <h2 class="text-sm font-semibold text-gray-200 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
                                 Bases
                             </h2>
-                            <button @click="currentTab = 'map'" class="text-xs text-blue-300 hover:text-blue-200">On the map →</button>
+                            <button @click="currentTab = 'map'" class="text-xs text-accent-400 hover:text-accent-300">On the map →</button>
                         </div>
                         <!-- Guild pills -->
                         <div class="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1"
@@ -138,41 +139,41 @@
                                 <button
                                     @click="overviewSelectedGuild = guild.guild_id"
                                     :class="overviewSelectedGuild === guild.guild_id
-                                        ? 'bg-cyan-600 text-white border-cyan-500'
-                                        : 'bg-gray-700/50 text-gray-300 border-gray-600 hover:bg-gray-700'"
+                                        ? 'bg-cyan-500/20 text-cyan-200 border-cyan-500/50'
+                                        : 'bg-gray-700/40 text-gray-300 border-gray-700 hover:bg-gray-700'"
                                     class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium whitespace-nowrap flex-shrink-0">
                                     <span x-text="guild.guild_name"></span>
-                                    <span class="px-1.5 rounded-full" :class="overviewSelectedGuild === guild.guild_id ? 'bg-white/20' : 'bg-gray-600'" x-text="guild.bases.length"></span>
+                                    <span class="px-1.5 rounded-full" :class="overviewSelectedGuild === guild.guild_id ? 'bg-cyan-500/30' : 'bg-gray-600'" x-text="guild.bases.length"></span>
                                 </button>
                             </template>
                         </div>
                     </header>
-                    <div class="p-3 space-y-2">
+                    <div>
                         <template x-for="guild in basePals.filter(g => g.guild_id === overviewSelectedGuild)" :key="guild.guild_id">
-                            <div class="space-y-2">
+                            <div class="divide-y divide-gray-700/60">
                                 <template x-for="base in guild.bases" :key="base.base_id">
                                     <button
                                         @click="goToBase(guild.guild_id, base.base_id)"
-                                        class="w-full text-left bg-gray-700/30 rounded-lg px-3 py-2.5 border border-gray-600/50 hover:border-cyan-500/50 hover:bg-gray-700/50 group flex items-center justify-between gap-3">
+                                        class="w-full text-left px-4 py-2.5 hover:bg-gray-700/40 group flex items-center justify-between gap-3">
                                         <span class="font-medium text-gray-200 group-hover:text-white truncate" x-text="base.base_name"></span>
                                         <span class="flex items-center gap-2 text-xs flex-shrink-0">
                                             <span class="text-gray-400"><span x-text="base.pals.length"></span> pals</span>
                                             <template x-if="base.pals.filter(p => p.condition_display).length > 0">
-                                                <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200" x-text="base.pals.filter(p => p.condition_display).length + ' unhealthy'"></span>
+                                                <span class="px-1.5 py-0.5 rounded-md bg-warn-500/15 text-warn-300 border border-warn-500/30 tabular-nums" x-text="base.pals.filter(p => p.condition_display).length + ' unhealthy'"></span>
                                             </template>
-                                            <svg class="w-4 h-4 text-gray-500 group-hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 text-gray-600 group-hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                             </svg>
                                         </span>
                                     </button>
                                 </template>
                                 <template x-if="guild.bases.length === 0">
-                                    <p class="text-sm text-gray-500 text-center py-4">This guild has no bases</p>
+                                    <p class="text-sm text-gray-500 text-center py-6">This guild has no bases</p>
                                 </template>
                             </div>
                         </template>
                         <template x-if="!basePals || basePals.length === 0">
-                            <p class="text-sm text-gray-500 text-center py-4">No guilds found</p>
+                            <p class="text-sm text-gray-500 text-center py-6">No guilds found</p>
                         </template>
                     </div>
                 </section>
