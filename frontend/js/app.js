@@ -5,7 +5,7 @@ import {
     formatDate,
     formatFileSize,
     elementInfo,
-    elementGradient,
+    elementBackdrop,
     workSuitabilityDisplay,
     getRankIcon,
     getRankFilter,
@@ -161,15 +161,22 @@ export function app() {
             this.runBreeding();
         },
 
+        // `icon` is a heroicons outline path; the phone tab bar and tool tabs draw it.
         get tabs() {
             return [
-                { id: 'overview', label: 'Overview', count: null },
-                { id: 'players', label: 'Players', count: this.players.length },
-                { id: 'pals', label: 'Pals', count: this.pals.length },
-                { id: 'bases', label: 'Bases', count: this.basePals.reduce((n, g) => n + g.bases.length, 0) },
-                { id: 'map', label: 'Map', count: null },
+                { id: 'overview', label: 'Overview', count: null,
+                  icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
+                { id: 'players', label: 'Players', count: this.players.length,
+                  icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+                { id: 'pals', label: 'Pals', count: this.pals.length,
+                  icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+                { id: 'bases', label: 'Bases', count: this.basePals.reduce((n, g) => n + g.bases.length, 0),
+                  icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                { id: 'map', label: 'Map', count: null,
+                  icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
                 // Tools (tool: true) render after a divider: helpers over the save, not views of it
-                { id: 'breeding', label: 'Breeding', count: null, tool: true, title: 'Breeding calculator: what two pals make, and which of yours can make a pal' }
+                { id: 'breeding', label: 'Breeding', count: null, tool: true, title: 'Breeding calculator: what two pals make, and which of yours can make a pal',
+                  icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' }
             ];
         },
 
@@ -557,7 +564,7 @@ export function app() {
         elementIcon(id) { return `/img/${elementInfo(this.gameData, id).icon}.webp`; },
         elementIconWhite(id) { return `/img/${elementInfo(this.gameData, id).icon_white}.webp`; },
         elementColor(id) { return elementInfo(this.gameData, id).color; },
-        palHeaderGradient(ids) { return elementGradient(this.gameData, ids); },
+        palHeaderBackdrop(ids) { return elementBackdrop(this.gameData, ids); },
         workTypeName(id) { return (this.gameData.work_types[id] || {}).name || id; },
         workDisplay(pal) { return workSuitabilityDisplay(this.gameData, pal); },
         
@@ -787,13 +794,13 @@ export function app() {
         
         // Helper to get condition badge color class
         getConditionClass(condition) {
+            // Tinted chips, never solid blocks. Sickness = violet, injury / hunger = danger.
             if (!condition || !condition.type) {
-                return 'bg-green-600 text-white border border-green-500';
+                return 'bg-ok-500/15 text-ok-300 border border-ok-500/30';
             }
-            // Sickness = purple, Injury/Hunger = red
-            return condition.type === 'sickness' 
-                ? 'bg-purple-600 text-white border border-purple-500'
-                : 'bg-red-600 text-white border border-red-500';
+            return condition.type === 'sickness'
+                ? 'bg-violet-500/15 text-violet-200 border border-violet-500/30'
+                : 'bg-danger-500/15 text-danger-300 border border-danger-500/30';
         },
         
         // Helper to get all bases with coordinates for map

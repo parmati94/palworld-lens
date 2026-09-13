@@ -1,24 +1,34 @@
         <!-- Pals Tab -->
         <div x-show="currentTab === 'pals' && saveInfo.loaded">
-            <!-- Search/Filter and Controls - Unified Card -->
-            <div class="mb-4 bg-gray-800/40 border border-gray-700/50 rounded-xl p-4">
-                <!-- Search Bar - Full Width -->
-                <div class="mb-4">
-                    <input 
-                        type="text" 
-                        x-model="palSearch" 
-                        placeholder="Search pals by name or ID..."
-                        class="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 search-input">
+            <!-- Search + filters. On phones the four dropdowns fold away behind a
+                 "Filters" button so pals show up on the first screen. -->
+            <div class="mb-4 card p-3 sm:p-4" x-data="{ filtersOpen: false }">
+                <div class="flex items-center gap-2" :class="filtersOpen ? 'mb-4' : 'md:mb-4'">
+                    <div class="relative flex-1 min-w-0">
+                        <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <input
+                            type="text"
+                            x-model="palSearch"
+                            placeholder="Search pals by name or ID..."
+                            class="w-full pl-9 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-lg text-gray-100 text-sm placeholder-gray-500 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 search-input">
+                    </div>
+                    <button @click="filtersOpen = !filtersOpen" type="button" :aria-expanded="filtersOpen"
+                            class="md:hidden btn-quiet px-3 py-2.5 border text-sm font-medium flex-shrink-0"
+                            :class="filtersOpen || activeFilterCount ? 'border-accent-500/50 text-accent-300' : 'border-gray-700/60 text-gray-300'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                        Filters
+                        <span x-show="activeFilterCount > 0" class="px-1.5 rounded-full bg-accent-500/20 text-accent-200 text-[11px] tabular-nums" x-text="activeFilterCount"></span>
+                    </button>
                 </div>
-                
+
                 <!-- Filters Row -->
-                <div class="flex flex-col md:flex-row gap-4 items-start md:items-end">
+                <div class="flex-col md:flex-row gap-4 items-start md:items-end" :class="filtersOpen ? 'flex' : 'hidden md:flex'">
                     <!-- Advanced Filters -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 w-full">
                 <!-- Element Filter -->
                 <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label class="eyebrow mb-2 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
                                 </svg>
@@ -45,7 +55,7 @@
                                         searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
                                     }"
                                     type="button"
-                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
                                     <span x-text="filterElement ? elementName(filterElement) : 'All Elements'"></span>
                                     <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -63,14 +73,14 @@
                                     <div
                                         @click="filterElement = ''; open = false"
                                         class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                        :class="filterElement === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        :class="filterElement === '' ? 'bg-accent-500 text-white' : 'text-gray-100'">
                                         All Elements
                                     </div>
                                     <template x-for="(element, index) in availableElements" :key="element.key">
                                         <div
                                             @click="filterElement = element.key; open = false; highlightedIndex = -1"
                                             class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                            :class="filterElement === element.key ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            :class="filterElement === element.key ? 'bg-accent-500 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
                                             x-text="element.name">
                                         </div>
                                     </template>
@@ -80,8 +90,8 @@
                     
                 <!-- Work Suitability Filter -->
                 <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label class="eyebrow mb-2 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                                 Work Suitability
@@ -107,7 +117,7 @@
                                         searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
                                     }"
                                     type="button"
-                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
                                     <span x-text="availableWorkTypes.find(w => w.key === filterWorkType)?.name || 'All Work Types'"></span>
                                     <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -125,14 +135,14 @@
                                     <div
                                         @click="filterWorkType = ''; open = false"
                                         class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                        :class="filterWorkType === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        :class="filterWorkType === '' ? 'bg-accent-500 text-white' : 'text-gray-100'">
                                         All Work Types
                                     </div>
                                     <template x-for="(workType, index) in availableWorkTypes" :key="workType.key">
                                         <div
                                             @click="filterWorkType = workType.key; open = false; highlightedIndex = -1"
                                             class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                            :class="filterWorkType === workType.key ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            :class="filterWorkType === workType.key ? 'bg-accent-500 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
                                             x-text="workType.name">
                                         </div>
                                     </template>
@@ -142,8 +152,8 @@
                     
                 <!-- Passive Skill Filter -->
                 <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label class="eyebrow mb-2 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                 </svg>
                                 Passive Skill
@@ -169,7 +179,7 @@
                                         searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
                                     }"
                                     type="button"
-                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
                                     <span x-text="availablePassiveSkills.find(s => s.skill_id === filterPassiveSkill)?.name || 'All Skills'"></span>
                                     <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -187,14 +197,14 @@
                                     <div
                                         @click="filterPassiveSkill = ''; open = false"
                                         class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                        :class="filterPassiveSkill === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        :class="filterPassiveSkill === '' ? 'bg-accent-500 text-white' : 'text-gray-100'">
                                         All Skills
                                     </div>
                                     <template x-for="(skill, index) in availablePassiveSkills" :key="skill.skill_id">
                                         <div
                                             @click="filterPassiveSkill = skill.skill_id; open = false; highlightedIndex = -1"
                                             class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                            :class="filterPassiveSkill === skill.skill_id ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            :class="filterPassiveSkill === skill.skill_id ? 'bg-accent-500 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
                                             x-text="skill.name">
                                         </div>
                                     </template>
@@ -204,8 +214,8 @@
                     
                 <!-- Owner Filter -->
                 <div>
-                            <label class="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <label class="eyebrow mb-2 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 Owner
@@ -231,7 +241,7 @@
                                         searchTimeout = setTimeout(() => { searchString = ''; highlightedIndex = -1; }, 1000);
                                     }"
                                     type="button"
-                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
+                                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 hover:shadow-lg focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/50 transition-all duration-200 cursor-pointer flex items-center justify-between">
                                     <span x-text="filterOwner || 'All Owners'"></span>
                                     <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -249,14 +259,14 @@
                                     <div
                                         @click="filterOwner = ''; open = false"
                                         class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                        :class="filterOwner === '' ? 'bg-blue-600 text-white' : 'text-gray-100'">
+                                        :class="filterOwner === '' ? 'bg-accent-500 text-white' : 'text-gray-100'">
                                         All Owners
                                     </div>
                                     <template x-for="(owner, index) in availableOwners" :key="owner">
                                         <div
                                             @click="filterOwner = owner; open = false; highlightedIndex = -1"
                                             class="px-3 py-2 hover:bg-gray-600 cursor-pointer text-sm transition-colors duration-150"
-                                            :class="filterOwner === owner ? 'bg-blue-600 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
+                                            :class="filterOwner === owner ? 'bg-accent-500 text-white' : (highlightedIndex === index ? 'bg-gray-500 text-white' : 'text-gray-100')"
                                             x-text="owner">
                                         </div>
                                     </template>
@@ -267,12 +277,12 @@
                     
                     <!-- Page Size Selector -->
                     <div class="flex items-center gap-2 whitespace-nowrap">
-                        <span class="text-sm text-gray-400">Show:</span>
+                        <span class="eyebrow">Show</span>
                         <template x-for="size in [10, 25, 50, 100]" :key="size">
                             <button 
                                 @click="changePageSize(size)"
-                                :class="pageSize === size ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
-                                class="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+                                :class="pageSize === size ? 'bg-accent-500 text-white' : 'bg-gray-700/60 text-gray-300 hover:bg-gray-700'"
+                                class="px-2.5 py-1.5 rounded-md text-sm font-medium tabular-nums transition-colors"
                                 x-text="size">
                             </button>
                         </template>
@@ -287,7 +297,7 @@
                 <button
                     x-show="activeFilterCount > 0"
                     @click="clearFilters()"
-                    class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-700/60 hover:bg-gray-700 border border-gray-600/50 text-gray-200 text-xs font-medium transition-colors">
+                    class="btn-quiet px-2.5 py-1 border border-gray-700/60 text-gray-300 text-xs font-medium">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -295,12 +305,12 @@
                 </button>
             </div>
             
-            <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+            <div class="card overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-gray-700">
+                        <thead class="bg-gray-800/90 border-b border-gray-700/60">
                             <tr>
-                                <th @click="sortBy('name')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('name')" class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>Pal</span>
                                         <svg x-show="sortColumn === 'name'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -308,7 +318,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('level')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('level')" class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span class="md:hidden">Lvl</span>
                                         <span class="hidden md:inline">Level</span>
@@ -317,14 +327,14 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">
+                                <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                                     <span class="md:hidden">Elem</span>
                                     <span class="hidden md:inline">Elements</span>
                                 </th>
-                                <th class="hidden sm:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">
+                                <th class="hidden sm:table-cell px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                                     <span>Work</span>
                                 </th>
-                                <th @click="sortBy('hp')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('hp')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>HP</span>
                                         <svg x-show="sortColumn === 'hp'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -332,7 +342,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('attack')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('attack')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>Attack</span>
                                         <svg x-show="sortColumn === 'attack'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -340,7 +350,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('defense')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('defense')" class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>Defense</span>
                                         <svg x-show="sortColumn === 'defense'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -348,7 +358,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('base')" class="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('base')" class="hidden lg:table-cell px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>Base</span>
                                         <svg x-show="sortColumn === 'base'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -356,7 +366,7 @@
                                         </svg>
                                     </div>
                                 </th>
-                                <th @click="sortBy('owner')" class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase cursor-pointer hover:bg-gray-600 transition-colors">
+                                <th @click="sortBy('owner')" class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-300 transition-colors">
                                     <div class="flex items-center gap-1">
                                         <span>Owner</span>
                                         <svg x-show="sortColumn === 'owner'" :class="sortDirection === 'asc' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="currentColor" viewBox="0 0 20 20">
@@ -366,7 +376,7 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-700">
+                        <tbody class="divide-y divide-gray-700/60">
                             <tr x-show="filteredPals.length === 0">
                                 <td colspan="9" class="px-4 py-10 text-center text-gray-400">
                                     <div class="font-medium text-gray-300 mb-1">No pals found</div>
@@ -383,7 +393,7 @@
                                                     :src="palIconSrc(pal)" 
                                                     :alt="pal.display_name"
                                                     @error="palIconError($el, pal)"
-                                                    class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-800 object-cover">
+                                                    class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-900/70 object-cover">
                                                 <!-- Alpha indicator -->
                                                 <img 
                                                     x-show="pal.is_alpha" 
@@ -404,7 +414,7 @@
                                         </div>
                                     </td>
                                     <td class="px-2 md:px-4 py-3">
-                                        <span class="text-purple-400 font-bold text-sm md:text-base" x-text="pal.level"></span>
+                                        <span class="text-purple-400 font-bold tabular-nums text-sm md:text-base" x-text="pal.level"></span>
                                     </td>
                                     <td class="px-2 md:px-4 py-3">
                                         <!-- Element Icons -->
@@ -478,7 +488,7 @@
                     @click="changePage(currentPage - 1)"
                     :disabled="currentPage === 1"
                     :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
-                    class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                    class="px-3 py-2 bg-gray-800 border border-gray-700/60 rounded-lg text-white transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -489,8 +499,8 @@
                     <button 
                         @click="typeof page === 'number' && changePage(page)"
                         :disabled="typeof page !== 'number'"
-                        :class="typeof page !== 'number' ? 'text-gray-500 cursor-default border-transparent' : (currentPage === page ? 'bg-blue-600 text-white border-gray-700' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-700')"
-                        class="px-4 py-2 border rounded-lg font-medium transition-colors"
+                        :class="typeof page !== 'number' ? 'text-gray-500 cursor-default border-transparent' : (currentPage === page ? 'bg-accent-500 text-white border-accent-500' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-700/60')"
+                        class="px-4 py-2 border rounded-lg font-medium tabular-nums transition-colors"
                         x-text="page">
                     </button>
                 </template>
@@ -500,7 +510,7 @@
                     @click="changePage(currentPage + 1)"
                     :disabled="currentPage === totalPages"
                     :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
-                    class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                    class="px-3 py-2 bg-gray-800 border border-gray-700/60 rounded-lg text-white transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
@@ -518,8 +528,8 @@
         }" x-effect="selectedBaseId; basePalPage = 1">
             <!-- Guild Selection -->
             <div class="mb-6">
-                <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h2 class="text-base font-semibold text-gray-200 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     Guilds
@@ -529,11 +539,11 @@
                     <template x-for="guild in basePals" :key="guild.guild_id">
                         <button 
                             @click="selectedGuildId = guild.guild_id"
-                            :class="selectedGuildId === guild.guild_id ? 'bg-green-600 border-green-500 shadow-lg shadow-green-500/30 transform scale-[1.02]' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-gray-600'"
-                            class="stat-card border rounded-lg p-5 transition-all duration-200 cursor-pointer text-left">
+                            :class="selectedGuildId === guild.guild_id ? 'bg-accent-500/10 border-accent-500/60 ring-1 ring-accent-500/30' : 'bg-gray-800 border-gray-700/60 hover:bg-gray-750 hover:border-gray-600'"
+                            class="border rounded-xl p-4 transition-colors duration-200 cursor-pointer text-left">
                             <div class="flex items-start justify-between mb-2">
-                                <h3 class="text-lg font-bold text-white" x-text="guild.guild_name"></h3>
-                                <svg x-show="selectedGuildId === guild.guild_id" class="w-6 h-6 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <h3 class="text-base font-semibold text-white" x-text="guild.guild_name"></h3>
+                                <svg x-show="selectedGuildId === guild.guild_id" class="w-5 h-5 text-accent-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                             </div>
@@ -542,23 +552,23 @@
                                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     </svg>
-                                    <span class="text-gray-300"><span class="font-semibold text-cyan-400" x-text="guild.bases.length"></span> bases</span>
+                                    <span class="text-gray-400"><span class="font-semibold text-cyan-400 tabular-nums" x-text="guild.bases.length"></span> bases</span>
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span class="text-gray-300"><span class="font-semibold text-purple-400" x-text="guild.bases.reduce((total, base) => total + base.pals.length, 0)"></span> pals</span>
+                                    <span class="text-gray-400"><span class="font-semibold text-purple-400 tabular-nums" x-text="guild.bases.reduce((total, base) => total + base.pals.length, 0)"></span> pals</span>
                                 </div>
                                 <template x-if="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0) > 0">
                                     <div class="flex items-center gap-1">
-                                        <svg class="w-4 h-4 text-orange-400 opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 text-warn-400 opacity-90" fill="currentColor" viewBox="0 0 24 24">
                                             <!-- Heart shape with crack -->
                                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                                             <!-- Crack/lightning bolt through heart (wider) -->
-                                            <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#1f2937" stroke="#1f2937" stroke-width="0.8"/>
+                                            <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#111827" stroke="#111827" stroke-width="0.8"/>
                                         </svg>
-                                        <span class="text-gray-300"><span class="font-semibold text-orange-400" x-text="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0)"></span> unhealthy</span>
+                                        <span class="text-gray-400"><span class="font-semibold text-warn-400 tabular-nums" x-text="guild.bases.reduce((total, base) => total + base.pals.filter(p => p.condition_display).length, 0)"></span> unhealthy</span>
                                     </div>
                                 </template>
                             </div>
@@ -573,13 +583,13 @@
                     <template x-for="guild in basePals.filter(g => g.guild_id === selectedGuildId)" :key="guild.guild_id">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2">
-                                    <svg class="w-6 h-6 md:w-7 md:h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <h2 class="text-base font-semibold text-gray-200 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                     </svg>
                                     <span>Bases</span>
                                 </h2>
-                                <span class="text-sm text-gray-400" x-text="`${guild.bases.length} total`"></span>
+                                <span class="text-xs text-gray-500 tabular-nums" x-text="`${guild.bases.length} total`"></span>
                             </div>
                             
                             <!-- Horizontal scrollable pills -->
@@ -587,16 +597,16 @@
                                 <template x-for="(base, index) in guild.bases" :key="base.base_id">
                                     <button 
                                         @click="selectedBaseId = base.base_id; basePalPage = 1"
-                                        :class="selectedBaseId === base.base_id ? 'bg-cyan-600 border-cyan-500 shadow-lg ring-2 ring-cyan-400/50' : 'bg-gray-800 border-gray-700 hover:bg-gray-750 hover:border-cyan-600/50'"
+                                        :class="selectedBaseId === base.base_id ? 'bg-cyan-500/15 border-cyan-500/60 ring-1 ring-cyan-500/30' : 'bg-gray-800 border-gray-700/60 hover:bg-gray-750 hover:border-cyan-600/50'"
                                         :title="base.base_name + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
                                         class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer relative">
                                         <!-- Unhealthy indicator cracked heart icon (mobile) -->
                                         <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
-                                             class="base-pill-warning-icon absolute -top-0.5 -right-0.5 w-4 h-4 text-orange-500 opacity-90 hidden"
+                                             class="base-pill-warning-icon absolute -top-0.5 -right-0.5 w-4 h-4 text-warn-500 opacity-90 hidden"
                                              viewBox="0 0 24 24">
                                             <g transform="scale(0.85) translate(2, 2)">
                                                 <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                                <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#1f2937" stroke="#1f2937" stroke-width="0.8"/>
+                                                <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#111827" stroke="#111827" stroke-width="0.8"/>
                                             </g>
                                         </svg>
                                         <!-- Mobile: Just the number -->
@@ -614,14 +624,14 @@
                                             </div>
                                             <!-- Unhealthy cracked heart icon (desktop - smaller) -->
                                             <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
-                                                 class="w-3.5 h-3.5 text-orange-400 opacity-90 flex-shrink-0" 
+                                                 class="w-3.5 h-3.5 text-warn-400 opacity-90 flex-shrink-0" 
                                                  fill="currentColor" 
                                                  viewBox="0 0 24 24"
                                                  :title="base.pals.filter(p => p.condition_display).length + ' unhealthy pal(s)'">
                                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                                <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#1f2937" stroke="#1f2937" stroke-width="0.8"/>
+                                                <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#111827" stroke="#111827" stroke-width="0.8"/>
                                             </svg>
-                                            <svg x-show="selectedBaseId === base.base_id" class="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg x-show="selectedBaseId === base.base_id" class="w-4 h-4 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                             </svg>
                                         </div>
@@ -659,27 +669,27 @@
                         <template x-for="base in guild.bases.filter(b => b.base_id === selectedBaseId)" :key="base.base_id">
                             <div>
                                 <!-- Base Header with Title and Tabs -->
-                                <div class="bg-gradient-to-r from-cyan-600/10 to-purple-600/10 rounded-t-lg border border-gray-700 border-b-0">
+                                <div class="card rounded-b-none border-b-0 bg-gradient-to-r from-cyan-600/10 to-purple-600/10">
                                     <!-- Title Bar -->
                                     <div class="px-4 md:px-6 py-4">
                                         <div class="flex items-center justify-between gap-3">
                                             <div class="flex items-center gap-3">
                                                 <div class="p-2 bg-cyan-600/30 rounded-lg">
-                                                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <h2 class="text-2xl font-bold text-white" x-text="base.base_name"></h2>
-                                                    <div class="text-sm text-cyan-400" x-text="`${base.pals.length} pals total`"></div>
+                                                    <h2 class="text-xl font-semibold text-white leading-tight" x-text="base.base_name"></h2>
+                                                    <div class="text-xs text-cyan-400 mt-0.5" x-text="`${base.pals.length} pals total`"></div>
                                                 </div>
                                             </div>
                                             <button 
                                                 x-show="base.x !== undefined && base.y !== undefined"
                                                 @click="currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#worldMap'); if (mapEl) { const mapComponent = Alpine.$data(mapEl.parentElement); if (mapComponent && mapComponent.centerOnLocation) mapComponent.centerOnLocation(base.x, base.y); } });"
                                                 title="Show on map"
-                                                class="w-10 h-10 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/40 hover:border-blue-400/60 rounded-lg flex items-center justify-center transition-all hover:scale-110 group flex-shrink-0">
-                                                <svg class="w-5 h-5 text-blue-300 group-hover:text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                class="btn-quiet w-9 h-9 justify-center border border-gray-700/60 hover:border-accent-500/50 hover:text-accent-300 flex-shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
@@ -688,24 +698,24 @@
                                     </div>
                                     
                                     <!-- Tab Navigation -->
-                                    <div class="bg-gray-800/50 px-4 md:px-6">
-                                        <div class="flex gap-2">
+                                    <div class="px-4 md:px-6 border-t border-gray-700/40">
+                                        <div class="flex gap-1">
                                             <button 
                                                 @click="baseTab = 'pals'"
-                                                :class="baseTab === 'pals' ? 'border-cyan-500 text-cyan-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
-                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                :class="baseTab === 'pals' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
+                                                class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors">
                                                 <div class="flex items-center gap-2">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                     <span>Pals</span>
-                                                    <span class="px-1.5 py-0.5 rounded-full text-xs font-semibold" :class="baseTab === 'pals' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-gray-600 text-gray-300'" x-text="base.pals.length"></span>
+                                                    <span class="px-1.5 py-0.5 rounded-full text-xs font-semibold" :class="baseTab === 'pals' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-gray-700 text-gray-400'" x-text="base.pals.length"></span>
                                                 </div>
                                             </button>
                                             <button 
                                                 @click="baseTab = 'food'"
-                                                :class="baseTab === 'food' ? 'border-orange-500 text-orange-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
-                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                :class="baseTab === 'food' ? 'border-orange-400 text-orange-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
+                                                class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors">
                                                 <div class="flex items-center gap-2">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -715,8 +725,8 @@
                                             </button>
                                             <button 
                                                 @click="baseTab = 'storage'"
-                                                :class="baseTab === 'storage' ? 'border-blue-500 text-blue-400 bg-gray-800/50' : 'border-transparent text-gray-400 hover:text-gray-300 hover:bg-gray-800/30'"
-                                                class="px-4 py-3 border-b-2 font-medium text-sm transition-colors rounded-t">
+                                                :class="baseTab === 'storage' ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
+                                                class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors">
                                                 <div class="flex items-center gap-2">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -730,17 +740,17 @@
                                     
                                 <!-- Pals Tab Content (Table) -->
                                 <div x-show="baseTab === 'pals'" class="tab-content">
-                                    <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0 overflow-hidden">
+                                    <div class="card rounded-t-none border-t-0 overflow-hidden">
                                         <!-- Page Size Controls -->
-                                        <div class="bg-gray-750 px-4 md:px-6 py-3 border-b border-gray-700 flex items-center justify-between">
-                                            <span class="text-sm text-gray-400">Showing <span class="text-cyan-400 font-medium" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-cyan-400 font-medium" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-cyan-400 font-medium" x-text="base.pals.length"></span></span>
+                                        <div class="px-4 md:px-6 py-2.5 border-b border-gray-700/60 flex items-center justify-between">
+                                            <span class="text-sm text-gray-400">Showing <span class="text-gray-200 font-medium tabular-nums" x-text="((basePalPage - 1) * basePalPageSize + 1)"></span> - <span class="text-gray-200 font-medium tabular-nums" x-text="Math.min(basePalPage * basePalPageSize, base.pals.length)"></span> of <span class="text-gray-200 font-medium tabular-nums" x-text="base.pals.length"></span></span>
                                             <div class="flex items-center gap-2">
-                                                <span class="text-sm text-gray-400">Show:</span>
+                                                <span class="eyebrow">Show</span>
                                                 <template x-for="size in [10, 25, 50]" :key="size">
                                                     <button 
                                                         @click="basePalPageSize = size; basePalPage = 1"
-                                                        :class="basePalPageSize === size ? 'bg-cyan-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'"
-                                                        class="px-3 py-1.5 rounded text-sm font-medium transition-all"
+                                                        :class="basePalPageSize === size ? 'bg-cyan-600 text-white' : 'bg-gray-700/60 text-gray-300 hover:bg-gray-700'"
+                                                        class="px-2.5 py-1.5 rounded-md text-sm font-medium tabular-nums transition-colors"
                                                         x-text="size">
                                                     </button>
                                                 </template>
@@ -750,33 +760,33 @@
                                     <!-- Empty State - No Pals at Base -->
                                     <template x-if="base.pals.length === 0">
                                         <div class="py-16 px-4 text-center">
-                                            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-700/50 mb-4">
-                                                <svg class="w-10 h-10 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-700/50 mb-4">
+                                                <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
                                             </div>
-                                            <h3 class="text-xl font-semibold text-gray-300 mb-2">No Pals at This Base</h3>
-                                            <p class="text-gray-500">This base is established but doesn't have any pals assigned yet.</p>
+                                            <h3 class="text-base font-semibold text-gray-300 mb-1">No pals at this base</h3>
+                                            <p class="text-sm text-gray-500">This base is established but doesn't have any pals assigned yet.</p>
                                         </div>
                                     </template>
                                     
                                     <div x-show="base.pals.length > 0" class="overflow-x-auto">
                                         <table class="w-full">
-                                            <thead class="bg-gray-700">
+                                            <thead class="bg-gray-800/90 border-b border-gray-700/60">
                                                 <tr>
-                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Pal</th>
-                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Level</th>
-                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
-                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">HP</th>
-                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">
+                                                    <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Pal</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Level</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">HP</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                                                         <span class="md:hidden">HUN</span>
                                                         <span class="hidden md:inline">Hunger</span>
                                                     </th>
-                                                    <th class="px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">SAN</th>
-                                                    <th class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase">Gender</th>
+                                                    <th class="px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">SAN</th>
+                                                    <th class="hidden md:table-cell px-2 md:px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Gender</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="divide-y divide-gray-700">
+                                            <tbody class="divide-y divide-gray-700/60">
                                                 <template x-for="pal in basePalsPaginated" :key="pal.instance_id">
                                                     <tr @click="$dispatch('open-pal-modal', pal)" class="hover:bg-gray-700/50 transition-colors cursor-pointer">
                                                         <td class="px-2 md:px-4 py-3">
@@ -787,7 +797,7 @@
                                                                         :src="palIconSrc(pal)" 
                                                                         :alt="pal.display_name"
                                                                         @error="palIconError($el, pal)"
-                                                                        class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-800 object-cover">
+                                                                        class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gray-900/70 object-cover">
                                                                     <!-- Alpha indicator -->
                                                                     <img 
                                                                         x-show="pal.is_alpha" 
@@ -808,15 +818,15 @@
                                                             </div>
                                                         </td>
                                                         <td class="px-2 md:px-4 py-3">
-                                                            <span class="text-purple-400 font-bold text-sm md:text-base" x-text="pal.level"></span>
+                                                            <span class="text-purple-400 font-bold tabular-nums text-sm md:text-base" x-text="pal.level"></span>
                                                         </td>
                                                         <td class="px-2 md:px-4 py-3">
                                                             <div class="flex items-center gap-1">
                                                                 <!-- Condition Status Badge (Primary condition only) -->
                                                                 <template x-if="pal.condition_display">
                                                                     <div 
-                                                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium shadow-sm"
-                                                                        :class="pal.all_conditions && pal.all_conditions.length > 0 ? (pal.all_conditions[0].type === 'sickness' ? 'bg-purple-600 text-white border border-purple-500' : 'bg-red-600 text-white border border-red-500') : 'bg-purple-600 text-white border border-purple-500'"
+                                                                        class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+                                                                        :class="getConditionClass(pal.all_conditions && pal.all_conditions[0])"
                                                                         :data-tooltip="pal.condition_description"
                                                                         x-text="pal.condition_display">
                                                                     </div>
@@ -824,7 +834,7 @@
                                                                 <!-- Healthy indicator -->
                                                                 <template x-if="!pal.condition_display">
                                                                     <div 
-                                                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-500/15 text-green-300 border border-green-500/30"
+                                                                        class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-ok-500/15 text-ok-300 border border-ok-500/30"
                                                                         data-tooltip="No conditions affecting this Pal">
                                                                         Healthy
                                                                     </div>
@@ -834,10 +844,10 @@
                                                         <td class="px-2 md:px-4 py-3">
                                                             <!-- Desktop: Bar + Percentage -->
                                                             <div class="hidden md:flex items-center gap-2">
-                                                                <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
-                                                                    <div class="h-2 rounded-full" :class="needBarClass(Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1))" :style="`width: ${Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1)}%`"></div>
+                                                                <div class="flex-1 bg-gray-700 rounded-full h-1.5 max-w-[140px]">
+                                                                    <div class="h-1.5 rounded-full" :class="needBarClass(Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1))" :style="`width: ${Math.max(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100), 1)}%`"></div>
                                                                 </div>
-                                                                <span class="text-xs min-w-[3ch]" :class="needTextClass(Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)))" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
+                                                                <span class="text-xs tabular-nums min-w-[3ch]" :class="needTextClass(Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)))" x-text="Math.round(Math.min((pal.hp/(pal.calculated_hp || pal.max_hp))*100, 100)) + '%'"></span>
                                                             </div>
                                                             <!-- Mobile: Percentage only -->
                                                             <div class="md:hidden">
@@ -847,10 +857,10 @@
                                                         <td class="px-2 md:px-4 py-3">
                                                             <!-- Desktop: Bar + Percentage -->
                                                             <div class="hidden md:flex items-center gap-2">
-                                                                <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
-                                                                    <div class="h-2 rounded-full" :class="needBarClass(Math.max(pal.hunger, 1))" :style="`width: ${Math.max(pal.hunger, 1)}%`"></div>
+                                                                <div class="flex-1 bg-gray-700 rounded-full h-1.5 max-w-[140px]">
+                                                                    <div class="h-1.5 rounded-full" :class="needBarClass(Math.max(pal.hunger, 1))" :style="`width: ${Math.max(pal.hunger, 1)}%`"></div>
                                                                 </div>
-                                                                <span class="text-xs min-w-[3ch]" :class="needTextClass(Math.round(pal.hunger))" x-text="Math.round(pal.hunger) + '%'"></span>
+                                                                <span class="text-xs tabular-nums min-w-[3ch]" :class="needTextClass(Math.round(pal.hunger))" x-text="Math.round(pal.hunger) + '%'"></span>
                                                             </div>
                                                             <!-- Mobile: Percentage only -->
                                                             <div class="md:hidden">
@@ -860,10 +870,10 @@
                                                         <td class="px-2 md:px-4 py-3">
                                                             <!-- Desktop: Bar + Percentage -->
                                                             <div class="hidden md:flex items-center gap-2">
-                                                                <div class="flex-1 bg-gray-700 rounded-full h-2 max-w-[140px]">
-                                                                    <div class="h-2 rounded-full" :class="needBarClass(Math.max(pal.sanity, 1))" :style="`width: ${Math.max(pal.sanity, 1)}%`"></div>
+                                                                <div class="flex-1 bg-gray-700 rounded-full h-1.5 max-w-[140px]">
+                                                                    <div class="h-1.5 rounded-full" :class="needBarClass(Math.max(pal.sanity, 1))" :style="`width: ${Math.max(pal.sanity, 1)}%`"></div>
                                                                 </div>
-                                                                <span class="text-xs min-w-[3ch]" :class="needTextClass(Math.round(pal.sanity))" x-text="Math.round(pal.sanity) + '%'"></span>
+                                                                <span class="text-xs tabular-nums min-w-[3ch]" :class="needTextClass(Math.round(pal.sanity))" x-text="Math.round(pal.sanity) + '%'"></span>
                                                             </div>
                                                             <!-- Mobile: Percentage only -->
                                                             <div class="md:hidden">
@@ -895,7 +905,7 @@
                                         @click="changeBasePalPage(basePalPage - 1)"
                                         :disabled="basePalPage === 1"
                                         :class="basePalPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
-                                        class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                                        class="px-3 py-2 bg-gray-800 border border-gray-700/60 rounded-lg text-white transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                                         </svg>
@@ -905,8 +915,8 @@
                                     <template x-for="page in Array.from({length: basePalsTotalPages}, (_, i) => i + 1)" :key="page">
                                         <button 
                                             @click="changeBasePalPage(page)"
-                                            :class="basePalPage === page ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
-                                            class="px-4 py-2 border border-gray-700 rounded-lg font-medium transition-colors"
+                                            :class="basePalPage === page ? 'bg-accent-500 text-white border-accent-500' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-700/60'"
+                                            class="px-4 py-2 border rounded-lg font-medium tabular-nums transition-colors"
                                             x-text="page">
                                         </button>
                                     </template>
@@ -916,7 +926,7 @@
                                         @click="changeBasePalPage(basePalPage + 1)"
                                         :disabled="basePalPage === basePalsTotalPages"
                                         :class="basePalPage === basePalsTotalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'"
-                                        class="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white transition-colors">
+                                        class="px-3 py-2 bg-gray-800 border border-gray-700/60 rounded-lg text-white transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                         </svg>
@@ -936,18 +946,18 @@
                     
                     <!-- Food Tab Content -->
                     <div x-show="baseTab === 'food' && selectedBaseId" class="tab-content">
-                        <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0">
+                        <div class="card rounded-t-none border-t-0">
                             
                             <!-- Empty State -->
                             <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0).length === 0">
                                 <div class="py-16 px-4 text-center">
-                                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-orange-600/20 mb-4">
-                                        <svg class="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-600/20 mb-4">
+                                        <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Food Containers</h3>
-                                    <p class="text-gray-500">This base doesn't have any food boxes or storage yet.</p>
+                                    <h3 class="text-base font-semibold text-gray-300 mb-1">No food containers</h3>
+                                    <p class="text-sm text-gray-500">This base doesn't have any food boxes or storage yet.</p>
                                 </div>
                             </template>
                             
@@ -956,10 +966,10 @@
                                 <div class="p-6">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <template x-for="container in baseContainers.containers[selectedBaseId].filter(c => c.container_type === 'food_bowl' && c.items && c.items.length > 0)" :key="container.container_id">
-                                            <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:border-orange-500/50 transition-colors">
+                                            <div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 hover:border-orange-500/50 transition-colors">
                                                 <div class="flex items-start justify-between mb-3">
                                                     <div class="flex items-center gap-2">
-                                                        <div class="p-2 bg-orange-600/20 rounded-lg">
+                                                        <div class="p-1.5 bg-orange-600/20 rounded-lg">
                                                             <template x-if="container.building_icon">
                                                                 <img :src="`/img/${container.building_icon}.webp`" :alt="container.display_name" class="w-6 h-6" :onerror="`this.style.display='none'; this.nextElementSibling.style.display='block'`">
                                                             </template>
@@ -969,31 +979,31 @@
                                                         </div>
                                                         <span class="font-medium text-white" x-text="container.display_name || 'Food Box'"></span>
                                                     </div>
-                                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300" x-text="`${container.unique_item_count || 0} items`"></span>
+                                                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="`${container.unique_item_count || 0} items`"></span>
                                                 </div>
                                                 
                                                 <!-- Items List -->
                                                 <template x-if="container.items && container.items.length > 0">
-                                                    <div class="space-y-2">
-                                                        <div class="text-xs text-gray-400 mb-2">Contents:</div>
+                                                    <div>
+                                                        <div class="eyebrow mb-1">Contents</div>
                                                         <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`food-item-${index}`">
-                                                            <div class="flex items-center justify-between bg-gray-800 rounded p-2">
+                                                            <div class="flex items-center justify-between py-1.5 border-b border-gray-700/40 last:border-0">
                                                                 <div class="flex items-center gap-2 min-w-0">
                                                                     <img 
                                                                         :src="item.icon ? `/img/${item.icon}.webp` : '/img/food.webp'" 
                                                                         :alt="item.item_name"
                                                                         :onerror="`this.onerror=null; this.src='/img/food.webp'`"
-                                                                        class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
+                                                                        class="w-7 h-7 rounded bg-gray-700/60 object-cover flex-shrink-0">
                                                                     <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                 </div>
-                                                                <span class="text-sm font-semibold text-orange-400 ml-2" x-text="`×${item.count}`"></span>
+                                                                <span class="text-sm font-semibold text-orange-400 tabular-nums ml-2" x-text="`×${item.count}`"></span>
                                                             </div>
                                                         </template>
                                                         <!-- View All button -->
                                                         <template x-if="container.items && container.items.length > 5">
                                                             <button 
                                                                 @click="$dispatch('open-container-modal', { container: container })"
-                                                                class="w-full mt-2 text-xs text-orange-400 hover:text-orange-300 py-1.5 px-2 rounded bg-gray-800/50 hover:bg-gray-800 transition-colors flex items-center justify-center gap-1">
+                                                                class="w-full mt-2 text-xs text-orange-400 hover:text-orange-300 py-1.5 px-2 rounded-md hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-1">
                                                                 <span>View All</span>
                                                                 <span class="font-semibold" x-text="container.items.length"></span>
                                                                 <span>Items</span>
@@ -1018,18 +1028,18 @@
                     
                     <!-- Storage Tab Content -->
                     <div x-show="baseTab === 'storage' && selectedBaseId" class="tab-content">
-                        <div class="bg-gray-800 rounded-b-lg border border-gray-700 border-t-0">
+                        <div class="card rounded-t-none border-t-0">
                             
                             <!-- Empty State -->
                             <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0).length === 0">
                                 <div class="py-16 px-4 text-center">
-                                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-600/20 mb-4">
-                                        <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600/20 mb-4">
+                                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                         </svg>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-gray-300 mb-2">No Storage Containers</h3>
-                                    <p class="text-gray-500">This base doesn't have any storage chests or coolers yet.</p>
+                                    <h3 class="text-base font-semibold text-gray-300 mb-1">No storage containers</h3>
+                                    <p class="text-sm text-gray-500">This base doesn't have any storage chests or coolers yet.</p>
                                 </div>
                             </template>
                             
@@ -1073,17 +1083,17 @@
                                         <div>
                                             <!-- Type Header -->
                                             <div class="mb-3 flex items-center gap-2">
-                                                <h3 class="text-lg font-semibold text-blue-400" x-text="formatTypeName(type)"></h3>
-                                                <span class="text-xs px-2 py-1 rounded-full bg-blue-600/20 text-blue-300" x-text="groupedByType[type].length + ' container' + (groupedByType[type].length !== 1 ? 's' : '')"></span>
+                                                <h3 class="text-sm font-semibold text-blue-400" x-text="formatTypeName(type)"></h3>
+                                                <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="groupedByType[type].length + ' container' + (groupedByType[type].length !== 1 ? 's' : '')"></span>
                                             </div>
                                             
                                             <!-- Containers Grid -->
                                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 <template x-for="container in groupedByType[type]" :key="container.container_id">
-                                                    <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:border-blue-500/50 transition-colors">
+                                                    <div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 hover:border-blue-500/50 transition-colors">
                                                         <div class="flex items-start justify-between mb-3">
                                                             <div class="flex items-center gap-2">
-                                                                <div class="p-2 bg-blue-600/20 rounded-lg">
+                                                                <div class="p-1.5 bg-blue-600/20 rounded-lg">
                                                                     <template x-if="container.building_icon">
                                                                         <img :src="`/img/${container.building_icon}.webp`" :alt="container.display_name" class="w-6 h-6" :onerror="`this.style.display='none'; this.nextElementSibling.style.display='block'`">
                                                                     </template>
@@ -1093,31 +1103,31 @@
                                                                 </div>
                                                                 <span class="font-medium text-white" x-text="container.display_name || 'Storage'"></span>
                                                             </div>
-                                                            <span class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300" x-text="`${container.unique_item_count || 0} items`"></span>
+                                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="`${container.unique_item_count || 0} items`"></span>
                                                         </div>
                                                         
                                                         <!-- Items List -->
                                                         <template x-if="container.items && container.items.length > 0">
-                                                            <div class="space-y-2">
-                                                                <div class="text-xs text-gray-400 mb-2">Contents:</div>
+                                                            <div>
+                                                                <div class="eyebrow mb-1">Contents</div>
                                                                 <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`card-item-${index}`">
-                                                                    <div class="flex items-center justify-between bg-gray-800 rounded p-2">
+                                                                    <div class="flex items-center justify-between py-1.5 border-b border-gray-700/40 last:border-0">
                                                                         <div class="flex items-center gap-2 min-w-0">
                                                                             <img 
                                                                                 :src="item.icon ? `/img/${item.icon}.webp` : '/img/item.webp'" 
                                                                                 :alt="item.item_name"
                                                                                 :onerror="`this.onerror=null; this.src='/img/unknown.webp'`"
-                                                                                class="w-8 h-8 rounded bg-gray-700 object-cover flex-shrink-0">
+                                                                                class="w-7 h-7 rounded bg-gray-700/60 object-cover flex-shrink-0">
                                                                             <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                         </div>
-                                                                        <span class="text-sm font-semibold text-blue-400 ml-2" x-text="`×${item.count}`"></span>
+                                                                        <span class="text-sm font-semibold text-blue-400 tabular-nums ml-2" x-text="`×${item.count}`"></span>
                                                                     </div>
                                                                 </template>
                                                                 <!-- View All button -->
                                                                 <template x-if="container.items && container.items.length > 5">
                                                                     <button 
                                                                         @click="$dispatch('open-container-modal', { container: container })"
-                                                                        class="w-full mt-2 text-xs text-blue-400 hover:text-blue-300 py-1.5 px-2 rounded bg-gray-800/50 hover:bg-gray-800 transition-colors flex items-center justify-center gap-1">
+                                                                        class="w-full mt-2 text-xs text-accent-400 hover:text-accent-300 py-1.5 px-2 rounded-md hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-1">
                                                                         <span>View All</span>
                                                                         <span class="font-semibold" x-text="container.items.length"></span>
                                                                         <span>Items</span>
@@ -1145,7 +1155,7 @@
             </template>
 
             <!-- Empty State (no guilds) -->
-            <div x-show="basePals.length === 0" class="bg-gray-800 rounded-lg border border-gray-700 p-10 text-center">
+            <div x-show="basePals.length === 0" class="card p-10 text-center">
                 <h3 class="text-lg font-semibold text-gray-300 mb-1">No guilds found</h3>
                 <p class="text-sm text-gray-500">Bases appear here once a guild has built one.</p>
             </div>

@@ -1,21 +1,21 @@
         <!-- Breeding Tab: what two pals make, or how to make one -- checked against the pals you own. -->
         <div x-show="currentTab === 'breeding' && saveInfo.loaded" class="tab-content">
             <!-- Controls -->
-            <div class="mb-4 bg-gray-800/40 border border-gray-700/50 rounded-xl p-4">
+            <div class="mb-4 card p-4">
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <!-- Mode toggle fills the row on phones, sits left on wider screens -->
                     <div class="flex w-full sm:w-auto sm:inline-flex rounded-lg border border-gray-700 overflow-hidden text-sm font-medium flex-shrink-0" role="tablist">
                         <button @click="breedMode = 'parents'" role="tab" :aria-selected="breedMode === 'parents'"
-                                :class="breedMode === 'parents' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
+                                :class="breedMode === 'parents' ? 'bg-accent-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
                                 class="flex-1 sm:flex-none px-3 py-2 transition-colors">Child → Parents</button>
                         <button @click="breedMode = 'child'" role="tab" :aria-selected="breedMode === 'child'"
-                                :class="breedMode === 'child' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
+                                :class="breedMode === 'child' ? 'bg-accent-500 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'"
                                 class="flex-1 sm:flex-none px-3 py-2 transition-colors border-l border-gray-700">Parents → Child</button>
                     </div>
                     <!-- Whose pals count as "owned": one player, or the whole server. Full width on phones. -->
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <span class="text-xs font-medium text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
-                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        <span class="eyebrow flex items-center gap-1.5 whitespace-nowrap">
+                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             Whose pals
                         </span>
                         <div class="flex-1 sm:flex-none sm:w-44" x-data="selectMenu({ options: () => availableOwners.map(o => ({ value: o, label: o })), placeholder: 'Everyone' })"
@@ -28,7 +28,7 @@
                 <!-- Parents -> Child pickers -->
                 <div x-show="breedMode === 'child'" class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-end">
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-2">Parent A</label>
+                        <label class="eyebrow block mb-2">Parent A</label>
                         <div x-data="speciesPicker({ placeholder: 'Choose parent A' })" x-modelable="value" x-model="breedA">
                             {{> species-picker }}
                         </div>
@@ -38,7 +38,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
                     </button>
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-2">Parent B</label>
+                        <label class="eyebrow block mb-2">Parent B</label>
                         <div x-data="speciesPicker({ placeholder: 'Choose parent B' })" x-modelable="value" x-model="breedB">
                             {{> species-picker }}
                         </div>
@@ -47,7 +47,7 @@
 
                 <!-- Child -> Parents picker -->
                 <div x-show="breedMode === 'parents'">
-                    <label class="block text-xs font-medium text-gray-400 mb-2">Child</label>
+                    <label class="eyebrow block mb-2">Child</label>
                     <div x-data="speciesPicker({ placeholder: 'Choose the pal you want' })" x-modelable="value" x-model="breedChild">
                         {{> species-picker }}
                     </div>
@@ -55,14 +55,14 @@
 
                 <!-- Target passives -->
                 <div class="mt-4">
-                    <label class="block text-xs font-medium text-gray-400 mb-2">
+                    <label class="eyebrow block mb-2">
                         Passives you want on the child
-                        <span class="text-gray-500 font-normal">(from <span x-text="breedOwner ? breedOwner + '\'s' : 'owned'"></span> pals; best couples are ranked by how many they carry)</span>
+                        <span class="text-gray-500 font-normal normal-case tracking-normal">(from <span x-text="breedOwner ? breedOwner + '\'s' : 'owned'"></span> pals; best couples are ranked by how many they carry)</span>
                     </label>
                     <div class="flex flex-wrap items-center gap-2">
                         <template x-for="id in breedTargets" :key="id">
                             <button @click="breedToggleTarget(id)" type="button" title="Remove"
-                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/50 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20 transition-colors">
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-ok-500/50 bg-ok-500/10 text-ok-200 hover:bg-ok-500/20 transition-colors">
                                 <span x-text="breedPassiveName(id)"></span>
                                 <svg class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
@@ -80,7 +80,7 @@
                                 <div class="p-2 border-b border-gray-600">
                                     <input type="text" x-ref="q" x-model="q" placeholder="Search passives..."
                                            @keydown.enter.prevent="breedFilteredPassiveOptions(q).length && breedToggleTarget(breedFilteredPassiveOptions(q)[0].id)"
-                                           class="w-full px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500">
+                                           class="w-full px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-accent-500">
                                 </div>
                                 <div class="max-h-64 overflow-auto custom-scrollbar py-1">
                                     <template x-for="p in breedFilteredPassiveOptions(q)" :key="p.id">
@@ -98,7 +98,7 @@
                 </div>
             </div>
 
-            <div x-show="breedError" class="mb-4 px-4 py-3 rounded-lg bg-red-900/30 border border-red-700/50 text-red-200 text-sm" x-text="breedError"></div>
+            <div x-show="breedError" class="mb-4 px-4 py-3 rounded-lg bg-danger-900/30 border border-danger-700/50 text-danger-200 text-sm" x-text="breedError"></div>
 
             <!-- Parents -> Child result -->
             <template x-if="breedMode === 'child'">
@@ -111,7 +111,7 @@
                         These two can't breed together. <span x-show="breedSpecies(breedA).ignore_combi || breedSpecies(breedB).ignore_combi">One of them only breeds with its own species.</span>
                     </div>
                     <template x-for="row in breedChildRows()" :key="row.key">
-                        <div class="bg-gray-800 rounded-xl border border-gray-700/50 p-4 mb-4">
+                        <div class="card p-4 mb-4">
                             <div class="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_auto_1fr_auto_1.4fr] items-center gap-2 sm:gap-3">
                                 <template x-for="side in ['a', 'b']" :key="side">
                                     <div class="row-start-1 flex flex-col items-center text-center gap-1.5 min-w-0" :class="side === 'b' ? 'col-start-3' : 'col-start-1'">
@@ -119,7 +119,7 @@
                                              @error="palIconError($el, breedSpecies(side === 'a' ? row.pair.parent_a : row.pair.parent_b))"
                                              class="w-14 h-14 sm:w-20 sm:h-20 rounded-xl bg-gray-900 object-cover">
                                         <div class="text-sm font-medium text-gray-100 truncate max-w-full" x-text="side === 'a' ? row.nameA : row.nameB"></div>
-                                        <div x-show="side === 'a' ? row.pair.parent_a_gender : row.pair.parent_b_gender" class="flex items-center gap-1 text-[11px] text-amber-300">
+                                        <div x-show="side === 'a' ? row.pair.parent_a_gender : row.pair.parent_b_gender" class="flex items-center gap-1 text-[11px] text-warn-300">
                                             <img :src="(side === 'a' ? row.pair.parent_a_gender : row.pair.parent_b_gender) === 'Male' ? 'img/male.webp' : 'img/female.webp'" class="w-3.5 h-3.5">
                                             <span x-text="side === 'a' ? row.pair.parent_a_gender : row.pair.parent_b_gender"></span>
                                         </div>
@@ -128,7 +128,7 @@
                                 <span class="row-start-1 col-start-2 text-2xl text-gray-500 font-light">+</span>
                                 <span class="hidden sm:block row-start-1 col-start-4 text-2xl text-gray-500 font-light">=</span>
                                 <div class="row-start-2 col-span-3 sm:row-start-1 sm:col-span-1 sm:col-start-5 flex items-center gap-3 min-w-0 rounded-xl border p-2.5 sm:p-3"
-                                     :class="row.pair.unique ? 'border-amber-500/40 bg-amber-500/5' : 'border-gray-700 bg-gray-800/80'">
+                                     :class="row.pair.unique ? 'border-warn-500/40 bg-warn-500/5' : 'border-gray-700 bg-gray-800/80'">
                                     <img :src="palIconSrc(breedSpecies(row.pair.child))" @error="palIconError($el, breedSpecies(row.pair.child))"
                                          class="w-16 h-16 sm:w-24 sm:h-24 rounded-xl bg-gray-900 object-cover flex-shrink-0">
                                     <div class="min-w-0">
@@ -139,12 +139,12 @@
                                                     <img :src="elementIconWhite(el)" :onerror="`this.onerror=null; this.src='/img/neutral_white.webp'`" class="w-3 h-3"><span x-text="elementName(el)"></span>
                                                 </span>
                                             </template>
-                                            <span x-show="row.pair.unique" class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-amber-500/20 text-amber-200 border border-amber-500/40">Special combo</span>
+                                            <span x-show="row.pair.unique" class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-warn-500/20 text-warn-200 border border-warn-500/40">Special combo</span>
                                         </div>
                                         <div class="mt-1.5 flex items-center gap-2 text-xs text-gray-400">
                                             <span class="flex items-center gap-1"><img src="img/male.webp" class="w-3.5 h-3.5"><span x-text="breedMaleOdds(row.pair.child) + '%'"></span></span>
                                             <span class="flex items-center gap-1"><img src="img/female.webp" class="w-3.5 h-3.5"><span x-text="(100 - breedMaleOdds(row.pair.child)) + '%'"></span></span>
-                                            <button @click="breedHowTo(row.pair.child)" class="ml-auto text-blue-400 hover:text-blue-300 whitespace-nowrap">Other ways to get it →</button>
+                                            <button @click="breedHowTo(row.pair.child)" class="ml-auto text-accent-400 hover:text-accent-300 whitespace-nowrap">Other ways to get it →</button>
                                         </div>
                                     </div>
                                 </div>
@@ -168,13 +168,13 @@
                                 <div class="flex-1 min-w-max">
                                     <span class="text-gray-200 font-semibold tabular-nums" x-text="breedPairs.length"></span> pairs make
                                     <span class="text-gray-200 font-semibold" x-text="breedSpecies(breedChild).name"></span>
-                                    <span x-show="breedPairs.length">· <span class="text-emerald-300 font-semibold tabular-nums" x-text="breedFeasibleCount()"></span> <span x-text="breedOwner ? breedOwner + ' can breed now' : 'breedable now'"></span></span>
+                                    <span x-show="breedPairs.length">· <span class="text-ok-300 font-semibold tabular-nums" x-text="breedFeasibleCount()"></span> <span x-text="breedOwner ? breedOwner + ' can breed now' : 'breedable now'"></span></span>
                                 </div>
                                 <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none whitespace-nowrap">
-                                    <input type="checkbox" x-model="breedOwnedOnly" class="rounded border-gray-500 bg-gray-800 text-blue-600 focus:ring-blue-500">
+                                    <input type="checkbox" x-model="breedOwnedOnly" class="rounded border-gray-500 bg-gray-800 text-accent-600 focus:ring-accent-500">
                                     Only breedable now
                                 </label>
-                                <button @click="breedFrom(breedChild)" class="text-blue-400 hover:text-blue-300 whitespace-nowrap text-xs">Use as a parent →</button>
+                                <button @click="breedFrom(breedChild)" class="text-accent-400 hover:text-accent-300 whitespace-nowrap text-xs">Use as a parent →</button>
                             </div>
                             <div x-show="breedRows().length === 0" class="bg-gray-800/40 border border-gray-700/50 rounded-xl px-4 py-8 text-center text-gray-400 text-sm">
                                 <span x-show="breedPairs.length && breedOwnedOnly">None of these pairs can be bred from <span x-text="breedOwner ? breedOwner + '\'s' : 'the owned'"></span> pals yet. Untick "Only breedable now" to see them all.</span>
@@ -183,7 +183,7 @@
                             <div class="space-y-2">
                                 <template x-for="row in breedVisibleRows()" :key="row.key">
                                     <div class="bg-gray-800 rounded-xl border transition-colors"
-                                         :class="row.owned.feasible ? 'border-emerald-500/30' : 'border-gray-700/50'">
+                                         :class="row.owned.feasible ? 'border-ok-500/30' : 'border-gray-700/60'">
                                         <button @click="breedToggleRow(row.key)" class="w-full text-left px-3 py-2.5 flex items-center gap-3">
                                             <template x-for="side in ['a', 'b']" :key="side">
                                                 <div class="flex items-center gap-2 min-w-0 flex-1" :class="side === 'b' ? '' : ''">
@@ -207,8 +207,8 @@
                                                 </div>
                                             </template>
                                             <div class="flex items-center gap-1.5 flex-shrink-0">
-                                                <span x-show="row.pair.unique" class="hidden sm:inline px-1.5 py-0.5 rounded text-[11px] font-medium bg-amber-500/20 text-amber-200 border border-amber-500/40">Special</span>
-                                                <span x-show="row.owned.feasible" class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-500/40 whitespace-nowrap">
+                                                <span x-show="row.pair.unique" class="hidden sm:inline px-1.5 py-0.5 rounded text-[11px] font-medium bg-warn-500/20 text-warn-200 border border-warn-500/40">Special</span>
+                                                <span x-show="row.owned.feasible" class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-ok-500/20 text-ok-200 border border-ok-500/40 whitespace-nowrap">
                                                     Breedable<span x-show="breedTargets.length && row.best" class="tabular-nums"> · <span x-text="row.best ? row.best.score : 0"></span>/<span x-text="breedTargets.length"></span></span>
                                                 </span>
                                                 <svg class="w-4 h-4 text-gray-500 transition-transform" :class="breedIsExpanded(row) ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
