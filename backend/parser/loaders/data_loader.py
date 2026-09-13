@@ -21,6 +21,7 @@ from backend.common.config import config
 from backend.common.game_tables import TABLES, Table
 from backend.common.logging_config import get_logger
 from backend.common.pal_ids import SpeciesIndex
+from backend.common.breeding import BreedingIndex
 from backend.common.constants import (
     CONDITION_DISPLAY_NAMES,
     CONDITION_DESCRIPTIONS,
@@ -113,6 +114,12 @@ class DataLoader:
             and isinstance(v, dict) and v.get('rank', 0) >= 0 and v.get('required_point', 0) >= 0
         )
 
+        # Breeding: unique combos + precomputed pair table, keyed on pals.json ids
+        self.breeding = BreedingIndex(self.tables['breeding'], self.species)
+        if self.breeding.unresolved:
+            logger.info(f'breeding table: dropped {len(self.breeding.unresolved)} id(s) not in pals.json: '
+                        + ', '.join(sorted(self.breeding.unresolved)))
+
         self.map_objects: List[Dict] = self.tables['map_objects']
         self.map_layers: Dict[str, Dict] = {
             k: v for k, v in (self.tables.get('map_layers') or {}).items() if not k.startswith('_')
@@ -120,7 +127,8 @@ class DataLoader:
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '
-                    f'{len(self.map_objects)} map objects, {len(self.map_layers)} map layers')
+                    f'{len(self.map_objects)} map objects, {len(self.map_layers)} map layers, '
+                    f'{len(self.breeding.species)} breedable species / {self.breeding.pair_count()} pairs')
 
     # ------------------------------------------------------------------
     # Lookups

@@ -1,7 +1,7 @@
         <!-- Tabs -->
         <nav x-show="saveInfo.loaded" class="mb-4 sm:mb-6" aria-label="Sections">
             <div class="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                <template x-for="tab in tabs" :key="tab.id">
+                <template x-for="tab in tabs.filter(t => !t.tool)" :key="tab.id">
                     <a :href="'#' + tab.id"
                        @click.prevent="currentTab = tab.id"
                        :class="currentTab === tab.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'"
@@ -12,6 +12,20 @@
                               class="text-xs px-1.5 py-0.5 rounded-full"
                               :class="currentTab === tab.id ? 'bg-white/20' : 'bg-gray-700 text-gray-400'"
                               x-text="tab.count"></span>
+                    </a>
+                </template>
+                <!-- Tools: helpers that work on the save rather than views of it. Kept apart
+                     from the sections by a divider and an outlined style. -->
+                <span class="self-stretch w-px bg-gray-700 mx-1 sm:mx-2 flex-shrink-0" aria-hidden="true"></span>
+                <template x-for="tab in tabs.filter(t => t.tool)" :key="tab.id">
+                    <a :href="'#' + tab.id"
+                       @click.prevent="currentTab = tab.id"
+                       :class="currentTab === tab.id ? 'bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-500/25' : 'bg-transparent text-gray-400 border-dashed border-gray-600 hover:text-white hover:border-gray-500 hover:bg-gray-800'"
+                       :aria-current="currentTab === tab.id ? 'page' : null"
+                       :title="tab.title"
+                       class="px-3 py-2 md:px-4 rounded-lg font-medium whitespace-nowrap transition-colors text-sm md:text-base flex-shrink-0 flex items-center gap-1.5 border">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                        <span x-text="tab.label"></span>
                     </a>
                 </template>
             </div>

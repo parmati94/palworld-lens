@@ -1,0 +1,77 @@
+                <!-- Owned pals that fit one pair. Scope: `row` = {pair, owned, key} from breedRow(). -->
+                <div class="mt-3 pt-3 border-t border-gray-700/60">
+                    <!-- What we own of each parent -->
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 mb-2">
+                        <span class="flex items-center gap-1.5">
+                            <span class="text-gray-200 font-medium" x-text="row.nameA"></span>
+                            <img src="img/male.webp" alt="Male" class="w-3.5 h-3.5"><span class="tabular-nums" x-text="row.owned.counts.a.Male"></span>
+                            <img src="img/female.webp" alt="Female" class="w-3.5 h-3.5 ml-1"><span class="tabular-nums" x-text="row.owned.counts.a.Female"></span>
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="text-gray-200 font-medium" x-text="row.nameB"></span>
+                            <img src="img/male.webp" alt="Male" class="w-3.5 h-3.5"><span class="tabular-nums" x-text="row.owned.counts.b.Male"></span>
+                            <img src="img/female.webp" alt="Female" class="w-3.5 h-3.5 ml-1"><span class="tabular-nums" x-text="row.owned.counts.b.Female"></span>
+                        </span>
+                        <span x-show="row.pair.parent_a_gender" class="text-amber-300/90">
+                            needs a <span x-text="(row.pair.parent_a_gender || '').toLowerCase()"></span> <span x-text="row.nameA"></span>
+                            and a <span x-text="(row.pair.parent_b_gender || '').toLowerCase()"></span> <span x-text="row.nameB"></span>
+                        </span>
+                    </div>
+
+                    <template x-if="!row.owned.feasible">
+                        <p class="text-sm text-gray-400">
+                            <template x-if="!row.owned.ownsA && !row.owned.ownsB"><span>You don't own either parent.</span></template>
+                            <template x-if="row.owned.ownsA !== row.owned.ownsB"><span>You own <span x-text="row.owned.ownsA ? row.nameA : row.nameB"></span> but not <span x-text="row.owned.ownsA ? row.nameB : row.nameA"></span>.</span></template>
+                            <template x-if="row.owned.ownsA && row.owned.ownsB"><span>You own both, but not a male and a female that fit this pair.</span></template>
+                        </p>
+                    </template>
+
+                    <template x-if="row.owned.feasible">
+                        <div class="space-y-2">
+                            <div class="text-xs text-gray-400" x-show="breedTargets.length">
+                                Best couples for the passives you picked (a couple carries a passive if either parent has it):
+                            </div>
+                            <template x-for="(c, i) in breedCandidates(row)" :key="c.a.instance_id + c.b.instance_id">
+                                <div class="rounded-lg border p-2.5 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-2 items-center"
+                                     :class="i === 0 && breedTargets.length ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-gray-700/60 bg-gray-800/60'">
+                                    <template x-for="who in ['a', 'b']" :key="who">
+                                        <button @click="breedOpenPal(c[who])" class="text-left flex items-start gap-2.5 min-w-0 rounded-md p-1 -m-1 hover:bg-gray-700/50 transition-colors"
+                                                :class="who === 'b' ? 'md:col-start-3' : ''" title="Open this pal">
+                                            <div class="relative flex-shrink-0">
+                                                <img :src="palIconSrc(c[who])" @error="palIconError($el, c[who])" :alt="c[who].display_name"
+                                                     class="w-10 h-10 rounded-lg bg-gray-900 object-cover">
+                                                <img :src="c[who].gender === 'Male' ? 'img/male.webp' : 'img/female.webp'" :alt="c[who].gender"
+                                                     class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gray-900 p-0.5">
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-baseline gap-2 min-w-0">
+                                                    <span class="text-sm font-medium text-gray-100 truncate" x-text="c[who].nickname || c[who].display_name"></span>
+                                                    <span class="text-xs text-purple-300 tabular-nums flex-shrink-0">Lv <span x-text="c[who].level"></span></span>
+                                                </div>
+                                                <div class="text-[11px] text-gray-400 truncate">
+                                                    <span x-text="c[who].owner_uid || 'No owner'"></span><span x-show="c[who].base_name"> · <span x-text="c[who].base_name"></span></span>
+                                                </div>
+                                                <div class="mt-1 flex flex-wrap gap-1">
+                                                    <template x-for="s in (c[who].passive_skills || [])" :key="s.skill_id || s.name">
+                                                        <span class="px-1.5 py-0.5 rounded text-[11px] leading-tight font-medium"
+                                                              :class="[getPassiveBackgroundClass(s.rank), getPassiveTextClass(s.rank), breedTargets.includes(s.skill_id) ? 'ring-2 ring-emerald-400 ring-offset-1 ring-offset-gray-900' : '']"
+                                                              :title="breedTargets.includes(s.skill_id) ? 'Wanted passive' : (s.description || '')">
+                                                            <span class="relative z-10" x-text="s.name"></span>
+                                                        </span>
+                                                    </template>
+                                                    <span x-show="!(c[who].passive_skills || []).length" class="text-[11px] text-gray-500">no passives</span>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </template>
+                                    <div class="hidden md:flex md:col-start-2 md:row-start-1 flex-col items-center text-gray-500 px-1">
+                                        <span class="text-lg leading-none">+</span>
+                                        <span x-show="breedTargets.length" class="text-[11px] tabular-nums mt-1 whitespace-nowrap"
+                                              :class="c.score === breedTargets.length ? 'text-emerald-300' : 'text-gray-400'"
+                                              x-text="c.score + '/' + breedTargets.length"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>

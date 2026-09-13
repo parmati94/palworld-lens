@@ -25,7 +25,7 @@ from backend.parser import parser
 from backend import startup
 
 # Import routers
-from backend.routers import api, watch
+from backend.routers import api, breeding, watch
 
 app = FastAPI(
     title="Palworld Lens",
@@ -45,6 +45,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(api.router)
+app.include_router(breeding.router)
 app.include_router(watch.router)
 
 @app.get("/")

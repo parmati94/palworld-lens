@@ -48,6 +48,22 @@ export const api = {
     },
 
     /**
+     * Breeding calculator (data/json/breeding.json via backend/common/breeding.py)
+     */
+    async getBreedingSpecies() {
+        const res = await fetchWithRetry('/api/breeding/species');
+        return await res.json();
+    },
+    async getBreedingChild(a, b) {
+        const res = await fetchWithRetry(`/api/breeding/child?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`);
+        return await res.json();
+    },
+    async getBreedingParents(child) {
+        const res = await fetchWithRetry(`/api/breeding/parents?child=${encodeURIComponent(child)}`);
+        return await res.json();
+    },
+
+    /**
      * Get base containers
      */
     async getBaseContainers() {
