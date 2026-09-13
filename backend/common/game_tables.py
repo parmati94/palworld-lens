@@ -57,6 +57,7 @@ TABLES: Dict[str, Table] = {t.name: t for t in (
     Table('elements'),                               # colour + icon per element id
     Table('work_suitability', data=False),           # localized names per work type
     Table('friendship', l10n=False),                 # trust-level thresholds
+    Table('breeding', l10n=False),                   # combi ranks, unique combos, precomputed child -> parent pairs
     Table('map_objects', l10n=False, generated=True),  # static map markers (generate_map_objects.py)
     Table('map_layers', l10n=False, generated=True, required=False),  # map textures + world bounds (hand-maintained)
 )}

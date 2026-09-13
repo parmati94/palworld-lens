@@ -21,6 +21,7 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
+- 🧬 **Breeding Calculator** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want)
 - 🖥️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
 - 🐳 **Containerized** - Single Docker container with nginx + FastAPI
 - 🚫 **Read-Only** - No editing functionality, just viewing
@@ -263,6 +264,10 @@ See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command
 - `GET /api/base-containers` - Food boxes and storage per base, with contents
 - `GET /api/game-data` - Reference data the UI keys ids on: elements, work types, conditions, map layers
 - `GET /api/map-objects` - Static map markers (fast travel, alpha pals, predators, dungeons)
+- `GET /api/breeding/species` - Breedable species with name, icon, elements and gender odds
+- `GET /api/breeding/child?a=&b=` - What two species produce (two results only for the gender-gated pairs)
+- `GET /api/breeding/parents?child=` - Every pair that produces a species, special combos first
+- `GET /api/breeding/partners?a=&child=` - Pairs producing a species that include parent A
 
 Everything above is served from a snapshot built once per save load; a reload swaps it atomically.
 

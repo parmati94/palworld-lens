@@ -19,9 +19,10 @@ import {
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
+import { breedingState, BREED_MODES } from './breeding-state.js';
 
 const prefs = loadPrefs();
-const TABS = ['overview', 'players', 'pals', 'bases', 'map'];
+const TABS = ['overview', 'players', 'pals', 'bases', 'breeding', 'map'];
 const SORT_COLUMNS = ['name', 'level', 'hp', 'hunger', 'sanity', 'owner', 'base', 'attack', 'defense'];
 
 export function app() {
@@ -72,6 +73,8 @@ export function app() {
         remoteHost: null,
         lastRefreshTime: 0,
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
+        // Breeding tab (js/breeding-state.js): species list, pickers, results
+        ...breedingState(),
         
         async init() {
             // Initialize watch service
@@ -143,6 +146,18 @@ export function app() {
             this.$watch('guilds', () => this.ensureBaseSelection());
             this.$watch('pals', () => this.ensureBaseSelection());
             this.$watch('selectedGuildId', () => this.ensureBaseSelection());
+
+            // Breeding: species list on first visit (or when a deep link / the pal
+            // modal lands there); owned-pal matches follow the pal list.
+            this.$watch('currentTab', t => { if (t === 'breeding') this.ensureBreedingSpecies(); });
+            if (this.currentTab === 'breeding') this.ensureBreedingSpecies();
+            this.$watch('pals', () => this.breedInvalidateOwned());
+            ['breedMode', 'breedA', 'breedB', 'breedChild'].forEach(key => {
+                this.$watch(key, () => { this.runBreeding(); this.writeHash(); });
+            });
+            // applyHash() above ran before these watchers existed, so a deep link
+            // such as #breeding?mode=child&a=X&b=Y needs one explicit lookup.
+            this.runBreeding();
         },
 
         get tabs() {
@@ -151,7 +166,9 @@ export function app() {
                 { id: 'players', label: 'Players', count: this.players.length },
                 { id: 'pals', label: 'Pals', count: this.pals.length },
                 { id: 'bases', label: 'Bases', count: this.basePals.reduce((n, g) => n + g.bases.length, 0) },
-                { id: 'map', label: 'Map', count: null }
+                { id: 'map', label: 'Map', count: null },
+                // Tools (tool: true) render after a divider: helpers over the save, not views of it
+                { id: 'breeding', label: 'Breeding', count: null, tool: true, title: 'Breeding calculator: what two pals make, and which of yours can make a pal' }
             ];
         },
 
@@ -164,7 +181,7 @@ export function app() {
             const params = new URLSearchParams(query);
             this.hashSyncing = true;
             try {
-                if (['overview', 'players', 'pals', 'bases', 'map'].includes(tab)) this.currentTab = tab;
+                if (TABS.includes(tab)) this.currentTab = tab;
                 if (params.has('guild')) this.selectedGuildId = params.get('guild');
                 if (params.has('base')) this.selectedBaseId = params.get('base');
                 if (tab === 'pals') {
@@ -173,6 +190,13 @@ export function app() {
                     this.filterWorkType = params.get('work') || '';
                     this.filterPassiveSkill = params.get('passive') || '';
                     this.filterOwner = params.get('owner') || '';
+                }
+                if (tab === 'breeding') {
+                    const mode = params.get('mode');
+                    if (BREED_MODES.includes(mode)) this.breedMode = mode;
+                    if (params.has('a')) this.breedA = params.get('a');
+                    if (params.has('b')) this.breedB = params.get('b');
+                    if (params.has('child')) this.breedChild = params.get('child');
                 }
                 if (params.has('pal')) this.openPalById(params.get('pal'));
             } finally {
@@ -193,6 +217,15 @@ export function app() {
                 if (this.filterWorkType) params.set('work', this.filterWorkType);
                 if (this.filterPassiveSkill) params.set('passive', this.filterPassiveSkill);
                 if (this.filterOwner) params.set('owner', this.filterOwner);
+            }
+            if (this.currentTab === 'breeding') {
+                params.set('mode', this.breedMode);
+                if (this.breedMode === 'child') {
+                    if (this.breedA) params.set('a', this.breedA);
+                    if (this.breedB) params.set('b', this.breedB);
+                } else if (this.breedChild) {
+                    params.set('child', this.breedChild);
+                }
             }
             const qs = params.toString();
             const next = '#' + this.currentTab + (qs ? '?' + qs : '');

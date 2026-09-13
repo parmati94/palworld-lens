@@ -186,6 +186,22 @@
                                                 <span x-text="selectedPal.base_name || 'Base'"></span>
                                             </button>
                                         </template>
+                                        <template x-if="isBreedable(selectedPal.species_id)">
+                                            <button @click="closePalModal(); breedFrom(selectedPal.species_id)"
+                                                    class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-black/25 hover:bg-black/40 border border-white/15 transition-colors"
+                                                    title="Breeding calculator with this species as a parent">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                                <span>Breed</span>
+                                            </button>
+                                        </template>
+                                        <template x-if="isBreedable(selectedPal.species_id)">
+                                            <button @click="closePalModal(); breedHowTo(selectedPal.species_id)"
+                                                    class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-black/25 hover:bg-black/40 border border-white/15 transition-colors"
+                                                    title="Every pair that produces this species">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                <span>How to breed</span>
+                                            </button>
+                                        </template>
                                     </div>
                                 </div>
                             </div>

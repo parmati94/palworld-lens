@@ -18,6 +18,7 @@ import { mapComponent } from './map-maplibre.js';
 import { serverInfoModal } from './components/serverInfoModal.js';
 import { containerModal } from './components/containerModal.js';
 import { palModal } from './components/palModal.js';
+import { speciesPicker } from './components/speciesPicker.js';
 
 // Register components with Alpine using proper API
 Alpine.data('app', app);
@@ -25,6 +26,7 @@ Alpine.data('mapComponent', mapComponent);
 Alpine.data('serverInfoModal', serverInfoModal);
 Alpine.data('containerModal', containerModal);
 Alpine.data('palModal', palModal);
+Alpine.data('speciesPicker', speciesPicker);
 
 // Expose utility functions globally (required by Alpine.js inline expressions in x-text, x-bind, etc.)
 Object.assign(window, utils);

@@ -24,6 +24,7 @@ from backend.common import pal_icons
 from backend.common.constants import WORK_ICON_MAPPING
 from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers
+from backend.common.breeding import BreedingIndex
 from backend.common.pal_ids import SpeciesIndex
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
@@ -108,6 +109,26 @@ def check_map_objects(layers, species):
     return objs
 
 
+def check_breeding(pals, species):
+    """breeding.json indexes against pals.json; every pair resolves; the special combos survive."""
+    p = DATA_JSON / 'breeding.json'
+    if not p.exists():
+        problems.append('breeding.json missing -- run sync_game_data.py')
+        return
+    idx = BreedingIndex(_json(p), species)
+    if idx.pair_count() < 30000 or len(idx.species) < 250:
+        problems.append(f'breeding.json looks truncated: {len(idx.species)} species, {idx.pair_count()} pairs')
+    if idx.unresolved:
+        notes.append(f'breeding: {len(idx.unresolved)} upstream id(s) not in pals.json, dropped: ' + ', '.join(sorted(idx.unresolved)))
+    for sid in idx.species:
+        if not idx.child_of(sid, sid):
+            problems.append(f'breeding: {sid} + {sid} has no outcome')
+            break
+    if not any(c.unique for c in idx.child_of('LazyDragon', 'ElecCat')):
+        problems.append('breeding: unique combos missing (Relaxaurus + Sparkit should be Relaxaurus Lux)')
+    notes.append(f'{len(idx.species)} breedable species, {idx.pair_count()} pairs, {len(idx.ignore_combi)} self-only')
+
+
 def check_pal_icons(pals):
     """Every pal in pals.json must resolve to an icon via pal_icons.icon_candidates()."""
     allow = set()
@@ -172,6 +193,7 @@ def main():
     check_elements(pals)
     objs = check_map_objects(layers, species)
     check_pal_icons(pals)
+    check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)
 

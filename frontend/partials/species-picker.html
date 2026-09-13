@@ -1,0 +1,48 @@
+                <!-- Species picker body (scope: speciesPicker component; see js/components/speciesPicker.js) -->
+                <div class="relative" @click.away="open = false" @keydown.escape="open = false">
+                    <button type="button" @click="toggle()"
+                            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm shadow-md hover:bg-gray-650 hover:border-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 cursor-pointer flex items-center gap-2 min-h-[3rem]">
+                        <template x-if="selected">
+                            <img :src="palIconSrc(selected)" @error="palIconError($el, selected)" :alt="selected.name"
+                                 class="w-8 h-8 rounded-md bg-gray-800 object-cover flex-shrink-0">
+                        </template>
+                        <template x-if="!selected">
+                            <span class="w-8 h-8 rounded-md bg-gray-800/70 border border-dashed border-gray-600 flex-shrink-0"></span>
+                        </template>
+                        <span class="flex-1 text-left truncate" :class="selected ? 'text-gray-100 font-medium' : 'text-gray-400'"
+                              x-text="selected ? selected.name : placeholder"></span>
+                        <span x-show="selected" class="text-[11px] text-gray-400 tabular-nums whitespace-nowrap" x-text="selected && ownedLabel(selected.id)"></span>
+                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" x-cloak
+                         x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute z-50 mt-1 w-full min-w-[16rem] bg-gray-700 border border-gray-600 rounded-lg shadow-xl">
+                        <div class="p-2 border-b border-gray-600 flex items-center gap-2">
+                            <input type="text" x-ref="query" x-model="query" placeholder="Search pals..."
+                                   @keydown.enter.prevent="list.length && pick(list[0].id)"
+                                   class="flex-1 min-w-0 px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500">
+                            <label class="flex items-center gap-1.5 text-xs text-gray-300 whitespace-nowrap cursor-pointer select-none" title="Only species you have at least one of">
+                                <input type="checkbox" x-model="ownedOnly" class="rounded border-gray-500 bg-gray-800 text-blue-600 focus:ring-blue-500">
+                                Owned
+                            </label>
+                        </div>
+                        <div class="max-h-72 overflow-auto custom-scrollbar py-1">
+                            <div x-show="value" @click="clear(); open = false"
+                                 class="px-3 py-1.5 text-xs text-gray-400 hover:bg-gray-600 hover:text-gray-200 cursor-pointer">Clear selection</div>
+                            <template x-for="s in list" :key="s.id">
+                                <div @click="pick(s.id)"
+                                     class="px-3 py-1.5 flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
+                                     :class="value === s.id ? 'bg-blue-600 text-white' : 'text-gray-100 hover:bg-gray-600'">
+                                    <img :src="palIconSrc(s)" @error="palIconError($el, s)" :alt="s.name" loading="lazy"
+                                         class="w-7 h-7 rounded bg-gray-800 object-cover flex-shrink-0">
+                                    <span class="flex-1 truncate" x-text="s.name"></span>
+                                    <span class="text-[11px] tabular-nums whitespace-nowrap" :class="value === s.id ? 'text-white/80' : 'text-gray-400'" x-text="ownedLabel(s.id)"></span>
+                                </div>
+                            </template>
+                            <div x-show="list.length === 0" class="px-3 py-4 text-center text-xs text-gray-400">No matching pals</div>
+                        </div>
+                    </div>
+                </div>
