@@ -198,11 +198,11 @@
                                                 <span>Breed</span>
                                             </button>
                                         </template>
+                                        <!-- Icon only: opens the map with this species' wild spawn zones lit -->
                                         <button @click="closePalModal(); findOnMap(selectedPal.species_id, selectedPal.display_name)"
-                                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-200 transition-colors"
-                                                title="Light up where this species spawns in the wild">
+                                                class="inline-flex items-center justify-center w-7 h-[26px] rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-300 hover:text-white transition-colors"
+                                                title="Where does this species spawn?" aria-label="Show spawn zones on the map">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                            <span>Where to find</span>
                                         </button>
                                         <template x-if="isBreedable(selectedPal.species_id)">
                                             <button @click="closePalModal(); breedHowTo(selectedPal.species_id)"
@@ -451,25 +451,29 @@
                     <!-- Map -->
                     <div x-ref="worldMap" id="worldMap" class="relative z-0"></div>
 
-                    <!-- Spawn search: type a pal, pick it, and every wild spawner that
-                         rolls it lights up (state + rendering in map-maplibre.js). Sits
-                         between the filter button and the right-hand controls. -->
-                    <div x-show="spawnsLoaded && spawnSpecies.length" x-cloak
-                         class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[min(22rem,calc(100%-8.5rem))]"
-                         @click.away="spawnOpen = false" @keydown.escape="spawnOpen = false">
-                        <div class="bg-gray-900/95 backdrop-blur-md rounded-xl shadow-xl border transition-colors"
-                             :class="spawnPal ? 'border-accent-400/40' : 'border-gray-700/50'">
-                            <div class="flex items-center gap-2 pl-2.5 pr-1.5 h-11">
+                    <!-- Spawn search (state + rendering in map-maplibre.js). Collapsed
+                         it is just the search button in the control column; open, a
+                         translucent panel slides out to its left; with a pal lit and
+                         the panel closed, the same strip shows a compact chip. -->
+                    <div x-show="spawnsLoaded && spawnSpecies.length && (spawnPanel || spawnPal)" x-cloak
+                         x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"
+                         x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                         class="absolute top-4 right-[4.75rem] z-10 w-[min(22rem,calc(100%-9.25rem))]"
+                         @click.away="spawnOpen = false" @keydown.escape="spawnOpen ? spawnOpen = false : spawnPanel = false">
+                        <div class="bg-gray-900/70 backdrop-blur-md rounded-xl shadow-xl border border-white/10 overflow-hidden">
+                            <div class="flex items-center gap-2 pl-2.5 pr-1 h-11">
                                 <template x-if="spawnSelected">
                                     <img :src="palIconSrc(spawnSelected)" @error="palIconError($el, spawnSelected)" :alt="spawnSelected.name"
-                                         class="w-7 h-7 rounded-md bg-gray-800 object-cover flex-shrink-0">
+                                         class="w-7 h-7 rounded-md bg-gray-800/80 object-cover flex-shrink-0">
                                 </template>
                                 <template x-if="!spawnSelected">
                                     <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
                                     </svg>
                                 </template>
-                                <input type="text" x-ref="spawnQuery" x-model="spawnQuery" autocomplete="off" spellcheck="false"
+
+                                <!-- Open: the search field -->
+                                <input x-show="spawnPanel" type="text" x-ref="spawnQuery" x-model="spawnQuery" autocomplete="off" spellcheck="false"
                                        @focus="spawnOpen = true" @input="spawnOpen = true; spawnCursor = 0"
                                        @keydown.down.prevent="spawnMove(1)" @keydown.up.prevent="spawnMove(-1)"
                                        @keydown.enter.prevent="spawnPickCursor()"
@@ -477,15 +481,33 @@
                                        :class="spawnPal ? 'placeholder-gray-200 font-medium' : 'placeholder-gray-400'"
                                        aria-label="Find where a pal spawns"
                                        class="flex-1 min-w-0 bg-transparent text-sm text-gray-100 focus:outline-none">
-                                <button x-show="spawnPal" @click="clearSpawnPal()" aria-label="Clear spawn search" class="btn-quiet p-1.5">
+
+                                <!-- Closed with a pal lit: the chip. Click it to search again. -->
+                                <button x-show="!spawnPanel" type="button" @click="openSpawnPanel()" title="Search for another pal"
+                                        class="flex-1 min-w-0 flex items-baseline gap-x-1.5 text-left text-sm hover:text-white transition-colors">
+                                    <span class="font-medium text-gray-100 truncate" x-text="spawnPalName"></span>
+                                    <template x-if="spawnSummary && spawnSummary.zones">
+                                        <span class="text-[11px] text-gray-400 whitespace-nowrap tabular-nums">
+                                            <span x-text="spawnSummary.zones"></span> zones · Lv <span x-text="spawnSummary.lvMin === spawnSummary.lvMax ? spawnSummary.lvMin : spawnSummary.lvMin + '–' + spawnSummary.lvMax"></span>
+                                        </span>
+                                    </template>
+                                    <template x-if="spawnSummary && !spawnSummary.zones">
+                                        <span class="text-[11px] text-gray-400 whitespace-nowrap" x-text="spawnSummary.dungeons ? 'dungeons only' : 'no wild zones'"></span>
+                                    </template>
+                                    <template x-if="!spawnSelected">
+                                        <span class="text-[11px] text-gray-400 whitespace-nowrap">no wild zones</span>
+                                    </template>
+                                </button>
+
+                                <button x-show="spawnPal" @click="clearSpawnPal()" aria-label="Clear spawn search" class="btn-quiet p-1.5 flex-shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </div>
 
-                            <!-- What lit up: zone count, level range, night-only, dungeon toggle -->
-                            <div x-show="spawnPal && !spawnOpen" class="px-2.5 pb-2 -mt-1 text-[11px] text-gray-400 flex items-center gap-x-2 gap-y-1 flex-wrap">
+                            <!-- Open + a pal lit: what lit up, and the dungeon toggle -->
+                            <div x-show="spawnPanel && spawnPal && !spawnOpen" class="px-2.5 pb-2 -mt-1 text-[11px] text-gray-400 flex items-center gap-x-2 gap-y-1 flex-wrap">
                                 <template x-if="spawnSummary && spawnSummary.zones">
                                     <span class="flex items-center gap-x-2 flex-wrap">
                                         <span><span class="text-gray-200 font-medium tabular-nums" x-text="spawnSummary.zones"></span> spawn zones</span>
@@ -504,20 +526,20 @@
                                 </template>
                                 <button x-show="spawnSummary && (spawnSummary.dungeons || spawnDungeons)" @click="toggleSpawnDungeons()"
                                         class="ml-auto inline-flex items-center gap-1 px-1.5 py-0.5 rounded border transition-colors"
-                                        :class="spawnDungeons ? 'border-accent-400/50 text-accent-300 bg-accent-500/10' : 'border-gray-700 text-gray-400 hover:text-gray-200 hover:border-gray-600'"
+                                        :class="spawnDungeons ? 'border-accent-400/50 text-accent-300 bg-accent-500/10' : 'border-white/10 text-gray-400 hover:text-gray-200 hover:border-white/20'"
                                         :title="spawnDungeons ? 'Hide dungeon spawns' : 'Also show dungeon spawns'">
                                     <span x-text="spawnDungeons ? 'Dungeons on' : 'Dungeons off'"></span>
                                 </button>
                             </div>
 
                             <!-- Results -->
-                            <div x-show="spawnOpen" x-cloak class="border-t border-gray-700/60 max-h-64 overflow-auto custom-scrollbar py-1" x-ref="spawnItems">
+                            <div x-show="spawnPanel && spawnOpen" x-cloak class="border-t border-white/10 max-h-64 overflow-auto custom-scrollbar py-1" x-ref="spawnItems">
                                 <template x-for="(s, i) in spawnList" :key="s.id">
                                     <div @click="pickSpawnPal(s.id)" @mousemove="spawnCursor = i"
                                          class="px-2.5 py-1.5 flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
-                                         :class="i === spawnCursor ? 'bg-accent-500 text-white' : 'text-gray-100 hover:bg-gray-800'">
+                                         :class="i === spawnCursor ? 'bg-accent-500/90 text-white' : 'text-gray-100 hover:bg-white/5'">
                                         <img :src="palIconSrc(s)" @error="palIconError($el, s)" :alt="s.name" loading="lazy"
-                                             class="w-7 h-7 rounded bg-gray-800 object-cover flex-shrink-0">
+                                             class="w-7 h-7 rounded bg-gray-800/80 object-cover flex-shrink-0">
                                         <span class="flex-1 truncate" x-text="s.name"></span>
                                         <span class="text-[11px] tabular-nums whitespace-nowrap" :class="i === spawnCursor ? 'text-white/80' : 'text-gray-400'"
                                               x-text="spawnZoneCount(s) ? spawnZoneCount(s) + ' zones' : 'dungeons'"></span>
@@ -527,7 +549,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Layer Filters Sidebar (Collapsible) -->
                     <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
                         <!-- Collapse/Expand Button -->
@@ -625,6 +647,22 @@
                     
                     <!-- Enhanced Controls -->
                     <div class="absolute top-4 right-4 flex flex-col gap-2 z-10">
+                        <!-- Spawn search toggle. Shows the lit pal's icon while one is selected. -->
+                        <button x-show="spawnsLoaded && spawnSpecies.length" x-cloak
+                                @click="toggleSpawnPanel()"
+                                :title="spawnPanel ? 'Close spawn search' : 'Where does a pal spawn?'"
+                                :aria-expanded="spawnPanel"
+                                :class="(spawnPanel || spawnPal) ? 'bg-accent-500/20 border-accent-400/40 shadow-lg shadow-accent-500/20' : 'bg-gray-900/95 border-gray-700/50'"
+                                class="w-11 h-11 hover:bg-accent-500/30 hover:border-accent-400/50 text-white rounded-xl shadow-xl transition-all hover:scale-110 backdrop-blur-md flex items-center justify-center border overflow-hidden">
+                            <template x-if="spawnSelected && !spawnPanel">
+                                <img :src="palIconSrc(spawnSelected)" @error="palIconError($el, spawnSelected)" :alt="spawnSelected.name" class="w-8 h-8 rounded-md object-cover">
+                            </template>
+                            <template x-if="!(spawnSelected && !spawnPanel)">
+                                <svg class="w-5 h-5" :class="(spawnPanel || spawnPal) ? 'text-accent-300' : 'text-gray-300'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+                                </svg>
+                            </template>
+                        </button>
                         <!-- Map Layer Switcher: Palpagos <-> World Tree. Palworld 1.0
                              ships these as two separate map textures with their own
                              coordinate bounds, so this swaps tiles AND the projection,

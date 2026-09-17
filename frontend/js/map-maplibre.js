@@ -73,7 +73,8 @@ export function mapComponent() {
         spawnPal: '',              // selected species id ('' = nothing lit)
         spawnPalName: '',          // display name, kept even when the id has no zones
         spawnQuery: '',
-        spawnOpen: false,
+        spawnPanel: false,         // search panel slid out (toggle button in the control column)
+        spawnOpen: false,          // results list showing
         spawnCursor: 0,
         spawnDungeons: pref(prefs, 'mapSpawnDungeons', false),
 
@@ -627,6 +628,17 @@ export function mapComponent() {
             return n;
         },
 
+        openSpawnPanel() {
+            this.spawnPanel = true;
+            this.spawnOpen = false;
+            this.$nextTick(() => this.$refs.spawnQuery && this.$refs.spawnQuery.focus());
+        },
+
+        toggleSpawnPanel() {
+            if (this.spawnPanel) { this.spawnPanel = false; this.spawnOpen = false; }
+            else this.openSpawnPanel();
+        },
+
         spawnMove(delta) {
             if (!this.spawnOpen) { this.spawnOpen = true; return; }
             const n = this.spawnList.length;
@@ -649,17 +661,20 @@ export function mapComponent() {
             this.spawnPalName = s ? s.name : id;
             this.spawnQuery = '';
             this.spawnOpen = false;
+            this.spawnPanel = false;   // collapse to the chip so the map is clear
             this.spawnCursor = 0;
             if (this.$refs.spawnQuery) this.$refs.spawnQuery.blur();
             this.renderSpawns();
             this.fitSpawns();
         },
 
+        /** The × : with the panel open, keep it open for another search; on the chip, hide everything. */
         clearSpawnPal() {
             this.spawnPal = '';
             this.spawnPalName = '';
             this.spawnQuery = '';
             this.spawnOpen = false;
+            if (this.spawnPanel) this.$nextTick(() => this.$refs.spawnQuery && this.$refs.spawnQuery.focus());
             this.renderSpawns();
         },
 
@@ -670,6 +685,7 @@ export function mapComponent() {
             this.spawnPalName = (this.spawnById[speciesId] || {}).name || name || speciesId;
             this.spawnQuery = '';
             this.spawnOpen = false;
+            this.spawnPanel = false;
             this.renderSpawns();
             this.fitSpawns();
         },
