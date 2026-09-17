@@ -23,8 +23,9 @@
  */
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { saveToLngLat, layerForCoords, MAP_LAYERS, palIconSrc, palIconError } from './utils.js';
+import { saveToLngLat, layerForCoords, MAP_LAYERS, MAP_LAYER_ORDER, palIconSrc, palIconError, shadeHex } from './utils.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
+import { api } from './services/api.js';
 
 const prefs = loadPrefs();
 
@@ -60,6 +61,21 @@ export function mapComponent() {
         // Static map objects (loaded once)
         mapObjects: null,
         mapObjectsLoaded: false,
+
+        // Wild spawn zones (data/json/spawns.json via /api/spawns, loaded once).
+        // Pick a species in the search box and every spawner group that rolls it
+        // is drawn as a translucent disc (its real spawn radius), tinted with the
+        // species' element colour and weighted by its share of the group.
+        spawns: null,              // {groupName: {kind, radius, points: {layer: [[x, y]]}, pals: {id: {share, level, time?, boss?}}}}
+        spawnSpecies: [],          // [{id, name, image_candidates, element_types, groups}]
+        spawnById: {},
+        spawnsLoaded: false,
+        spawnPal: '',              // selected species id ('' = nothing lit)
+        spawnPalName: '',          // display name, kept even when the id has no zones
+        spawnQuery: '',
+        spawnOpen: false,
+        spawnCursor: 0,
+        spawnDungeons: pref(prefs, 'mapSpawnDungeons', false),
 
         // Which map texture is showing. Palworld 1.0 added the World Tree as a
         // separate map layer with its own texture and coordinate bounds; objects
@@ -102,6 +118,12 @@ export function mapComponent() {
                             this.loadPlayers();
                         }, { deep: true });
                     }
+
+                    // "Where to find" in the pal modal: light up a species' zones.
+                    window.addEventListener('show-pal-spawns', (e) => {
+                        const d = (e && e.detail) || {};
+                        this.showSpawnsFor(d.species, d.name);
+                    });
                 }, 100);
             });
         },
@@ -177,6 +199,7 @@ export function mapComponent() {
                     this.loadBases();
                     this.loadPlayers();
                     this.loadStaticMapObjects();
+                    this.loadSpawns();
                 });
 
                 this.map.on('error', (e) => {
@@ -214,6 +237,7 @@ export function mapComponent() {
             this.setVisible(this.playerMarkers, false);
             this.setVisible(this.alphaPalMarkers, false);
             this.setVisible(this.fastTravelMarkers, false);
+            this.setSpawnFeatures([]);
 
             const inId = `map-${layer}`, outId = `map-${from}`;
             this.map.setPaintProperty(inId, 'raster-opacity-transition', { duration: FADE, delay: 0 });
@@ -231,6 +255,8 @@ export function mapComponent() {
                 this.loadBases();
                 this.loadPlayers();
                 this.renderStaticMapObjects();
+                this.renderSpawns();
+                if (this._fitSpawnsAfterSwitch) { this._fitSpawnsAfterSwitch = false; this.fitSpawns(); }
             }, FADE + 20);
         },
 
@@ -526,6 +552,253 @@ export function mapComponent() {
             const marker = this.makeMarker(html, point.x, point.y, Z.fastTravel);
             if (this.showFastTravel) marker.addTo(this.map);
             this.fastTravelMarkers.push(marker);
+        },
+
+        // ------------------------------------------------------------------
+        // Wild spawn zones
+        // ------------------------------------------------------------------
+
+        async loadSpawns() {
+            if (this.spawnsLoaded) { this.renderSpawns(); return; }
+            try {
+                const data = await api.getSpawns();
+                this.spawns = data.groups || {};
+                this.spawnSpecies = data.species || [];
+                this.spawnById = Object.fromEntries(this.spawnSpecies.map(s => [s.id, s]));
+                this.spawnsLoaded = true;
+                console.log(`🌿 Loaded ${Object.keys(this.spawns).length} spawner groups for ${this.spawnSpecies.length} species`);
+                this.renderSpawns();
+                if (this.spawnPal) this.fitSpawns();   // picked before the data arrived
+            } catch (error) {
+                console.error('❌ Failed to load spawn data:', error);
+            }
+        },
+
+        /** Search results: prefix matches first, then anywhere in the name or id. */
+        get spawnList() {
+            const q = this.spawnQuery.trim().toLowerCase();
+            if (!q) return this.spawnSpecies;
+            const starts = [], within = [];
+            for (const s of this.spawnSpecies) {
+                const name = s.name.toLowerCase(), id = s.id.toLowerCase();
+                if (name.startsWith(q) || id.startsWith(q)) starts.push(s);
+                else if (name.includes(q) || id.includes(q)) within.push(s);
+            }
+            return starts.concat(within);
+        },
+
+        get spawnSelected() {
+            return (this.spawnPal && this.spawnById[this.spawnPal]) || null;
+        },
+
+        /** Dungeon rooms are instanced, so they're off by default. */
+        spawnKindShown(kind) {
+            return this.spawnDungeons || kind === 'field' || kind === 'field_boss';
+        },
+
+        /** Counts for the strip under the search box: zones, level range, night-only. */
+        get spawnSummary() {
+            const sel = this.spawnSelected;
+            if (!sel || !this.spawns) return null;
+            const out = { zones: 0, lvMin: Infinity, lvMax: 0, night: 0, dungeons: 0, perLayer: {} };
+            for (const name of sel.groups) {
+                const g = this.spawns[name];
+                const e = g && g.pals[sel.id];
+                if (!e) continue;
+                const n = Object.values(g.points).reduce((a, p) => a + p.length, 0);
+                if (!this.spawnKindShown(g.kind)) { if (g.kind !== 'field_boss') out.dungeons += n; continue; }
+                for (const [layer, pts] of Object.entries(g.points)) out.perLayer[layer] = (out.perLayer[layer] || 0) + pts.length;
+                out.zones += n;
+                out.lvMin = Math.min(out.lvMin, e.level[0]);
+                out.lvMax = Math.max(out.lvMax, e.level[1]);
+                if (e.time === 'night') out.night += n;
+            }
+            out.onThisLayer = out.perLayer[this.mapLayer] || 0;
+            return out;
+        },
+
+        spawnZoneCount(species) {
+            if (!this.spawns) return 0;
+            let n = 0;
+            for (const name of species.groups) {
+                const g = this.spawns[name];
+                if (g && this.spawnKindShown(g.kind)) n += Object.values(g.points).reduce((a, p) => a + p.length, 0);
+            }
+            return n;
+        },
+
+        spawnMove(delta) {
+            if (!this.spawnOpen) { this.spawnOpen = true; return; }
+            const n = this.spawnList.length;
+            if (!n) return;
+            this.spawnCursor = (this.spawnCursor + delta + n) % n;
+            this.$nextTick(() => {
+                const el = this.$refs.spawnItems && this.$refs.spawnItems.children[this.spawnCursor];
+                if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
+            });
+        },
+
+        spawnPickCursor() {
+            const s = this.spawnList[this.spawnCursor];
+            if (s) this.pickSpawnPal(s.id);
+        },
+
+        pickSpawnPal(id) {
+            const s = this.spawnById[id];
+            this.spawnPal = id;
+            this.spawnPalName = s ? s.name : id;
+            this.spawnQuery = '';
+            this.spawnOpen = false;
+            this.spawnCursor = 0;
+            if (this.$refs.spawnQuery) this.$refs.spawnQuery.blur();
+            this.renderSpawns();
+            this.fitSpawns();
+        },
+
+        clearSpawnPal() {
+            this.spawnPal = '';
+            this.spawnPalName = '';
+            this.spawnQuery = '';
+            this.spawnOpen = false;
+            this.renderSpawns();
+        },
+
+        /** Entry point from the pal modal (and anything else): select by species id. */
+        showSpawnsFor(speciesId, name) {
+            if (!speciesId) return;
+            this.spawnPal = speciesId;
+            this.spawnPalName = (this.spawnById[speciesId] || {}).name || name || speciesId;
+            this.spawnQuery = '';
+            this.spawnOpen = false;
+            this.renderSpawns();
+            this.fitSpawns();
+        },
+
+        toggleSpawnDungeons() {
+            this.spawnDungeons = !this.spawnDungeons;
+            savePref('mapSpawnDungeons', this.spawnDungeons);
+            this.renderSpawns();
+        },
+
+        /** Zone tint: the species' first element colour, lifted so it reads on the dark map. */
+        spawnColor(species) {
+            const app = Alpine.$data(document.body);
+            const el = species.element_types && species.element_types[0];
+            const info = app && app.gameData && app.gameData.elements && app.gameData.elements[el];
+            return shadeHex((info && info.color) || '#f472b6', 20);
+        },
+
+        /** A spawn radius as a lng/lat ring. World space is square-scaled, so a circle stays a circle. */
+        circleRing(x, y, r, steps = 36) {
+            const ring = [];
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * Math.PI * 2;
+                ring.push(saveToLngLat(x + r * Math.cos(t), y + r * Math.sin(t), this.mapLayer));
+            }
+            return ring;
+        },
+
+        ensureSpawnLayers() {
+            if (!this.map || this.map.getSource('spawns')) return;
+            this.map.addSource('spawns', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+            this.map.addLayer({
+                id: 'spawns-fill', type: 'fill', source: 'spawns',
+                paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['get', 'opacity'] },
+            });
+            this.map.addLayer({
+                id: 'spawns-line', type: 'line', source: 'spawns', filter: ['!', ['get', 'night']],
+                paint: { 'line-color': ['get', 'color'], 'line-opacity': 0.85, 'line-width': ['case', ['get', 'boss'], 2, 1] },
+            });
+            // Night-only zones get a dashed edge (line-dasharray can't be data-driven).
+            this.map.addLayer({
+                id: 'spawns-line-night', type: 'line', source: 'spawns', filter: ['get', 'night'],
+                paint: { 'line-color': ['get', 'color'], 'line-opacity': 0.9, 'line-width': 1.5, 'line-dasharray': [2, 2] },
+            });
+
+            const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, className: 'pw-popup', maxWidth: '240px' });
+            this.map.on('mousemove', 'spawns-fill', (e) => {
+                const f = e.features && e.features[0];
+                if (!f) return;
+                this.map.getCanvas().style.cursor = 'pointer';
+                popup.setLngLat(e.lngLat).setHTML(this.spawnPopupHtml(f.properties)).addTo(this.map);
+            });
+            this.map.on('mouseleave', 'spawns-fill', () => {
+                this.map.getCanvas().style.cursor = '';
+                popup.remove();
+            });
+            this.map.on('click', 'spawns-fill', (e) => {
+                this.map.easeTo({ center: e.lngLat, zoom: Math.max(this.map.getZoom(), 3.2), duration: 400 });
+            });
+        },
+
+        spawnPopupHtml(p) {
+            const kind = { field: 'Field', dungeon: 'Dungeon', dungeon_boss: 'Dungeon boss', field_boss: 'Alpha', prison_boss: 'Sealed realm' }[p.kind] || p.kind;
+            const lv = p.lvMin === p.lvMax ? `Lv ${p.lvMin}` : `Lv ${p.lvMin}–${p.lvMax}`;
+            const share = Math.round(p.share * 100);
+            const bits = [lv, `${share}% of spawns here`];
+            if (p.night === true || p.night === 'true') bits.push('night only');
+            return `<div class="font-semibold text-gray-100">${this.spawnPalName}</div>`
+                 + `<div class="text-gray-400 text-[11px]">${kind} · ${bits.join(' · ')}</div>`;
+        },
+
+        setSpawnFeatures(features) {
+            const src = this.map && this.map.getSource('spawns');
+            if (src) src.setData({ type: 'FeatureCollection', features });
+            this._spawnFeatures = features;
+        },
+
+        /** Rebuild the zone polygons for the selected species on the active layer. */
+        renderSpawns() {
+            if (!this.map || !this.mapReady || !this.spawns) return;
+            this.ensureSpawnLayers();
+            const sel = this.spawnSelected;
+            const features = [];
+            if (sel) {
+                const color = this.spawnColor(sel);
+                for (const name of sel.groups) {
+                    const g = this.spawns[name];
+                    const e = g && g.pals[sel.id];
+                    if (!e || !this.spawnKindShown(g.kind)) continue;
+                    for (const [x, y] of (g.points[this.mapLayer] || [])) {
+                        features.push({
+                            type: 'Feature',
+                            properties: {
+                                name, kind: g.kind, share: e.share, lvMin: e.level[0], lvMax: e.level[1],
+                                night: e.time === 'night', boss: !!e.boss, color,
+                                opacity: 0.22 + 0.4 * Math.min(1, e.share * 1.5),
+                            },
+                            geometry: { type: 'Polygon', coordinates: [this.circleRing(x, y, g.radius || 15000)] },
+                        });
+                    }
+                }
+                // Rarer (lower-share) zones draw on top so they aren't buried under herds.
+                features.sort((a, b) => b.properties.share - a.properties.share);
+            }
+            this.setSpawnFeatures(features);
+        },
+
+        /**
+         * Frame the lit zones. If the species only spawns on the other map layer,
+         * travel there first (switchMapLayer redraws and then fits).
+         */
+        fitSpawns() {
+            if (!this.map || !this.mapReady || !this.spawnSelected) return;
+            const s = this.spawnSummary;
+            if (s && !s.onThisLayer) {
+                const other = MAP_LAYER_ORDER.find(l => l !== this.mapLayer && s.perLayer[l]);
+                if (other) { this._fitSpawnsAfterSwitch = true; this.switchMapLayer(other); }
+                return;
+            }
+            const feats = this._spawnFeatures || [];
+            if (!feats.length) return;
+            let minLng = 180, maxLng = -180, minLat = 90, maxLat = -90;
+            for (const f of feats) {
+                for (const [lng, lat] of f.geometry.coordinates[0]) {
+                    if (lng < minLng) minLng = lng; if (lng > maxLng) maxLng = lng;
+                    if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
+                }
+            }
+            this.map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 70, maxZoom: 4, duration: 600 });
         },
 
         // ------------------------------------------------------------------

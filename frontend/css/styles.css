@@ -461,6 +461,20 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 }
 .maplibregl-canvas { outline: none; }
 
+/* Spawn-zone hover card (map-maplibre.js spawnPopupHtml) in the marker tooltip look. */
+.pw-popup .maplibregl-popup-content {
+    background: rgba(17, 24, 39, 0.95);
+    color: #e5e7eb;
+    border: 1px solid rgba(75, 85, 99, 0.6);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+.pw-popup .maplibregl-popup-tip { display: none; }
+.pw-popup { z-index: 1200; pointer-events: none; }   /* above the DOM markers (z 100-1000) */
+
 /* Markers are plain DOM elements positioned by MapLibre; don't let the global
    transition rule fight its per-frame transform updates. */
 .maplibregl-marker,

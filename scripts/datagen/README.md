@@ -6,6 +6,9 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   (`data/json/`, matched to a release tag). See [Updating game data](#updating-game-data).
 - **`frontend/public/img/*.webp`** — pal/item/building/tech icons, extracted from the
   game pak with a CUE4Parse extractor (replaces a manual FModel export).
+- **`data/json/spawns.json`** — wild spawn zones per species, from the pak's
+  `DT_PalSpawnerPlacement` + `DT_PalWildSpawner` tables via the same extractor
+  (`generate_spawns.py`; `pal-extract dt <table> out.json` dumps any data table).
 
 Output is committed to the repo, so end users never run this.
 

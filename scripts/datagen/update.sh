@@ -6,6 +6,7 @@
 #   1. sync_game_data.py       data/json  <- a palworld-save-pal release
 #   2. generate_map_objects.py map_objects.json <- that same release
 #   3. generate_icons.py       missing icons <- the game pak  (needs pak + usmap)
+#   3b. generate_spawns.py     spawns.json <- the pak's spawner tables (same inputs)
 #   4. slice_map.py            map tiles <- the committed map images
 #   5. validate.py             coverage checks
 #
@@ -72,6 +73,15 @@ if [ $SKIP_ICONS -eq 0 ]; then
   fi
 else
   echo "==> 3/5  skipped (--skip-icons)"
+fi
+
+if [ $SKIP_ICONS -eq 0 ]; then
+  step "3b/5 regenerate spawns.json from the pak's spawner tables"
+  if [ ! -d "$PALWORLD_PAK_DIR" ] || [ ! -f "$PALWORLD_USMAP" ]; then
+    echo "  pak or usmap missing -- skipping (the committed spawns.json stays as is)"
+  else
+    "$PY" "$HERE/generate_spawns.py" $DRY
+  fi
 fi
 
 if [ $SKIP_TILES -eq 0 ] && [ -z "$DRY" ]; then

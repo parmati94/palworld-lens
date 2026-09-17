@@ -204,7 +204,7 @@ Base assignments showing pals at each guild base with status/hunger/SAN monitori
 Food bowls and storage chests by base with item inventories
 
 ### Map
-Interactive world map with guild bases, fast travel points, and alpha pal spawn locations
+Interactive world map with guild bases, fast travel points, and alpha pal spawn locations. Type a pal into the search box on the map (or hit **Where to find** in a pal's details) and every wild spawner that rolls that species lights up, sized to its real spawn radius, with level range, share of the spawner's rolls and night-only zones on hover. Spawn zones come from the game's own spawner tables (`data/json/spawns.json`), not the save, so they show where a species *can* appear rather than where one is right now.
 
 
 
@@ -264,6 +264,7 @@ See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command
 - `GET /api/base-containers` - Food boxes and storage per base, with contents
 - `GET /api/game-data` - Reference data the UI keys ids on: elements, work types, conditions, map layers
 - `GET /api/map-objects` - Static map markers (fast travel, alpha pals, predators, dungeons)
+- `GET /api/spawns` - Wild spawner groups (points, radius, pals with share/level/night) plus the searchable species list
 - `GET /api/breeding/species` - Breedable species with name, icon, elements and gender odds
 - `GET /api/breeding/child?a=&b=` - What two species produce (two results only for the gender-gated pairs)
 - `GET /api/breeding/parents?child=` - Every pair that produces a species, special combos first

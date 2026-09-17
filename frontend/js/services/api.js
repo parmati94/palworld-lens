@@ -48,6 +48,14 @@ export const api = {
     },
 
     /**
+     * Wild spawner groups + searchable species list (data/json/spawns.json)
+     */
+    async getSpawns() {
+        const res = await fetchWithRetry('/api/spawns');
+        return await res.json();
+    },
+
+    /**
      * Breeding calculator (data/json/breeding.json via backend/common/breeding.py)
      */
     async getBreedingSpecies() {

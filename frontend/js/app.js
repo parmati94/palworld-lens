@@ -268,6 +268,15 @@ export function app() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
+        /** Pal modal: open the map with this species' wild spawn zones lit. */
+        findOnMap(speciesId, name) {
+            this.currentTab = 'map';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.$nextTick(() => window.dispatchEvent(new CustomEvent('show-pal-spawns', {
+                detail: { species: speciesId, name },
+            })));
+        },
+
         /** Open the Bases tab on a specific base. */
         goToBase(guildId, baseId) {
             this.selectedGuildId = guildId || null;

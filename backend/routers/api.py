@@ -101,6 +101,35 @@ async def get_map_objects():
     return {"objects": objects, "total": len(objects)}
 
 
+@router.get("/spawns", dependencies=[Depends(require_auth)])
+async def get_spawns():
+    """Wild spawner groups (data/json/spawns.json) plus the species that appear in them.
+
+    `groups` is the generated file as-is: {name: {kind, radius, points: {layer:
+    [[x, y]]}, pals: {species: {share, level, time?, boss?}}}}. `species` is
+    the search list for the map: every id that spawns somewhere, with the same
+    name and icon candidates the pals tab uses, so the map derives nothing.
+    """
+    data = parser.data
+    groups = data.spawns
+    by_species = {}
+    for name, g in groups.items():
+        for sid in g.get("pals", {}):
+            by_species.setdefault(sid, []).append(name)
+    species = []
+    for sid, names in by_species.items():
+        row = data.pals.get(sid) or {}
+        species.append({
+            "id": sid,
+            "name": data.pal_name(sid) if sid in data.pals else sid,
+            "image_candidates": pal_icons.icon_candidates(sid),
+            "element_types": row.get("element_types") or [],
+            "groups": names,
+        })
+    species.sort(key=lambda s: s["name"].lower())
+    return {"groups": groups, "species": species, "total": len(species)}
+
+
 @router.get("/rcon/status", dependencies=[Depends(require_auth)])
 async def get_rcon_status():
     """Get RCON server information aggregated from multiple endpoints"""
