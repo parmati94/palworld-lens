@@ -20,6 +20,7 @@ import { containerModal } from './components/containerModal.js';
 import { palModal } from './components/palModal.js';
 import { speciesPicker } from './components/speciesPicker.js';
 import { selectMenu } from './components/selectMenu.js';
+import { installTooltips } from './components/tooltip.js';
 
 // Register components with Alpine using proper API
 Alpine.data('app', app);
@@ -32,6 +33,9 @@ Alpine.data('selectMenu', selectMenu);
 
 // Expose utility functions globally (required by Alpine.js inline expressions in x-text, x-bind, etc.)
 Object.assign(window, utils);
+
+// One shared tooltip for every data-tip="..." element (replaces native title=).
+installTooltips();
 
 // Start Alpine (will automatically process x-data elements)
 Alpine.start();

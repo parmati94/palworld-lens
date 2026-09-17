@@ -424,7 +424,7 @@
                                                     <img 
                                                         :src="elementIcon(element)" 
                                                         :alt="elementName(element)"
-                                                        :title="elementName(element)"
+                                                        :data-tip="elementName(element)"
                                                         :onerror="`this.onerror=null; this.src='/img/neutral.webp'`"
                                                         class="w-4 h-4 md:w-5 md:h-5">
                                                 </template>
@@ -439,7 +439,7 @@
                                         <div class="flex items-center gap-1 flex-wrap">
                                             <template x-if="workDisplay(pal).length > 0">
                                                 <template x-for="work in workDisplay(pal)" :key="work.type">
-                                                    <div class="relative" :title="work.name + ' Lv.' + work.level">
+                                                    <div class="relative" :data-tip="work.name + ' Lv.' + work.level">
                                                         <img 
                                                             :src="`/img/${work.icon}.webp`" 
                                                             :alt="work.name"
@@ -598,7 +598,7 @@
                                     <button 
                                         @click="selectedBaseId = base.base_id; basePalPage = 1"
                                         :class="selectedBaseId === base.base_id ? 'bg-cyan-500/15 border-cyan-500/60 ring-1 ring-cyan-500/30' : 'bg-gray-800 border-gray-700/60 hover:bg-gray-750 hover:border-cyan-600/50'"
-                                        :title="base.base_name + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
+                                        :data-tip="base.base_name + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
                                         class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer relative">
                                         <!-- Unhealthy indicator cracked heart icon (mobile) -->
                                         <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
@@ -627,7 +627,7 @@
                                                  class="w-3.5 h-3.5 text-warn-400 opacity-90 flex-shrink-0" 
                                                  fill="currentColor" 
                                                  viewBox="0 0 24 24"
-                                                 :title="base.pals.filter(p => p.condition_display).length + ' unhealthy pal(s)'">
+                                                 :data-tip="base.pals.filter(p => p.condition_display).length + ' unhealthy pal(s)'">
                                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                                                 <path d="M12 5L9.5 10h3L11 15.5l3-5.5h-3L12 5z" fill="#111827" stroke="#111827" stroke-width="0.8"/>
                                             </svg>
@@ -687,7 +687,7 @@
                                             <button 
                                                 x-show="base.x !== undefined && base.y !== undefined"
                                                 @click="currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#worldMap'); if (mapEl) { const mapComponent = Alpine.$data(mapEl.parentElement); if (mapComponent && mapComponent.centerOnLocation) mapComponent.centerOnLocation(base.x, base.y); } });"
-                                                title="Show on map"
+                                                data-tip="Show on map"
                                                 class="btn-quiet w-9 h-9 justify-center border border-gray-700/60 hover:border-accent-500/50 hover:text-accent-300 flex-shrink-0">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -827,7 +827,7 @@
                                                                     <div 
                                                                         class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
                                                                         :class="getConditionClass(pal.all_conditions && pal.all_conditions[0])"
-                                                                        :data-tooltip="pal.condition_description"
+                                                                        :data-tip="pal.condition_description"
                                                                         x-text="pal.condition_display">
                                                                     </div>
                                                                 </template>
@@ -835,7 +835,7 @@
                                                                 <template x-if="!pal.condition_display">
                                                                     <div 
                                                                         class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-ok-500/15 text-ok-300 border border-ok-500/30"
-                                                                        data-tooltip="No conditions affecting this Pal">
+                                                                        data-tip="No conditions affecting this Pal">
                                                                         Healthy
                                                                     </div>
                                                                 </template>
@@ -882,10 +882,10 @@
                                                         </td>
                                                         <td class="hidden md:table-cell px-2 md:px-4 py-3 text-sm text-gray-400">
                                                             <template x-if="pal.gender === 'Male'">
-                                                                <img src="img/male.webp" alt="Male" class="w-4 h-4 md:w-5 md:h-5 inline-block" title="Male">
+                                                                <img src="img/male.webp" alt="Male" class="w-4 h-4 md:w-5 md:h-5 inline-block" data-tip="Male">
                                                             </template>
                                                             <template x-if="pal.gender === 'Female'">
-                                                                <img src="img/female.webp" alt="Female" class="w-4 h-4 md:w-5 md:h-5 inline-block" title="Female">
+                                                                <img src="img/female.webp" alt="Female" class="w-4 h-4 md:w-5 md:h-5 inline-block" data-tip="Female">
                                                             </template>
                                                             <template x-if="pal.gender !== 'Male' && pal.gender !== 'Female'">
                                                                 <span class="text-gray-500 text-xs" x-text="pal.gender"></span>

@@ -51,20 +51,20 @@
                                     <div class="text-xs text-gray-400 truncate">
                                         <span x-text="getGuildName(player.guild_id)"></span>
                                         <template x-if="player.last_online">
-                                            <span> · seen <span x-text="formatRelativeTime(player.last_online, now)" :title="formatDate(player.last_online)"></span></span>
+                                            <span> · seen <span x-text="formatRelativeTime(player.last_online, now)" :data-tip="formatDate(player.last_online)"></span></span>
                                         </template>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 flex-shrink-0">
-                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-xs font-semibold tabular-nums" :class="needChipClass(player.hunger)" :title="'Hunger ' + Math.round(player.hunger) + '%'">
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-xs font-semibold tabular-nums" :class="needChipClass(player.hunger)" :data-tip="'Hunger ' + Math.round(player.hunger) + '%'">
                                         <img src="/img/food.webp" alt="Hunger" class="w-3.5 h-3.5 opacity-90">
                                         <span x-text="Math.round(player.hunger) + '%'"></span>
                                     </span>
-                                    <span class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-xs font-semibold tabular-nums" :class="needChipClass(player.sanity)" :title="'Sanity ' + Math.round(player.sanity) + '%'">
+                                    <span class="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-xs font-semibold tabular-nums" :class="needChipClass(player.sanity)" :data-tip="'Sanity ' + Math.round(player.sanity) + '%'">
                                         <img src="/img/heart.webp" alt="Sanity" class="w-3.5 h-3.5 opacity-90">
                                         <span x-text="Math.round(player.sanity) + '%'"></span>
                                     </span>
-                                    <button @click="viewPalsOf(player.player_name)" title="View this player's pals"
+                                    <button @click="viewPalsOf(player.player_name)" data-tip="View this player's pals"
                                             class="btn-quiet text-xs px-2 py-1 border border-gray-700/60 text-gray-300 hover:border-gray-600">
                                         <img src="/img/capture.webp" alt="" class="w-3.5 h-3.5 opacity-80">
                                         Pals
@@ -105,7 +105,7 @@
                                         <span class="px-1.5 py-0.5 rounded-md font-medium"
                                               :class="getConditionClass(pal.all_conditions && pal.all_conditions[0])"
                                               x-text="pal.condition_display"></span>
-                                        <button @click.stop="goToBase(pal.guild_id, pal.base_id)" class="text-gray-400 hover:text-accent-300 truncate" :title="'Owned by ' + baseOwner(pal.guild_id)">
+                                        <button @click.stop="goToBase(pal.guild_id, pal.base_id)" class="text-gray-400 hover:text-accent-300 truncate" :data-tip="'Owned by ' + baseOwner(pal.guild_id)">
                                             <span class="text-cyan-300" x-text="baseOwner(pal.guild_id)"></span>
                                             <span class="text-gray-500"> · </span><span x-text="pal.base_name"></span>
                                         </button>
