@@ -38,6 +38,7 @@ from pathlib import Path
 from savepal import ROOT as REPO, DATA_JSON
 from backend.common.pal_ids import SpeciesIndex, is_boss_id
 from backend.common.map_layers import load_map_layers, which_map
+from backend.common.spawns import delta, plain_without_zones
 
 OUT_PATH = DATA_JSON / 'spawns.json'
 EXTRACTOR = REPO / 'scripts' / 'datagen' / 'extractor' / 'bin' / 'Release' / 'net8.0' / 'pal-extract'
@@ -175,7 +176,8 @@ def main():
 
     layers = load_map_layers(DATA_JSON / 'map_layers.json')
     with open(DATA_JSON / 'pals.json', encoding='utf-8') as f:
-        species = SpeciesIndex(json.load(f).keys())
+        pals = json.load(f)
+    species = SpeciesIndex(pals.keys())
     groups, unresolved, dropped = build(src, layers, species)
 
     n_points = sum(len(v) for g in groups.values() for v in g['points'].values())
@@ -183,6 +185,22 @@ def main():
     kinds = collections.Counter(g['kind'] for g in groups.values())
     print(f'\n{len(groups)} spawner groups, {n_points} points, {len(pal_ids)} species')
     print('by kind: ' + ', '.join(f'{k}={v}' for k, v in sorted(kinds.items())))
+
+    # Coverage, so a patch that moves or drops a species shows up here, not in the UI.
+    old_groups = {}
+    if OUT_PATH.exists():
+        with open(OUT_PATH, encoding='utf-8') as f:
+            old_groups = (json.load(f).get('groups') or {})
+        d = delta(old_groups, groups)
+        print(f'vs committed: {len(old_groups)} -> {len(groups)} groups; '
+              f'species +{len(d["gained"])} / -{len(d["lost"])}')
+        if d['gained']:
+            print('  gained: ' + ', '.join(d['gained']))
+        if d['lost']:
+            print('  LOST:   ' + ', '.join(d['lost']))
+    gap = sorted(plain_without_zones(pals, groups))
+    print(f'{len(gap)} ordinary species with no wild spawn zone (breeding-only / event pals expected):')
+    print('  ' + ', '.join(gap))
     if dropped:
         print(f'dropped {sum(dropped.values())} placement(s) with no spawner definition: '
               + ', '.join(f'{k}×{v}' for k, v in dropped.most_common(6)))

@@ -26,6 +26,7 @@ from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers
 from backend.common.breeding import BreedingIndex
 from backend.common.pal_ids import SpeciesIndex
+from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -109,8 +110,10 @@ def check_map_objects(layers, species):
     return objs
 
 
-def check_spawns(layers, species):
-    """spawns.json (optional): every group names known layers and resolvable species."""
+def check_spawns(layers, species, pals):
+    """spawns.json (optional): every group names known layers and resolvable species,
+    and the ordinary species with no zone at all are listed (breeding-only / event pals
+    are expected there; anything else means the extraction lost something)."""
     p = DATA_JSON / 'spawns.json'
     if not p.exists():
         notes.append('spawns.json missing -- run generate_spawns.py (needs the pak); map spawn search will be hidden')
@@ -134,6 +137,12 @@ def check_spawns(layers, species):
         notes.append(f'{len(no_icon)} spawner species have no icon on disk: ' + ', '.join(no_icon[:8]))
     n_points = sum(len(v) for g in groups.values() for v in g.get('points', {}).values())
     notes.append(f'spawns: {len(groups)} groups, {n_points} points, {len(ids)} species')
+    if len(ids) < MIN_SPAWN_SPECIES:
+        problems.append(f'spawns: only {len(ids)} species have zones (expected >= {MIN_SPAWN_SPECIES}) -- partial extraction?')
+    gap = sorted(plain_without_zones(pals, groups))
+    if gap:
+        notes.append(f'{len(gap)} ordinary species have no wild spawn zone (breeding-only / event pals expected): '
+                     + ', '.join(gap))
 
 
 def check_breeding(pals, species):
@@ -220,7 +229,7 @@ def main():
     check_elements(pals)
     objs = check_map_objects(layers, species)
     check_pal_icons(pals)
-    check_spawns(layers, species)
+    check_spawns(layers, species, pals)
     check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)

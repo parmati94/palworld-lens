@@ -12,6 +12,7 @@ from backend.common.constants import WORK_ICON_MAPPING
 from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers, which_map
 from backend.common.pal_ids import SpeciesIndex
+from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'json'
@@ -104,6 +105,11 @@ def test_spawns_resolve_to_known_species_and_layers(pals):
     # the pals the map search is for actually appear somewhere
     ids = {sid.lower() for g in groups.values() for sid in g['pals']}
     assert {'pinkcat', 'sheepball', 'anubis'} <= ids
+    # A partial extraction (bad usmap, truncated table) must not ship a half-empty search.
+    assert len(ids) >= MIN_SPAWN_SPECIES, f'only {len(ids)} species have spawn zones'
+    # The only ordinary species without zones are scripted variants, breeding-only or event pals.
+    gap = plain_without_zones(pals, groups)
+    assert len(gap) <= 20, f'{len(gap)} ordinary species have no wild spawn zone: {sorted(gap)}'
 
 
 def test_data_loader_builds_and_reference_is_complete(pals):
