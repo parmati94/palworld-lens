@@ -355,77 +355,36 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 }
 
 
-/* Custom tooltip styling */
-[data-tooltip] {
-    position: relative;
-}
-
-/* Default tooltip - goes up */
-[data-tooltip]:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem 0.75rem;
+/* Tooltips: one fixed box driven by js/components/tooltip.js (data-tip="..."),
+   in the same dark card style as the map marker hover cards. */
+.pw-tip {
+    position: fixed;
+    z-index: 2000;
+    max-width: 260px;
+    padding: 0.4rem 0.65rem;
     background: rgba(17, 24, 39, 0.95);
-    color: #f9fafb;
+    color: #e5e7eb;
     font-size: 0.75rem;
     line-height: 1.4;
     border-radius: 0.5rem;
-    border: 1px solid rgba(75, 85, 99, 0.5);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    white-space: normal;
-    max-width: 250px;
-    width: max-content;
-    z-index: 1000;
+    border: 1px solid rgba(75, 85, 99, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
     pointer-events: none;
-    margin-bottom: 0.5rem;
-    animation: tooltipFadeIn 0.2s ease-out;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 0.12s ease-out, transform 0.12s ease-out;
 }
-
-[data-tooltip]:hover::before {
+.pw-tip.is-visible { opacity: 1; transform: none; }
+.pw-tip::after {
     content: '';
     position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: rgba(17, 24, 39, 0.95);
-    z-index: 1001;
-    pointer-events: none;
-    margin-bottom: -6px;
-    animation: tooltipFadeIn 0.2s ease-out;
+    left: var(--tip-arrow, 50%);
+    margin-left: -5px;
+    border: 5px solid transparent;
 }
-
-/* Modal tooltip - goes right */
-.fixed [data-tooltip]:hover::after {
-    bottom: auto;
-    left: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    margin-bottom: 0;
-    margin-left: 0.5rem;
-    max-width: 250px;
-    white-space: normal;
-}
-
-.fixed [data-tooltip]:hover::before {
-    bottom: auto;
-    left: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 6px solid transparent;
-    border-right-color: rgba(17, 24, 39, 0.95);
-    border-top-color: transparent;
-    margin-bottom: 0;
-    margin-left: -6px;
-}
-
-@keyframes tooltipFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+.pw-tip[data-placement="top"]::after    { top: 100%;  border-top-color: rgba(17, 24, 39, 0.95); }
+.pw-tip[data-placement="bottom"]::after { bottom: 100%; border-bottom-color: rgba(17, 24, 39, 0.95); }
+.reduce-motion .pw-tip { transition: none; }
 
 
 /* Work suitability icon colors */
@@ -460,6 +419,20 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     outline: none;
 }
 .maplibregl-canvas { outline: none; }
+
+/* Spawn-zone hover card (map-maplibre.js spawnPopupHtml) in the marker tooltip look. */
+.pw-popup .maplibregl-popup-content {
+    background: rgba(17, 24, 39, 0.95);
+    color: #e5e7eb;
+    border: 1px solid rgba(75, 85, 99, 0.6);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+.pw-popup .maplibregl-popup-tip { display: none; }
+.pw-popup { z-index: 1200; pointer-events: none; }   /* above the DOM markers (z 100-1000) */
 
 /* Markers are plain DOM elements positioned by MapLibre; don't let the global
    transition rule fight its per-frame transform updates. */

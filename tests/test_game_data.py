@@ -12,6 +12,7 @@ from backend.common.constants import WORK_ICON_MAPPING
 from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers, which_map
 from backend.common.pal_ids import SpeciesIndex
+from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'json'
@@ -77,6 +78,38 @@ def test_map_layers_have_sources_and_square_bounds():
         assert (IMG / m['source']).exists(), name
         (x0, x1), (y0, y1) = m['x'], m['y']
         assert abs((x1 - x0) - (y1 - y0)) < 1e-6, f'{name}: bounds must be square (square texture)'
+
+
+def test_spawns_resolve_to_known_species_and_layers(pals):
+    """spawns.json (generate_spawns.py) is optional, but when shipped every group must be usable."""
+    p = DATA / 'spawns.json'
+    if not p.exists():
+        pytest.skip('spawns.json not generated')
+    groups = _json(p)['groups']
+    layers = load_map_layers(DATA / 'map_layers.json')
+    species = SpeciesIndex(pals.keys())
+    assert groups
+    for name, g in groups.items():
+        assert g['kind'] in ('field', 'dungeon', 'dungeon_boss', 'field_boss', 'prison_boss'), name
+        assert g['pals'], f'{name}: no pals'
+        assert any(g['points'].values()), f'{name}: no points'
+        for layer, pts in g['points'].items():
+            assert layer in layers, name
+            (x0, x1), (y0, y1) = layers[layer]['x'], layers[layer]['y']
+            for x, y in pts:
+                assert x0 <= x <= x1 and y0 <= y <= y1, f'{name}: point off its layer'
+        for sid, e in g['pals'].items():
+            assert species.resolve(sid) is not None, f'{name}: {sid}'
+            assert 0 < e['share'] <= 1, f'{name}: {sid} share'
+            assert e['level'][0] <= e['level'][1], f'{name}: {sid} level'
+    # the pals the map search is for actually appear somewhere
+    ids = {sid.lower() for g in groups.values() for sid in g['pals']}
+    assert {'pinkcat', 'sheepball', 'anubis'} <= ids
+    # A partial extraction (bad usmap, truncated table) must not ship a half-empty search.
+    assert len(ids) >= MIN_SPAWN_SPECIES, f'only {len(ids)} species have spawn zones'
+    # The only ordinary species without zones are scripted variants, breeding-only or event pals.
+    gap = plain_without_zones(pals, groups)
+    assert len(gap) <= 20, f'{len(gap)} ordinary species have no wild spawn zone: {sorted(gap)}'
 
 
 def test_data_loader_builds_and_reference_is_complete(pals):

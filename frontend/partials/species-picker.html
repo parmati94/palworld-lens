@@ -24,7 +24,7 @@
                             <input type="text" x-ref="query" x-model="query" placeholder="Search pals..."
                                    @keydown.enter.prevent="list.length && pick(list[0].id)"
                                    class="flex-1 min-w-0 px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-accent-500">
-                            <label class="flex items-center gap-1.5 text-xs text-gray-300 whitespace-nowrap cursor-pointer select-none" title="Only species you have at least one of">
+                            <label class="flex items-center gap-1.5 text-xs text-gray-300 whitespace-nowrap cursor-pointer select-none" data-tip="Only species you have at least one of">
                                 <input type="checkbox" x-model="ownedOnly" class="rounded border-gray-500 bg-gray-800 text-accent-600 focus:ring-accent-500">
                                 Owned
                             </label>

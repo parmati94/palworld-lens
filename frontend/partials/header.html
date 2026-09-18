@@ -26,12 +26,12 @@
             <!-- Left: wordmark + tabs -->
             <div class="flex items-stretch gap-1 min-w-0 flex-1">
                 <div class="flex items-center gap-2.5 group min-w-0 shrink-0 -ml-1 px-1">
-                    <a href="#overview" @click.prevent="currentTab = 'overview'" title="Overview"
+                    <a href="#overview" @click.prevent="currentTab = 'overview'" data-tip="Overview"
                        class="h-8 w-8 flex items-center justify-center bg-gray-800 rounded-lg border border-accent-500/40 group-hover:border-accent-500/70 transition-colors flex-shrink-0 p-1">
                         <img src="/img/favicon/apple-touch-icon.png?v=2" alt="Palworld Lens logo" class="w-full h-full object-contain rounded-md">
                     </a>
                     <div class="min-w-0 leading-none">
-                        <a href="#overview" @click.prevent="currentTab = 'overview'" title="Overview" class="block">
+                        <a href="#overview" @click.prevent="currentTab = 'overview'" data-tip="Overview" class="block">
                             <h1 class="text-lg font-display font-bold tracking-tight leading-none whitespace-nowrap">
                                 <span class="text-gray-200 group-hover:text-white transition-colors">Palworld</span><span class="bg-gradient-to-r from-accent-300 to-accent-500 bg-clip-text text-transparent drop-shadow-[0_0_8px_rgb(var(--accent-500)_/_0.35)] group-hover:drop-shadow-[0_0_17px_rgb(var(--accent-400)_/_0.8)] transition-all duration-300"> Lens</span>
                             </h1>
@@ -40,12 +40,12 @@
                              room (phones, lg+). The dot pulses while the save is being watched or
                              polled; "manual" appears when it is not. Tap opens Settings. -->
                         <button x-show="saveInfo.loaded" @click="showSettings = true" type="button"
-                                :title="autoWatchActive ? (remoteMode ? 'Polling the remote server for save changes' : 'Watching the save folder for changes') : 'Not watching for changes. Reload by hand, or turn Auto-Watch on in Settings.'"
+                                :data-tip="autoWatchActive ? (remoteMode ? 'Polling the remote server for save changes' : 'Watching the save folder for changes') : 'Not watching for changes. Reload by hand, or turn Auto-Watch on in Settings.'"
                                 class="md:hidden lg:flex flex items-center gap-1.5 text-[11px] leading-4 text-gray-500 mt-0.5 min-w-0 max-w-full hover:text-gray-300 transition-colors">
                             <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :class="autoWatchActive ? 'bg-ok-400 pulse-active' : 'bg-gray-600'"></span>
                             <span class="text-gray-400 font-medium truncate" x-text="saveInfo.world_name"></span>
                             <span x-show="saveInfo.last_updated" class="text-gray-700">·</span>
-                            <span x-show="saveInfo.last_updated" class="truncate whitespace-nowrap" :title="formatDate(saveInfo.last_updated)">
+                            <span x-show="saveInfo.last_updated" class="truncate whitespace-nowrap" :data-tip="formatDate(saveInfo.last_updated)">
                                 Updated <span x-text="formatRelativeTime(saveInfo.last_updated, now)"></span>
                             </span>
                             <span x-show="!autoWatchActive" class="text-gray-600 whitespace-nowrap flex-shrink-0">· manual</span>
@@ -76,7 +76,7 @@
                            @click.prevent="currentTab = tab.id"
                            :class="currentTab === tab.id ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
                            :aria-current="currentTab === tab.id ? 'page' : null"
-                           :title="tab.title"
+                           :data-tip="tab.title"
                            class="flex items-center gap-1.5 px-1.5 lg:px-3 text-[13px] lg:text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap shrink-0">
                             <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" /></svg>
                             <span x-text="tab.label"></span>
@@ -91,7 +91,7 @@
                 <button
                     @click="reloadSave()"
                     :disabled="loading"
-                    title="Re-read the save files now"
+                    data-tip="Re-read the save files now"
                     aria-label="Reload save"
                     class="btn-quiet p-2 disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg class="w-5 h-5" :class="loading ? 'animate-spin text-accent-400' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,7 +102,7 @@
                 <!-- Server Info (RCON) -->
                 <button
                     @click="$dispatch('show-server-info')"
-                    title="Live server status via RCON"
+                    data-tip="Live server status via RCON"
                     aria-label="Server info"
                     class="btn-quiet p-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@
                 </button>
 
                 <!-- Settings: watcher, accent colour, motion -->
-                <button @click="showSettings = true" title="Settings" aria-label="Settings" class="btn-quiet p-2">
+                <button @click="showSettings = true" data-tip="Settings" aria-label="Settings" class="btn-quiet p-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -123,7 +123,7 @@
                     @click="async () => { await fetch('/api/auth/logout', {method: 'POST', credentials: 'same-origin'}); window.location.href = '/login.html'; }"
                     x-init="fetch('/api/auth/status', {credentials: 'same-origin'}).then(r => r.json()).then(d => $el.style.display = d.enabled ? 'inline-flex' : 'none').catch(() => {})"
                     style="display: none;"
-                    title="Log out"
+                    data-tip="Log out"
                     aria-label="Log out"
                     class="btn-quiet p-2 group hover:text-danger-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -124,10 +124,14 @@ class DataLoader:
         self.map_layers: Dict[str, Dict] = {
             k: v for k, v in (self.tables.get('map_layers') or {}).items() if not k.startswith('_')
         }
+        # Wild spawner groups (data/json/spawns.json): {name: {kind, radius, points, pals}}.
+        # Optional -- the map's spawn search is hidden when it is absent.
+        self.spawns: Dict[str, Dict] = (self.tables.get('spawns') or {}).get('groups') or {}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '
                     f'{len(self.map_objects)} map objects, {len(self.map_layers)} map layers, '
+                    f'{len(self.spawns)} spawner groups, '
                     f'{len(self.breeding.species)} breedable species / {self.breeding.pair_count()} pairs')
 
     # ------------------------------------------------------------------

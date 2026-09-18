@@ -12,15 +12,15 @@
                                 <div class="text-xs text-gray-400 mt-1 flex items-center gap-1.5 flex-wrap">
                                     <span>Level <span class="text-gray-200 font-medium tabular-nums" x-text="player.level"></span></span>
                                     <span x-show="player.last_online" class="text-gray-600">·</span>
-                                    <span x-show="player.last_online" :title="formatDate(player.last_online)">seen <span x-text="formatRelativeTime(player.last_online, now)"></span></span>
+                                    <span x-show="player.last_online" :data-tip="formatDate(player.last_online)">seen <span x-text="formatRelativeTime(player.last_online, now)"></span></span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
-                                <span class="text-[11px] font-mono text-gray-500" :title="'UID ' + player.uid" x-text="player.uid.substring(0, 8)"></span>
+                                <span class="text-[11px] font-mono text-gray-500" :data-tip="'UID ' + player.uid" x-text="player.uid.substring(0, 8)"></span>
                                 <button
                                     x-show="player.location && player.location.x !== undefined"
                                     @click="currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#worldMap'); if (mapEl) { const mapComponent = Alpine.$data(mapEl.parentElement); if (mapComponent && mapComponent.centerOnLocation) mapComponent.centerOnLocation(player.location.x, player.location.y); } });"
-                                    title="Show on map"
+                                    data-tip="Show on map"
                                     aria-label="Show on map"
                                     class="btn-quiet w-8 h-8 justify-center border border-gray-700/60 hover:border-accent-500/50 hover:text-accent-300">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

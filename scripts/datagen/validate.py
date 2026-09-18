@@ -26,6 +26,7 @@ from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers
 from backend.common.breeding import BreedingIndex
 from backend.common.pal_ids import SpeciesIndex
+from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -107,6 +108,41 @@ def check_map_objects(layers, species):
     if missing:
         problems.append(f'{len(missing)} map marker(s) have no icon on disk: ' + ', '.join(missing[:8]))
     return objs
+
+
+def check_spawns(layers, species, pals):
+    """spawns.json (optional): every group names known layers and resolvable species,
+    and the ordinary species with no zone at all are listed (breeding-only / event pals
+    are expected there; anything else means the extraction lost something)."""
+    p = DATA_JSON / 'spawns.json'
+    if not p.exists():
+        notes.append('spawns.json missing -- run generate_spawns.py (needs the pak); map spawn search will be hidden')
+        return
+    groups = (_json(p).get('groups') or {})
+    if not groups:
+        problems.append('spawns.json has no groups')
+        return
+    bad_layers = sorted({m for g in groups.values() for m in g.get('points', {}) if m not in layers})
+    if bad_layers:
+        problems.append('spawns: unknown map layer(s): ' + ', '.join(bad_layers))
+    empty = [n for n, g in groups.items() if not g.get('pals') or not any(g.get('points', {}).values())]
+    if empty:
+        problems.append(f'{len(empty)} spawner group(s) have no pals or no points: ' + ', '.join(empty[:6]))
+    ids = sorted({sid for g in groups.values() for sid in g.get('pals', {})})
+    unresolved = [sid for sid in ids if species.resolve(sid) is None]
+    if unresolved:
+        problems.append(f'{len(unresolved)} spawner species not in pals.json: ' + ', '.join(unresolved[:8]))
+    no_icon = [sid for sid in ids if not _has_icon(sid)]
+    if no_icon:
+        notes.append(f'{len(no_icon)} spawner species have no icon on disk: ' + ', '.join(no_icon[:8]))
+    n_points = sum(len(v) for g in groups.values() for v in g.get('points', {}).values())
+    notes.append(f'spawns: {len(groups)} groups, {n_points} points, {len(ids)} species')
+    if len(ids) < MIN_SPAWN_SPECIES:
+        problems.append(f'spawns: only {len(ids)} species have zones (expected >= {MIN_SPAWN_SPECIES}) -- partial extraction?')
+    gap = sorted(plain_without_zones(pals, groups))
+    if gap:
+        notes.append(f'{len(gap)} ordinary species have no wild spawn zone (breeding-only / event pals expected): '
+                     + ', '.join(gap))
 
 
 def check_breeding(pals, species):
@@ -193,6 +229,7 @@ def main():
     check_elements(pals)
     objs = check_map_objects(layers, species)
     check_pal_icons(pals)
+    check_spawns(layers, species, pals)
     check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)

@@ -8,7 +8,7 @@
                        @click.prevent="currentTab = tab.id; window.scrollTo({ top: 0 })"
                        :class="[currentTab === tab.id ? 'text-accent-400' : 'text-gray-500', tab.tool ? 'border-l border-gray-800' : '']"
                        :aria-current="currentTab === tab.id ? 'page' : null"
-                       :title="tab.title || tab.label"
+                       :data-tip="tab.title || tab.label"
                        class="flex flex-col items-center justify-center gap-1 pt-2 pb-1.5 text-[10px] font-medium transition-colors min-w-0">
                         <span class="relative">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" /></svg>

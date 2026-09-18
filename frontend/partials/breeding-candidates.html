@@ -36,7 +36,7 @@
                                      :class="i === 0 && breedTargets.length ? 'border-ok-500/40 bg-ok-500/5' : 'border-gray-700/60 bg-gray-800/60'">
                                     <template x-for="who in ['a', 'b']" :key="who">
                                         <button @click="breedOpenPal(c[who])" class="text-left flex items-start gap-2.5 min-w-0 rounded-md p-1 -m-1 hover:bg-gray-700/50 transition-colors"
-                                                :class="who === 'b' ? 'md:col-start-3' : ''" title="Open this pal">
+                                                :class="who === 'b' ? 'md:col-start-3' : ''" data-tip="Open this pal">
                                             <div class="relative flex-shrink-0">
                                                 <img :src="palIconSrc(c[who])" @error="palIconError($el, c[who])" :alt="c[who].display_name"
                                                      class="w-10 h-10 rounded-lg bg-gray-900 object-cover">
@@ -55,7 +55,7 @@
                                                     <template x-for="s in (c[who].passive_skills || [])" :key="s.skill_id || s.name">
                                                         <span class="px-1.5 py-0.5 rounded text-[11px] leading-tight font-medium"
                                                               :class="[getPassiveBackgroundClass(s.rank), getPassiveTextClass(s.rank), breedTargets.includes(s.skill_id) ? 'ring-2 ring-ok-400 ring-offset-1 ring-offset-gray-900' : '']"
-                                                              :title="breedTargets.includes(s.skill_id) ? 'Wanted passive' : (s.description || '')">
+                                                              :data-tip="breedTargets.includes(s.skill_id) ? 'Wanted passive' : (s.description || '')">
                                                             <span class="relative z-10" x-text="s.name"></span>
                                                         </span>
                                                     </template>
