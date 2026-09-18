@@ -167,8 +167,8 @@ export function app() {
             // modal lands there); owned-pal matches follow the pal list.
             this.$watch('currentTab', t => { if (t === 'breeding') this.ensureBreedingSpecies(); });
             if (this.currentTab === 'breeding') this.ensureBreedingSpecies();
-            this.$watch('pals', () => this.breedInvalidateOwned());
-            this.$watch('breedOwner', () => { this.breedInvalidateOwned(); this.writeHash(); });
+            this.$watch('pals', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); });
+            this.$watch('breedOwner', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); this.writeHash(); });
             ['breedMode', 'breedA', 'breedB', 'breedChild'].forEach(key => {
                 this.$watch(key, () => { this.runBreeding(); this.writeHash(); });
             });

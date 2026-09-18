@@ -70,6 +70,11 @@ export const api = {
         const res = await fetchWithRetry(`/api/breeding/parents?child=${encodeURIComponent(child)}`);
         return await res.json();
     },
+    /** Fewest breeds from the owned pals (one player's, or everyone's) to a species. */
+    async getBreedingRoute(target, owner = '') {
+        const res = await fetchWithRetry(`/api/breeding/route?target=${encodeURIComponent(target)}&owner=${encodeURIComponent(owner || '')}`);
+        return await res.json();
+    },
 
     /**
      * Get base containers

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from backend.common.breeding import BreedingIndex, Combo
+from backend.common.breeding import BreedingIndex, Combo, pair_feasible, plan_route, shortcuts
 from backend.common.pal_ids import SpeciesIndex
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,3 +86,149 @@ def test_data_loader_exposes_breeding():
     dl = DataLoader(DATA)
     assert dl.breeding.pair_count() > 30000
     assert dl.breeding.is_breedable('Anubis')
+
+
+# ----------------------------------------------------------------------
+# Route planning
+# ----------------------------------------------------------------------
+def test_admits_passes_explicit_genders_on_ungated_pairs():
+    plain = Combo('A', 'B', 'C')
+    assert plain.admits('Male', 'Female') and plain.admits(None, None)
+    gated = Combo('A', 'B', 'C', True, 'Male', 'Female')
+    assert gated.admits('Male', 'Female') and not gated.admits('Female', 'Male')
+
+
+def test_pair_feasible_needs_opposite_genders_and_honours_the_gate(index):
+    combo = index.child_of('BirdDragon', 'ThunderBird')[0]
+    assert pair_feasible(combo, {'BirdDragon': {'Male'}, 'ThunderBird': {'Female'}}, set())
+    assert not pair_feasible(combo, {'BirdDragon': {'Male'}, 'ThunderBird': {'Male'}}, set())
+    # a bred parent can be hatched in either gender
+    assert pair_feasible(combo, {'BirdDragon': {'Male'}}, {'ThunderBird'})
+    # same species needs both genders
+    same = index.child_of('Alpaca', 'Alpaca')[0]
+    assert not pair_feasible(same, {'Alpaca': {'Male'}}, set())
+    assert pair_feasible(same, {'Alpaca': {'Male', 'Female'}}, set())
+    # gender-gated unique combo: owned genders must match the gate
+    gated = [c for c in index.child_of('CatMage', 'FoxMage') if c.child == 'FoxMage_Dark'][0]
+    assert pair_feasible(gated, {'CatMage': {gated.parent_a_gender}, 'FoxMage': {gated.parent_b_gender}}, set())
+    assert not pair_feasible(gated, {'CatMage': {gated.parent_b_gender}, 'FoxMage': {gated.parent_a_gender}}, set())
+
+
+def test_route_statuses(index):
+    assert plan_route(index, {'Anubis': {'Male'}}, 'Anubis').status == 'owned'
+    one = plan_route(index, {'BirdDragon': {'Male'}, 'ThunderBird': {'Female'}}, 'AmaterasuWolf')
+    assert one.status == 'breedable' and one.exact and one.breeds == 1
+    assert one.steps[0].from_a == one.steps[0].from_b == 'owned'
+    # same genders only: that pair is out, and nothing else is owned
+    assert plan_route(index, {'BirdDragon': {'Male'}, 'ThunderBird': {'Male'}}, 'AmaterasuWolf').status == 'unreachable'
+    # legendaries only breed with themselves
+    assert plan_route(index, {'Alpaca': {'Male', 'Female'}}, 'JetDragon').status == 'unreachable'
+    assert plan_route(index, {}, 'Anubis').status == 'unreachable'
+    assert plan_route(index, {'Alpaca': {'Male'}}, 'NotAPal').status == 'unreachable'
+
+
+def _check_plan(index, owned, plan, target):
+    """Every step is a real pair, feasible in order, each species bred once, target last."""
+    assert plan.steps[-1].child == target
+    bred = set()
+    for step in plan.steps:
+        c = step.combo
+        assert step.child == c.child
+        assert any(x.child == c.child for x in index.child_of(c.parent_a, c.parent_b)), step
+        for parent, src in ((c.parent_a, step.from_a), (c.parent_b, step.from_b)):
+            assert src in ('owned', 'bred')
+            assert parent in (bred if src == 'bred' else owned), step
+        assert pair_feasible(c, owned, bred), step
+        assert step.child not in bred, 'each species is bred once'
+        bred.add(step.child)
+    assert plan.breeds == len(plan.steps)
+    assert plan.generations == max(s.depth for s in plan.steps)
+
+
+def test_route_is_a_valid_dependency_ordered_plan(index):
+    owned = {'BirdDragon': {'Male'}, 'ThunderBird': {'Female'}, 'SakuraSaurus': {'Female'},
+             'DrillGame': {'Male'}, 'SkyDragon': {'Male'}, 'CatBat': {'Male'}}
+    route = plan_route(index, owned, 'Anubis')
+    assert route.status == 'route' and route.breeds > 1
+    assert route.breeds >= route.min_generations
+    for plan in route.plans:
+        _check_plan(index, owned, plan, 'Anubis')
+        assert plan.breeds >= route.breeds, 'plans are sorted, shortest first'
+
+
+def test_route_exact_search_finds_the_proven_minimum(index):
+    # Small owned set with a short answer: the exact search must finish and
+    # agree with the depth lower bound where they coincide.
+    owned = {'SakuraSaurus': {'Female'}, 'VolcanoDragon': {'Male'}, 'IceFox': {'Male'}}
+    route = plan_route(index, owned, 'Anubis', time_budget=5)
+    assert route.status == 'route' and route.exact
+    _check_plan(index, owned, route.plan, 'Anubis')
+    assert route.breeds <= 6
+
+
+def test_route_gender_needs_follow_the_owned_genders(index):
+    # VolcanoDragon owned male only -> whatever it pairs with must be female
+    owned = {'SakuraSaurus': {'Female'}, 'VolcanoDragon': {'Male'}, 'IceFox': {'Male'}}
+    route = plan_route(index, owned, 'Anubis', time_budget=5)
+    for step in route.steps:
+        c = step.combo
+        if c.parent_a == 'VolcanoDragon' and step.from_b == 'bred':
+            assert step.need_b == 'Female'
+        if c.parent_b == 'VolcanoDragon' and step.from_a == 'bred':
+            assert step.need_a == 'Female'
+    hatch = route.plan.hatch()
+    assert set(hatch) == {s.child for s in route.steps}
+
+
+def test_route_timeout_falls_back_to_a_valid_heuristic_plan(index):
+    owned = {'Sheepball': {'Female'}, 'LeafMomonga': {'Male'}, 'CloverFairy': {'Female'}, 'CuteFox': {'Male'}}
+    route = plan_route(index, owned, 'Anubis', time_budget=0.05)
+    assert route.status == 'route' and not route.exact and route.min_generations >= 1
+    for plan in route.plans:
+        _check_plan(index, owned, plan, 'Anubis')
+
+
+def test_shortcuts_rank_catchable_intermediates_partners_and_pairs(index):
+    owned = {'SakuraSaurus': {'Female'}, 'VolcanoDragon': {'Male'}, 'IceFox': {'Male'}}
+    route = plan_route(index, owned, 'Anubis', time_budget=5)
+    assert route.status == 'route' and route.breeds > 1
+    bred = [s.child for s in route.steps if s.child != 'Anubis']
+    # every intermediate catchable: each saves exactly its subtree
+    cuts = shortcuts(index, owned, route, {b: 10 for b in bred}, limit=50)
+    by = {c.species: c for c in cuts}
+    assert set(by) == set(bred)
+    for c in cuts:
+        assert c.kind == 'intermediate' and c.catches == 1 and c.saves >= 1 and c.breeds_after + c.saves == route.breeds
+    assert cuts[0].breeds_after == min(c.breeds_after for c in cuts)
+    # a wild partner that finishes it in one breed with an owned pal
+    partner = next(c.parent_b for c in index.partners_for('VolcanoDragon', 'Anubis')
+                   if c.parent_b not in owned and c.parent_b != 'Anubis')
+    cuts = shortcuts(index, owned, route, {partner: 30})
+    assert len(cuts) == 1 and cuts[0].kind == 'partner' and cuts[0].partner == 'VolcanoDragon'
+    assert cuts[0].breeds_after == 1 and cuts[0].saves == route.breeds - 1 and cuts[0].level == 30
+    assert cuts[0].need == 'Female', 'VolcanoDragon is owned male only'
+    # both parents wild: catch two, breed once; the easier one leads and pairs are capped
+    combos = [c for c in index.parents_of('Anubis') if 'Anubis' not in (c.parent_a, c.parent_b)][:3]
+    levels = {}
+    for i, c in enumerate(combos):
+        levels[c.parent_a] = 40 + i
+        levels[c.parent_b] = 20 + i
+    cuts = shortcuts(index, owned, route, levels, max_pairs=2)
+    pairs = [c for c in cuts if c.kind == 'pair']
+    assert 1 <= len(pairs) <= 2
+    for c in pairs:
+        assert c.catches == 2 and c.breeds_after == 1 and c.level <= c.partner_level
+    # single catches with the same breeds left rank before double catches
+    cuts = shortcuts(index, owned, route, {**levels, partner: 30})
+    assert cuts[0].species == partner and cuts[0].catches == 1
+    # nothing catchable, or nothing to shorten -> no shortcuts
+    assert shortcuts(index, owned, route, {}) == []
+    assert shortcuts(index, owned, plan_route(index, {'Anubis': {'Male'}}, 'Anubis'), {'Anubis': 1}) == []
+
+
+def test_catchable_levels_use_field_zones_only():
+    from backend.common.spawns import catchable_levels, catchable_species
+    groups = {'a': {'kind': 'field', 'pals': {'X': {'level': [12, 20]}}}, 'b': {'kind': 'dungeon', 'pals': {'Y': {'level': [1, 5]}}},
+              'c': {'kind': 'field_boss', 'pals': {'Z': {'level': [45, 45]}, 'X': {'level': [30, 40]}}}}
+    assert catchable_levels(groups) == {'X': 12, 'Z': 45}
+    assert catchable_species(groups) == {'X', 'Z'}

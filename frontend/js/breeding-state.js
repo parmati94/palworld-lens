@@ -29,9 +29,19 @@ export function breedingState() {
         breedLimit: 50,             // parents mode: rows rendered (Show more adds 50)
         breedLoading: false,
         breedError: null,
+        // Child -> Parents: the multi-step route from the owned pals to the
+        // child (/api/breeding/route), fetched alongside the pairs so the
+        // "can't breed this yet" state can say how far away it is.
+        breedRoute: null,           // {status, exact, breeds, generations, min_generations, plans: [{breeds, generations, steps, hatch}]}
+        breedRoutePlan: 0,          // which plan is showing
+        breedRouteLoading: false,
+        breedRouteOpen: false,      // the route modal is showing
+        _breedRouteRequest: 0,
         _breedOwned: null,          // palsBySpecies cache, cleared when pals change
         _breedPassives: null,       // ownedPassives cache
         _breedCandidates: new Map(),
+        _breedLayout: null,         // {plan, owned, layout} for breedRouteLayout()
+        _breedRouteKey: '',         // breedRouteKey() the current breedRoute was planned for
         _breedRequest: 0,
 
         // ---- data ---------------------------------------------------------
@@ -132,12 +142,187 @@ export function breedingState() {
                     this.breedPairs = data.pairs || [];
                     this.breedExpanded = {};
                     this.breedLimit = 50;
+                    this.loadBreedingRoute();
                 }
             } catch (err) {
                 if (token === this._breedRequest) this.breedError = err.message || 'Breeding lookup failed';
             } finally {
                 if (token === this._breedRequest) this.breedLoading = false;
             }
+        },
+
+        // ---- route: from owned pals to the child, in the fewest breeds ----------
+
+        /** child | owner | owned species+genders: the only inputs the planner reads. */
+        breedRouteKey() {
+            const owned = this.breedOwned();
+            const sig = Object.keys(owned).sort()
+                .map(id => id + ':' + (owned[id].Male.length ? 'M' : '') + (owned[id].Female.length ? 'F' : ''))
+                .join(',');
+            return `${this.breedChild}|${this.breedOwner}|${sig}`;
+        },
+
+        /** Plan the route; skipped when nothing the planner reads has changed (pal refreshes are frequent). */
+        async loadBreedingRoute() {
+            if (this.breedMode !== 'parents' || !this.breedChild) { this.breedRoute = null; this._breedRouteKey = ''; return; }
+            const key = this.breedRouteKey();
+            if (this.breedRoute && key === this._breedRouteKey) return;
+            this._breedRouteKey = key;
+            const token = ++this._breedRouteRequest;
+            this.breedRoute = null;
+            this.breedRoutePlan = 0;
+            this.breedRouteLoading = true;
+            try {
+                const data = await api.getBreedingRoute(this.breedChild, this.breedOwner);
+                if (token === this._breedRouteRequest) this.breedRoute = data;
+            } catch (err) {
+                if (token === this._breedRouteRequest) this.breedRoute = { status: 'error', plans: [], error: err.message };
+            } finally {
+                if (token === this._breedRouteRequest) this.breedRouteLoading = false;
+            }
+        },
+
+        breedShowRoute() {
+            this.breedRouteOpen = true;
+            if (!this.breedRoute && !this.breedRouteLoading) this.loadBreedingRoute();
+        },
+
+        breedRoutePlans() {
+            return (this.breedRoute && this.breedRoute.plans) || [];
+        },
+
+        breedCurrentPlan() {
+            return this.breedRoutePlans()[this.breedRoutePlan] || null;
+        },
+
+        breedRouteStepPlan(delta) {
+            const n = this.breedRoutePlans().length;
+            if (!n) return;
+            this.breedRoutePlan = (this.breedRoutePlan + delta + n) % n;
+        },
+
+        /**
+         * The current plan drawn as a flow, left to right: what you own on the
+         * left, each pair merging into its child one column to the right,
+         * the goal at the far right. Columns are generations. Every leaf
+         * (an owned pal, or a bred pal already drawn once) takes one row;
+         * a bred pal sits between its two inputs. Returns absolutely
+         * positioned nodes plus connector edges for one SVG behind them.
+         */
+        breedRouteLayout() {
+            const plan = this.breedCurrentPlan();
+            const empty = { nodes: [], edges: [], w: 0, h: 0 };
+            if (!plan || !plan.steps.length) return empty;
+            // Every binding in the diagram reads this; lay out once per plan + owned set.
+            const owned = this.breedOwned();
+            const cached = this._breedLayout;
+            if (cached && cached.plan === plan && cached.owned === owned) return cached.layout;
+            const layout = this._layoutPlan(plan, owned);
+            this._breedLayout = { plan, owned, layout };
+            return layout;
+        },
+
+        _layoutPlan(plan, owned) {
+            const COL = 176, ROW = 64, W = 150, H = 54;   // px
+            const byChild = Object.fromEntries(plan.steps.map((s, i) => [s.child, { step: s, n: i + 1 }]));
+            const hatch = plan.hatch || {};
+            const nodes = [], edges = [];
+            const drawn = new Set();
+            let row = 0;
+            const counts = (id) => {
+                const slot = owned[id];
+                return slot ? { Male: slot.Male.length, Female: slot.Female.length } : { Male: 0, Female: 0 };
+            };
+            const place = (species, need) => {
+                const e = byChild[species];
+                if (!e || drawn.has(species)) {
+                    const node = {
+                        id: nodes.length, species, name: this.breedSpecies(species).name,
+                        kind: e ? 'ref' : 'owned', n: e ? e.n : 0, col: e ? e.step.depth : 0,
+                        y: row * ROW, need, counts: e ? null : counts(species),
+                    };
+                    row++;
+                    nodes.push(node);
+                    return node;
+                }
+                drawn.add(species);
+                const a = place(e.step.parent_a, e.step.need_a);
+                const b = place(e.step.parent_b, e.step.need_b);
+                const node = {
+                    id: nodes.length, species, name: this.breedSpecies(species).name,
+                    kind: species === this.breedChild ? 'goal' : 'bred', n: e.n, step: e.step, col: e.step.depth,
+                    y: (a.y + b.y) / 2, need, hatch: hatch[species] || [],
+                    unique: e.step.unique, now: e.step.from_a === 'owned' && e.step.from_b === 'owned',
+                };
+                nodes.push(node);
+                edges.push([a, node], [b, node]);
+                return node;
+            };
+            place(this.breedChild, null);
+            let maxCol = 0;
+            for (const nd of nodes) { nd.x = nd.col * COL; nd.w = W; nd.h = H; maxCol = Math.max(maxCol, nd.col); }
+            const paths = edges.map(([f, t]) => {
+                const x1 = f.x + W, y1 = f.y + H / 2, x2 = t.x, y2 = t.y + H / 2;
+                const mx = (x1 + x2) / 2;
+                return { d: `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`, now: t.now };
+            });
+            return { nodes, edges: paths, w: (maxCol + 1) * COL - (COL - W), h: row * ROW - (ROW - H) };
+        },
+
+        /** The plan as plain sentences in breeding order. */
+        breedRouteChecklist() {
+            const plan = this.breedCurrentPlan();
+            if (!plan) return [];
+            const hatch = plan.hatch || {};
+            return plan.steps.map((s, i) => ({
+                n: i + 1, step: s,
+                a: this.breedSpecies(s.parent_a).name, b: this.breedSpecies(s.parent_b).name,
+                child: this.breedSpecies(s.child).name,
+                hatch: this.breedHatchText(hatch[s.child] || []),
+                goal: s.child === this.breedChild,
+                now: s.from_a === 'owned' && s.from_b === 'owned',
+            }));
+        },
+
+        /** "hatch a female" / "hatch one of each" for a bred species in the current plan. */
+        breedHatchText(genders) {
+            if (!genders || !genders.length) return '';
+            if (genders.length === 2) return 'hatch one of each';
+            return 'hatch a ' + genders[0].toLowerCase();
+        },
+
+        breedRouteShortcuts() {
+            return (this.breedRoute && this.breedRoute.shortcuts) || [];
+        },
+
+        /** "catch a Warsect Terra for 8" -- the best shortcut, for the banner. */
+        breedBestShortcut() {
+            const c = this.breedRouteShortcuts()[0];
+            if (!c) return '';
+            const name = this.breedSpecies(c.species).name;
+            if (c.kind === 'pair') return `catch a ${name} and a ${this.breedSpecies(c.partner).name} for one breed`;
+            return c.breeds_after === 1 ? `catch a ${name} for one breed` : `catch a ${name} for ${c.breeds_after}`;
+        },
+
+        /** Shortcut row -> the map, lit for that species. */
+        breedShortcutOnMap(species) {
+            this.breedRouteOpen = false;
+            this.findOnMap(species, this.breedSpecies(species).name);
+        },
+
+        /** Short human line for the route button / banner. */
+        breedRouteSummary() {
+            const r = this.breedRoute;
+            if (this.breedRouteLoading || !r) return '';
+            const who = this.breedOwner || 'anyone';
+            if (r.status === 'route') {
+                const cut = this.breedBestShortcut();
+                return `${r.breeds} breeds over ${r.generations} generations from what ${who} owns${cut ? ', or ' + cut : ''}`;
+            }
+            if (r.status === 'breedable') return `one breed from what ${who} owns`;
+            if (r.status === 'owned') return `${who === 'anyone' ? 'someone' : who} already owns one`;
+            if (r.status === 'unreachable') return `no route from what ${who} owns`;
+            return '';
         },
 
         breedPairKey(pair) {
