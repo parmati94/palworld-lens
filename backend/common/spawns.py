@@ -42,6 +42,27 @@ def plain_species(pals: Dict[str, Dict]) -> Set[str]:
     return out
 
 
+def catchable_levels(groups: Dict[str, Dict]) -> Dict[str, int]:
+    """Species with a wild field spawn (field or field-boss zone) -> the lowest level it spawns at.
+
+    "Can I go catch one, and how early": dungeon-only spawns are left out
+    (rooms are instanced and the map hides them by default), and the level
+    is the floor of every zone's range, i.e. the easiest place to find it.
+    """
+    out: Dict[str, int] = {}
+    for g in groups.values():
+        if g.get('kind') not in ('field', 'field_boss'):
+            continue
+        for sid, e in (g.get('pals') or {}).items():
+            lv = int((e.get('level') or [0, 0])[0])
+            out[sid] = min(out.get(sid, 10 ** 6), lv)
+    return out
+
+
+def catchable_species(groups: Dict[str, Dict]) -> Set[str]:
+    return set(catchable_levels(groups))
+
+
 def species_with_zones(groups: Dict[str, Dict]) -> Set[str]:
     """Every species id that appears in at least one spawner group."""
     return {sid for g in groups.values() for sid in (g.get('pals') or {})}

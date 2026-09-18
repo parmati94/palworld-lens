@@ -21,7 +21,7 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
-- 🧬 **Breeding Calculator** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want)
+- 🧬 **Breeding Calculator** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want). Can't breed it yet? The route planner draws the shortest chain from what you own, and which wild pal to catch instead
 - 🖥️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
 - 🐳 **Containerized** - Single Docker container with nginx + FastAPI
 - 🚫 **Read-Only** - No editing functionality, just viewing
@@ -269,6 +269,7 @@ See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command
 - `GET /api/breeding/child?a=&b=` - What two species produce (two results only for the gender-gated pairs)
 - `GET /api/breeding/parents?child=` - Every pair that produces a species, special combos first
 - `GET /api/breeding/partners?a=&child=` - Pairs producing a species that include parent A
+- `GET /api/breeding/route?target=&owner=` - Fewest breeds from the pals a player (or everyone) owns to a species: up to five complete plans (steps in breeding order, gender to hatch per step), whether the minimum is proven, and wild-catchable shortcuts that cut the plan down
 
 Everything above is served from a snapshot built once per save load; a reload swaps it atomically.
 

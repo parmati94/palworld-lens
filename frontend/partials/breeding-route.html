@@ -1,0 +1,188 @@
+<!-- Breeding route modal (Child -> Parents, "Show the route"). Data:
+     /api/breeding/route via breedingState.loadBreedingRoute(); layout in
+     breedRouteLayout(). The plan is drawn as a flow, left to right: owned
+     pals at the left, each pair merging into its child one column to the
+     right, the goal at the far right. Under it, the same plan as sentences
+     in breeding order. -->
+<div x-show="breedRouteOpen" x-cloak
+     @keydown.escape.window="breedRouteOpen = false"
+     class="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm">
+    <div @click.away="breedRouteOpen = false"
+         class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[92vh] flex flex-col border border-gray-700/60 overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-4 sm:px-5 py-3 border-b border-gray-700/60 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <template x-if="isBreedable(breedChild)">
+                    <img :src="palIconSrc(breedSpecies(breedChild))" @error="palIconError($el, breedSpecies(breedChild))" class="w-10 h-10 rounded-lg bg-gray-900 object-cover flex-shrink-0">
+                </template>
+                <div class="min-w-0">
+                    <div class="text-base font-semibold text-gray-100 truncate">How to breed <span x-text="breedSpecies(breedChild).name"></span></div>
+                    <div class="text-xs text-gray-400 truncate">
+                        <span x-show="breedRouteLoading">Planning a route…</span>
+                        <template x-if="!breedRouteLoading && breedCurrentPlan()">
+                            <span>
+                                <span class="text-gray-200 font-medium tabular-nums" x-text="breedCurrentPlan().breeds"></span>
+                                <span x-text="breedCurrentPlan().breeds === 1 ? 'breed' : 'breeds'"></span><span x-show="breedCurrentPlan().generations > 1">, <span class="tabular-nums" x-text="breedCurrentPlan().generations"></span> generations</span>
+                                from what <span class="text-gray-200" x-text="breedOwner || 'everyone'"></span> owns
+                                <span x-show="breedRoute.exact" class="ml-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-ok-500/20 text-ok-200 border border-ok-500/40 whitespace-nowrap">shortest possible</span>
+                                <span x-show="!breedRoute.exact" class="ml-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-gray-700/60 text-gray-300 border border-gray-600/60 whitespace-nowrap"
+                                      data-tip="The search ran out of time before it could prove nothing shorter exists">best found · at least <span class="tabular-nums" x-text="breedRoute.min_generations"></span> needed</span>
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <!-- Other complete routes with the same number of breeds -->
+            <div x-show="breedRoutePlans().length > 1" class="flex items-center gap-1 text-xs text-gray-300">
+                <button @click="breedRouteStepPlan(-1)" class="btn-quiet p-1" aria-label="Previous route">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <span class="tabular-nums whitespace-nowrap">Route <span x-text="breedRoutePlan + 1"></span> of <span x-text="breedRoutePlans().length"></span></span>
+                <button @click="breedRouteStepPlan(1)" class="btn-quiet p-1" aria-label="Next route">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            </div>
+            <button @click="breedRouteOpen = false" class="btn-quiet p-2" aria-label="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+
+        <div class="overflow-y-auto custom-scrollbar flex-1 min-h-0">
+            <template x-if="!breedRouteLoading && breedRoute && !breedCurrentPlan()">
+                <div class="p-6 text-sm text-gray-300">
+                    <template x-if="breedRoute.status === 'owned'">
+                        <span><span class="font-medium" x-text="breedOwner || 'Someone'"></span> already owns a <span x-text="breedSpecies(breedChild).name"></span>. To breed more you need a pair from the list.</span>
+                    </template>
+                    <template x-if="breedRoute.status === 'unreachable'">
+                        <span>
+                            No route to <span class="font-medium" x-text="breedSpecies(breedChild).name"></span> from what <span class="font-medium" x-text="breedOwner || 'anyone'"></span> owns.
+                            <span x-show="breedSpecies(breedChild).ignore_combi" class="text-gray-400">It only breeds with itself, so you need to catch one first.</span>
+                            <span x-show="!breedSpecies(breedChild).ignore_combi && breedRoute.owned_species === 0" class="text-gray-400">No owned pals to start from.</span>
+                        </span>
+                    </template>
+                    <template x-if="breedRoute.status === 'error'">
+                        <span class="text-danger-300" x-text="breedRoute.error || 'Route lookup failed'"></span>
+                    </template>
+                </div>
+            </template>
+
+            <template x-if="!breedRouteLoading && breedCurrentPlan()">
+                <div>
+                    <!-- Flow -->
+                    <div class="px-4 sm:px-5 pt-4 pb-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-400">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded border border-ok-500/60 bg-ok-500/15"></span> owned</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded border border-gray-500 bg-gray-700/60"></span> bred along the way</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded border border-accent-400 bg-accent-500/20"></span> the goal</span>
+                        <span class="text-gray-500">Left to right is breeding order. A bred pal hatches in a random gender, so "hatch a ♀" may take a few eggs.</span>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar px-4 sm:px-5 pb-4" x-data="{ get L() { return this.breedRouteLayout(); } }">
+                        <div class="relative" :style="'width:' + L.w + 'px;height:' + L.h + 'px'">
+                            <!-- One path per edge kind (a <template> can't live inside <svg>) -->
+                            <svg class="absolute inset-0 pointer-events-none" :width="L.w" :height="L.h" aria-hidden="true">
+                                <path :d="L.edges.filter(e => !e.now).map(e => e.d).join(' ')" fill="none" stroke-width="2" class="stroke-gray-600"></path>
+                                <path :d="L.edges.filter(e => e.now).map(e => e.d).join(' ')" fill="none" stroke-width="2" class="stroke-ok-500/50"></path>
+                            </svg>
+                            <template x-for="nd in L.nodes" :key="nd.id">
+                                <div class="absolute rounded-lg border flex items-center gap-2 px-2 py-1.5"
+                                     :style="'left:' + nd.x + 'px;top:' + nd.y + 'px;width:' + nd.w + 'px;height:' + nd.h + 'px'"
+                                     :class="{
+                                        'border-ok-500/60 bg-ok-500/15': nd.kind === 'owned',
+                                        'border-gray-500 bg-gray-700/80': nd.kind === 'bred',
+                                        'border-gray-600 border-dashed bg-gray-800/80': nd.kind === 'ref',
+                                        'border-accent-400 bg-accent-500/20 ring-2 ring-accent-500/30': nd.kind === 'goal',
+                                     }">
+                                    <img :src="palIconSrc(breedSpecies(nd.species))" @error="palIconError($el, breedSpecies(nd.species))" loading="lazy"
+                                         class="w-8 h-8 rounded-md bg-gray-900 object-cover flex-shrink-0" :class="nd.kind === 'ref' ? 'opacity-60' : ''">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[13px] font-medium truncate flex items-center gap-1" :class="nd.kind === 'goal' ? 'text-accent-100' : 'text-gray-100'">
+                                            <span x-text="nd.name"></span>
+                                            <img x-show="nd.need" :src="nd.need === 'Male' ? 'img/male.webp' : 'img/female.webp'" class="w-3.5 h-3.5 flex-shrink-0" :data-tip="'must be ' + nd.need">
+                                        </div>
+                                        <div class="text-[11px] truncate">
+                                            <template x-if="nd.kind === 'owned'">
+                                                <span class="text-ok-200/80 tabular-nums flex items-center gap-1">
+                                                    <img src="img/male.webp" class="w-3 h-3 opacity-80"><span x-text="nd.counts.Male"></span>
+                                                    <img src="img/female.webp" class="w-3 h-3 opacity-80 ml-0.5"><span x-text="nd.counts.Female"></span>
+                                                    <span class="text-gray-400 ml-0.5">owned</span>
+                                                </span>
+                                            </template>
+                                            <template x-if="nd.kind === 'bred'">
+                                                <span :class="nd.hatch.length ? 'text-warn-200/90' : 'text-gray-400'" x-text="breedHatchText(nd.hatch) || 'either gender'"></span>
+                                            </template>
+                                            <template x-if="nd.kind === 'goal'"><span class="text-accent-200/80">the goal</span></template>
+                                            <template x-if="nd.kind === 'ref'"><span class="text-gray-400">bred above, reused</span></template>
+                                        </div>
+                                    </div>
+                                    <span x-show="nd.unique" class="absolute -top-2 right-2 px-1 rounded text-[9px] font-semibold bg-warn-500/30 text-warn-100 border border-warn-500/50">special</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Or catch one: wild species that shorten this plan -->
+                    <div x-show="breedRouteShortcuts().length" class="border-t border-gray-700/60 px-4 sm:px-5 py-4 bg-ok-500/5">
+                        <div class="eyebrow mb-1">Or catch one of these</div>
+                        <div class="text-[11px] text-gray-500 mb-2">Wild pals that cut the route down. Click a pal to light up its spawn zones on the map.</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <template x-for="c in breedRouteShortcuts()" :key="c.species">
+                                <div class="rounded-lg border border-ok-500/30 bg-gray-800/80 px-2.5 py-2 flex items-center gap-2.5">
+                                    <!-- One pal to catch, or two for a wild pair -->
+                                    <template x-for="who in (c.kind === 'pair' ? ['species', 'partner'] : ['species'])" :key="who">
+                                        <div class="flex items-center gap-2 min-w-0" :class="c.kind === 'pair' ? 'flex-1' : 'flex-[2]'">
+                                            <span x-show="who === 'partner'" class="text-gray-500 -ml-1">+</span>
+                                            <button @click="breedShortcutOnMap(c[who])" class="relative flex-shrink-0 rounded-lg group" :data-tip="'Where does ' + breedSpecies(c[who]).name + ' spawn?'">
+                                                <img :src="palIconSrc(breedSpecies(c[who]))" @error="palIconError($el, breedSpecies(c[who]))" loading="lazy"
+                                                     class="w-9 h-9 rounded-lg bg-gray-900 object-cover group-hover:ring-2 group-hover:ring-accent-400">
+                                                <svg class="absolute -bottom-1 -right-1 w-4 h-4 p-0.5 rounded-full bg-gray-900 text-accent-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            </button>
+                                            <div class="min-w-0">
+                                                <div class="text-sm font-medium text-gray-100 truncate flex items-center gap-1">
+                                                    <span x-text="breedSpecies(c[who]).name"></span>
+                                                    <img x-show="who === 'species' ? c.need : c.partner_need" :src="(who === 'species' ? c.need : c.partner_need) === 'Male' ? 'img/male.webp' : 'img/female.webp'" class="w-3.5 h-3.5 flex-shrink-0" :data-tip="'catch a ' + ((who === 'species' ? c.need : c.partner_need) || '').toLowerCase()">
+                                                </div>
+                                                <div class="text-[11px] text-gray-400 truncate">
+                                                    wild from <span class="text-gray-300 tabular-nums">Lv <span x-text="who === 'species' ? c.level : c.partner_level"></span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <div class="text-[11px] text-right flex-shrink-0 min-w-[5.5rem]">
+                                        <template x-if="c.kind === 'partner'">
+                                            <div><div class="text-ok-300 font-medium">1 breed</div><div class="text-gray-400 truncate">with your <span class="text-gray-200" x-text="breedSpecies(c.partner).name"></span></div></div>
+                                        </template>
+                                        <template x-if="c.kind === 'pair'">
+                                            <div><div class="text-ok-300 font-medium">1 breed</div><div class="text-gray-400">catch both<span x-show="c.unique"> · special</span></div></div>
+                                        </template>
+                                        <template x-if="c.kind === 'intermediate'">
+                                            <div><div class="text-ok-300 font-medium tabular-nums"><span x-text="c.breeds_after"></span> <span x-text="c.breeds_after === 1 ? 'breed' : 'breeds'"></span></div><div class="text-gray-400 tabular-nums">skips <span x-text="c.saves"></span></div></div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Checklist -->
+                    <div class="border-t border-gray-700/60 px-4 sm:px-5 py-4">
+                        <div class="eyebrow mb-2">In order</div>
+                        <ol class="space-y-1.5 text-sm">
+                            <template x-for="c in breedRouteChecklist()" :key="c.n">
+                                <li class="flex items-start gap-2.5">
+                                    <span class="w-5 h-5 mt-0.5 rounded-full text-[11px] font-semibold flex items-center justify-center flex-shrink-0 tabular-nums"
+                                          :class="c.goal ? 'bg-accent-500/20 text-accent-200 border border-accent-400/50' : (c.now ? 'bg-ok-500/20 text-ok-200 border border-ok-500/40' : 'bg-gray-900 text-gray-300 border border-gray-700')" x-text="c.n"></span>
+                                    <span class="text-gray-300 min-w-0">
+                                        Breed <span class="text-gray-100 font-medium" x-text="c.a"></span><img x-show="c.step.need_a" :src="c.step.need_a === 'Male' ? 'img/male.webp' : 'img/female.webp'" class="inline w-3.5 h-3.5 ml-0.5 align-text-top">
+                                        with <span class="text-gray-100 font-medium" x-text="c.b"></span><img x-show="c.step.need_b" :src="c.step.need_b === 'Male' ? 'img/male.webp' : 'img/female.webp'" class="inline w-3.5 h-3.5 ml-0.5 align-text-top">
+                                        <span class="text-gray-500">→</span>
+                                        <span class="font-medium" :class="c.goal ? 'text-accent-200' : 'text-gray-100'" x-text="c.child"></span><span x-show="c.step.unique" class="text-warn-200/80"> (special combo)</span><span x-show="c.hatch" class="text-warn-200/90">, <span x-text="c.hatch"></span></span><span x-show="c.now" class="text-ok-300/90"> · both owned, start now</span>
+                                    </span>
+                                </li>
+                            </template>
+                        </ol>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
