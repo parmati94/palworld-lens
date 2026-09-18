@@ -37,6 +37,12 @@ const MIN_ZOOM = 0.5;        // ~724px world: lets the whole square fit in a 70v
 const Z = { fastTravel: 100, base: 300, alphaPal: 500, player: 1000 };
 
 const OCEAN = '#0b101b';
+const MAX_RECENT = 5;        // spawn search: recent picks shown before you type
+
+// Spawn-search caches. One map component per page, so module level is fine;
+// keyed so a layer switch or the dungeon toggle invalidates them.
+let statsCache = { key: '', map: new Map() };
+const colorCache = new Map();
 
 /** `#rrggbb` -> the same hue with saturation >= 0.7 and lightness in 0.42..0.56. */
 function normaliseTone(hex) {
@@ -100,7 +106,15 @@ export function mapComponent() {
         spawnPanel: false,         // search panel slid out (toggle button in the control column)
         spawnOpen: false,          // results list showing
         spawnCursor: 0,
+        spawnBrowse: false,        // empty query: recents (default) or the whole list
+        spawnRecent: Array.isArray(prefs.mapSpawnRecent) ? prefs.mapSpawnRecent.filter(x => typeof x === 'string').slice(0, MAX_RECENT) : [],
         spawnDungeons: pref(prefs, 'mapSpawnDungeons', false),
+        // Phones: the open panel spans the map's full width (over the control
+        // column) and the results list is capped to what is visible above the
+        // on-screen keyboard, measured from the visual viewport. Otherwise the
+        // list ran under the keyboard and a drag scrolled the page instead.
+        spawnPhone: typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches,
+        spawnListMax: 0,           // px; 0 = no cap (desktop)
 
         // Which map texture is showing. Palworld 1.0 added the World Tree as a
         // separate map layer with its own texture and coordinate bounds; objects
@@ -149,6 +163,18 @@ export function mapComponent() {
                         const d = (e && e.detail) || {};
                         this.showSpawnsFor(d.species, d.name);
                     });
+
+                    // Phone list cap (see spawnPhone). The visual viewport shrinks
+                    // when the keyboard opens; the layout viewport doesn't on iOS.
+                    const phone = window.matchMedia('(max-width: 639px)');
+                    phone.addEventListener('change', (e) => { this.spawnPhone = e.matches; this.measureSpawnList(); });
+                    const vv = window.visualViewport;
+                    if (vv) {
+                        vv.addEventListener('resize', () => this.measureSpawnList());
+                        vv.addEventListener('scroll', () => this.measureSpawnList());
+                    } else {
+                        window.addEventListener('resize', () => this.measureSpawnList());
+                    }
                 }, 100);
             });
         },
@@ -599,17 +625,51 @@ export function mapComponent() {
             }
         },
 
-        /** Search results: prefix matches first, then anywhere in the name or id. */
+        /**
+         * Search results. Typed: prefix matches, then anywhere in the name or
+         * id; within each tier, species with zones on the showing map layer
+         * first. Empty: the last few picks (or, after "Browse all", every
+         * species alphabetically).
+         */
         get spawnList() {
             const q = this.spawnQuery.trim().toLowerCase();
-            if (!q) return this.spawnSpecies;
+            if (!q) {
+                if (this.spawnBrowse) return this.spawnSpecies;
+                return this.spawnRecent.map(id => this.spawnById[id]).filter(Boolean);
+            }
             const starts = [], within = [];
             for (const s of this.spawnSpecies) {
                 const name = s.name.toLowerCase(), id = s.id.toLowerCase();
                 if (name.startsWith(q) || id.startsWith(q)) starts.push(s);
                 else if (name.includes(q) || id.includes(q)) within.push(s);
             }
-            return starts.concat(within);
+            const hereFirst = (a, b) => (this.spawnStats(b).here > 0) - (this.spawnStats(a).here > 0);
+            return starts.sort(hereFirst).concat(within.sort(hereFirst));
+        },
+
+        get spawnShowingRecents() {
+            return !this.spawnQuery.trim() && !this.spawnBrowse;
+        },
+
+        /**
+         * Phone: cap the results list to the space between its top and the
+         * nearer of the visual viewport's bottom (keyboard-aware) and the map's
+         * bottom, so it never runs under the keyboard or out of the card.
+         */
+        measureSpawnList() {
+            if (!(this.spawnPhone && this.spawnPanel)) { this.spawnListMax = 0; return; }
+            this.$nextTick(() => {
+                const list = this.$refs.spawnItems, mapEl = this.$refs.worldMap;
+                if (!list || !mapEl) return;
+                const vv = window.visualViewport;
+                const vvBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+                const bottom = Math.min(vvBottom, mapEl.getBoundingClientRect().bottom) - 12;
+                this.spawnListMax = Math.max(140, Math.round(bottom - list.getBoundingClientRect().top));
+            });
+        },
+
+        get spawnListStyle() {
+            return this.spawnListMax ? `max-height:${this.spawnListMax}px` : '';
         },
 
         get spawnSelected() {
@@ -654,24 +714,77 @@ export function mapComponent() {
             return null;
         },
 
-        spawnZoneCount(species) {
-            if (!this.spawns) return 0;
-            let n = 0;
+        /**
+         * Per-row numbers for the results list: shown zones in total and on the
+         * current layer (sort key), and the level range. Cached per
+         * (dungeon toggle, layer) since the list re-renders on every keystroke.
+         */
+        spawnStats(species) {
+            const key = `${this.spawnsLoaded ? 1 : 0}|${this.spawnDungeons ? 1 : 0}|${this.mapLayer}`;
+            if (statsCache.key !== key) statsCache = { key, map: new Map() };
+            let st = statsCache.map.get(species.id);
+            if (st) return st;
+            st = { zones: 0, here: 0, lvMin: Infinity, lvMax: 0 };
             for (const name of species.groups) {
-                const g = this.spawns[name];
-                if (g && this.spawnKindShown(g.kind)) n += Object.values(g.points).reduce((a, p) => a + p.length, 0);
+                const g = this.spawns && this.spawns[name];
+                const e = g && g.pals[species.id];
+                if (!e || !this.spawnKindShown(g.kind)) continue;
+                for (const [layer, pts] of Object.entries(g.points)) {
+                    st.zones += pts.length;
+                    if (layer === this.mapLayer) st.here += pts.length;
+                }
+                st.lvMin = Math.min(st.lvMin, e.level[0]);
+                st.lvMax = Math.max(st.lvMax, e.level[1]);
             }
-            return n;
+            if (!st.zones) st.lvMin = 0;
+            statsCache.map.set(species.id, st);
+            return st;
+        },
+
+        spawnZoneCount(species) {
+            return this.spawnStats(species).zones;
+        },
+
+        spawnLevelText(species) {
+            const st = this.spawnStats(species);
+            return st.lvMin === st.lvMax ? `Lv ${st.lvMin}` : `Lv ${st.lvMin}–${st.lvMax}`;
         },
 
         openSpawnPanel() {
             this.spawnPanel = true;
-            this.spawnOpen = false;
+            this.spawnBrowse = false;
+            // On the phone sheet the list is always showing and nothing is
+            // pre-highlighted (a highlighted first row reads as "selected" on touch).
+            this.spawnOpen = this.spawnPhone;
+            this.spawnCursor = this.spawnPhone ? -1 : 0;
+            this.measureSpawnList();
             this.$nextTick(() => this.$refs.spawnQuery && this.$refs.spawnQuery.focus());
         },
 
+        closeSpawnPanel() {
+            this.spawnPanel = false;
+            this.spawnOpen = false;
+            this.spawnBrowse = false;
+            this.spawnListMax = 0;
+            if (this.$refs.spawnQuery) this.$refs.spawnQuery.blur();
+        },
+
+        spawnInput() {
+            this.spawnOpen = true;
+            this.spawnCursor = this.spawnPhone ? -1 : 0;
+            if (this.$refs.spawnItems) this.$refs.spawnItems.scrollTop = 0;   // new query, start at the top
+            this.measureSpawnList();
+        },
+
+        browseAllSpawns() {
+            this.spawnBrowse = true;
+            this.spawnOpen = true;
+            this.spawnCursor = this.spawnPhone ? -1 : 0;
+            if (this.$refs.spawnItems) this.$refs.spawnItems.scrollTop = 0;
+        },
+
         toggleSpawnPanel() {
-            if (this.spawnPanel) { this.spawnPanel = false; this.spawnOpen = false; }
+            if (this.spawnPanel) this.closeSpawnPanel();
             else this.openSpawnPanel();
         },
 
@@ -687,8 +800,14 @@ export function mapComponent() {
         },
 
         spawnPickCursor() {
-            const s = this.spawnList[this.spawnCursor];
+            const s = this.spawnList[Math.max(0, this.spawnCursor)];   // phone "Go" with nothing highlighted: first match
             if (s) this.pickSpawnPal(s.id);
+        },
+
+        rememberSpawnPick(id) {
+            if (!this.spawnById[id]) return;
+            this.spawnRecent = [id].concat(this.spawnRecent.filter(x => x !== id)).slice(0, MAX_RECENT);
+            savePref('mapSpawnRecent', this.spawnRecent);
         },
 
         pickSpawnPal(id) {
@@ -698,8 +817,11 @@ export function mapComponent() {
             this.spawnQuery = '';
             this.spawnOpen = false;
             this.spawnPanel = false;   // collapse to the chip so the map is clear
+            this.spawnBrowse = false;
             this.spawnCursor = 0;
+            this.spawnListMax = 0;
             if (this.$refs.spawnQuery) this.$refs.spawnQuery.blur();
+            this.rememberSpawnPick(id);
             this.renderSpawns();
             this.fitSpawns();
         },
@@ -722,6 +844,8 @@ export function mapComponent() {
             this.spawnQuery = '';
             this.spawnOpen = false;
             this.spawnPanel = false;
+            this.spawnBrowse = false;
+            this.rememberSpawnPick(speciesId);
             this.renderSpawns();
             this.fitSpawns();
         },
@@ -739,10 +863,14 @@ export function mapComponent() {
          * and lightness clamped before use. Chikipi ends up terracotta, not white.
          */
         spawnColor(species) {
+            const hit = colorCache.get(species.id);
+            if (hit) return hit;
             const app = Alpine.$data(document.body);
             const el = species.element_types && species.element_types[0];
             const info = app && app.gameData && app.gameData.elements && app.gameData.elements[el];
-            return normaliseTone((info && info.color) || '#f472b6');
+            const color = normaliseTone((info && info.color) || '#f472b6');
+            if (info) colorCache.set(species.id, color);   // only once the element table is here
+            return color;
         },
 
         /** A spawn radius as a lng/lat ring. World space is square-scaled, so a circle stays a circle. */

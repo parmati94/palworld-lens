@@ -454,14 +454,18 @@
                     <!-- Spawn search (state + rendering in map-maplibre.js). Collapsed
                          it is just the search button in the control column; open, a
                          translucent panel slides out to its left; with a pal lit and
-                         the panel closed, the same strip shows a compact chip. -->
+                         the panel closed, the same strip shows a compact chip.
+                         Phones (spawnPhone): the open panel spans the map's width
+                         over the control column, and the list height is capped to
+                         what's visible above the keyboard (spawnListStyle). -->
                     <div x-show="spawnsLoaded && spawnSpecies.length && (spawnPanel || spawnPal)" x-cloak
                          x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-x-2" x-transition:enter-end="opacity-100 translate-x-0"
                          x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                         class="absolute top-4 right-[4.75rem] z-10 w-[min(22rem,calc(100%-9.25rem))]"
-                         @click.away="spawnOpen = false" @keydown.escape="spawnOpen ? spawnOpen = false : spawnPanel = false">
+                         class="absolute top-4 z-10"
+                         :class="spawnPanel && spawnPhone ? 'left-4 right-4 z-20' : 'right-[4.75rem] w-[min(24rem,calc(100%-9.25rem))]'"
+                         @click.away="spawnPhone ? closeSpawnPanel() : spawnOpen = false" @keydown.escape="spawnOpen && !spawnPhone ? spawnOpen = false : closeSpawnPanel()">
                         <div class="bg-gray-900/70 backdrop-blur-md rounded-xl shadow-xl border border-white/10 overflow-hidden">
-                            <div class="flex items-center gap-2 pl-2.5 pr-1 h-11">
+                            <div class="flex items-center gap-2 pl-2.5 pr-1" :class="!spawnPanel && spawnPhone ? 'min-h-[2.75rem] py-1.5' : 'h-11'">
                                 <template x-if="spawnSelected">
                                     <img :src="palIconSrc(spawnSelected)" @error="palIconError($el, spawnSelected)" :alt="spawnSelected.name"
                                          class="w-7 h-7 rounded-md bg-gray-800/80 object-cover flex-shrink-0">
@@ -473,22 +477,36 @@
                                 </template>
 
                                 <!-- Open: the search field -->
-                                <input x-show="spawnPanel" type="text" x-ref="spawnQuery" x-model="spawnQuery" autocomplete="off" spellcheck="false"
-                                       @focus="spawnOpen = true" @input="spawnOpen = true; spawnCursor = 0"
+                                <input x-show="spawnPanel" type="text" x-ref="spawnQuery" x-model="spawnQuery" autocomplete="off" spellcheck="false" enterkeyhint="go"
+                                       @focus="spawnOpen = true" @input="spawnInput()"
                                        @keydown.down.prevent="spawnMove(1)" @keydown.up.prevent="spawnMove(-1)"
                                        @keydown.enter.prevent="spawnPickCursor()"
                                        :placeholder="spawnSelected ? spawnSelected.name : (spawnPalName ? spawnPalName : 'Where does a pal spawn?')"
-                                       :class="spawnPal ? 'placeholder-gray-200 font-medium' : 'placeholder-gray-400'"
+                                       :class="(spawnPal ? 'placeholder-gray-200 font-medium' : 'placeholder-gray-400') + (spawnPanel && spawnPhone ? ' text-base' : ' text-sm')"
                                        aria-label="Find where a pal spawns"
-                                       class="flex-1 min-w-0 bg-transparent text-sm text-gray-100 focus:outline-none">
+                                       class="flex-1 min-w-0 bg-transparent text-gray-100 focus:outline-none">
+                                <!-- Phone: clear what's typed (no easy select-all on a touch keyboard) -->
+                                <button x-show="spawnPanel && spawnPhone && spawnQuery" type="button" @click="spawnQuery = ''; spawnInput(); $refs.spawnQuery.focus()"
+                                        aria-label="Clear search text" class="btn-quiet p-1.5 flex-shrink-0 text-gray-400">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.7 7.3a1 1 0 00-1.4 1.4L8.6 10l-1.3 1.3a1 1 0 101.4 1.4L10 11.4l1.3 1.3a1 1 0 001.4-1.4L11.4 10l1.3-1.3a1 1 0 00-1.4-1.4L10 8.6 8.7 7.3z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
 
-                                <!-- Closed with a pal lit: the chip. Click it to search again. -->
+                                <!-- Closed with a pal lit: the chip. Click it to search again.
+                                     Phones stack name over summary (the strip is narrow) and
+                                     fold the other-layer count into the summary text; the
+                                     switch link is in the sheet instead. -->
                                 <button x-show="!spawnPanel" type="button" @click="openSpawnPanel()" data-tip="Search for another pal"
-                                        class="flex-1 min-w-0 flex items-baseline gap-x-1.5 text-left text-sm hover:text-white transition-colors">
-                                    <span class="font-medium text-gray-100 truncate min-w-[4rem]" x-text="spawnPalName"></span>
+                                        class="flex-1 min-w-0 flex text-left text-sm hover:text-white transition-colors"
+                                        :class="spawnPhone ? 'flex-col items-start' : 'items-baseline gap-x-1.5'">
+                                    <span class="font-medium text-gray-100 truncate max-w-full" :class="spawnPhone ? '' : 'min-w-[4rem]'" x-text="spawnPalName"></span>
                                     <template x-if="spawnSummary && spawnSummary.zones">
-                                        <span class="text-[11px] text-gray-400 whitespace-nowrap tabular-nums truncate min-w-0">
-                                            <span x-text="spawnSummary.onThisLayer"></span> zones · Lv <span x-text="spawnSummary.lvMin === spawnSummary.lvMax ? spawnSummary.lvMin : spawnSummary.lvMin + '–' + spawnSummary.lvMax"></span>
+                                        <span class="text-[11px] text-gray-400 tabular-nums min-w-0" :class="spawnPhone ? 'flex flex-wrap gap-x-1.5 leading-tight' : 'whitespace-nowrap truncate'">
+                                            <span class="whitespace-nowrap"><span x-text="spawnSummary.onThisLayer"></span> zones · Lv <span x-text="spawnSummary.lvMin === spawnSummary.lvMax ? spawnSummary.lvMin : spawnSummary.lvMin + '–' + spawnSummary.lvMax"></span></span>
+                                            <template x-if="spawnPhone && spawnOtherLayer">
+                                                <span class="whitespace-nowrap text-accent-300/80">+<span x-text="spawnOtherLayer.count"></span> <span x-text="spawnOtherLayer.label"></span></span>
+                                            </template>
                                         </span>
                                     </template>
                                     <template x-if="spawnSummary && !spawnSummary.zones">
@@ -498,7 +516,7 @@
                                         <span class="text-[11px] text-gray-400 whitespace-nowrap">no wild zones</span>
                                     </template>
                                 </button>
-                                <template x-if="!spawnPanel && spawnOtherLayer">
+                                <template x-if="!spawnPanel && spawnOtherLayer && !spawnPhone">
                                     <button type="button" @click.stop="switchMapLayer(spawnOtherLayer.layer)"
                                             class="flex-shrink-0 text-[11px] whitespace-nowrap px-1.5 py-0.5 rounded border border-white/10 text-accent-300 hover:bg-accent-500/10 hover:border-accent-400/40 transition-colors"
                                             :data-tip="'Show the ' + spawnOtherLayer.count + ' zones on the ' + spawnOtherLayer.label + ' map'">
@@ -506,7 +524,10 @@
                                     </button>
                                 </template>
 
-                                <button x-show="spawnPal" @click="clearSpawnPal()" aria-label="Clear spawn search" class="btn-quiet p-1.5 flex-shrink-0">
+                                <!-- × : on the phone panel (which covers the toggle button) it closes the
+                                     search and keeps the pal lit; otherwise it clears the lit pal. -->
+                                <button x-show="spawnPal || (spawnPanel && spawnPhone)" @click="spawnPanel && spawnPhone ? closeSpawnPanel() : clearSpawnPal()"
+                                        :aria-label="spawnPanel && spawnPhone ? 'Close spawn search' : 'Clear spawn search'" class="btn-quiet p-1.5 flex-shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -514,7 +535,7 @@
                             </div>
 
                             <!-- Open + a pal lit: what lit up, and the dungeon toggle -->
-                            <div x-show="spawnPanel && spawnPal && !spawnOpen" class="px-2.5 pb-2 -mt-1 text-[11px] text-gray-400 flex items-center gap-x-2 gap-y-1 flex-wrap">
+                            <div x-show="spawnPanel && spawnPal && (!spawnOpen || spawnPhone)" class="px-2.5 pb-2 -mt-1 text-[11px] text-gray-400 flex items-center gap-x-2 gap-y-1 flex-wrap">
                                 <template x-if="spawnSummary && spawnSummary.zones">
                                     <span class="flex items-center gap-x-2 flex-wrap">
                                         <span><span class="text-gray-200 font-medium tabular-nums" x-text="spawnSummary.zones"></span> spawn zones</span>
@@ -546,20 +567,36 @@
                                 </button>
                             </div>
 
-                            <!-- Results -->
-                            <div x-show="spawnPanel && spawnOpen" x-cloak class="border-t border-white/10 max-h-64 overflow-auto custom-scrollbar py-1" x-ref="spawnItems">
+                            <!-- Results. Empty query: recent picks + "Browse all"; typed: matches.
+                                 Each row: icon, name, level range, a dot in the colour the
+                                 map will paint, and how many zones are on this layer. -->
+                            <div x-show="spawnPanel && spawnOpen" x-cloak x-ref="spawnItems" :style="spawnListStyle"
+                                 class="border-t border-white/10 max-h-72 overflow-auto overscroll-contain touch-pan-y custom-scrollbar py-1">
+                                <div x-show="spawnShowingRecents && spawnList.length" class="px-3 pt-1.5 pb-0.5 text-[10px] uppercase tracking-wider text-gray-500">Recent</div>
                                 <template x-for="(s, i) in spawnList" :key="s.id">
                                     <div @click="pickSpawnPal(s.id)" @mousemove="spawnCursor = i"
-                                         class="px-2.5 py-1.5 flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
-                                         :class="i === spawnCursor ? 'bg-accent-500/90 text-white' : 'text-gray-100 hover:bg-white/5'">
+                                         class="px-2.5 flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
+                                         :class="(i === spawnCursor ? 'bg-accent-500/90 text-white' : 'text-gray-100 hover:bg-white/5') + (spawnPanel && spawnPhone ? ' py-2' : ' py-1.5')">
+                                        <!-- Icon ring = the colour the heatmap will use for this species -->
                                         <img :src="palIconSrc(s)" @error="palIconError($el, s)" :alt="s.name" loading="lazy"
-                                             class="w-7 h-7 rounded bg-gray-800/80 object-cover flex-shrink-0">
+                                             class="w-7 h-7 rounded bg-gray-800/80 object-cover flex-shrink-0"
+                                             :style="'box-shadow: 0 0 0 2px ' + spawnColor(s)">
                                         <span class="flex-1 truncate" x-text="s.name"></span>
-                                        <span class="text-[11px] tabular-nums whitespace-nowrap" :class="i === spawnCursor ? 'text-white/80' : 'text-gray-400'"
-                                              x-text="spawnZoneCount(s) ? spawnZoneCount(s) + ' zones' : 'dungeons'"></span>
+                                        <!-- Fixed columns so the numbers line up row to row -->
+                                        <span class="flex items-center text-[11px] tabular-nums whitespace-nowrap" :class="i === spawnCursor ? 'text-white/80' : 'text-gray-400'">
+                                            <span class="w-16 text-right" x-text="spawnStats(s).zones ? spawnLevelText(s) : ''"></span>
+                                            <span class="w-[4.75rem] text-right" x-text="spawnStats(s).zones ? spawnStats(s).zones + ' zones' : 'dungeons'"></span>
+                                        </span>
                                     </div>
                                 </template>
-                                <div x-show="spawnList.length === 0" class="px-3 py-4 text-center text-xs text-gray-400">No matching pals</div>
+                                <div x-show="spawnShowingRecents && !spawnList.length" class="px-3 pt-3 pb-1 text-center text-xs text-gray-400">Type a pal's name</div>
+                                <button x-show="spawnShowingRecents" type="button" @click="browseAllSpawns()"
+                                        class="w-full px-3 py-2 text-left text-xs text-accent-300 hover:bg-white/5 flex items-center gap-1.5"
+                                        :class="spawnList.length ? 'border-t border-white/5 mt-1' : ''">
+                                    <span>Browse all <span x-text="spawnSpecies.length"></span> pals</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                </button>
+                                <div x-show="spawnQuery.trim() && spawnList.length === 0" class="px-3 py-4 text-center text-xs text-gray-400">No matching pals</div>
                             </div>
                         </div>
                     </div>
