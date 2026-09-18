@@ -38,6 +38,30 @@ const Z = { fastTravel: 100, base: 300, alphaPal: 500, player: 1000 };
 
 const OCEAN = '#0b101b';
 
+/** `#rrggbb` -> the same hue with saturation >= 0.7 and lightness in 0.42..0.56. */
+function normaliseTone(hex) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return hex;
+    const n = parseInt(m[1], 16);
+    const r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (d > 0) {
+        s = d / (1 - Math.abs(2 * l - 1));
+        if (max === r) h = ((g - b) / d) % 6;
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h = (h * 60 + 360) % 360;
+    }
+    s = Math.max(s, 0.7);
+    l = Math.min(0.56, Math.max(0.42, l));
+    const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m0 = l - c / 2;
+    const [r1, g1, b1] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
+                        : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+    const to = (v) => Math.round((v + m0) * 255);
+    return '#' + ((to(r1) << 16) | (to(g1) << 8) | to(b1)).toString(16).padStart(6, '0');
+}
+
 export function mapComponent() {
     return {
         map: null,
@@ -618,6 +642,18 @@ export function mapComponent() {
             return out;
         },
 
+        /** Zones of the lit species on the layer that is NOT showing: {layer, label, count} or null. */
+        get spawnOtherLayer() {
+            const s = this.spawnSummary;
+            if (!s) return null;
+            for (const layer of MAP_LAYER_ORDER) {
+                if (layer !== this.mapLayer && s.perLayer[layer]) {
+                    return { layer, label: MAP_LAYERS[layer].label, count: s.perLayer[layer] };
+                }
+            }
+            return null;
+        },
+
         spawnZoneCount(species) {
             if (!this.spawns) return 0;
             let n = 0;
@@ -696,12 +732,17 @@ export function mapComponent() {
             this.renderSpawns();
         },
 
-        /** Zone tint: the species' first element colour, lifted so it reads on the dark map. */
+        /**
+         * Zone tint: the species' first element colour, pulled into a mid-tone
+         * band. The raw game colours run from near-white (Normal, Electric) to
+         * near-black (Dark); on the map art both vanish, so saturation is floored
+         * and lightness clamped before use. Chikipi ends up terracotta, not white.
+         */
         spawnColor(species) {
             const app = Alpine.$data(document.body);
             const el = species.element_types && species.element_types[0];
             const info = app && app.gameData && app.gameData.elements && app.gameData.elements[el];
-            return shadeHex((info && info.color) || '#f472b6', 20);
+            return normaliseTone((info && info.color) || '#f472b6');
         },
 
         /** A spawn radius as a lng/lat ring. World space is square-scaled, so a circle stays a circle. */
@@ -716,20 +757,17 @@ export function mapComponent() {
 
         ensureSpawnLayers() {
             if (!this.map || this.map.getSource('spawns')) return;
+            // Two sources from the same zones: the spawner centres drive a heatmap
+            // (the visible layer -- overlapping spawners read as density instead of
+            // sixty stacked discs), and the discs themselves stay in an invisible
+            // fill layer purely for hover hit-testing at the real spawn radius.
+            this.map.addSource('spawns-pts', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
             this.map.addSource('spawns', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
             this.map.addLayer({
                 id: 'spawns-fill', type: 'fill', source: 'spawns',
-                paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['get', 'opacity'] },
+                paint: { 'fill-color': '#000', 'fill-opacity': 0 },
             });
-            this.map.addLayer({
-                id: 'spawns-line', type: 'line', source: 'spawns', filter: ['!', ['get', 'night']],
-                paint: { 'line-color': ['get', 'color'], 'line-opacity': 0.85, 'line-width': ['case', ['get', 'boss'], 2, 1] },
-            });
-            // Night-only zones get a dashed edge (line-dasharray can't be data-driven).
-            this.map.addLayer({
-                id: 'spawns-line-night', type: 'line', source: 'spawns', filter: ['get', 'night'],
-                paint: { 'line-color': ['get', 'color'], 'line-opacity': 0.9, 'line-width': 1.5, 'line-dasharray': [2, 2] },
-            });
+            this.addSpawnHeatLayer('#f472b6');
 
             const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10, className: 'pw-popup', maxWidth: '240px' });
             this.map.on('mousemove', 'spawns-fill', (e) => {
@@ -747,6 +785,73 @@ export function mapComponent() {
             });
         },
 
+        /**
+         * (Re)create the heatmap layer in a species' colour. MapLibre 5 throws inside
+         * its colour-ramp texture update when heatmap-color is changed with
+         * setPaintProperty on a live layer, so the layer is rebuilt instead -- it
+         * is one GPU pass over a few hundred points, so this costs nothing visible.
+         */
+        addSpawnHeatLayer(color) {
+            if (!this.map) return;
+            if (this.map.getLayer('spawns-heat')) {
+                if (this._spawnHeatColor === color) return;
+                this.map.removeLayer('spawns-heat');
+            }
+            this._spawnHeatColor = color;
+            // Dark halo under the colour, like a stroke on text: gives any hue an
+            // edge against sand, snow and grass. Created once, radius follows the layer.
+            if (!this.map.getLayer('spawns-halo')) {
+                this.map.addLayer({
+                    id: 'spawns-halo', type: 'heatmap', source: 'spawns-pts',
+                    paint: {
+                        'heatmap-weight': ['+', 0.45, ['*', 0.55, ['get', 'w']]],
+                        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1.6, 3, 1],
+                        'heatmap-opacity': 0.55,
+                        'heatmap-radius': this.spawnHeatRadius(1.3),
+                        'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'],
+                                          0, 'rgba(0,0,0,0)', 0.05, 'rgba(6,10,20,0.7)', 1, 'rgba(6,10,20,0.7)'],
+                    },
+                }, 'spawns-fill');
+            }
+            this.map.addLayer({
+                id: 'spawns-heat', type: 'heatmap', source: 'spawns-pts',
+                paint: {
+                    // A lone spawner still shows; a herd of them saturates to the area's colour.
+                    'heatmap-weight': ['+', 0.45, ['*', 0.55, ['get', 'w']]],
+                    // Kernels are only ~5px at the whole-map view, so lift them there.
+                    'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1.6, 3, 1],
+                    'heatmap-opacity': 0.85,
+                    'heatmap-radius': this.spawnHeatRadius(),
+                    'heatmap-color': this.spawnHeatRamp(color),
+                },
+            }, 'spawns-fill');   // under the hit-test fill, above the raster
+        },
+
+        /**
+         * Heatmap kernel radius in pixels that matches each spawner's world radius
+         * on the active layer. The square texture is 512px at zoom 0 and doubles
+         * per level, so px = units * (512 / layerSpan) * 2^zoom.
+         */
+        spawnHeatRadius(scale = 1) {
+            const m = MAP_LAYERS[this.mapLayer] || MAP_LAYERS.MainMap;
+            const k0 = scale * 512 / (m.maxX - m.minX);
+            return ['interpolate', ['exponential', 2], ['zoom'],
+                    0, ['*', ['get', 'r'], k0],
+                    MAX_ZOOM, ['*', ['get', 'r'], k0 * Math.pow(2, MAX_ZOOM)]];
+        },
+
+        /** Density ramp in the species' colour: clear edge, solid core, lighter peak. */
+        spawnHeatRamp(hex) {
+            const rgb = (h) => { const n = parseInt(h.slice(1), 16); return `${n >> 16}, ${(n >> 8) & 255}, ${n & 255}`; };
+            const c = rgb(hex), hi = rgb(shadeHex(hex, 22));
+            return ['interpolate', ['linear'], ['heatmap-density'],
+                    0,    'rgba(0,0,0,0)',
+                    0.04, `rgba(${c}, 0)`,
+                    0.15, `rgba(${c}, 0.5)`,
+                    0.5,  `rgba(${c}, 0.75)`,
+                    1,    `rgba(${hi}, 0.9)`];
+        },
+
         spawnPopupHtml(p) {
             const kind = { field: 'Field', dungeon: 'Dungeon', dungeon_boss: 'Dungeon boss', field_boss: 'Alpha', prison_boss: 'Sealed realm' }[p.kind] || p.kind;
             const lv = p.lvMin === p.lvMax ? `Lv ${p.lvMin}` : `Lv ${p.lvMin}–${p.lvMax}`;
@@ -757,9 +862,16 @@ export function mapComponent() {
                  + `<div class="text-gray-400 text-[11px]">${kind} · ${bits.join(' · ')}</div>`;
         },
 
-        setSpawnFeatures(features) {
+        setSpawnFeatures(features, points = [], color = null) {
             const src = this.map && this.map.getSource('spawns');
             if (src) src.setData({ type: 'FeatureCollection', features });
+            const pts = this.map && this.map.getSource('spawns-pts');
+            if (pts) pts.setData({ type: 'FeatureCollection', features: points });
+            if (this.map && this.map.getLayer('spawns-heat')) {
+                if (color) this.addSpawnHeatLayer(color);
+                this.map.setPaintProperty('spawns-heat', 'heatmap-radius', this.spawnHeatRadius());
+                this.map.setPaintProperty('spawns-halo', 'heatmap-radius', this.spawnHeatRadius(1.3));
+            }
             this._spawnFeatures = features;
         },
 
@@ -768,29 +880,35 @@ export function mapComponent() {
             if (!this.map || !this.mapReady || !this.spawns) return;
             this.ensureSpawnLayers();
             const sel = this.spawnSelected;
-            const features = [];
+            const features = [], points = [];
+            let color = null;
             if (sel) {
-                const color = this.spawnColor(sel);
+                color = this.spawnColor(sel);
                 for (const name of sel.groups) {
                     const g = this.spawns[name];
                     const e = g && g.pals[sel.id];
                     if (!e || !this.spawnKindShown(g.kind)) continue;
+                    const r = g.radius || 15000;
                     for (const [x, y] of (g.points[this.mapLayer] || [])) {
+                        points.push({
+                            type: 'Feature',
+                            properties: { w: e.share, r },
+                            geometry: { type: 'Point', coordinates: saveToLngLat(x, y, this.mapLayer) },
+                        });
                         features.push({
                             type: 'Feature',
                             properties: {
                                 name, kind: g.kind, share: e.share, lvMin: e.level[0], lvMax: e.level[1],
-                                night: e.time === 'night', boss: !!e.boss, color,
-                                opacity: 0.22 + 0.4 * Math.min(1, e.share * 1.5),
+                                night: e.time === 'night', boss: !!e.boss,
                             },
-                            geometry: { type: 'Polygon', coordinates: [this.circleRing(x, y, g.radius || 15000)] },
+                            geometry: { type: 'Polygon', coordinates: [this.circleRing(x, y, r)] },
                         });
                     }
                 }
-                // Rarer (lower-share) zones draw on top so they aren't buried under herds.
+                // Rarer (lower-share) zones hit-test first so they aren't buried under herds.
                 features.sort((a, b) => b.properties.share - a.properties.share);
             }
-            this.setSpawnFeatures(features);
+            this.setSpawnFeatures(features, points, color);
         },
 
         /**

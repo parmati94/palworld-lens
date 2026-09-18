@@ -485,10 +485,10 @@
                                 <!-- Closed with a pal lit: the chip. Click it to search again. -->
                                 <button x-show="!spawnPanel" type="button" @click="openSpawnPanel()" data-tip="Search for another pal"
                                         class="flex-1 min-w-0 flex items-baseline gap-x-1.5 text-left text-sm hover:text-white transition-colors">
-                                    <span class="font-medium text-gray-100 truncate" x-text="spawnPalName"></span>
+                                    <span class="font-medium text-gray-100 truncate min-w-[4rem]" x-text="spawnPalName"></span>
                                     <template x-if="spawnSummary && spawnSummary.zones">
-                                        <span class="text-[11px] text-gray-400 whitespace-nowrap tabular-nums">
-                                            <span x-text="spawnSummary.zones"></span> zones · Lv <span x-text="spawnSummary.lvMin === spawnSummary.lvMax ? spawnSummary.lvMin : spawnSummary.lvMin + '–' + spawnSummary.lvMax"></span>
+                                        <span class="text-[11px] text-gray-400 whitespace-nowrap tabular-nums truncate min-w-0">
+                                            <span x-text="spawnSummary.onThisLayer"></span> zones · Lv <span x-text="spawnSummary.lvMin === spawnSummary.lvMax ? spawnSummary.lvMin : spawnSummary.lvMin + '–' + spawnSummary.lvMax"></span>
                                         </span>
                                     </template>
                                     <template x-if="spawnSummary && !spawnSummary.zones">
@@ -498,6 +498,13 @@
                                         <span class="text-[11px] text-gray-400 whitespace-nowrap">no wild zones</span>
                                     </template>
                                 </button>
+                                <template x-if="!spawnPanel && spawnOtherLayer">
+                                    <button type="button" @click.stop="switchMapLayer(spawnOtherLayer.layer)"
+                                            class="flex-shrink-0 text-[11px] whitespace-nowrap px-1.5 py-0.5 rounded border border-white/10 text-accent-300 hover:bg-accent-500/10 hover:border-accent-400/40 transition-colors"
+                                            :data-tip="'Show the ' + spawnOtherLayer.count + ' zones on the ' + spawnOtherLayer.label + ' map'">
+                                        +<span x-text="spawnOtherLayer.count"></span> <span x-text="spawnOtherLayer.label"></span>
+                                    </button>
+                                </template>
 
                                 <button x-show="spawnPal" @click="clearSpawnPal()" aria-label="Clear spawn search" class="btn-quiet p-1.5 flex-shrink-0">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -515,6 +522,13 @@
                                         <span>Lv <span class="text-gray-200 tabular-nums" x-text="spawnSummary.lvMin === spawnSummary.lvMax ? spawnSummary.lvMin : spawnSummary.lvMin + '–' + spawnSummary.lvMax"></span></span>
                                         <template x-if="spawnSummary.night">
                                             <span class="flex items-center gap-x-2"><span class="text-gray-600">·</span><span><span class="text-gray-200 tabular-nums" x-text="spawnSummary.night"></span> night only</span></span>
+                                        </template>
+                                        <template x-if="spawnOtherLayer">
+                                            <span class="flex items-center gap-x-2"><span class="text-gray-600">·</span>
+                                                <button type="button" @click="switchMapLayer(spawnOtherLayer.layer)" class="text-accent-300 hover:underline">
+                                                    <span x-text="spawnOtherLayer.count"></span> on the <span x-text="spawnOtherLayer.label"></span> map
+                                                </button>
+                                            </span>
                                         </template>
                                     </span>
                                 </template>
