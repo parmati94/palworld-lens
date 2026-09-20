@@ -8,17 +8,20 @@
  *   </div>
  *
  * `options` is a function so it can read live app state; an empty value
- * selects the placeholder entry.
+ * selects the placeholder entry. Pass `required: true` for a picker with no
+ * "all" entry (the value is always one of the options).
  */
 export function selectMenu(opts = {}) {
     return {
         value: '',
         open: false,
         placeholder: opts.placeholder || 'All',
+        required: !!opts.required,
         options: opts.options || (() => []),
 
         get list() {
-            return [{ value: '', label: this.placeholder }, ...this.options()];
+            const all = this.options();
+            return this.required ? all : [{ value: '', label: this.placeholder }, ...all];
         },
 
         get label() {

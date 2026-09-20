@@ -14,7 +14,8 @@ import {
     getPassiveDescriptionClass,
     formatUptime,
     buildPageList,
-    formatRelativeTime
+    formatRelativeTime,
+    WORK_LEVEL_COLORS
 } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
@@ -61,6 +62,13 @@ export function app() {
         filterWorkType: '',
         filterPassiveSkill: '',
         filterOwner: '',
+        // Workforce modal ("Best <work> on the server"): opened from the Pals tab's work filter
+        workers: null,              // last /api/workers payload (for the hint line and the modal)
+        workersLoading: false,
+        workersOpen: false,
+        workersType: '',            // work type the modal is showing (its own picker; seeded from the filter)
+        workersMaxLevel: 0,         // "spawns at or under this level" -- the reader's own call; seeded from a player's level
+        _workersRequest: 0,
         // Base navigation state (shared with the Bases tab and deep links)
         selectedGuildId: null,
         selectedBaseId: null,
@@ -131,6 +139,8 @@ export function app() {
             // Reset to page 1 when filters change
             this.$watch('filterElement', () => this.currentPage = 1);
             this.$watch('filterWorkType', () => this.currentPage = 1);
+            this.$watch('pals', () => { if (this.workersOpen) this.loadWorkers(this.workersType, true); });
+            this.$watch('workersType', t => { if (this.workersOpen && t) this.loadWorkers(t); });
             this.$watch('filterPassiveSkill', () => this.currentPage = 1);
             this.$watch('filterOwner', () => this.currentPage = 1);
             
@@ -608,6 +618,85 @@ export function app() {
         palHeaderBackdrop(ids) { return elementBackdrop(this.gameData, ids); },
         workTypeName(id) { return (this.gameData.work_types[id] || {}).name || id; },
         workDisplay(pal) { return workSuitabilityDisplay(this.gameData, pal); },
+        workTypeIcon(id) { return `/img/${(this.gameData.work_types[id] || {}).icon || 'unknown'}.webp`; },
+
+        /** Every work type the game data knows, for the modal's picker. */
+        workersTypeList() {
+            return Object.entries(this.gameData.work_types || {})
+                .map(([id, w]) => ({ id, name: w.name || id }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+        },
+        /** Open the workforce modal on a work type (defaults to the filtered one, then the first known). */
+        openWorkers(type) {
+            const known = this.workersTypeList().map(t => t.id);
+            const fallback = known.includes('EmitFlame') ? 'EmitFlame' : (known[0] || '');   // Kindling is the game's first slot
+            this.workersType = type || this.filterWorkType || fallback;
+            this.workersOpen = true;
+            this.loadWorkers(this.workersType);
+        },
+        closeWorkers() { this.workersOpen = false; },
+        workersCatchOnMap(speciesId, name) {
+            this.workersOpen = false;
+            this.findOnMap(speciesId, name);
+        },
+        /** Level presets: one per player, highest first. The filtered owner (if any) is the default. */
+        workersPlayers() { return (this.workers && this.workers.players) || []; },
+        workersSeedLevel() {
+            const ps = this.workersPlayers();
+            if (!ps.length) return 50;
+            const mine = this.filterOwner && ps.find(p => p.name === this.filterOwner);
+            return (mine || ps[0]).level;
+        },
+        /** Catchable species that spawn at or under the chosen level, best job level first, then easiest. */
+        workersCatchList() {
+            const all = (this.workers && this.workers.catchable) || [];
+            return all.filter(c => c.spawn_level <= this.workersMaxLevel);
+        },
+        /** How many of those beat (or match) the best the server already owns. */
+        workersUpgradeCount() {
+            const best = (this.workers && this.workers.best_owned_level) || 0;
+            return this.workersCatchList().filter(c => c.work_level >= best).length;
+        },
+        workersNextUp() {
+            // First species just out of reach -- "raise the level to N and X becomes possible"
+            const all = (this.workers && this.workers.catchable) || [];
+            const best = (this.workers && this.workers.best_owned_level) || 0;
+            const beyond = all.filter(c => c.spawn_level > this.workersMaxLevel && c.work_level >= Math.max(best, 1));
+            beyond.sort((a, b) => a.spawn_level - b.spawn_level || b.work_level - a.work_level);
+            return beyond[0] || null;
+        },
+
+        /** Fetch the best-owned list and every catchable species for one work type. */
+        async loadWorkers(type, force = false) {
+            if (!type) { this.workers = null; this.workersLoading = false; return; }
+            if (!force && this.workers && this.workers.work_type === type && !this.workersLoading) return;
+            const req = ++this._workersRequest;
+            this.workersLoading = true;
+            try {
+                const data = await api.getWorkers(type);
+                if (req !== this._workersRequest) return;   // a newer pick won
+                this.workers = data;
+                if (!this.workersMaxLevel) this.workersMaxLevel = this.workersSeedLevel();
+            } catch (e) {
+                if (req !== this._workersRequest) return;
+                console.error('Failed to load workers', e);
+                this.workers = null;
+            } finally {
+                if (req === this._workersRequest) this.workersLoading = false;
+            }
+        },
+        /** "Envy 34 · Franky 31 · Ricky 28" -- every player's level, so each reader can judge their own margin. */
+        workersPlayersLine() {
+            const ps = (this.workers && this.workers.players) || [];
+            return ps.map(p => `${p.name} ${p.level}`).join(' · ');
+        },
+        workersOpenPal(instanceId) {
+            const pal = this.pals.find(p => p.instance_id === instanceId);
+            if (!pal) return;
+            this.workersOpen = false;
+            window.dispatchEvent(new CustomEvent('open-pal-modal', { detail: pal }));
+        },
+        workLevelColor(level) { return WORK_LEVEL_COLORS[Math.min(level, 8)] || '#9ca3af'; },
         
         // "Envy" for a base owned by Envy's guild; falls back to the guild name.
         // Bases can't be named in-game, so "Base 2" alone doesn't say whose it is.
