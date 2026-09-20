@@ -1,0 +1,23 @@
+<!-- One wild species row inside the workforce modal (x-for scope: `c`). Click -> map with its spawn zones lit. -->
+<button @click="workersCatchOnMap(c.species_id, c.species_name)"
+        class="w-full flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-gray-700/50 transition-colors text-left group"
+        :data-tip="'Where does ' + c.species_name + ' spawn?'">
+    <div class="relative flex-shrink-0">
+        <img :src="palIconSrc(c)" @error="palIconError($el, c)" loading="lazy" alt=""
+             class="w-9 h-9 rounded-lg bg-gray-900 object-cover group-hover:ring-2 group-hover:ring-accent-400">
+        <span class="absolute -bottom-1 -right-1 text-[10px] font-bold text-white rounded-full w-4 h-4 flex items-center justify-center border border-gray-900"
+              :style="`background:${workLevelColor(c.work_level)}`" x-text="c.work_level"></span>
+    </div>
+    <div class="min-w-0 flex-1">
+        <div class="text-sm font-medium text-gray-100 truncate flex items-center gap-1.5">
+            <span x-text="c.species_name"></span>
+            <svg class="w-3.5 h-3.5 text-accent-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span x-show="workers && c.work_level > workers.best_owned_level" class="px-1.5 py-px rounded text-[10px] font-medium bg-ok-500/20 text-ok-200 border border-ok-500/40 whitespace-nowrap">better than owned</span>
+            <span x-show="workers && workers.best_owned_level && c.work_level === workers.best_owned_level" class="px-1.5 py-px rounded text-[10px] font-medium bg-gray-700/60 text-gray-300 border border-gray-600/60 whitespace-nowrap">as good</span>
+        </div>
+        <div class="text-[11px] text-gray-400 truncate">
+            wild from <span class="tabular-nums text-gray-300">Lv <span x-text="c.spawn_level"></span></span>
+            <span x-show="c.owned" class="text-gray-500"> · <span x-text="c.owned"></span> owned</span>
+        </div>
+    </div>
+</button>
