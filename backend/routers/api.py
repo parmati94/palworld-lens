@@ -54,8 +54,7 @@ async def get_base_containers():
         raise HTTPException(status_code=400, detail="No save file loaded")
     
     try:
-        containers_by_base = parser.get_base_containers()
-        return {"containers": containers_by_base, "count": len(containers_by_base)}
+        return parser.base_containers_payload()
     except Exception as e:
         logger.error(f"Error getting base containers: {e}")
         raise HTTPException(status_code=500, detail=str(e))

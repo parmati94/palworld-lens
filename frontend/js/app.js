@@ -697,6 +697,22 @@ export function app() {
             window.dispatchEvent(new CustomEvent('open-pal-modal', { detail: pal }));
         },
         workLevelColor(level) { return WORK_LEVEL_COLORS[Math.min(level, 8)] || '#9ca3af'; },
+
+        // --- Guild chest (1.0): one shared container per guild -------------------
+        /** "Base 3 and Base 5" / "Base 1, Base 3 and Base 4" from a list of {base_name}. */
+        baseNamesSentence(bases) {
+            const names = (bases || []).map(b => b.base_name);
+            if (names.length <= 1) return names[0] || '';
+            return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+        },
+        /** Short contents line for the overview row: "Wood, Stone, Pal Fluid +11 more". */
+        guildChestContents(g) {
+            const items = g?.container?.items || [];
+            if (!items.length) return 'Empty';
+            const top = items.slice(0, 3).map(i => i.item_name || i.item_id);
+            const more = items.length - top.length;
+            return top.join(', ') + (more > 0 ? ` +${more} more` : '');
+        },
         
         // "Envy" for a base owned by Envy's guild; falls back to the guild name.
         // Bases can't be named in-game, so "Base 2" alone doesn't say whose it is.

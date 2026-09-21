@@ -34,7 +34,6 @@ async def watch_save_changes(request: Request):
                 players = parser.get_players()
                 pals = parser.get_pals()
                 guilds = parser.get_guilds()
-                containers_by_base = parser.get_base_containers()
                 save_info = parser.get_save_info()
                 
                 initial_data = {
@@ -42,13 +41,7 @@ async def watch_save_changes(request: Request):
                     "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
                     "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                     "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
-                    "base_containers": {
-                        "containers": {
-                            base_id: [c.model_dump() if hasattr(c, 'model_dump') else c for c in containers]
-                            for base_id, containers in containers_by_base.items()
-                        },
-                        "count": len(containers_by_base)
-                    },
+                    "base_containers": parser.base_containers_payload(),
                 }
                 yield {
                     "event": "init",
@@ -76,7 +69,6 @@ async def watch_save_changes(request: Request):
                     players = parser.get_players()
                     pals = parser.get_pals()
                     guilds = parser.get_guilds()
-                    containers_by_base = parser.get_base_containers()
                     save_info = parser.get_save_info()
                     
                     updated_data = {
@@ -84,13 +76,7 @@ async def watch_save_changes(request: Request):
                         "players": [p.model_dump() if hasattr(p, 'model_dump') else p for p in players],
                         "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                         "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
-                        "base_containers": {
-                            "containers": {
-                                base_id: [c.model_dump() if hasattr(c, 'model_dump') else c for c in containers]
-                                for base_id, containers in containers_by_base.items()
-                            },
-                            "count": len(containers_by_base)
-                        },
+                        "base_containers": parser.base_containers_payload(),
                     }
                     yield {
                         "event": "update",

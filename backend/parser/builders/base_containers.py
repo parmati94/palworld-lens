@@ -1,14 +1,28 @@
 """Base container building from save data (food bowls, storage, etc.)"""
-from typing import Dict, List
+import re
+from typing import Dict, List, Optional
 from collections import defaultdict
 
-from backend.models.models import BaseContainerInfo, ItemSlot
+from backend.models.models import BaseContainerInfo, BaseLocation, GuildStorageInfo, ItemSlot
 from backend.parser.extractors.bases import BaseMeta
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.utils.mappers import map_building_name
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
+
+# 1.0 Guild Chest. The placed building has no ItemContainer module; its
+# contents are the guild's single shared container (extractors/guilds.py).
+GUILD_CHEST = "GuildChest"
+
+
+def _natural(name: str):
+    """'Base 10' after 'Base 2'."""
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", name)]
+
+
+def is_guild_chest(container: Dict) -> bool:
+    return GUILD_CHEST in (container.get("map_object_id") or "") or GUILD_CHEST in (container.get("concrete_type") or "")
 
 
 def _items(container_id, item_index: Dict[str, List[Dict]], data: DataLoader) -> List[ItemSlot]:
@@ -45,9 +59,17 @@ def _container(kind: str, building_type: str, display_name: str, raw: Dict,
 
 
 def build_base_containers(base_meta: Dict[str, BaseMeta], food_bowls: List[Dict], storage_containers: List[Dict],
-                          item_index: Dict[str, List[Dict]], data: DataLoader) -> Dict[str, List[BaseContainerInfo]]:
-    """{base_id: [containers]} for food bowls and storage at every known base."""
+                          item_index: Dict[str, List[Dict]], data: DataLoader,
+                          guild_storage: Optional[Dict[str, str]] = None) -> Dict[str, List[BaseContainerInfo]]:
+    """{base_id: [containers]} for food bowls and storage at every known base.
+
+    guild_storage is {guild_id: container_id} for the shared Guild Chest. A base
+    gets one guild card no matter how many chests stand there, and each card
+    lists every base of the guild that has one (shared_at).
+    """
     by_base: Dict[str, List[BaseContainerInfo]] = defaultdict(list)
+    guild_storage = guild_storage or {}
+    guild_cards: Dict[str, List[BaseContainerInfo]] = defaultdict(list)   # guild_id -> one card per base
 
     for bowl in food_bowls:
         meta = base_meta.get(bowl.get("base_camp_id") or "")
@@ -69,9 +91,34 @@ def build_base_containers(base_meta: Dict[str, BaseMeta], food_bowls: List[Dict]
         # map_object_id is the building id (ItemChest_03, Cooler, ...) that keys
         # buildings.json / technologies.json; concrete_type is the class name.
         building_type = container.get("map_object_id") or container.get("concrete_type", "")
+        if is_guild_chest(container):
+            if not meta.guild_id or any(c.base_id == meta.base_id for c in guild_cards[meta.guild_id]):
+                continue
+            raw = dict(container, container_id=guild_storage.get(meta.guild_id))
+            card = _container("guild", GUILD_CHEST, map_building_name(GUILD_CHEST, data), raw, meta, item_index, data)
+            card.shared, card.guild_id = True, meta.guild_id
+            guild_cards[meta.guild_id].append(card)
+            by_base[meta.base_id].append(card)
+            continue
         kind = "cooler" if ("Cooler" in building_type or "Refrigerator" in building_type) else "storage"
         by_base[meta.base_id].append(_container(kind, building_type, map_building_name(building_type, data),
                                                 container, meta, item_index, data))
 
+    for cards in guild_cards.values():
+        cards.sort(key=lambda c: _natural(c.base_name or ""))
+        where = [BaseLocation(base_id=c.base_id, base_name=c.base_name or c.base_id) for c in cards]
+        for card in cards:
+            card.shared_at = where
+
     logger.info(f"Built containers for {len(by_base)} bases")
     return dict(by_base)
+
+
+def build_guild_storage(by_base: Dict[str, List[BaseContainerInfo]]) -> Dict[str, GuildStorageInfo]:
+    """{guild_id: shared chest + the bases it stands at}, from the built base containers."""
+    out: Dict[str, GuildStorageInfo] = {}
+    for containers in by_base.values():
+        for c in containers:
+            if c.shared and c.guild_id and c.guild_id not in out:
+                out[c.guild_id] = GuildStorageInfo(guild_id=c.guild_id, container=c, bases=c.shared_at)
+    return out

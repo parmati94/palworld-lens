@@ -234,7 +234,11 @@ class BaseContainerInfo(BaseModel):
     hp_current: Optional[int] = None
     hp_max: Optional[int] = None
     is_damaged: bool = False
-    
+    # 1.0 Guild Chest: one container per guild, mirrored at every base a chest stands.
+    shared: bool = False
+    guild_id: Optional[str] = None
+    shared_at: List[BaseLocation] = []  # every base where this shared chest stands
+
     @computed_field
     def total_item_count(self) -> int:
         """Total number of items in this container"""
@@ -249,4 +253,11 @@ class BaseContainerInfo(BaseModel):
     def is_empty(self) -> bool:
         """Whether the container has no items"""
         return len(self.items) == 0 or self.total_item_count == 0
+
+
+class GuildStorageInfo(BaseModel):
+    """A guild's shared chest: the same container wherever a Guild Chest is placed."""
+    guild_id: str
+    container: BaseContainerInfo
+    bases: List[BaseLocation] = []
 

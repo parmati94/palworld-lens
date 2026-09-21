@@ -151,6 +151,28 @@
                     <div>
                         <template x-for="guild in basePals.filter(g => g.guild_id === overviewSelectedGuild)" :key="guild.guild_id">
                             <div class="divide-y divide-gray-700/60">
+                                <!-- Guild chest (1.0): one shared container, shown once per guild -->
+                                <template x-if="baseContainers?.guild_storage?.[guild.guild_id]">
+                                    <button
+                                        @click="$dispatch('open-container-modal', { container: baseContainers.guild_storage[guild.guild_id].container })"
+                                        class="w-full text-left px-4 py-2.5 hover:bg-gray-700/40 group flex items-center gap-3"
+                                        :data-tip="'Open the guild chest · ' + guildChestContents(baseContainers.guild_storage[guild.guild_id])">
+                                        <img src="/img/t_icon_buildobject_guildchest.webp" alt="" class="w-8 h-8 rounded-lg bg-gray-900/60 p-0.5 flex-shrink-0">
+                                        <span class="min-w-0 flex-1">
+                                            <span class="flex items-center gap-2">
+                                                <span class="font-medium text-gray-200 group-hover:text-white">Guild chest</span>
+                                                <span class="px-1.5 py-px rounded text-[10px] font-medium bg-amber-500/15 text-amber-200 border border-amber-500/40">Shared</span>
+                                            </span>
+                                            <span class="block text-xs text-gray-400 truncate">At <span x-text="baseNamesSentence(baseContainers.guild_storage[guild.guild_id].bases)"></span></span>
+                                        </span>
+                                        <span class="flex items-center gap-2 text-xs flex-shrink-0">
+                                            <span class="text-gray-400 tabular-nums"><span x-text="baseContainers.guild_storage[guild.guild_id].container.unique_item_count"></span> stacks</span>
+                                            <svg class="w-4 h-4 text-gray-600 group-hover:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </template>
                                 <template x-for="base in guild.bases" :key="base.base_id">
                                     <button
                                         @click="goToBase(guild.guild_id, base.base_id)"

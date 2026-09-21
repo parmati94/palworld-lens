@@ -1070,16 +1070,13 @@
                                         return groups;
                                     },
                                     get sortedTypes() {
-                                        const types = Object.keys(this.groupedByType);
-                                        // Sort so cooler comes before storage
-                                        return types.sort((a, b) => {
-                                            if (a === 'cooler') return -1;
-                                            if (b === 'cooler') return 1;
-                                            return a.localeCompare(b);
-                                        });
+                                        // Guild chest first (biggest, shared), then coolers, then the rest
+                                        const rank = { guild: 0, cooler: 1 };
+                                        return Object.keys(this.groupedByType).sort((a, b) =>
+                                            (rank[a] ?? 9) - (rank[b] ?? 9) || a.localeCompare(b));
                                     },
                                     formatTypeName(type) {
-                                        // Special case: cooler -> Coolers
+                                        if (type === 'guild') return 'Guild chest';
                                         if (type === 'cooler') return 'Coolers';
                                         // Default: capitalize and replace underscores
                                         return type.replace('_', ' ').split(' ').map(word => 
@@ -1111,9 +1108,13 @@
                                                                     </svg>
                                                                 </div>
                                                                 <span class="font-medium text-white" x-text="container.display_name || 'Storage'"></span>
+                                                                <span x-show="container.shared" class="px-1.5 py-px rounded text-[10px] font-medium bg-amber-500/15 text-amber-200 border border-amber-500/40 whitespace-nowrap" data-tip="One chest for the whole guild: the same contents wherever it stands">Shared</span>
                                                             </div>
                                                             <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="`${container.unique_item_count || 0} items`"></span>
                                                         </div>
+                                                        <template x-if="container.shared && container.shared_at && container.shared_at.length > 1">
+                                                            <p class="-mt-1 mb-3 text-xs text-gray-400">Same chest at <span class="text-gray-300" x-text="baseNamesSentence(container.shared_at)"></span></p>
+                                                        </template>
                                                         
                                                         <!-- Items List -->
                                                         <template x-if="container.items && container.items.length > 0">
