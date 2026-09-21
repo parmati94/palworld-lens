@@ -14,6 +14,7 @@ and had zero stats -- and nothing failed.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -38,6 +39,18 @@ class GameDataError(RuntimeError):
 def _read_json(path: Path) -> Any:
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+# Unreal rich-text markup in localised strings: "<NumBlue_13>+10.0%</>",
+# "<Status_Up>Immune</>". Keep the text, drop the tags.
+_RICH_TEXT_TAG = re.compile(r'</?[A-Za-z0-9_]*>')
+
+
+def strip_rich_text(value: Any) -> Any:
+    """Drop Unreal `<Style>...</>` markup from a localised string."""
+    if not isinstance(value, str) or '<' not in value:
+        return value
+    return re.sub(r'\s{2,}', ' ', _RICH_TEXT_TAG.sub('', value)).strip()
 
 
 def load_table(table: Table, root: Path) -> Any:
@@ -68,7 +81,7 @@ def load_table(table: Table, root: Path) -> Any:
                 if isinstance(row, dict):
                     for field in ('localized_name', 'description'):
                         if loc.get(field) is not None:
-                            row[field] = loc[field]
+                            row[field] = strip_rich_text(loc[field])
     elif l10n_path is not None and table.required:
         raise GameDataError(f'required localisation missing: {l10n_path}')
 
