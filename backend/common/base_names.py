@@ -92,8 +92,13 @@ class BaseNameStore:
                 self.names = {}
         return self.names
 
-    def set(self, base_id: str, name: Optional[str]) -> Optional[str]:
-        """Store (or clear, when name is blank) and persist. Returns the stored name."""
+    def set(self, base_id: str, name: Optional[str], keep: Optional[Iterable[str]] = None) -> Optional[str]:
+        """Store (or clear, when name is blank) and persist. Returns the stored name.
+
+        `keep` is the set of base ids that exist right now: names for any
+        other id (a base that was torn down -- the game never reuses an id)
+        are dropped at the same time, so the file cannot grow stale entries.
+        """
         if not self.writable:
             raise PermissionError(f'base names are not writable ({self.dir})')
         cleaned = clean_name(name)
@@ -101,6 +106,9 @@ class BaseNameStore:
             self.names[base_id] = cleaned
         else:
             self.names.pop(base_id, None)
+        if keep is not None:
+            alive = set(keep) | {base_id}
+            self.names = {k: v for k, v in self.names.items() if k in alive}
         self._save()
         return cleaned or None
 

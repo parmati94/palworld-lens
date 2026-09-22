@@ -61,3 +61,13 @@ def test_store_without_a_directory_is_read_only(tmp_path):
             store.set('b1', 'x')
     finally:
         ro.chmod(stat.S_IRWXU)
+
+
+def test_set_drops_names_of_bases_that_no_longer_exist(tmp_path):
+    store = BaseNameStore(str(tmp_path))
+    store.set('old', 'Torn down')
+    store.set('b1', 'Home')
+    assert store.set('b2', 'Ranch', keep=['b1', 'b2']) == 'Ranch'
+    assert BaseNameStore(str(tmp_path)).load() == {'b1': 'Home', 'b2': 'Ranch'}
+    assert store.set('b1', '', keep=['b2']) is None
+    assert store.names == {'b2': 'Ranch'}

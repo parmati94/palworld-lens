@@ -156,7 +156,8 @@ class SaveFileParser:
         Cheaper than a rebuild, and the next reload derives the same names
         from the store anyway. Returns the stored name, or None when cleared.
         """
-        stored = self.base_names.set(base_id, name)
+        alive = [b.base_id for g in self.snapshot.guilds for b in g.base_locations]
+        stored = self.base_names.set(base_id, name, keep=alive)
         number = next((b.number for g in self.snapshot.guilds for b in g.base_locations if b.base_id == base_id), 0)
         shown = stored or f"Base {number}"
         for g in self.snapshot.guilds:
