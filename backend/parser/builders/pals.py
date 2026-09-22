@@ -59,7 +59,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
                 if work_type and bonus:
                     manual_upgrades[work_type] = manual_upgrades.get(work_type, 0) + bonus
             work_suitability = calculate_work_suitabilities(
-                species.get("work_suitability", {}), rank, manual_upgrades or None)
+                species.get("work_suitability", {}), rank, manual_upgrades or None, passive_skills)
 
         level = pal_schema.extract_field(char_info, "Level")
         talent_hp = pal_schema.extract_field(char_info, "Talent_HP")

@@ -48,6 +48,7 @@ internal static class Program
             case "icons": return Icons(provider, args[1], args[2]);
             case "dt":    return Dt(provider, args[1], args.Length > 2 ? args[2] : null);
             case "list":  return List(provider, args.Length > 1 ? args[1] : "", args.Length > 2 ? args[2] : null);
+            case "obj":   return Obj(provider, args[1], args.Length > 2 ? args[2] : null);
             default:
                 Console.Error.WriteLine($"unknown command: {cmd}");
                 return 2;
@@ -169,6 +170,33 @@ internal static class Program
     // NOTE DT_PalMonsterParameter (pal stats) ships with ZERO rows in the client pak --
     // it declares its RowStruct and nothing else -- which is why data/json still comes
     // from palworld-save-pal rather than being generated here.
+    // Dump every export of any asset (blueprint defaults, structs, settings objects) as JSON.
+    // Same name / pak-path matching as `dt`.
+    private static int Obj(DefaultFileProvider provider, string needle, string? outFile)
+    {
+        var key = provider.Files.Keys.FirstOrDefault(k =>
+            k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) &&
+            (needle.Contains('/')
+                ? k.Equals(needle + ".uasset", StringComparison.OrdinalIgnoreCase) || k.Equals(needle, StringComparison.OrdinalIgnoreCase)
+                : Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase)));
+        if (key == null) { Console.Error.WriteLine($"no .uasset named '{needle}'"); return 1; }
+        Console.WriteLine($"obj: {key}");
+        try
+        {
+            var pkg = provider.LoadPackage(key);
+            var exports = pkg.GetExports().ToList();
+            Console.WriteLine($"  exports: " + string.Join(", ", exports.Select(e => $"{e.Name} ({e.ExportType})")));
+            var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
+            if (outFile != null) { File.WriteAllText(outFile, json); Console.WriteLine($"  wrote {json.Length} chars -> {outFile}"); }
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"  FAILED: {ex.GetType().Name}: {ex.Message}");
+            return 1;
+        }
+    }
+
     private static int Dt(DefaultFileProvider provider, string needle, string? outFile)
     {
         // Bare name (first match, any language) or a pak path such as

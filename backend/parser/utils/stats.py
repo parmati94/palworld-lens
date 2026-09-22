@@ -226,49 +226,67 @@ def calculate_pal_stats(
         return {"attack": 0, "defense": 0, "hp": 0, "work_speed": 70}
 
 
+WORK_RANK_EFFECT = 'WorkSuitabilityAddRank_'
+MAX_CONDENSE_STARS = 4
+
+
+def passive_work_bonuses(passive_skills: Optional[list]) -> Dict[str, int]:
+    """{work type: +levels} from a pal's own passives (Farmhand, Ranch Master, ...).
+
+    passive_skills.json carries each passive's effects; the work ones are typed
+    `WorkSuitabilityAddRank_<WorkType>` with the pal itself as target. Effects
+    aimed at other pals (a base-wide bonus) are not the pal's own level.
+    """
+    out: Dict[str, int] = {}
+    for skill in passive_skills or []:
+        effects = getattr(skill, 'effects', None) or (skill.get('effects') if isinstance(skill, dict) else None) or []
+        for e in effects:
+            t = str(e.get('type') or '')
+            if not t.startswith(WORK_RANK_EFFECT) or str(e.get('target') or 'ToSelf') != 'ToSelf':
+                continue
+            work_type = t[len(WORK_RANK_EFFECT):]
+            out[work_type] = out.get(work_type, 0) + int(e.get('value') or 0)
+    return out
+
+
 def calculate_work_suitabilities(
     base_work_suitability: Dict[str, int],
     condensor_rank: Optional[int] = None,
-    manual_upgrades: Optional[Dict[str, int]] = None
+    manual_upgrades: Optional[Dict[str, int]] = None,
+    passive_skills: Optional[list] = None,
 ) -> Dict[str, int]:
-    """Calculate actual work suitability levels including bonuses
-    
-    The calculation is:
-    Final Level = Base Level + Pal Condensor Bonus + Manual Upgrades
-    
-    - Base Level: From species JSON data
-    - Pal Condensor Bonus: +1 to existing work types (level > 0) if condensor_rank == 5 (4 star pal)
-    - Manual Upgrades: Individual upgrades from books/manuals, can grant new work types
-    
+    """Actual work suitability levels: species base + condensing + books + passives.
+
+    Since 1.0 every condensing star adds +1 to each work type the species
+    already has (rank is the save value 1-5, so stars = rank - 1; a 3-star
+    Mozzarina with Ranch 2 shows Ranch 5). Books (GotWorkSuitabilityAddRankList)
+    and work passives such as Farmhand add on top and can grant a type the
+    species lacks. Before 1.0 the condenser gave +1 only at 4 stars.
+
     Args:
-        base_work_suitability: Base work suitability levels from species data
-        condensor_rank: The Pal Condensor rank value (5 = 4 star pal), or None
-        manual_upgrades: Dict mapping work type to bonus amount, or None
-        
+        base_work_suitability: species levels from pals.json
+        condensor_rank: save Rank value (1 = no stars ... 5 = 4 stars), or None
+        manual_upgrades: {work type: +levels} from books, or None
+        passive_skills: the pal's SkillInfo passives (effects read), or None
+
     Returns:
-        Dict mapping work type ID to calculated level (1-4)
+        {work type id: level}
     """
     if not base_work_suitability:
         return {}
-    
-    # Start with base levels
+
     calculated_suitabilities = base_work_suitability.copy()
-    
-    # Apply Pal Condensor bonus (4 star pal = rank 5)
-    # Only increment work types that have base level > 0
-    if condensor_rank == 5:
+
+    stars = max(0, min(MAX_CONDENSE_STARS, int(condensor_rank or 1) - 1))
+    if stars:
         for work_type, level in calculated_suitabilities.items():
             if level > 0:
-                calculated_suitabilities[work_type] += 1
-    
-    # Apply manual upgrades (can add new work types or boost existing ones)
-    if manual_upgrades:
-        for work_type, bonus in manual_upgrades.items():
-            if work_type in calculated_suitabilities:
-                # Boost existing work type
-                calculated_suitabilities[work_type] += bonus
-            else:
-                # Grant new work type that didn't exist
-                calculated_suitabilities[work_type] = bonus
-    
+                calculated_suitabilities[work_type] = level + stars
+
+    bonuses: Dict[str, int] = dict(manual_upgrades or {})
+    for work_type, bonus in passive_work_bonuses(passive_skills).items():
+        bonuses[work_type] = bonuses.get(work_type, 0) + bonus
+    for work_type, bonus in bonuses.items():
+        calculated_suitabilities[work_type] = calculated_suitabilities.get(work_type, 0) + bonus
+
     return calculated_suitabilities

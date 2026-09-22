@@ -10,7 +10,8 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   `DT_PalSpawnerPlacement` + `DT_PalWildSpawner` tables via the same extractor
   (`generate_spawns.py`; `pal-extract dt <table> out.json` dumps any data table --
   pass a full pak path such as `Pal/Content/L10N/en/Pal/DataTable/Text/DT_SkillNameText_Common`
-  to pin one localisation, a bare name takes the first match).
+  to pin one localisation, a bare name takes the first match; `pal-extract obj <asset> out.json`
+  dumps any other asset's exports, e.g. a blueprint's default values).
 - **`data/json/partner_skills.json`** -- every species' partner skill name and description
   rendered per condensing level, from the pak's skill text + parameter tables
   (`generate_partner_skills.py`; see `backend/common/partner_skills.py` for the table map).

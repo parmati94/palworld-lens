@@ -1,5 +1,7 @@
 """Stat formulas (backend/parser/utils/stats.py) pinned against known values."""
-from backend.parser.utils.stats import calculate_pal_stats, calculate_trust_level, calculate_work_suitabilities
+from types import SimpleNamespace
+
+from backend.parser.utils.stats import calculate_pal_stats, calculate_trust_level, calculate_work_suitabilities, passive_work_bonuses
 
 ALPACA = {'hp': 90, 'attack': 75, 'defense': 90}
 
@@ -43,5 +45,21 @@ def test_trust_level():
 def test_work_suitability_bonuses():
     base = {'EmitFlame': 2, 'Mining': 0}
     assert calculate_work_suitabilities(base) == base
-    assert calculate_work_suitabilities(base, condensor_rank=5) == {'EmitFlame': 3, 'Mining': 0}
+    assert calculate_work_suitabilities(base, condensor_rank=1) == base
+    # 1.0: every star adds one to the types the species has (rank 5 = 4 stars)
+    assert calculate_work_suitabilities(base, condensor_rank=2) == {'EmitFlame': 3, 'Mining': 0}
+    assert calculate_work_suitabilities(base, condensor_rank=5) == {'EmitFlame': 6, 'Mining': 0}
+    assert calculate_work_suitabilities(base, condensor_rank=9) == {'EmitFlame': 6, 'Mining': 0}   # clamped
     assert calculate_work_suitabilities(base, manual_upgrades={'Mining': 1, 'EmitFlame': 1}) == {'EmitFlame': 3, 'Mining': 1}
+
+
+def test_work_suitability_counts_the_pals_own_work_passives():
+    farmhand = SimpleNamespace(effects=[{'type': 'WorkSuitabilityAddRank_MonsterFarm', 'value': 1.0, 'target': 'ToSelf'}])
+    base_wide = SimpleNamespace(effects=[{'type': 'WorkSuitabilityAddRank_MonsterFarm', 'value': 1.0, 'target': 'ToBaseCampPal'}])
+    stat_only = SimpleNamespace(effects=[{'type': 'CraftSpeed', 'value': 50.0, 'target': 'ToSelf'}])
+    # Paul's 3-star Mozzarina: Ranch 2 + 3 stars + Farmhand = 6
+    assert calculate_work_suitabilities({'MonsterFarm': 2, 'Mining': 0}, 4, None, [farmhand, stat_only]) == {'MonsterFarm': 6, 'Mining': 0}
+    assert calculate_work_suitabilities({'MonsterFarm': 2}, 1, None, [base_wide]) == {'MonsterFarm': 2}
+    # a work passive on a species without that type grants it, like a book does
+    assert calculate_work_suitabilities({'Mining': 1}, 1, {'Mining': 1}, [farmhand]) == {'Mining': 2, 'MonsterFarm': 1}
+    assert passive_work_bonuses([farmhand, {'effects': [{'type': 'WorkSuitabilityAddRank_Mining', 'value': 2}]}]) == {'MonsterFarm': 1, 'Mining': 2}
