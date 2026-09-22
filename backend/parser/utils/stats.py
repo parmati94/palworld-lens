@@ -260,8 +260,10 @@ def calculate_work_suitabilities(
     Since 1.0 every condensing star adds +1 to each work type the species
     already has (rank is the save value 1-5, so stars = rank - 1; a 3-star
     Mozzarina with Ranch 2 shows Ranch 5). Books (GotWorkSuitabilityAddRankList)
-    and work passives such as Farmhand add on top and can grant a type the
-    species lacks. Before 1.0 the condenser gave +1 only at 4 stars.
+    add on top and can grant a type the species lacks. Work passives such as
+    Farmhand add on top too, but only to a type the species already has: a
+    Farmhand Direhowl gets no Ranch (confirmed in game). Before 1.0 the
+    condenser gave +1 only at 4 stars.
 
     Args:
         base_work_suitability: species levels from pals.json
@@ -283,10 +285,10 @@ def calculate_work_suitabilities(
             if level > 0:
                 calculated_suitabilities[work_type] = level + stars
 
-    bonuses: Dict[str, int] = dict(manual_upgrades or {})
-    for work_type, bonus in passive_work_bonuses(passive_skills).items():
-        bonuses[work_type] = bonuses.get(work_type, 0) + bonus
-    for work_type, bonus in bonuses.items():
+    for work_type, bonus in (manual_upgrades or {}).items():
         calculated_suitabilities[work_type] = calculated_suitabilities.get(work_type, 0) + bonus
+    for work_type, bonus in passive_work_bonuses(passive_skills).items():
+        if base_work_suitability.get(work_type, 0) > 0:
+            calculated_suitabilities[work_type] += bonus
 
     return calculated_suitabilities

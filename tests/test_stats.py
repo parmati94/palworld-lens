@@ -60,6 +60,7 @@ def test_work_suitability_counts_the_pals_own_work_passives():
     # Paul's 3-star Mozzarina: Ranch 2 + 3 stars + Farmhand = 6
     assert calculate_work_suitabilities({'MonsterFarm': 2, 'Mining': 0}, 4, None, [farmhand, stat_only]) == {'MonsterFarm': 6, 'Mining': 0}
     assert calculate_work_suitabilities({'MonsterFarm': 2}, 1, None, [base_wide]) == {'MonsterFarm': 2}
-    # a work passive on a species without that type grants it, like a book does
-    assert calculate_work_suitabilities({'Mining': 1}, 1, {'Mining': 1}, [farmhand]) == {'Mining': 2, 'MonsterFarm': 1}
+    # a work passive on a species without that type does nothing (a book still grants one)
+    assert calculate_work_suitabilities({'Mining': 1, 'MonsterFarm': 0}, 1, {'Mining': 1}, [farmhand]) == {'Mining': 2, 'MonsterFarm': 0}
+    assert calculate_work_suitabilities({'Mining': 1}, 1, {'Handcraft': 1}, [farmhand]) == {'Mining': 1, 'Handcraft': 1}
     assert passive_work_bonuses([farmhand, {'effects': [{'type': 'WorkSuitabilityAddRank_Mining', 'value': 2}]}]) == {'MonsterFarm': 1, 'Mining': 2}
