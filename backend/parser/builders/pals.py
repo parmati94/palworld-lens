@@ -21,7 +21,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
 
     Args:
         char_data: {instance_id: SaveParameter dict} from the characters collection
-        base_assignments: {instance_id: {base_id, guild_id, base_name}} for pals at bases
+        base_assignments: {instance_id: {base_id, guild_id, base_name, base_place}} for pals at bases
         data: static game data
         pal_to_owner: {instance_id: owner player name}
     """
@@ -134,6 +134,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             base_id=assignment.get("base_id"),
             guild_id=assignment.get("guild_id"),
             base_name=assignment.get("base_name"),
+            base_place=assignment.get("base_place"),
             condition=pal_schema.extract_field(char_info, "WorkerSick"),
             hunger_type=pal_schema.extract_field(char_info, "HungerType"),
             calculated_attack=calculated_stats["attack"],

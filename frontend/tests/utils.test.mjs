@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
-    workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor, partnerSkillHtml, mountLabel,
+    workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor, partnerSkillHtml, mountLabel, baseLabel,
 } from '../js/utils.js';
 
 const gameData = {
@@ -102,4 +102,13 @@ test('partnerSkillHtml styles the four generator tags and escapes everything els
         + '<span class="text-gray-50 font-medium">double jump</span> <span class="text-gray-500">(Does not stack)</span> '
         + '&lt;b&gt;x&lt;/b&gt; &amp; y');
     assert.equal(partnerSkillHtml(gameData, ''), '');
+});
+
+test('baseLabel joins the name and the place, once', () => {
+    assert.equal(baseLabel({ base_name: 'Base 3', place: 'Kelpsea Hill' }), 'Base 3 · Kelpsea Hill');
+    assert.equal(baseLabel({ base_name: 'Kelp Farm', place: 'Kelpsea Hill' }), 'Kelp Farm · Kelpsea Hill');
+    assert.equal(baseLabel({ base_name: 'Kelpsea Hill', place: 'Kelpsea Hill' }), 'Kelpsea Hill');
+    assert.equal(baseLabel({ base_name: 'Base 1' }), 'Base 1');
+    assert.equal(baseLabel({ base_name: 'Base 1', base_place: 'Oasis Isle' }), 'Base 1 · Oasis Isle');   // pal shape
+    assert.equal(baseLabel(null), '');
 });

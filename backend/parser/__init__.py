@@ -21,6 +21,8 @@ from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
 from backend.parser.builders.guilds import build_guilds
 from backend.parser.builders.base_containers import build_base_containers, build_guild_storage
+from backend.common.base_names import BaseNameStore
+from backend.common.config import config
 from backend.common.logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -48,6 +50,7 @@ class SaveFileParser:
     def __init__(self):
         self.gvas = GvasHandler()
         self.data = DataLoader()
+        self.base_names = BaseNameStore(config.APP_STATE_PATH)
         self.snapshot: Snapshot = EMPTY
 
     def load(self) -> bool:
@@ -75,7 +78,8 @@ class SaveFileParser:
         char_data = get_character_data(world)
         player_data = split_players(char_data)
         guild_data = get_guild_data(world)
-        base_meta = get_base_metadata(get_base_data(world))
+        base_meta = get_base_metadata(get_base_data(world), landmarks=self.data.map_objects,
+                                      layers=self.data.map_layers, custom_names=self.base_names.load())
         item_index = index_item_containers(world)
         food_bowls = get_food_bowls(world)
         storage = get_storage_containers(world)
@@ -145,6 +149,38 @@ class SaveFileParser:
 
     def get_guild_storage(self) -> Dict[str, GuildStorageInfo]:
         return self.snapshot.guild_storage
+
+    def rename_base(self, base_id: str, name: Optional[str]) -> Optional[str]:
+        """Store a custom name (blank = back to "Base N") and patch the live snapshot.
+
+        Cheaper than a rebuild, and the next reload derives the same names
+        from the store anyway. Returns the stored name, or None when cleared.
+        """
+        stored = self.base_names.set(base_id, name)
+        number = next((b.number for g in self.snapshot.guilds for b in g.base_locations if b.base_id == base_id), 0)
+        shown = stored or f"Base {number}"
+        for g in self.snapshot.guilds:
+            for b in g.base_locations:
+                if b.base_id == base_id:
+                    b.base_name = shown
+        for p in self.snapshot.pals:
+            if p.base_id == base_id:
+                p.base_name = shown
+        for cards in self.snapshot.base_containers.values():
+            for c in cards:
+                if c.base_id == base_id:
+                    c.base_name = shown
+                for at in c.shared_at:
+                    if at.base_id == base_id:
+                        at.base_name = shown
+        for gs in self.snapshot.guild_storage.values():
+            for at in gs.bases:
+                if at.base_id == base_id:
+                    at.base_name = shown
+        return stored
+
+    def base_names_payload(self) -> Dict:
+        return {"names": dict(self.base_names.names), "writable": self.base_names.writable}
 
     def base_containers_payload(self) -> Dict:
         """The /api/base-containers body, also embedded in the watch stream."""

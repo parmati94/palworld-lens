@@ -30,4 +30,26 @@ def test_assignments_follow_the_worker_container():
         'pal1': {'SlotId': {'value': {'ContainerId': {'value': {'ID': {'value': 'c1'}}}}}},
         'pal2': {'SlotId': {'value': {'ContainerId': {'value': {'ID': {'value': 'elsewhere'}}}}}},
     }
-    assert get_base_assignments(chars, meta) == {'pal1': {'base_id': 'b1', 'guild_id': 'g1', 'base_name': 'Base 1'}}
+    assert get_base_assignments(chars, meta) == {'pal1': {'base_id': 'b1', 'guild_id': 'g1', 'base_name': 'Base 1', 'base_place': None}}
+
+
+LAYERS = {'MainMap': {'x': [-10, 10], 'y': [-10, 10]}}
+LANDMARKS = [{'type': 'fast_travel', 'localized_name': 'Kelpsea Hill', 'x': 1, 'y': 2, 'map': 'MainMap'},
+             {'type': 'fast_travel', 'localized_name': 'Far Away', 'x': 9, 'y': 9, 'map': 'MainMap'}]
+
+
+def test_place_number_and_custom_name():
+    meta = get_base_metadata({
+        'b1': _base('g1', '', 'c1'),
+        'b2': _base('g1', '', 'c2', x=8.5),
+    }, landmarks=LANDMARKS, layers=LAYERS, custom_names={'b2': 'The Ranch', 'gone': 'x'})
+    assert (meta['b1'].name, meta['b1'].number, meta['b1'].place, meta['b1'].custom_name) == ('Base 1', 1, 'Kelpsea Hill', None)
+    assert (meta['b2'].name, meta['b2'].number, meta['b2'].place, meta['b2'].custom_name) == ('The Ranch', 2, 'Far Away', 'The Ranch')
+    # the custom name follows the base into pal assignments
+    chars = {'pal1': {'SlotId': {'value': {'ContainerId': {'value': {'ID': {'value': 'c2'}}}}}}}
+    assert get_base_assignments(chars, meta)['pal1'] == {'base_id': 'b2', 'guild_id': 'g1', 'base_name': 'The Ranch', 'base_place': 'Far Away'}
+
+
+def test_no_landmarks_means_no_place():
+    meta = get_base_metadata({'b1': _base('g1', '', 'c1')})
+    assert meta['b1'].place is None and meta['b1'].number == 1

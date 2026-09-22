@@ -59,7 +59,7 @@ def build_guilds(guilds_data: Dict, base_meta: Dict[str, BaseMeta], player_names
             admin_player_name=admin_name,
             members=members,
             base_locations=[
-                BaseLocation(base_id=m.base_id, base_name=m.name, x=m.x, y=m.y, z=m.z)
+                BaseLocation(base_id=m.base_id, base_name=m.name, number=m.number, place=m.place, x=m.x, y=m.y, z=m.z)
                 for m in bases_by_guild.get(guild_id_str, [])
             ],
         ))

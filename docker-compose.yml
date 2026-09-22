@@ -9,7 +9,11 @@ services:
       # ⚠️ REPLACE THIS PATH with your actual Palworld save directory
       # Example: - /home/<user>/palworld/Pal/Saved/SaveGames/0/YOUR-WORLD-ID:/app/saves:ro
       - ./saves:/app/saves:ro
+      # App-owned state: custom base names live here. Optional -- without a writable
+      # directory the app still runs, it just hides the rename control.
+      - ./state:/app/state
     environment:
+      - APP_STATE_PATH=/app/state
       - SAVE_MOUNT_PATH=/app/saves
       - ENABLE_AUTO_WATCH=true
       - LOG_LEVEL=INFO  # Options: DEBUG, INFO, WARNING, ERROR

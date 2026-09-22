@@ -392,6 +392,7 @@ export function mapComponent() {
                             <span class="font-semibold truncate">${base.base_name}</span>
                             <span class="text-gray-400 text-[10px] truncate flex-shrink-0">${guild.guild_name}</span>
                         </div>
+                        ${base.place && base.place !== base.base_name ? `<div class="text-gray-300 truncate">${base.place}</div>` : ''}
                         <div class="text-gray-400">X: ${Math.round(gameX)} | Y: ${Math.round(gameY)}</div>
                     </div>
                 </div>`;

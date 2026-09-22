@@ -65,6 +65,7 @@ class PalInfo(BaseModel):
     base_id: Optional[str] = None
     guild_id: Optional[str] = None
     base_name: Optional[str] = None
+    base_place: Optional[str] = None
     # Condition/status fields
     condition: Optional[str] = None  # WorkerSick condition (e.g., "Sick", "Sprain", "Bulimia", etc.)
     hunger_type: Optional[str] = None  # HungerType status (e.g., "Hunger")
@@ -197,7 +198,9 @@ class PlayerInfo(BaseModel):
 class BaseLocation(BaseModel):
     """Base location information"""
     base_id: str
-    base_name: str
+    base_name: str                  # custom name if set, else "Base N"
+    number: int = 0                 # the game's per-guild number (stable sort key)
+    place: Optional[str] = None     # nearest fast-travel statue
     x: Optional[float] = None
     y: Optional[float] = None
     z: Optional[float] = None
