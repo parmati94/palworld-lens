@@ -7,6 +7,8 @@
 #   2. generate_map_objects.py map_objects.json <- that same release
 #   3. generate_icons.py       missing icons <- the game pak  (needs pak + usmap)
 #   3b. generate_spawns.py     spawns.json <- the pak's spawner tables (same inputs)
+#   3c. generate_partner_skills.py partner_skills.json <- the pak's skill text tables (same inputs)
+#   3d. generate_pal_parameters.py pal_parameters.json <- the pak's species table (same inputs)
 #   4. slice_map.py            map tiles <- the committed map images
 #   5. validate.py             coverage checks
 #
@@ -81,6 +83,20 @@ if [ $SKIP_ICONS -eq 0 ]; then
     echo "  pak or usmap missing -- skipping (the committed spawns.json stays as is)"
   else
     "$PY" "$HERE/generate_spawns.py" $DRY
+  fi
+
+  step "3c/5 regenerate partner_skills.json from the pak's skill text + parameter tables"
+  if [ ! -d "$PALWORLD_PAK_DIR" ] || [ ! -f "$PALWORLD_USMAP" ]; then
+    echo "  pak or usmap missing -- skipping (the committed partner_skills.json stays as is)"
+  else
+    "$PY" "$HERE/generate_partner_skills.py" $DRY
+  fi
+
+  step "3d/5 regenerate pal_parameters.json from the pak's species table (needs a usmap >= the game)"
+  if [ ! -d "$PALWORLD_PAK_DIR" ] || [ ! -f "$PALWORLD_USMAP" ]; then
+    echo "  pak or usmap missing -- skipping (the committed pal_parameters.json stays as is)"
+  else
+    "$PY" "$HERE/generate_pal_parameters.py" $DRY
   fi
 fi
 

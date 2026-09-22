@@ -8,6 +8,7 @@ using CUE4Parse.Compression;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Engine;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace PalworldLens.Extractor;
 
@@ -37,6 +38,10 @@ internal static class Program
     private static int Main(string[] args)
     {
         var cmd = args.Length > 0 ? args[0] : "smoke";
+        // CUE4Parse reports decode failures (e.g. a data table whose rows fail to
+        // read) through Serilog and carries on; without a sink they vanish.
+        if (Environment.GetEnvironmentVariable("PAL_EXTRACT_VERBOSE") == "1")
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console(standardErrorFromLevel: Serilog.Events.LogEventLevel.Verbose).CreateLogger();
         var provider = Setup();
         Console.WriteLine($"mounted {provider.Files.Count} files; usmap={(Usmap ?? "<none>")}; command='{cmd}'");
 
@@ -48,6 +53,7 @@ internal static class Program
             case "icons": return Icons(provider, args[1], args[2]);
             case "dt":    return Dt(provider, args[1], args.Length > 2 ? args[2] : null);
             case "list":  return List(provider, args.Length > 1 ? args[1] : "", args.Length > 2 ? args[2] : null);
+            case "obj":   return Obj(provider, args[1], args.Length > 2 ? args[2] : null);
             default:
                 Console.Error.WriteLine($"unknown command: {cmd}");
                 return 2;
@@ -169,11 +175,42 @@ internal static class Program
     // NOTE DT_PalMonsterParameter (pal stats) ships with ZERO rows in the client pak --
     // it declares its RowStruct and nothing else -- which is why data/json still comes
     // from palworld-save-pal rather than being generated here.
-    private static int Dt(DefaultFileProvider provider, string needle, string? outFile)
+    // Dump every export of any asset (blueprint defaults, structs, settings objects) as JSON.
+    // Same name / pak-path matching as `dt`.
+    private static int Obj(DefaultFileProvider provider, string needle, string? outFile)
     {
         var key = provider.Files.Keys.FirstOrDefault(k =>
             k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) &&
-            Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase));
+            (needle.Contains('/')
+                ? k.Equals(needle + ".uasset", StringComparison.OrdinalIgnoreCase) || k.Equals(needle, StringComparison.OrdinalIgnoreCase)
+                : Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase)));
+        if (key == null) { Console.Error.WriteLine($"no .uasset named '{needle}'"); return 1; }
+        Console.WriteLine($"obj: {key}");
+        try
+        {
+            var pkg = provider.LoadPackage(key);
+            var exports = pkg.GetExports().ToList();
+            Console.WriteLine($"  exports: " + string.Join(", ", exports.Select(e => $"{e.Name} ({e.ExportType})")));
+            var json = JsonConvert.SerializeObject(exports, Formatting.Indented);
+            if (outFile != null) { File.WriteAllText(outFile, json); Console.WriteLine($"  wrote {json.Length} chars -> {outFile}"); }
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"  FAILED: {ex.GetType().Name}: {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static int Dt(DefaultFileProvider provider, string needle, string? outFile)
+    {
+        // Bare name (first match, any language) or a pak path such as
+        // Pal/Content/L10N/en/Pal/DataTable/Text/DT_SkillNameText_Common to pin one.
+        var key = provider.Files.Keys.FirstOrDefault(k =>
+            k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) &&
+            (needle.Contains('/')
+                ? k.Equals(needle + ".uasset", StringComparison.OrdinalIgnoreCase) || k.Equals(needle, StringComparison.OrdinalIgnoreCase)
+                : Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase)));
         if (key == null) { Console.Error.WriteLine($"no .uasset named '{needle}'"); return 1; }
         Console.WriteLine($"dt: {key}");
         try

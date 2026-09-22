@@ -340,6 +340,60 @@
                                 </div>
                             </div>
                             
+                            <!-- Partner Skill: the species' skill at this pal's condensing level -->
+                            <template x-if="partnerSkill(selectedPal)">
+                                <div x-data="{ ladder: false, get ps() { return partnerSkill(selectedPal); } }">
+                                    <div class="flex items-center justify-between gap-3 mb-2.5">
+                                        <h3 class="text-sm font-semibold text-gray-200">Partner Skill</h3>
+                                        <button x-show="ps.grows" @click="ladder = !ladder"
+                                                class="text-[11px] text-accent-300 hover:text-accent-200 transition-colors"
+                                                :data-tip="ladder ? 'Back to this pal\'s level' : 'How it grows as the pal is condensed'"
+                                                x-text="ladder ? 'Hide levels' : 'All 5 levels'"></button>
+                                    </div>
+                                    <div class="rounded-lg p-3 bg-gradient-to-br from-amber-500/10 to-gray-700/50 border border-amber-400/20">
+                                        <div class="flex items-center justify-between gap-3 flex-wrap">
+                                            <div class="flex items-center gap-2 min-w-0">
+                                                <span class="text-sm font-semibold text-amber-100 truncate" x-text="ps.name"></span>
+                                                <span x-show="ps.current.mount" class="px-1.5 py-px rounded text-[10px] font-medium bg-sky-500/15 text-sky-200 border border-sky-500/40 whitespace-nowrap"
+                                                      data-tip="Can be ridden" x-text="mountLabel(ps.current.mount)"></span>
+                                            </div>
+                                            <span class="flex items-center gap-1.5 flex-shrink-0"
+                                                  :data-tip="ps.grows ? 'Each condensing star raises the skill a level' : 'This skill is the same at every level'">
+                                                <span class="text-[11px] font-medium text-amber-200/80 tabular-nums">Lv <span x-text="ps.level"></span></span>
+                                                <span class="flex items-center gap-0.5">
+                                                    <template x-for="i in 5" :key="i">
+                                                        <span class="w-2 h-2 rounded-full border border-amber-300/50"
+                                                              :class="i <= ps.level ? 'bg-amber-300' : 'bg-transparent'"></span>
+                                                    </template>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div x-show="!ladder">
+                                            <p class="mt-2 text-sm text-gray-300 leading-relaxed" x-html="partnerSkillHtml(ps.current.text)"></p>
+                                            <div x-show="ps.current.bonus.length" class="mt-2 flex flex-wrap gap-1.5">
+                                                <template x-for="b in ps.current.bonus" :key="b">
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-400/15 text-amber-100 border border-amber-400/30" x-text="b"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div x-show="ladder" x-cloak class="mt-2 space-y-1.5">
+                                            <template x-for="(lv, i) in ps.levels" :key="i">
+                                                <div class="flex gap-2.5 rounded-md px-2 py-1.5 text-xs leading-relaxed"
+                                                     :class="i + 1 === ps.level ? 'bg-amber-400/15 text-gray-100' : 'text-gray-400'">
+                                                    <span class="flex-shrink-0 tabular-nums font-medium w-8" :class="i + 1 === ps.level ? 'text-amber-200' : 'text-gray-500'">Lv <span x-text="i + 1"></span></span>
+                                                    <span class="min-w-0">
+                                                        <span x-html="partnerSkillHtml(lv.text)"></span>
+                                                        <template x-for="b in lv.bonus" :key="b">
+                                                            <span class="ml-1 px-1.5 py-px rounded-full text-[10px] font-medium bg-amber-400/15 text-amber-100 border border-amber-400/30 whitespace-nowrap" x-text="b"></span>
+                                                        </template>
+                                                    </span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
                             <!-- Active Skills -->
                             <div x-show="selectedPal.active_skills && selectedPal.active_skills.length > 0">
                                 <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Active Skills</h3>

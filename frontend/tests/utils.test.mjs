@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
-    workSuitabilityDisplay, buildPageList, palIconSrc,
+    workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor, partnerSkillHtml, mountLabel,
 } from '../js/utils.js';
 
 const gameData = {
@@ -75,4 +75,31 @@ test('buildPageList elides long ranges', () => {
 test('palIconSrc uses the first candidate', () => {
     assert.equal(palIconSrc({ image_candidates: ['anubis'] }), '/img/t_anubis_icon_normal.webp');
     assert.equal(palIconSrc(null), '/img/t_unknown_icon_normal.webp');
+});
+
+test('partnerSkillFor picks the text for the pal\'s condensing level', () => {
+    const lv = (text, bonus = []) => ({ text, mount: null, bonus });
+    const gd = { partner_skills: {
+        CatMage: { name: 'Mystical Black Magic', levels: [lv('40%'), lv('50%'), lv('60%'), lv('70%'), lv('80%')] },
+        Garm: { name: 'Direhowl Rider', levels: [lv('Fast.'), lv('Fast.', ['Ride Speed Up: 10%']), lv('Fast.'), lv('Fast.'), lv('Fast.')] },
+        Sheepball: { name: 'Fluffy Shield', levels: Array(5).fill(lv('Becomes a shield.')) },
+    } };
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage' }).level, 1);
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage', rank: 3 }).current.text, '60%');
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage', rank: 9 }).level, 5);     // clamped
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage', rank: 2 }).grows, true);
+    assert.equal(partnerSkillFor(gd, { species_id: 'Garm', rank: 2 }).grows, true);      // only the bonus differs
+    assert.equal(partnerSkillFor(gd, { species_id: 'Sheepball', rank: 5 }).grows, false);
+    assert.equal(partnerSkillFor(gd, { species_id: 'Nope', rank: 2 }), null);
+    assert.equal(partnerSkillFor({}, { species_id: 'CatMage' }), null);
+    assert.deepEqual(['ground', 'flying', 'water', null].map(mountLabel), ['Mount', 'Flying mount', 'Water mount', '']);
+});
+
+test('partnerSkillHtml styles the four generator tags and escapes everything else', () => {
+    const html = partnerSkillHtml(gameData, 'Drop <up>40%</up> more <el Leaf>Grass</el> loot.\n\n<kw>double jump</kw> <mu>(Does not stack)</mu> <b>x</b> & y');
+    assert.equal(html, 'Drop <span class="text-amber-200 font-semibold tabular-nums">40%</span> more '
+        + '<span class="font-medium" style="color:#2e8b57">Grass</span> loot.<br><br>'
+        + '<span class="text-gray-50 font-medium">double jump</span> <span class="text-gray-500">(Does not stack)</span> '
+        + '&lt;b&gt;x&lt;/b&gt; &amp; y');
+    assert.equal(partnerSkillHtml(gameData, ''), '');
 });

@@ -27,6 +27,7 @@ from backend.common.map_layers import load_map_layers
 from backend.common.breeding import BreedingIndex
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
+from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -145,6 +146,52 @@ def check_spawns(layers, species, pals):
                      + ', '.join(gap))
 
 
+def check_partner_skills(pals):
+    """partner_skills.json (optional): every ordinary species should have a named skill with
+    five rendered levels and no leftover game markup or placeholders."""
+    p = DATA_JSON / 'partner_skills.json'
+    if not p.exists():
+        notes.append('partner_skills.json missing -- run generate_partner_skills.py (needs the pak); modal hides the block')
+        return
+    table = _json(p).get('species') or {}
+    if len(table) < MIN_PARTNER_SKILL_SPECIES:
+        problems.append(f'partner skills: only {len(table)} species (expected >= {MIN_PARTNER_SKILL_SPECIES}) -- partial extraction?')
+    bad = [sid for sid, e in table.items()
+           if not e.get('name') or len(e.get('levels') or []) != LEVELS
+           or any(not lv.get('text') or has_foreign_markup(lv['text']) or '{' in lv['text'] for lv in e['levels'])]
+    if bad:
+        problems.append(f'{len(bad)} partner skill(s) malformed (no name / not {LEVELS} levels / leftover markup): ' + ', '.join(bad[:8]))
+    unknown = [sid for sid in table if sid not in pals]
+    if unknown:
+        problems.append(f'{len(unknown)} partner skill species not in pals.json: ' + ', '.join(unknown[:8]))
+    ordinary = [sid for sid, row in pals.items() if row.get('is_pal') and not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_', 'POLICE_'))
+                and not any(t in sid for t in ('_Oilrig', '_Tower', '_Quest'))]
+    gap = sorted(sid for sid in ordinary if sid not in table)
+    if gap:
+        notes.append(f'{len(gap)} ordinary species have no partner skill text: ' + ', '.join(gap))
+    notes.append(f'partner skills: {len(table)} species')
+
+
+def check_pal_parameters(pals):
+    """pal_parameters.json (optional): every working species has a best job that is one of its jobs."""
+    p = DATA_JSON / 'pal_parameters.json'
+    if not p.exists():
+        notes.append('pal_parameters.json missing -- run generate_pal_parameters.py (needs the pak + a 1.0.5+ usmap); condensing falls back to highest job')
+        return
+    table = _json(p).get('species') or {}
+    bad = [sid for sid, e in table.items() if sid not in pals
+           or not (pals[sid].get('work_suitability') or {}).get(e.get('best_work_suitability'), 0)]
+    if bad:
+        problems.append(f'{len(bad)} pal_parameters entries whose best job is not one of the species jobs: ' + ', '.join(bad[:8]))
+    gap = [sid for sid, row in pals.items() if row.get('is_pal') and any((row.get('work_suitability') or {}).values()) and sid not in table]
+    ordinary = [sid for sid in gap if not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_', 'POLICE_', 'Quest_'))]
+    if ordinary:
+        problems.append(f'{len(ordinary)} working species without a best job: ' + ', '.join(ordinary[:8]))
+    elif gap:
+        notes.append(f'{len(gap)} raid/quest variants flag a job they lack, skipped: ' + ', '.join(gap))
+    notes.append(f'pal parameters: {len(table)} species with a best job')
+
+
 def check_breeding(pals, species):
     """breeding.json indexes against pals.json; every pair resolves; the special combos survive."""
     p = DATA_JSON / 'breeding.json'
@@ -230,6 +277,8 @@ def main():
     objs = check_map_objects(layers, species)
     check_pal_icons(pals)
     check_spawns(layers, species, pals)
+    check_partner_skills(pals)
+    check_pal_parameters(pals)
     check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)
