@@ -42,6 +42,7 @@ async def watch_save_changes(request: Request):
                     "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                     "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
                     "base_containers": parser.base_containers_payload(),
+                    "base_names": parser.base_names_payload(),
                 }
                 yield {
                     "event": "init",
@@ -77,6 +78,7 @@ async def watch_save_changes(request: Request):
                         "pals": [p.model_dump() if hasattr(p, 'model_dump') else p for p in pals],
                         "guilds": [g.model_dump() if hasattr(g, 'model_dump') else g for g in guilds],
                         "base_containers": parser.base_containers_payload(),
+                        "base_names": parser.base_names_payload(),
                     }
                     yield {
                         "event": "update",

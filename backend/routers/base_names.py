@@ -1,4 +1,5 @@
 """Custom base names: one shared JSON file under APP_STATE_PATH, edited from the UI."""
+import asyncio
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,6 +9,7 @@ from backend.common.auth import require_auth
 from backend.common.base_names import MAX_NAME_LENGTH, clean_name
 from backend.common.logging_config import get_logger
 from backend.parser import parser
+from backend import startup
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/base-names", tags=["base-names"])
@@ -41,4 +43,10 @@ async def rename_base(base_id: str, body: RenameBody):
         logger.error(f"rename failed: {e}")
         raise HTTPException(status_code=500, detail="Could not save the name")
     logger.info(f"base {base_id} renamed to {stored!r}")
+    # Other open tabs on the watch stream pick the new name up right away.
+    for client_queue in startup.sse_clients:
+        try:
+            client_queue.put_nowait({"event": "rename"})
+        except asyncio.QueueFull:
+            pass
     return {"base_id": base_id, "name": stored, **parser.base_names_payload()}
