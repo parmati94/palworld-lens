@@ -110,6 +110,14 @@ export function workSuitabilityDisplay(gameData, pal) {
     return out;
 }
 
+/** "Kelp Farm · Kelpsea Hill" / "Base 3 · Kelpsea Hill" / "Base 3" -- name plus where it is. */
+export function baseLabel(base) {
+    if (!base) return '';
+    const name = base.base_name || '';
+    const place = base.place || base.base_place || '';
+    return place && place !== name ? `${name} · ${place}` : name;
+}
+
 export const PARTNER_SKILL_LEVELS = 5;
 
 /**

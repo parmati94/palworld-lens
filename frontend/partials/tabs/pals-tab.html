@@ -607,7 +607,7 @@
                                     <button 
                                         @click="selectedBaseId = base.base_id; basePalPage = 1"
                                         :class="selectedBaseId === base.base_id ? 'bg-cyan-500/15 border-cyan-500/60 ring-1 ring-cyan-500/30' : 'bg-gray-800 border-gray-700/60 hover:bg-gray-750 hover:border-cyan-600/50'"
-                                        :data-tip="base.base_name + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
+                                        :data-tip="baseLabel(base) + ' (' + base.pals.length + ' pals)' + (base.pals.filter(p => p.condition_display).length > 0 ? ' - ' + base.pals.filter(p => p.condition_display).length + ' unhealthy' : '')"
                                         class="base-pill-compact flex-shrink-0 border rounded-lg px-4 py-2.5 transition-all duration-200 cursor-pointer relative">
                                         <!-- Unhealthy indicator cracked heart icon (mobile) -->
                                         <svg x-show="base.pals.filter(p => p.condition_display).length > 0" 
@@ -627,8 +627,8 @@
                                             </svg>
                                             <div class="text-left">
                                                 <div class="text-sm font-semibold text-white whitespace-nowrap" x-text="base.base_name"></div>
-                                                <div class="text-xs text-gray-400">
-                                                    <span x-text="base.pals.length"></span> pals
+                                                <div class="text-xs text-gray-400 whitespace-nowrap">
+                                                    <span x-text="base.pals.length"></span> pals<span x-show="base.place && base.place !== base.base_name" class="text-gray-500"> · <span x-text="base.place"></span></span>
                                                 </div>
                                             </div>
                                             <!-- Unhealthy cracked heart icon (desktop - smaller) -->
@@ -688,9 +688,29 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                                     </svg>
                                                 </div>
-                                                <div>
-                                                    <h2 class="text-xl font-semibold text-white leading-tight" x-text="base.base_name"></h2>
-                                                    <div class="text-xs text-cyan-400 mt-0.5" x-text="`${base.pals.length} pals total`"></div>
+                                                <div class="min-w-0">
+                                                    <!-- Name, or the rename box while editing -->
+                                                    <div x-show="baseRename.id !== base.base_id" class="flex items-center gap-2 min-w-0">
+                                                        <h2 class="text-xl font-semibold text-white leading-tight truncate" x-text="base.base_name"></h2>
+                                                        <button x-show="baseNames.writable" @click="startBaseRename(base)"
+                                                                class="btn-quiet w-7 h-7 justify-center border border-gray-700/60 hover:border-accent-500/50 hover:text-accent-300 flex-shrink-0 text-gray-400"
+                                                                :data-tip="customBaseName(base.base_id) ? 'Rename this base (everyone sees the name)' : 'Give this base a name (everyone sees it)'">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                        </button>
+                                                    </div>
+                                                    <form x-show="baseRename.id === base.base_id" x-cloak @submit.prevent="saveBaseRename()" class="flex items-center gap-2 flex-wrap">
+                                                        <input id="base-rename-input" type="text" x-model="baseRename.value" maxlength="40"
+                                                               :placeholder="'Base ' + base.number" @keydown.escape.prevent="cancelBaseRename()"
+                                                               class="bg-gray-900/80 border border-accent-500/50 rounded-md px-2 py-1 text-lg font-semibold text-white w-56 max-w-full focus:outline-none focus:ring-2 focus:ring-accent-500/40">
+                                                        <button type="submit" :disabled="baseRename.busy" class="px-3 py-1 rounded-md text-sm font-medium bg-accent-500 hover:bg-accent-400 text-white disabled:opacity-50">Save</button>
+                                                        <button type="button" @click="cancelBaseRename()" class="btn-quiet px-2.5 py-1 border border-gray-700/60 text-sm text-gray-300">Cancel</button>
+                                                        <button type="button" x-show="customBaseName(base.base_id)" @click="saveBaseRename('')" :disabled="baseRename.busy"
+                                                                class="text-xs text-gray-400 hover:text-gray-200" :data-tip="'Back to the game\'s own name'">Use "Base <span x-text="base.number"></span>"</button>
+                                                        <span x-show="baseRename.error" class="text-xs text-danger-300 w-full" x-text="baseRename.error"></span>
+                                                    </form>
+                                                    <div class="text-xs text-cyan-400 mt-0.5">
+                                                        <span x-text="`${base.pals.length} pals total`"></span><span x-show="base.place && base.place !== base.base_name" class="text-gray-400"> · <span x-text="base.place"></span></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <button 

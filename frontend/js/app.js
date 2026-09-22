@@ -8,6 +8,7 @@ import {
     elementBackdrop,
     workSuitabilityDisplay,
     partnerSkillFor,
+    baseLabel,
     partnerSkillHtml,
     mountLabel,
     getRankIcon,
@@ -45,6 +46,8 @@ export function app() {
         // Reference data from /api/game-data: elements, work types, conditions, map layers.
         // Every element/work id the API sends is resolved through this.
         gameData: { elements: {}, work_types: {}, conditions: {}, map_layers: {} },
+        baseNames: { names: {}, writable: false },   // custom base names (/api/base-names)
+        baseRename: { id: null, value: '', busy: false, error: '' },
         players: [],
         pals: [],
         guilds: [],
@@ -499,6 +502,7 @@ export function app() {
                 this.saveInfo = data.saveInfo;
                 if (data.gameData) this.gameData = data.gameData;
                 
+                if (data.baseNames) this.baseNames = data.baseNames;
                 if (this.saveInfo.loaded) {
                     this.players = data.players;
                     this.pals = data.pals;
@@ -561,6 +565,8 @@ export function app() {
                         guildMap[guild.guild_id].bases[baseInfo.base_id] = {
                             base_id: baseInfo.base_id,
                             base_name: baseInfo.base_name,
+                            number: baseInfo.number,
+                            place: baseInfo.place,
                             x: baseInfo.x,
                             y: baseInfo.y,
                             pals: []
@@ -586,6 +592,7 @@ export function app() {
                     guildMap[pal.guild_id].bases[pal.base_id] = {
                         base_id: pal.base_id,
                         base_name: pal.base_name,
+                        place: pal.base_place,
                         pals: []
                     };
                 }
@@ -596,12 +603,9 @@ export function app() {
             // Convert to array format expected by template and sort bases by name
             return Object.values(guildMap).map(guild => ({
                 ...guild,
-                bases: Object.values(guild.bases).sort((a, b) => {
-                    // Extract number from "Base N" format for proper numeric sorting
-                    const numA = parseInt(a.base_name.match(/\d+/)?.[0] || '0');
-                    const numB = parseInt(b.base_name.match(/\d+/)?.[0] || '0');
-                    return numA - numB;
-                })
+                // The game's own per-guild number keeps the order stable whatever a base is called
+                bases: Object.values(guild.bases).sort((a, b) =>
+                    (a.number || 0) - (b.number || 0) || (a.base_name || '').localeCompare(b.base_name || ''))
             }));
         },
         
@@ -705,6 +709,30 @@ export function app() {
         workLevelColor(level) { return WORK_LEVEL_COLORS[Math.min(level, 8)] || '#9ca3af'; },
 
         // --- Guild chest (1.0): one shared container per guild -------------------
+        baseLabel,
+        /** Custom name for a base if one is stored, else ''. */
+        customBaseName(baseId) { return (this.baseNames.names || {})[baseId] || ''; },
+        startBaseRename(base) {
+            this.baseRename = { id: base.base_id, value: this.customBaseName(base.base_id) || '', busy: false, error: '' };
+            this.$nextTick(() => { const el = document.getElementById('base-rename-input'); if (el) { el.focus(); el.select(); } });
+        },
+        cancelBaseRename() { this.baseRename = { id: null, value: '', busy: false, error: '' }; },
+        /** Save the name being edited (blank = back to "Base N"), then re-pull the data so every surface agrees. */
+        async saveBaseRename(name = this.baseRename.value) {
+            const id = this.baseRename.id;
+            if (!id || this.baseRename.busy) return;
+            this.baseRename.busy = true;
+            this.baseRename.error = '';
+            try {
+                const res = await api.setBaseName(id, name);
+                this.baseNames = { names: res.names, writable: res.writable };
+                await this.loadAllData(true);
+                this.cancelBaseRename();
+            } catch (err) {
+                this.baseRename.busy = false;
+                this.baseRename.error = err.message || 'Could not rename the base';
+            }
+        },
         /** "Base 3 and Base 5" / "Base 1, Base 3 and Base 4" from a list of {base_name}. */
         baseNamesSentence(bases) {
             const names = (bases || []).map(b => b.base_name);

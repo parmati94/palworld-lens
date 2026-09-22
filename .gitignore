@@ -34,3 +34,6 @@ frontend/public/img/tiles_tree/
 
 # Local dev compose with personal values (RCON, remote host, save path)
 docker-compose.local.yml
+
+# App-owned runtime state (custom base names); dev mount of /app/state
+state/

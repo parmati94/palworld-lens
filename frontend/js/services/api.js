@@ -81,6 +81,23 @@ export const api = {
         return await res.json();
     },
 
+    /** Custom base names: {names: {base_id: name}, writable} */
+    async getBaseNames() {
+        const res = await fetchWithRetry('/api/base-names');
+        return await res.json();
+    },
+    /** Store a custom base name; blank clears it. Rejects with the server's message. */
+    async setBaseName(baseId, name) {
+        const res = await fetch(`/api/base-names/${encodeURIComponent(baseId)}`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+        });
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || 'Could not rename the base');
+        }
+        return await res.json();
+    },
+
     /**
      * Get base containers
      */
@@ -93,13 +110,14 @@ export const api = {
      * Load all data in parallel
      */
     async loadAll() {
-        const [saveInfo, gameData, players, pals, guilds, baseContainers] = await Promise.all([
+        const [saveInfo, gameData, players, pals, guilds, baseContainers, baseNames] = await Promise.all([
             this.getSaveInfo(),
             this.getGameData(),
             this.getPlayers(),
             this.getPals(),
             this.getGuilds(),
-            this.getBaseContainers()
+            this.getBaseContainers(),
+            this.getBaseNames().catch(() => ({ names: {}, writable: false })),
         ]);
 
         return {
@@ -108,7 +126,8 @@ export const api = {
             players,
             pals,
             guilds,
-            baseContainers
+            baseContainers,
+            baseNames,
         };
     },
 

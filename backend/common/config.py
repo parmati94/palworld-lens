@@ -9,6 +9,10 @@ class Config:
     # Save file paths
     SAVE_MOUNT_PATH: str = os.getenv("SAVE_MOUNT_PATH", "/app/saves")
     
+    # App-owned state (base names ...): a small writable directory. Missing or
+    # read-only -> features that need it are off, nothing else changes.
+    APP_STATE_PATH: str = os.getenv("APP_STATE_PATH", "/app/state")
+
     # Auto-watch settings
     ENABLE_AUTO_WATCH: bool = os.getenv("ENABLE_AUTO_WATCH", "true").lower() in ("true", "1", "yes")
     

@@ -112,6 +112,7 @@ Edit `docker-compose.yml` environment variables:
 ```yaml
 environment:
   - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves (local mode only)
+  - APP_STATE_PATH=/app/state         # Writable dir for app-owned state (custom base names); mount a volume there or renaming stays off
   - ENABLE_AUTO_WATCH=true             # Enable automatic file watching for live updates on backend.  Can still be toggled on/off on UI as long as this is set to true.
   - LOG_LEVEL=INFO                     # Logging level: DEBUG, INFO, WARNING, ERROR
   - TZ=America/New_York                # Your local timezone (e.g., America/Los_Angeles, Europe/London, Asia/Tokyo, etc.)
