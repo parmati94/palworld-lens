@@ -8,6 +8,7 @@ using CUE4Parse.Compression;
 using CUE4Parse_Conversion.Textures;
 using CUE4Parse.UE4.Assets.Exports.Engine;
 using Newtonsoft.Json;
+using Serilog;
 
 namespace PalworldLens.Extractor;
 
@@ -37,6 +38,10 @@ internal static class Program
     private static int Main(string[] args)
     {
         var cmd = args.Length > 0 ? args[0] : "smoke";
+        // CUE4Parse reports decode failures (e.g. a data table whose rows fail to
+        // read) through Serilog and carries on; without a sink they vanish.
+        if (Environment.GetEnvironmentVariable("PAL_EXTRACT_VERBOSE") == "1")
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console(standardErrorFromLevel: Serilog.Events.LogEventLevel.Verbose).CreateLogger();
         var provider = Setup();
         Console.WriteLine($"mounted {provider.Files.Count} files; usmap={(Usmap ?? "<none>")}; command='{cmd}'");
 

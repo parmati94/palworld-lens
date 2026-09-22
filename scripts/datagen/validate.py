@@ -172,6 +172,26 @@ def check_partner_skills(pals):
     notes.append(f'partner skills: {len(table)} species')
 
 
+def check_pal_parameters(pals):
+    """pal_parameters.json (optional): every working species has a best job that is one of its jobs."""
+    p = DATA_JSON / 'pal_parameters.json'
+    if not p.exists():
+        notes.append('pal_parameters.json missing -- run generate_pal_parameters.py (needs the pak + a 1.0.5+ usmap); condensing falls back to highest job')
+        return
+    table = _json(p).get('species') or {}
+    bad = [sid for sid, e in table.items() if sid not in pals
+           or not (pals[sid].get('work_suitability') or {}).get(e.get('best_work_suitability'), 0)]
+    if bad:
+        problems.append(f'{len(bad)} pal_parameters entries whose best job is not one of the species jobs: ' + ', '.join(bad[:8]))
+    gap = [sid for sid, row in pals.items() if row.get('is_pal') and any((row.get('work_suitability') or {}).values()) and sid not in table]
+    ordinary = [sid for sid in gap if not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_', 'POLICE_', 'Quest_'))]
+    if ordinary:
+        problems.append(f'{len(ordinary)} working species without a best job: ' + ', '.join(ordinary[:8]))
+    elif gap:
+        notes.append(f'{len(gap)} raid/quest variants flag a job they lack, skipped: ' + ', '.join(gap))
+    notes.append(f'pal parameters: {len(table)} species with a best job')
+
+
 def check_breeding(pals, species):
     """breeding.json indexes against pals.json; every pair resolves; the special combos survive."""
     p = DATA_JSON / 'breeding.json'
@@ -258,6 +278,7 @@ def main():
     check_pal_icons(pals)
     check_spawns(layers, species, pals)
     check_partner_skills(pals)
+    check_pal_parameters(pals)
     check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)

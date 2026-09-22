@@ -105,6 +105,11 @@ class DataLoader:
 
         # Species ---------------------------------------------------------
         self.pals: Dict[str, Dict] = self.tables['pals']
+        # Per-species pak fields save-pal lacks (data/json/pal_parameters.json), merged
+        # into the species row: best_work_suitability drives the first condensing star.
+        for sid, extra in ((self.tables.get('pal_parameters') or {}).get('species') or {}).items():
+            if sid in self.pals and isinstance(extra, dict):
+                self.pals[sid].update(extra)
         self.species = SpeciesIndex(self.pals.keys())
 
         # Skills ----------------------------------------------------------

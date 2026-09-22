@@ -62,6 +62,7 @@ TABLES: Dict[str, Table] = {t.name: t for t in (
     Table('map_layers', l10n=False, generated=True, required=False),  # map textures + world bounds (hand-maintained)
     Table('spawns', l10n=False, generated=True, required=False),      # wild spawner groups per species (generate_spawns.py, from the pak)
     Table('partner_skills', l10n=False, generated=True, required=False),  # partner skill name + text per level (generate_partner_skills.py, from the pak)
+    Table('pal_parameters', l10n=False, generated=True, required=False),  # per-species pak fields save-pal lacks: best job (generate_pal_parameters.py)
 )}
 
 

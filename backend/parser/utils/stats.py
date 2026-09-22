@@ -249,27 +249,83 @@ def passive_work_bonuses(passive_skills: Optional[list]) -> Dict[str, int]:
     return out
 
 
+def condensing_work_bonus(base_work_suitability: Dict[str, int], stars: int) -> Dict[str, int]:
+    """{work type: +levels} from condensing stars (1.0 rule).
+
+    Star 1 raises the pal's best job by one, star 2 its second best, star 3
+    its third best, and star 4 raises every job it has. "Best" is the highest
+    species level; ties keep the game's work type order (the order of the
+    species' work_suitability map). A pal with fewer than three jobs cycles
+    back to the top: a Ranch-only Mozzarina puts all three stars into Ranch.
+    """
+    jobs = [t for t, lv in base_work_suitability.items() if lv > 0]
+    if not jobs or stars <= 0:
+        return {}
+    order = {t: i for i, t in enumerate(base_work_suitability)}
+    jobs.sort(key=lambda t: (-base_work_suitability[t], order[t]))
+    bonus = {t: 0 for t in jobs}
+    for star in range(min(stars, MAX_CONDENSE_STARS - 1)):
+        bonus[jobs[star % len(jobs)]] += 1
+    if stars >= MAX_CONDENSE_STARS:
+        for t in jobs:
+            bonus[t] += 1
+    return {t: b for t, b in bonus.items() if b}
+
+
+def condensing_work_bonus(base_work_suitability: Dict[str, int], stars: int, best: Optional[str] = None) -> Dict[str, int]:
+    """{work type: +levels} from condensing stars (1.0 rule).
+
+    Star 1 raises the species' designated best job (DT_PalMonsterParameter
+    BestWorkSuitability, shipped as pals.json best_work_suitability -- a
+    designer pick, often Ranch even when another job is higher). Star 2 and 3
+    raise the next jobs, highest species level first, ties in the game's job
+    order. A pal with fewer jobs than stars cycles back to the best: a
+    Ranch-only Mozzarina puts three stars into Ranch, a two-job Chikipi ends
+    Ranch 3 / Gathering 2 (both confirmed in game). Star 4 raises every job.
+
+    Without a best (species missing from pal_parameters.json) the best is the
+    highest-level job in game order.
+    """
+    jobs = [t for t, lv in base_work_suitability.items() if lv > 0]
+    if not jobs or stars <= 0:
+        return {}
+    order = {t: i for i, t in enumerate(base_work_suitability)}
+    jobs.sort(key=lambda t: (-base_work_suitability[t], order[t]))
+    if best in jobs:
+        jobs.remove(best)
+        jobs.insert(0, best)
+    bonus = {t: 0 for t in jobs}
+    for star in range(min(stars, MAX_CONDENSE_STARS - 1)):
+        bonus[jobs[star % len(jobs)]] += 1
+    if stars >= MAX_CONDENSE_STARS:
+        for t in jobs:
+            bonus[t] += 1
+    return {t: b for t, b in bonus.items() if b}
+
+
 def calculate_work_suitabilities(
     base_work_suitability: Dict[str, int],
     condensor_rank: Optional[int] = None,
     manual_upgrades: Optional[Dict[str, int]] = None,
     passive_skills: Optional[list] = None,
+    best_work_suitability: Optional[str] = None,
 ) -> Dict[str, int]:
     """Actual work suitability levels: species base + condensing + books + passives.
 
-    Since 1.0 every condensing star adds +1 to each work type the species
-    already has (rank is the save value 1-5, so stars = rank - 1; a 3-star
-    Mozzarina with Ranch 2 shows Ranch 5). Books (GotWorkSuitabilityAddRankList)
-    add on top and can grant a type the species lacks. Work passives such as
-    Farmhand add on top too, but only to a type the species already has: a
-    Farmhand Direhowl gets no Ranch (confirmed in game). Before 1.0 the
-    condenser gave +1 only at 4 stars.
+    Condensing (rank is the save value 1-5, so stars = rank - 1) follows the
+    1.0 rule in condensing_work_bonus: one job per star for the first three,
+    every job at four. Books (GotWorkSuitabilityAddRankList) add on top and
+    can grant a type the species lacks. Work passives such as Farmhand add
+    on top too, but only to a type the species already has: a Farmhand
+    Direhowl gets no Ranch (confirmed in game). Before 1.0 the condenser
+    gave +1 to everything only at 4 stars.
 
     Args:
         base_work_suitability: species levels from pals.json
         condensor_rank: save Rank value (1 = no stars ... 5 = 4 stars), or None
         manual_upgrades: {work type: +levels} from books, or None
         passive_skills: the pal's SkillInfo passives (effects read), or None
+        best_work_suitability: species' designated best job, or None
 
     Returns:
         {work type id: level}
@@ -280,10 +336,8 @@ def calculate_work_suitabilities(
     calculated_suitabilities = base_work_suitability.copy()
 
     stars = max(0, min(MAX_CONDENSE_STARS, int(condensor_rank or 1) - 1))
-    if stars:
-        for work_type, level in calculated_suitabilities.items():
-            if level > 0:
-                calculated_suitabilities[work_type] = level + stars
+    for work_type, bonus in condensing_work_bonus(base_work_suitability, stars, best_work_suitability).items():
+        calculated_suitabilities[work_type] += bonus
 
     for work_type, bonus in (manual_upgrades or {}).items():
         calculated_suitabilities[work_type] = calculated_suitabilities.get(work_type, 0) + bonus

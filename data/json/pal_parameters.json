@@ -1,0 +1,1171 @@
+{
+ "species": {
+  "Alpaca": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "AmaterasuWolf": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "AmaterasuWolf_Dark": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "AmaterasuWolf_Dark_Quest_Enemy": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "AmaterasuWolf_Dark_Quest_Friend": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Anubis": {
+   "best_work_suitability": "Handcraft"
+  },
+  "BadCatgirl": {
+   "best_work_suitability": "Handcraft"
+  },
+  "Baphomet": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Baphomet_Dark": {
+   "best_work_suitability": "Mining"
+  },
+  "Baphomet_Dark_Oilrig": {
+   "best_work_suitability": "Mining"
+  },
+  "Bastet": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "Bastet_Ice": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "BerryGoat": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "BerryGoat_Dark": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "BirdDragon": {
+   "best_work_suitability": "Transport"
+  },
+  "BirdDragon_Ice": {
+   "best_work_suitability": "Transport"
+  },
+  "BlackCentaur": {
+   "best_work_suitability": "Deforest"
+  },
+  "BlackGriffon": {
+   "best_work_suitability": "Collection"
+  },
+  "BlackMetalDragon": {
+   "best_work_suitability": "Mining"
+  },
+  "BlackPuppy": {
+   "best_work_suitability": "Collection"
+  },
+  "BlackPuppy_Ice": {
+   "best_work_suitability": "Collection"
+  },
+  "BlueDragon": {
+   "best_work_suitability": "Watering"
+  },
+  "BlueDragon_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "BluePlatypus": {
+   "best_work_suitability": "Watering"
+  },
+  "BluePlatypus_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "BlueSkyDragon": {
+   "best_work_suitability": "Watering"
+  },
+  "BlueThunderHorse": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "BlueberryFairy": {
+   "best_work_suitability": "Seeding"
+  },
+  "Boar": {
+   "best_work_suitability": "Mining"
+  },
+  "BrownRabbit": {
+   "best_work_suitability": "Collection"
+  },
+  "CactusDoll": {
+   "best_work_suitability": "Seeding"
+  },
+  "CactusDoll_Dark": {
+   "best_work_suitability": "Seeding"
+  },
+  "CandleGhost": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "CaptainPenguin": {
+   "best_work_suitability": "Mining"
+  },
+  "CaptainPenguin_Black": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "Carbunclo": {
+   "best_work_suitability": "Seeding"
+  },
+  "CatBat": {
+   "best_work_suitability": "Mining"
+  },
+  "CatMage": {
+   "best_work_suitability": "Handcraft"
+  },
+  "CatMage_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "CatVampire": {
+   "best_work_suitability": "ProductMedicine"
+  },
+  "ChickenPal": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "ClioneTwins": {
+   "best_work_suitability": "Handcraft"
+  },
+  "CloverFairy": {
+   "best_work_suitability": "Seeding"
+  },
+  "ClownRabbit": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "ColorfulBird": {
+   "best_work_suitability": "Collection"
+  },
+  "CowPal": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "CubeTurtle": {
+   "best_work_suitability": "Mining"
+  },
+  "CubeTurtle_Neutral": {
+   "best_work_suitability": "Mining"
+  },
+  "CuteButterfly": {
+   "best_work_suitability": "Seeding"
+  },
+  "CuteFox": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "CuteMole": {
+   "best_work_suitability": "Handcraft"
+  },
+  "DandelionGirl": {
+   "best_work_suitability": "Seeding"
+  },
+  "DarkAlien": {
+   "best_work_suitability": "Deforest"
+  },
+  "DarkAlien_Oilrig": {
+   "best_work_suitability": "Deforest"
+  },
+  "DarkCrow": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "DarkFlameFox": {
+   "best_work_suitability": "Handcraft"
+  },
+  "DarkMechaDragon": {
+   "best_work_suitability": "Collection"
+  },
+  "DarkScorpion": {
+   "best_work_suitability": "Mining"
+  },
+  "DarkScorpion_Ground": {
+   "best_work_suitability": "Mining"
+  },
+  "Deer": {
+   "best_work_suitability": "Deforest"
+  },
+  "Deer_Ground": {
+   "best_work_suitability": "Deforest"
+  },
+  "DomeArmorDragon": {
+   "best_work_suitability": "Mining"
+  },
+  "DreamDemon": {
+   "best_work_suitability": "Handcraft"
+  },
+  "DrillGame": {
+   "best_work_suitability": "Mining"
+  },
+  "Eagle": {
+   "best_work_suitability": "Collection"
+  },
+  "ElecCat": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "ElecLizard": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "ElecPanda": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "ElecPomeranian": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "ElecSnail": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "ElecSnail_Ground": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "FairyDragon": {
+   "best_work_suitability": "Deforest"
+  },
+  "FairyDragon_Water": {
+   "best_work_suitability": "Watering"
+  },
+  "FeatherOstrich": {
+   "best_work_suitability": "Collection"
+  },
+  "FengyunDeeper": {
+   "best_work_suitability": "Deforest"
+  },
+  "FengyunDeeper_Electric": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "FireKirin": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "FireKirin_Dark": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "FlameBambi": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "FlameBuffalo": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "FlowerDinosaur": {
+   "best_work_suitability": "Seeding"
+  },
+  "FlowerDinosaur_Electric": {
+   "best_work_suitability": "Deforest"
+  },
+  "FlowerDoll": {
+   "best_work_suitability": "Seeding"
+  },
+  "FlowerDoll_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "FlowerPrince": {
+   "best_work_suitability": "Seeding"
+  },
+  "FlowerRabbit": {
+   "best_work_suitability": "Seeding"
+  },
+  "FluffyBird": {
+   "best_work_suitability": "Cool"
+  },
+  "FlyingManta": {
+   "best_work_suitability": "Watering"
+  },
+  "FlyingManta_Thunder": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "FoxExorcist": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "FoxMage": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "FoxMage_Dark": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "GYM_BlackGriffon": {
+   "best_work_suitability": "Collection"
+  },
+  "GYM_BlackGriffon_2": {
+   "best_work_suitability": "Collection"
+  },
+  "GYM_BlackGriffon_2_Avatar": {
+   "best_work_suitability": "Collection"
+  },
+  "GYM_BlueSkyDragon": {
+   "best_work_suitability": "Watering"
+  },
+  "GYM_BlueSkyDragon_2": {
+   "best_work_suitability": "Watering"
+  },
+  "GYM_ElecPanda": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "GYM_ElecPanda_2": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "GYM_ElecPanda_Otomo": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "GYM_Horus": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "GYM_Horus_2": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "GYM_LilyQueen": {
+   "best_work_suitability": "Seeding"
+  },
+  "GYM_LilyQueen_2": {
+   "best_work_suitability": "Seeding"
+  },
+  "GYM_MoonQueen": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GYM_MoonQueen_2": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GYM_MoonQueen_2_Servant": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GYM_SnowTigerBeastman": {
+   "best_work_suitability": "Cool"
+  },
+  "GYM_SnowTigerBeastman_2": {
+   "best_work_suitability": "Cool"
+  },
+  "GYM_ThunderDragonMan": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "GYM_ThunderDragonMan_2": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "Ganesha": {
+   "best_work_suitability": "Watering"
+  },
+  "Garm": {
+   "best_work_suitability": "Collection"
+  },
+  "GhostAnglerfish": {
+   "best_work_suitability": "Watering"
+  },
+  "GhostAnglerfish_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "GhostBeast": {
+   "best_work_suitability": "Collection"
+  },
+  "GhostBlackCat": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GhostDragon": {
+   "best_work_suitability": "Transport"
+  },
+  "GhostDragon_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "GhostRabbit": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GhostRabbit_Grass": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GoldenHorse": {
+   "best_work_suitability": "Collection"
+  },
+  "Gorilla": {
+   "best_work_suitability": "Deforest"
+  },
+  "Gorilla_Ground": {
+   "best_work_suitability": "Mining"
+  },
+  "GrassGolem": {
+   "best_work_suitability": "Mining"
+  },
+  "GrassGolem_Dark": {
+   "best_work_suitability": "Mining"
+  },
+  "GrassMammoth": {
+   "best_work_suitability": "Seeding"
+  },
+  "GrassMammoth_Ice": {
+   "best_work_suitability": "Deforest"
+  },
+  "GrassMinotaur": {
+   "best_work_suitability": "Seeding"
+  },
+  "GrassMinotaur_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "GrassPanda": {
+   "best_work_suitability": "Deforest"
+  },
+  "GrassPanda_Electric": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "GrassPanda_Electric_Tower": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "GrassRabbitMan": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GrimGirl": {
+   "best_work_suitability": "Handcraft"
+  },
+  "GuardianDog": {
+   "best_work_suitability": "Collection"
+  },
+  "HadesBird": {
+   "best_work_suitability": "Transport"
+  },
+  "HadesBird_Electric": {
+   "best_work_suitability": "Transport"
+  },
+  "HadesBird_Oilrig": {
+   "best_work_suitability": "Transport"
+  },
+  "HawkBird": {
+   "best_work_suitability": "Collection"
+  },
+  "Hedgehog": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "Hedgehog_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "HerculesBeetle": {
+   "best_work_suitability": "Transport"
+  },
+  "HerculesBeetle_Ground": {
+   "best_work_suitability": "Mining"
+  },
+  "HoodGhost": {
+   "best_work_suitability": "Handcraft"
+  },
+  "Horus": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Horus_Oilrig": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Horus_Water": {
+   "best_work_suitability": "Watering"
+  },
+  "IceCrocodile": {
+   "best_work_suitability": "Cool"
+  },
+  "IceDeer": {
+   "best_work_suitability": "Deforest"
+  },
+  "IceFox": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "IceHorse": {
+   "best_work_suitability": "Cool"
+  },
+  "IceHorse_Dark": {
+   "best_work_suitability": "Collection"
+  },
+  "IceNarwhal": {
+   "best_work_suitability": "Cool"
+  },
+  "IceNarwhal_Fire": {
+   "best_work_suitability": "Cool"
+  },
+  "IceSeal": {
+   "best_work_suitability": "Cool"
+  },
+  "IceSeal_Ground": {
+   "best_work_suitability": "Mining"
+  },
+  "IceWitch": {
+   "best_work_suitability": "Handcraft"
+  },
+  "JellyfishFairy": {
+   "best_work_suitability": "Watering"
+  },
+  "JellyfishGhost": {
+   "best_work_suitability": "Watering"
+  },
+  "JetDragon": {
+   "best_work_suitability": "Collection"
+  },
+  "KabukiMan": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Kelpie": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "Kelpie_Fire": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "KendoFrog": {
+   "best_work_suitability": "Watering"
+  },
+  "KendoFrog_Dark": {
+   "best_work_suitability": "Handcraft"
+  },
+  "KingAlpaca": {
+   "best_work_suitability": "Collection"
+  },
+  "KingAlpaca_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "KingBahamut": {
+   "best_work_suitability": "Mining"
+  },
+  "KingBahamut_Dragon": {
+   "best_work_suitability": "Mining"
+  },
+  "KingSunfish": {
+   "best_work_suitability": "Watering"
+  },
+  "KingSunfish_Thunder": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "Kirin": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "Kirin_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "Kitsunebi": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Kitsunebi_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "LanternButler": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "LavaGirl": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "LazyCatfish": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "LazyCatfish_Gold": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "LazyDragon": {
+   "best_work_suitability": "Watering"
+  },
+  "LazyDragon_Electric": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "LazyDragon_Electric_Tower": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "LeafMomonga": {
+   "best_work_suitability": "Seeding"
+  },
+  "LeafPrincess": {
+   "best_work_suitability": "Seeding"
+  },
+  "LegendDeer": {
+   "best_work_suitability": "Collection"
+  },
+  "LilyQueen": {
+   "best_work_suitability": "Seeding"
+  },
+  "LilyQueen_Dark": {
+   "best_work_suitability": "ProductMedicine"
+  },
+  "LittleBriarRose": {
+   "best_work_suitability": "Seeding"
+  },
+  "LizardMan": {
+   "best_work_suitability": "Handcraft"
+  },
+  "LizardMan_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "LizardMan_Oilrig": {
+   "best_work_suitability": "Handcraft"
+  },
+  "LongCat": {
+   "best_work_suitability": "Collection"
+  },
+  "LotusDragon": {
+   "best_work_suitability": "Seeding"
+  },
+  "Manticore": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Manticore_Dark": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "MimicDog": {
+   "best_work_suitability": "Transport"
+  },
+  "Monkey": {
+   "best_work_suitability": "Seeding"
+  },
+  "Monkey_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "MonochromeQueen": {
+   "best_work_suitability": "Handcraft"
+  },
+  "MoonChild": {
+   "best_work_suitability": "Handcraft"
+  },
+  "MoonQueen": {
+   "best_work_suitability": "Handcraft"
+  },
+  "MopBaby": {
+   "best_work_suitability": "Collection"
+  },
+  "MopKing": {
+   "best_work_suitability": "Cool"
+  },
+  "Mothman": {
+   "best_work_suitability": "ProductMedicine"
+  },
+  "MummyPal": {
+   "best_work_suitability": "Handcraft"
+  },
+  "MushroomDragon": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "MushroomDragon_Dark": {
+   "best_work_suitability": "Seeding"
+  },
+  "MushroomLady": {
+   "best_work_suitability": "Seeding"
+  },
+  "Mutant": {
+   "best_work_suitability": "Handcraft"
+  },
+  "MysteryMask": {
+   "best_work_suitability": "Collection"
+  },
+  "NaughtyCat": {
+   "best_work_suitability": "Collection"
+  },
+  "NegativeKoala": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "NegativeOctopus": {
+   "best_work_suitability": "Transport"
+  },
+  "NegativeOctopus_Neutral": {
+   "best_work_suitability": "Transport"
+  },
+  "NightBlueHorse": {
+   "best_work_suitability": "Collection"
+  },
+  "NightBlueHorse_Neutral": {
+   "best_work_suitability": "Collection"
+  },
+  "NightFox": {
+   "best_work_suitability": "Collection"
+  },
+  "NightLady": {
+   "best_work_suitability": "Handcraft"
+  },
+  "NightLady_Dark": {
+   "best_work_suitability": "ProductMedicine"
+  },
+  "OctopusGirl": {
+   "best_work_suitability": "Watering"
+  },
+  "OctopusGirl_Neutral": {
+   "best_work_suitability": "Watering"
+  },
+  "OniGhostGirl": {
+   "best_work_suitability": "ProductMedicine"
+  },
+  "POLICE_HawkBird": {
+   "best_work_suitability": "Collection"
+  },
+  "POLICE_ThunderDog": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "PREDATOR_AmaterasuWolf": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "PREDATOR_Baphomet_Dark": {
+   "best_work_suitability": "Mining"
+  },
+  "PREDATOR_BirdDragon": {
+   "best_work_suitability": "Transport"
+  },
+  "PREDATOR_CandleGhost": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "PREDATOR_DarkScorpion": {
+   "best_work_suitability": "Mining"
+  },
+  "PREDATOR_DrillGame": {
+   "best_work_suitability": "Mining"
+  },
+  "PREDATOR_FairyDragon": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_FeatherOstrich": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_FlowerDinosaur": {
+   "best_work_suitability": "Seeding"
+  },
+  "PREDATOR_FlowerRabbit_Quest": {
+   "best_work_suitability": "Seeding"
+  },
+  "PREDATOR_Garm": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_Garm_Quest": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_GhostBeast": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_GoldenHorse": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_Gorilla": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_GrassMammoth_Ice": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_GrassMinotaur_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "PREDATOR_GrassPanda": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_GrimGirl": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_HadesBird_Electric": {
+   "best_work_suitability": "Transport"
+  },
+  "PREDATOR_Horus_Water": {
+   "best_work_suitability": "Watering"
+  },
+  "PREDATOR_LazyDragon": {
+   "best_work_suitability": "Watering"
+  },
+  "PREDATOR_Manticore_Dark": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "PREDATOR_MonochromeQueen": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_MummyPal": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_MushroomDragon": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "PREDATOR_MysteryMask": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_NightBlueHorse": {
+   "best_work_suitability": "Collection"
+  },
+  "PREDATOR_PandaGirl": {
+   "best_work_suitability": "Seeding"
+  },
+  "PREDATOR_PinkLizard": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_PinkLizard_Quest": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_PurpleSpider": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_RedArmorBird": {
+   "best_work_suitability": "Transport"
+  },
+  "PREDATOR_RedFlowerBird": {
+   "best_work_suitability": "Seeding"
+  },
+  "PREDATOR_Ronin_Dark": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_ScorpionMan": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_SifuDog": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_SnakeGirl": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_Suzaku": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "PREDATOR_ThunderDog": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "PREDATOR_Umihebi_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "PREDATOR_Umihebi_Fire_Quest": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "PREDATOR_VolcanicMonster_Ice": {
+   "best_work_suitability": "Mining"
+  },
+  "PREDATOR_VolcanoDragon": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "PREDATOR_Werewolf_Ice": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PREDATOR_WhiteTiger_Ground": {
+   "best_work_suitability": "Deforest"
+  },
+  "PREDATOR_Yeti": {
+   "best_work_suitability": "Transport"
+  },
+  "PandaGirl": {
+   "best_work_suitability": "Seeding"
+  },
+  "Penguin": {
+   "best_work_suitability": "Watering"
+  },
+  "Penguin_Electric": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "PinkCat": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PinkLizard": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PinkRabbit": {
+   "best_work_suitability": "Handcraft"
+  },
+  "PinkRabbit_Grass": {
+   "best_work_suitability": "Seeding"
+  },
+  "PlantSlime": {
+   "best_work_suitability": "Seeding"
+  },
+  "PlantSlime_Flower": {
+   "best_work_suitability": "Seeding"
+  },
+  "Plesiosaur": {
+   "best_work_suitability": "Seeding"
+  },
+  "PoseidonOrca": {
+   "best_work_suitability": "Watering"
+  },
+  "PurpleSpider": {
+   "best_work_suitability": "Handcraft"
+  },
+  "QueenBee": {
+   "best_work_suitability": "Seeding"
+  },
+  "Quest_Farmer03_PinkCat": {
+   "best_work_suitability": "Handcraft"
+  },
+  "Quest_Farmer03_SheepBall": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "RAID_DarkMechaDragon": {
+   "best_work_suitability": "Collection"
+  },
+  "RAID_DarkMechaDragon_2": {
+   "best_work_suitability": "Collection"
+  },
+  "RAID_KingBahamut_Dragon": {
+   "best_work_suitability": "Mining"
+  },
+  "RAID_KingBahamut_Dragon_2": {
+   "best_work_suitability": "Mining"
+  },
+  "RAID_LegendDeer": {
+   "best_work_suitability": "Collection"
+  },
+  "RAID_LegendDeer_2": {
+   "best_work_suitability": "Collection"
+  },
+  "RAID_NightLady": {
+   "best_work_suitability": "Handcraft"
+  },
+  "RaijinDaughter": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "RaijinDaughter_Water": {
+   "best_work_suitability": "Transport"
+  },
+  "RedArmorBird": {
+   "best_work_suitability": "Transport"
+  },
+  "RedFlowerBird": {
+   "best_work_suitability": "Seeding"
+  },
+  "RobinHood": {
+   "best_work_suitability": "Handcraft"
+  },
+  "RobinHood_Ground": {
+   "best_work_suitability": "Handcraft"
+  },
+  "RockBeast": {
+   "best_work_suitability": "Mining"
+  },
+  "RockBeast_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "Ronin": {
+   "best_work_suitability": "Deforest"
+  },
+  "Ronin_Dark": {
+   "best_work_suitability": "Deforest"
+  },
+  "SUMMON_DarkAlien": {
+   "best_work_suitability": "Deforest"
+  },
+  "SUMMON_DarkAlien_MAX": {
+   "best_work_suitability": "Deforest"
+  },
+  "SUMMON_WhiteAlienDragon": {
+   "best_work_suitability": "Mining"
+  },
+  "SUMMON_WhiteAlienDragon_MAX": {
+   "best_work_suitability": "Mining"
+  },
+  "SaintCentaur": {
+   "best_work_suitability": "Deforest"
+  },
+  "SakuraSaurus": {
+   "best_work_suitability": "Seeding"
+  },
+  "SakuraSaurus_Water": {
+   "best_work_suitability": "Watering"
+  },
+  "SamuraiDog": {
+   "best_work_suitability": "Collection"
+  },
+  "ScorpionMan": {
+   "best_work_suitability": "Deforest"
+  },
+  "ScorpionMan_Electric": {
+   "best_work_suitability": "Deforest"
+  },
+  "Sekhmet": {
+   "best_work_suitability": "Handcraft"
+  },
+  "Serpent": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "Serpent_Ground": {
+   "best_work_suitability": "Collection"
+  },
+  "SharkKid": {
+   "best_work_suitability": "Watering"
+  },
+  "SharkKid_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Sheepball": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "SifuDog": {
+   "best_work_suitability": "Handcraft"
+  },
+  "SkyDragon": {
+   "best_work_suitability": "Transport"
+  },
+  "SkyDragon_Grass": {
+   "best_work_suitability": "Seeding"
+  },
+  "SleeveRabbit": {
+   "best_work_suitability": "Handcraft"
+  },
+  "SmallArmadillo": {
+   "best_work_suitability": "Mining"
+  },
+  "SmallYeti": {
+   "best_work_suitability": "Mining"
+  },
+  "SnakeGirl": {
+   "best_work_suitability": "Handcraft"
+  },
+  "SnowPeafowl": {
+   "best_work_suitability": "Cool"
+  },
+  "SnowTigerBeastman": {
+   "best_work_suitability": "Cool"
+  },
+  "SoldierBee": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "StuffedShark": {
+   "best_work_suitability": "Watering"
+  },
+  "StuffedShark_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "SumoDog": {
+   "best_work_suitability": "Mining"
+  },
+  "Suzaku": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Suzaku_Water": {
+   "best_work_suitability": "Watering"
+  },
+  "SweetsSheep": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "SweetsSheep_Ground": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "SwordCutlassfish": {
+   "best_work_suitability": "Watering"
+  },
+  "SwordCutlassfish_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "TentacleTurtle": {
+   "best_work_suitability": "Watering"
+  },
+  "TentacleTurtle_Ground": {
+   "best_work_suitability": "Mining"
+  },
+  "ThiefBird": {
+   "best_work_suitability": "Collection"
+  },
+  "ThunderBird": {
+   "best_work_suitability": "Transport"
+  },
+  "ThunderBird_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "ThunderDog": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "ThunderDog_Ice": {
+   "best_work_suitability": "Cool"
+  },
+  "ThunderDragonMan": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "ThunderFluffyBird": {
+   "best_work_suitability": "GenerateElectricity"
+  },
+  "TropicalOstrich": {
+   "best_work_suitability": "Mining"
+  },
+  "Umihebi": {
+   "best_work_suitability": "Watering"
+  },
+  "Umihebi_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "VenusFlytrap": {
+   "best_work_suitability": "Seeding"
+  },
+  "VioletFairy": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "VolcanicMonster": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "VolcanicMonster_Ice": {
+   "best_work_suitability": "Mining"
+  },
+  "VolcanoDragon": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "VolcanoDragon_Ice": {
+   "best_work_suitability": "Mining"
+  },
+  "WeaselDragon": {
+   "best_work_suitability": "Cool"
+  },
+  "WeaselDragon_Fire": {
+   "best_work_suitability": "EmitFlame"
+  },
+  "Werewolf": {
+   "best_work_suitability": "Handcraft"
+  },
+  "Werewolf_Ice": {
+   "best_work_suitability": "Handcraft"
+  },
+  "WhiteAlienDragon": {
+   "best_work_suitability": "Mining"
+  },
+  "WhiteDeer": {
+   "best_work_suitability": "Deforest"
+  },
+  "WhiteDeer_Dark": {
+   "best_work_suitability": "Deforest"
+  },
+  "WhiteMoth": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "WhiteMoth_Neutral": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "WhiteShieldDragon": {
+   "best_work_suitability": "Deforest"
+  },
+  "WhiteTiger": {
+   "best_work_suitability": "Deforest"
+  },
+  "WhiteTiger_Ground": {
+   "best_work_suitability": "Deforest"
+  },
+  "WindChimes": {
+   "best_work_suitability": "Transport"
+  },
+  "WindChimes_Ice": {
+   "best_work_suitability": "Handcraft"
+  },
+  "WingGolem": {
+   "best_work_suitability": "Mining"
+  },
+  "WingGolem_Fire": {
+   "best_work_suitability": "Mining"
+  },
+  "WingGolem_Oilrig": {
+   "best_work_suitability": "Mining"
+  },
+  "WizardOwl": {
+   "best_work_suitability": "Collection"
+  },
+  "WoolFox": {
+   "best_work_suitability": "MonsterFarm"
+  },
+  "YakushimaBoss001": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaBoss001_Small": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster001": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster001_Blue": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster001_Pink": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster001_Purple": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster001_Rainbow": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster001_Red": {
+   "best_work_suitability": "Transport"
+  },
+  "YakushimaMonster002": {
+   "best_work_suitability": "Deforest"
+  },
+  "YakushimaMonster003": {
+   "best_work_suitability": "Collection"
+  },
+  "YakushimaMonster003_Purple": {
+   "best_work_suitability": "Collection"
+  },
+  "Yeti": {
+   "best_work_suitability": "Transport"
+  },
+  "Yeti_Grass": {
+   "best_work_suitability": "Transport"
+  }
+ }
+}

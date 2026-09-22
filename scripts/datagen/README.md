@@ -12,6 +12,8 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   pass a full pak path such as `Pal/Content/L10N/en/Pal/DataTable/Text/DT_SkillNameText_Common`
   to pin one localisation, a bare name takes the first match; `pal-extract obj <asset> out.json`
   dumps any other asset's exports, e.g. a blueprint's default values).
+- **`data/json/pal_parameters.json`** -- per-species pak fields save-pal lacks, today the
+  designated best job that the first condensing star raises (`generate_pal_parameters.py`).
 - **`data/json/partner_skills.json`** -- every species' partner skill name and description
   rendered per condensing level, from the pak's skill text + parameter tables
   (`generate_partner_skills.py`; see `backend/common/partner_skills.py` for the table map).
@@ -51,11 +53,12 @@ Env vars: `PALWORLD_PAK_DIR` (dir containing the pak), `PALWORLD_USMAP` (usmap p
   "usmap" and fails much later with `ParserException: Usmap has invalid magic`.
 - **Verify after downloading:** ~2.3 MB, and `xxd -l 8 Palworld.usmap` starts `c430`
   (magic `0x30C4`). All-`0a` bytes means you downloaded HTML.
-- It is **not published per patch** — as of 2026-09-11 the newest dump is 1.0.3
-  (2026-08-12) while the game is on 1.0.4. Fine for icons, since `UTexture2D` is an
-  engine class whose properties don't shift between patches. If decodes misbehave after
-  a pak update, a stale usmap is the first suspect — it misreads properties rather than
-  erroring cleanly.
+- It is **not published per patch** — as of 2026-09-22 the newest dump is 1.0.5
+  (2026-09-20). Fine for icons, since `UTexture2D` is an engine class whose properties
+  don't shift between patches, but **data tables need a usmap at least as new as the
+  game**: with a stale one a table whose row struct gained a column decodes to zero rows
+  (`DT_PalMonsterParameter_Common` did this on 1.0.3). Run the extractor with
+  `PAL_EXTRACT_VERBOSE=1` to see CUE4Parse's own error ("Unknown property with value N").
 - Neither input is committed; both are disposable and get cleaned up. Expect to re-fetch
   the usmap whenever you re-run this pipeline.
 
