@@ -27,7 +27,7 @@ from backend.common.map_layers import load_map_layers
 from backend.common.breeding import BreedingIndex
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
-from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES
+from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -158,7 +158,7 @@ def check_partner_skills(pals):
         problems.append(f'partner skills: only {len(table)} species (expected >= {MIN_PARTNER_SKILL_SPECIES}) -- partial extraction?')
     bad = [sid for sid, e in table.items()
            if not e.get('name') or len(e.get('levels') or []) != LEVELS
-           or any(not lv or '<' in lv or '{' in lv for lv in e['levels'])]
+           or any(not lv.get('text') or has_foreign_markup(lv['text']) or '{' in lv['text'] for lv in e['levels'])]
     if bad:
         problems.append(f'{len(bad)} partner skill(s) malformed (no name / not {LEVELS} levels / leftover markup): ' + ', '.join(bad[:8]))
     unknown = [sid for sid in table if sid not in pals]

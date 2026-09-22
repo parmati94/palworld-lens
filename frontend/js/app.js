@@ -8,6 +8,8 @@ import {
     elementBackdrop,
     workSuitabilityDisplay,
     partnerSkillFor,
+    partnerSkillHtml,
+    mountLabel,
     getRankIcon,
     getRankFilter,
     getPassiveBackgroundClass,
@@ -620,6 +622,8 @@ export function app() {
         workTypeName(id) { return (this.gameData.work_types[id] || {}).name || id; },
         workDisplay(pal) { return workSuitabilityDisplay(this.gameData, pal); },
         partnerSkill(pal) { return partnerSkillFor(this.gameData, pal); },
+        partnerSkillHtml(text) { return partnerSkillHtml(this.gameData, text); },
+        mountLabel,
         workTypeIcon(id) { return `/img/${(this.gameData.work_types[id] || {}).icon || 'unknown'}.webp`; },
 
         /** Every work type the game data knows, for the modal's picker. */

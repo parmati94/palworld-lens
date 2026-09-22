@@ -13,7 +13,7 @@ from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers, which_map
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
-from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES
+from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'json'
@@ -144,11 +144,15 @@ def test_partner_skills_cover_the_species_and_are_plain_text(pals):
         assert sid in pals, sid
         assert e['name'] and len(e['levels']) == LEVELS, sid
         for lv in e['levels']:
-            assert lv and '<' not in lv and '{' not in lv, f'{sid}: leftover markup'
+            assert lv['text'] and not has_foreign_markup(lv['text']) and '{' not in lv['text'], f'{sid}: leftover markup'
+            assert lv['mount'] in (None, 'ground', 'flying', 'water') and isinstance(lv['bonus'], list), sid
     # numbers grow with condensing; fixed-text skills repeat the same line
-    assert '40% more items' in table['CatMage']['levels'][0] and '80% more items' in table['CatMage']['levels'][4]
-    assert table['WeaselDragon']['name'] == 'Wriggling Weasel'
-    assert len(set(table['Sheepball']['levels'])) == 1
+    assert '<up>40%</up> more items' in table['CatMage']['levels'][0]['text']
+    assert '<up>80%</up> more items' in table['CatMage']['levels'][4]['text']
+    assert table['WeaselDragon']['name'] == 'Wriggling Weasel' and table['WeaselDragon']['levels'][0]['mount'] == 'ground'
+    assert '<el Dragon>Dragon</el>' in table['WeaselDragon']['levels'][0]['text']
+    assert table['Garm']['levels'][0]['bonus'] == [] and table['Garm']['levels'][1]['bonus'] == ['Ride Speed Up: 10%']
+    assert len({json.dumps(lv) for lv in table['Sheepball']['levels']}) == 1
     # every ordinary species has one; the gaps are scripted quest variants
     ordinary = [sid for sid, row in pals.items() if row.get('is_pal') and not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_', 'POLICE_', 'Quest_'))
                 and not any(t in sid for t in ('_Oilrig', '_Tower', '_Quest'))]

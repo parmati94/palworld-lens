@@ -126,11 +126,38 @@ export function partnerSkillFor(gameData, pal) {
     return {
         name: entry.name,
         level,
-        description: levels[Math.min(level, levels.length) - 1],
+        current: levels[Math.min(level, levels.length) - 1],   // {text, mount, bonus}
         levels,
         // The text only changes between levels when it carries numbers (fixed-text skills repeat)
-        grows: new Set(levels).size > 1,
+        grows: new Set(levels.map(l => JSON.stringify(l))).size > 1,
     };
+}
+
+const MOUNT_LABELS = { ground: 'Mount', flying: 'Flying mount', water: 'Water mount' };
+export function mountLabel(kind) { return MOUNT_LABELS[kind] || ''; }
+
+const HTML_ESCAPE = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+const PARTNER_TAG = /<(up|kw|mu)>|<el ([A-Za-z]+)>|<\/(up|kw|mu|el)>/g;
+
+/**
+ * Partner skill text -> HTML. The generator leaves only four tags in the text
+ * (<up> a growing number, <kw> a keyword, <el X> an element name, <mu> a muted
+ * aside); everything else is escaped here, so nothing from the data file runs.
+ */
+export function partnerSkillHtml(gameData, text) {
+    let out = '', pos = 0;
+    const esc = s => s.replace(/[&<>"]/g, c => HTML_ESCAPE[c]);
+    for (const m of (text || '').matchAll(PARTNER_TAG)) {
+        out += esc(text.slice(pos, m.index));
+        pos = m.index + m[0].length;
+        if (m[3]) out += '</span>';
+        else if (m[2]) out += `<span class="font-medium" style="color:${elementInfo(gameData, m[2]).color}">`;
+        else if (m[1] === 'up') out += '<span class="text-amber-200 font-semibold tabular-nums">';
+        else if (m[1] === 'kw') out += '<span class="text-gray-50 font-medium">';
+        else out += '<span class="text-gray-500">';
+    }
+    out += esc((text || '').slice(pos));
+    return out.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
 }
 
 /**

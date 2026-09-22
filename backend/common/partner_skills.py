@@ -26,8 +26,20 @@ Placeholders resolve per level (0-based index into the per-level lists):
 Markup is resolved to words, never stripped blind: <uiCommon id=|K|/> is a UI
 string, <characterName id=|K|/> a pal, <itemName id=|K|/> an item,
 <mapObjectName id=|K|/> a building, <activeSkillName id=|K|/> an active skill.
-<img id=|ElemIcon_X|/> is dropped (the element name always follows it), and
-bare style tags (<Status_Up>...</>) keep their text.
+<img id=|ElemIcon_X|/> is dropped (the element name always follows it).
+
+What the game highlights is kept as four tiny tags the UI styles, everything
+else is plain text (no other '<' survives):
+
+  <up>40%</up>      a number that grows with the level   (<Status_Up>)
+  <kw>double jump</kw>  a keyword                         (<Status_Keyword> / style=|Status_Keyword| / style=|Effect_*|)
+  <el Fire>Fire</el>    an element name, coloured by id   (style=|Elem_*|)
+  <mu>(Does not stack)</mu>  a muted aside
+
+Each rendered level is {text, mount, bonus}: `mount` is 'ground' / 'flying' /
+'water' when the text opened with "Can be ridden..." (that sentence is lifted
+out into the flag), and `bonus` lists the "(Ride Speed Up: 10%)" suffixes the
+append table adds from level 2 on, without their brackets.
 
 The level shown for an owned pal is its save `Rank` (1-5): condensing raises
 both. Pure python; the datagen script and the tests import this.
@@ -47,6 +59,16 @@ _STYLE_TAG = re.compile(r'</?[A-Za-z0-9_]*>')
 _PLACEHOLDER = re.compile(r'\{([A-Za-z0-9_]+)\}')
 _PASSIVE = re.compile(r'^(Reference)?Passive(\d)_EffectValue(\d)$')
 _TEXT = 'LocalizedString'
+_BARE_OPEN = re.compile(r'<(Status_Up|Status_Keyword)>')
+_BARE_CLOSE = '</>'
+_OUR_TAGS = re.compile(r'</?(up|kw|mu)>|<el [A-Za-z]+>|</el>')
+_RIDDEN = re.compile(r'^Can be ridden( as a flying mount| to travel on water)?\.\s*')
+_NO_STACK = re.compile(r'\(Does not stack\.?\)')
+_APPEND = '\x00append\x00'
+# style=|Elem_X| -> elements.json id
+ELEMENT_STYLES = {'Elem_Neutral': 'Normal', 'Elem_Grass': 'Leaf', 'Elem_Ground': 'Earth', 'Elem_Electric': 'Electricity',
+                  'Elem_Fire': 'Fire', 'Elem_Water': 'Water', 'Elem_Ice': 'Ice', 'Elem_Dark': 'Dark', 'Elem_Dragon': 'Dragon'}
+MOUNTS = {'': 'ground', ' as a flying mount': 'flying', ' to travel on water': 'water'}
 
 Lookup = Callable[[str], Optional[str]]
 
@@ -72,8 +94,17 @@ def format_number(v: Any) -> str:
     return ('%.4f' % f).rstrip('0').rstrip('.')
 
 
-def strip_markup(s: str, lookups: Optional[Dict[str, Lookup]] = None) -> str:
-    """Resolve attribute tags via `lookups` (tag name -> id resolver) and drop style tags."""
+def _styled(text: str, style: str) -> str:
+    if style == 'Status_Keyword' or style.startswith('Effect_'):
+        return f'<kw>{text}</kw>'
+    if style in ELEMENT_STYLES:
+        return f'<el {ELEMENT_STYLES[style]}>{text}</el>'
+    return text
+
+
+def resolve_markup(s: str, lookups: Optional[Dict[str, Lookup]] = None) -> str:
+    """Resolve attribute tags via `lookups` (tag name -> id resolver); keep the
+    game's highlights as <up>/<kw>/<el>; drop every other tag."""
     lookups = lookups or {}
 
     def sub(m: re.Match) -> str:
@@ -83,10 +114,25 @@ def strip_markup(s: str, lookups: Optional[Dict[str, Lookup]] = None) -> str:
         key = attrs.get('id', '')
         fn = lookups.get(tag)
         hit = fn(key) if fn else None
-        return hit if hit else key
+        return _styled(hit if hit else key, attrs.get('style', ''))
 
     s = _ATTR_TAG.sub(sub, s)
-    s = _STYLE_TAG.sub('', s)
+    s = _BARE_OPEN.sub(lambda m: '<up>' if m.group(1) == 'Status_Up' else '<kw>', s)
+    # A bare tag closes with "</>": pair each with the nearest open highlight.
+    out, stack, pos = [], [], 0
+    for m in re.finditer(r'<(up|kw)>|</>', s):
+        out.append(s[pos:m.start()])
+        pos = m.end()
+        if m.group(1):
+            stack.append(m.group(1))
+            out.append(m.group(0))
+        elif stack:
+            out.append(f'</{stack.pop()}>')
+    out.append(s[pos:])
+    s = ''.join(out)
+    # Anything else the game marks up is a style we do not render.
+    s = re.sub(r'<(?!/?(?:up|kw|mu)>|el [A-Za-z]+>|/el>)[^<>]*>', '', s)
+    s = _NO_STACK.sub(lambda m: f'<mu>{m.group(0)}</mu>', s)
     return s
 
 
@@ -154,28 +200,40 @@ class Resolver:
             v = _at(active.get('ActiveSkill_OverWriteEffectTimeByRank'), lv)
             return None if v is None else format_number(v)
         if name.startswith('ReferenceMsgId_'):
-            # "(Ride Speed Up: 10%)" -- blank at level 1; its own paragraph otherwise.
+            # "(Ride Speed Up: <Status_Up>10%</>)" -- blank at level 1. Lifted out of
+            # the text into `bonus`, brackets and highlight dropped.
             kind = name[len('ReferenceMsgId_'):]
             text = (self.appends.get(f'{kind}_Rank_{lv + 1}') or '').strip()
-            return f'\n\n{text}' if text else ''
+            if text:
+                self.bonus.append(_STYLE_TAG.sub('', text).strip('() '))
+            return ''
         return None
 
-    def render(self, template: str, lv: int, lookups: Dict[str, Lookup]) -> str:
+    def render(self, template: str, lv: int, lookups: Dict[str, Lookup]) -> Dict[str, Any]:
+        """{text, mount, bonus} for one level."""
+        self.bonus: List[str] = []
+
         def sub(m: re.Match) -> str:
             v = self.value(m.group(1), lv)
             if v is None:
                 self.missing.append(m.group(1))
                 return m.group(0)
             return v
-        s = _PLACEHOLDER.sub(sub, template)
-        return clean_text(strip_markup(s, lookups))
+        text = clean_text(resolve_markup(_PLACEHOLDER.sub(sub, template), lookups))
+        mount = None
+        m = _RIDDEN.match(text)
+        if m:
+            mount = MOUNTS[m.group(1) or '']
+            rest = clean_text(text[m.end():])
+            text = rest or text.strip()     # a skill that is only "Can be ridden." keeps its sentence
+        return {'text': text, 'mount': mount, 'bonus': self.bonus}
 
 
 def build_partner_skills(names: Dict[str, str], templates: Dict[str, str], params: Dict[str, Dict],
                          passives_main: Dict[str, Dict], appends: Dict[str, str],
                          lookups: Dict[str, Lookup], resolve_species: Callable[[str], Optional[str]],
                          ) -> Dict[str, Any]:
-    """{species key: {name, levels: [5 rendered descriptions]}} plus a report.
+    """{species key: {name, levels: [5 x {text, mount, bonus}]}} plus a report.
 
     `names`/`templates`/`appends` are already plain strings keyed by pak id
     (PARTNERSKILL_ / PAL_FIRST_SPAWN_DESC_ prefixes removed). `resolve_species`
@@ -198,10 +256,15 @@ def build_partner_skills(names: Dict[str, str], templates: Dict[str, str], param
         levels = [r.render(template, lv, lookups) for lv in range(LEVELS)]
         if r.missing:
             report['unfilled'][pak_id] = sorted(set(r.missing))
-        if any('<' in s for s in levels):
+        if any(has_foreign_markup(level['text']) for level in levels):
             report['leftover_markup'].append(pak_id)
         out[sid] = {'name': name or pak_id, 'levels': levels}
     return {'species': dict(sorted(out.items())), 'report': report}
+
+
+def has_foreign_markup(text: str) -> bool:
+    """True if anything tag-like other than <up>/<kw>/<el X>/<mu> is in the text."""
+    return '<' in _OUR_TAGS.sub('', text or '')
 
 
 def clamp_level(rank: Any) -> int:

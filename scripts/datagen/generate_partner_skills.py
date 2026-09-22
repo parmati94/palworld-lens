@@ -9,11 +9,13 @@ English localisation tables and the numbers in the parameter tables; see
 backend/common/partner_skills.py for how they fit together. Output:
 
   {"species": {"<pals.json id>": {"name": "Wriggling Weasel",
-                                   "levels": ["...Lv1 text...", ..., "...Lv5 text..."]}}}
+                                   "levels": [{"text": "...Lv1...", "mount": "ground", "bonus": []}, ... x5]}}}
 
-Descriptions are plain text with '\n' line breaks; inline references (element
+Text is paragraphs separated by a blank line; inline references (element
 names, item names, buildings, other pals) are resolved to words at generation
-time from data/json/l10n, so the app never parses game markup.
+time from data/json/l10n, and only the game's own highlights survive as four
+small tags (<up>, <kw>, <el X>, <mu>) that the modal styles. See
+backend/common/partner_skills.py.
 
 Usage:
   python3 scripts/datagen/generate_partner_skills.py            # extract from the pak
@@ -153,7 +155,11 @@ def main():
 
     sample = out.get('CatMage') or next(iter(out.values()), None)
     if sample:
-        print(f'\nsample -- {sample["name"]}, Lv1:\n  ' + sample['levels'][0].replace('\n', '\n  '))
+        lv = sample['levels'][0]
+        print(f'\nsample -- {sample["name"]}, Lv1 (mount={lv["mount"]}, bonus={lv["bonus"]}):\n  ' + lv['text'].replace('\n', '\n  '))
+    mounts = sum(1 for e in out.values() if e['levels'][0]['mount'])
+    bonuses = sum(1 for e in out.values() if e['levels'][4]['bonus'])
+    print(f'{mounts} mounts, {bonuses} with a level bonus suffix')
 
     if args.dry_run:
         print('\n(dry run: nothing written)')
