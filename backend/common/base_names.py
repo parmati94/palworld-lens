@@ -111,6 +111,9 @@ class BaseNameStore:
             with os.fdopen(fd, 'w', encoding='utf-8') as f:
                 json.dump(dict(sorted(self.names.items())), f, ensure_ascii=False, indent=1)
                 f.write('\n')
+            # mkstemp creates 0600; the container runs as root, so leave the file
+            # readable for whoever owns the mounted directory on the host.
+            os.chmod(tmp, 0o644)
             os.replace(tmp, self.path)
         except BaseException:
             try:
