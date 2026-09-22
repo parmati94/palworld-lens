@@ -105,8 +105,11 @@ def build_base_containers(base_meta: Dict[str, BaseMeta], food_bowls: List[Dict]
                                                 container, meta, item_index, data))
 
     for cards in guild_cards.values():
-        cards.sort(key=lambda c: _natural(c.base_name or ""))
-        where = [BaseLocation(base_id=c.base_id, base_name=c.base_name or c.base_id) for c in cards]
+        # The game's own base number keeps the order stable whatever a base is called
+        cards.sort(key=lambda c: (getattr(base_meta.get(c.base_id), "number", 0), _natural(c.base_name or "")))
+        where = [BaseLocation(base_id=c.base_id, base_name=c.base_name or c.base_id,
+                              number=getattr(base_meta.get(c.base_id), "number", 0),
+                              place=getattr(base_meta.get(c.base_id), "place", None)) for c in cards]
         for card in cards:
             card.shared_at = where
 

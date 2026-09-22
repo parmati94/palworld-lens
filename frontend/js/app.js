@@ -466,6 +466,7 @@ export function app() {
         
         updateFromSSE(data) {
             this.saveInfo = data.info;
+            if (data.base_names) this.baseNames = data.base_names;   // else the REST load owns it
             this.players = data.players || [];
             this.pals = data.pals || [];
             this.guilds = data.guilds || [];
