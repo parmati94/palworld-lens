@@ -110,6 +110,29 @@ export function workSuitabilityDisplay(gameData, pal) {
     return out;
 }
 
+export const PARTNER_SKILL_LEVELS = 5;
+
+/**
+ * A pal's partner skill at its condensing level: {name, level, description, levels}
+ * from gameData.partner_skills (data/json/partner_skills.json), or null when the
+ * species has none. The level is the save's Rank (1-5; absent = 1).
+ */
+export function partnerSkillFor(gameData, pal) {
+    const table = (gameData && gameData.partner_skills) || {};
+    const entry = pal && pal.species_id ? table[pal.species_id] : null;
+    if (!entry || !entry.levels || !entry.levels.length) return null;
+    const level = Math.max(1, Math.min(PARTNER_SKILL_LEVELS, parseInt(pal.rank, 10) || 1));
+    const levels = entry.levels;
+    return {
+        name: entry.name,
+        level,
+        description: levels[Math.min(level, levels.length) - 1],
+        levels,
+        // The text only changes between levels when it carries numbers (fixed-text skills repeat)
+        grows: new Set(levels).size > 1,
+    };
+}
+
 /**
  * Get rank icon filename for passive skills
  */

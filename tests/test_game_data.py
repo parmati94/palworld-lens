@@ -13,6 +13,7 @@ from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers, which_map
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
+from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / 'data' / 'json'
@@ -117,7 +118,7 @@ def test_data_loader_builds_and_reference_is_complete(pals):
     dl = DataLoader(DATA)
     assert len(dl.pals) == len(pals)
     ref = dl.reference()
-    assert set(ref) == {'elements', 'work_types', 'conditions', 'map_layers'}
+    assert set(ref) == {'elements', 'work_types', 'conditions', 'map_layers', 'partner_skills'}
     assert ref['elements']['Leaf']['name'] == 'Grass'
     assert ref['work_types']['OilExtraction']['icon'] == 't_icon_research_palwork_13_0'
     assert all(v['icon'] for v in ref['work_types'].values())
@@ -130,3 +131,26 @@ def test_data_loader_fails_fast_on_missing_table(tmp_path):
     from backend.parser.loaders.data_loader import DataLoader, GameDataError
     with pytest.raises(GameDataError):
         DataLoader(tmp_path)
+
+
+def test_partner_skills_cover_the_species_and_are_plain_text(pals):
+    """partner_skills.json (generate_partner_skills.py) is optional, but when shipped every entry is usable."""
+    p = DATA / 'partner_skills.json'
+    if not p.exists():
+        pytest.skip('partner_skills.json not generated')
+    table = _json(p)['species']
+    assert len(table) >= MIN_PARTNER_SKILL_SPECIES, f'only {len(table)} species have a partner skill'
+    for sid, e in table.items():
+        assert sid in pals, sid
+        assert e['name'] and len(e['levels']) == LEVELS, sid
+        for lv in e['levels']:
+            assert lv and '<' not in lv and '{' not in lv, f'{sid}: leftover markup'
+    # numbers grow with condensing; fixed-text skills repeat the same line
+    assert '40% more items' in table['CatMage']['levels'][0] and '80% more items' in table['CatMage']['levels'][4]
+    assert table['WeaselDragon']['name'] == 'Wriggling Weasel'
+    assert len(set(table['Sheepball']['levels'])) == 1
+    # every ordinary species has one; the gaps are scripted quest variants
+    ordinary = [sid for sid, row in pals.items() if row.get('is_pal') and not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_', 'POLICE_', 'Quest_'))
+                and not any(t in sid for t in ('_Oilrig', '_Tower', '_Quest'))]
+    gap = sorted(sid for sid in ordinary if sid not in table)
+    assert len(gap) <= 3, gap

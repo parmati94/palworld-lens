@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
-    workSuitabilityDisplay, buildPageList, palIconSrc,
+    workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor,
 } from '../js/utils.js';
 
 const gameData = {
@@ -75,4 +75,18 @@ test('buildPageList elides long ranges', () => {
 test('palIconSrc uses the first candidate', () => {
     assert.equal(palIconSrc({ image_candidates: ['anubis'] }), '/img/t_anubis_icon_normal.webp');
     assert.equal(palIconSrc(null), '/img/t_unknown_icon_normal.webp');
+});
+
+test('partnerSkillFor picks the text for the pal\'s condensing level', () => {
+    const gd = { partner_skills: {
+        CatMage: { name: 'Mystical Black Magic', levels: ['40%', '50%', '60%', '70%', '80%'] },
+        Sheepball: { name: 'Fluffy Shield', levels: Array(5).fill('Becomes a shield.') },
+    } };
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage' }).level, 1);
+    assert.deepEqual(partnerSkillFor(gd, { species_id: 'CatMage', rank: 3 }).description, '60%');
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage', rank: 9 }).level, 5);     // clamped
+    assert.equal(partnerSkillFor(gd, { species_id: 'CatMage', rank: 2 }).grows, true);
+    assert.equal(partnerSkillFor(gd, { species_id: 'Sheepball', rank: 5 }).grows, false);
+    assert.equal(partnerSkillFor(gd, { species_id: 'Nope', rank: 2 }), null);
+    assert.equal(partnerSkillFor({}, { species_id: 'CatMage' }), null);
 });

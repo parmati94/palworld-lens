@@ -140,11 +140,15 @@ class DataLoader:
         # Wild spawner groups (data/json/spawns.json): {name: {kind, radius, points, pals}}.
         # Optional -- the map's spawn search is hidden when it is absent.
         self.spawns: Dict[str, Dict] = (self.tables.get('spawns') or {}).get('groups') or {}
+        # Partner skills (data/json/partner_skills.json): {species: {name, levels[5]}}, rendered
+        # per condensing level. Optional -- the modal hides the block when absent.
+        self.partner_skills: Dict[str, Dict] = (self.tables.get('partner_skills') or {}).get('species') or {}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '
                     f'{len(self.map_objects)} map objects, {len(self.map_layers)} map layers, '
                     f'{len(self.spawns)} spawner groups, '
+                    f'{len(self.partner_skills)} partner skills, '
                     f'{len(self.breeding.species)} breedable species / {self.breeding.pair_count()} pairs')
 
     # ------------------------------------------------------------------
@@ -204,6 +208,8 @@ class DataLoader:
             'work_types': work_types,
             'conditions': conditions,
             'map_layers': self.map_layers,
+            # Keyed on species_id; the UI picks levels[rank - 1] for an owned pal.
+            'partner_skills': self.partner_skills,
         }
 
     # ------------------------------------------------------------------

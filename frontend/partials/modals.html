@@ -340,6 +340,44 @@
                                 </div>
                             </div>
                             
+                            <!-- Partner Skill: the species' skill at this pal's condensing level -->
+                            <template x-if="partnerSkill(selectedPal)">
+                                <div x-data="{ ladder: false, get ps() { return partnerSkill(selectedPal); } }">
+                                    <div class="flex items-center justify-between gap-3 mb-2.5">
+                                        <h3 class="text-sm font-semibold text-gray-200">Partner Skill</h3>
+                                        <button x-show="ps.grows" @click="ladder = !ladder"
+                                                class="text-[11px] text-accent-300 hover:text-accent-200 transition-colors"
+                                                :data-tip="ladder ? 'Back to this pal\'s level' : 'How it grows as the pal is condensed'"
+                                                x-text="ladder ? 'Hide levels' : 'All 5 levels'"></button>
+                                    </div>
+                                    <div class="rounded-lg p-3 bg-gradient-to-br from-amber-500/10 to-gray-700/50 border border-amber-400/20">
+                                        <div class="flex items-center justify-between gap-3 flex-wrap">
+                                            <span class="text-sm font-semibold text-amber-100" x-text="ps.name"></span>
+                                            <span class="flex items-center gap-1.5 flex-shrink-0"
+                                                  :data-tip="ps.grows ? 'Condense with the Pal Essence Condenser to raise it' : 'This skill is the same at every level'">
+                                                <span class="text-[11px] font-medium text-amber-200/80 tabular-nums">Lv <span x-text="ps.level"></span></span>
+                                                <span class="flex items-center gap-0.5">
+                                                    <template x-for="i in 5" :key="i">
+                                                        <span class="w-2 h-2 rounded-full border border-amber-300/50"
+                                                              :class="i <= ps.level ? 'bg-amber-300' : 'bg-transparent'"></span>
+                                                    </template>
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <p x-show="!ladder" class="mt-2 text-sm text-gray-200 leading-relaxed whitespace-pre-line" x-text="ps.description"></p>
+                                        <div x-show="ladder" x-cloak class="mt-2 space-y-1.5">
+                                            <template x-for="(text, i) in ps.levels" :key="i">
+                                                <div class="flex gap-2.5 rounded-md px-2 py-1.5 text-xs leading-relaxed"
+                                                     :class="i + 1 === ps.level ? 'bg-amber-400/15 text-gray-100' : 'text-gray-400'">
+                                                    <span class="flex-shrink-0 tabular-nums font-medium w-8" :class="i + 1 === ps.level ? 'text-amber-200' : 'text-gray-500'">Lv <span x-text="i + 1"></span></span>
+                                                    <span class="whitespace-pre-line" x-text="text"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
                             <!-- Active Skills -->
                             <div x-show="selectedPal.active_skills && selectedPal.active_skills.length > 0">
                                 <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Active Skills</h3>

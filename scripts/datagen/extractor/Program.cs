@@ -171,9 +171,13 @@ internal static class Program
     // from palworld-save-pal rather than being generated here.
     private static int Dt(DefaultFileProvider provider, string needle, string? outFile)
     {
+        // Bare name (first match, any language) or a pak path such as
+        // Pal/Content/L10N/en/Pal/DataTable/Text/DT_SkillNameText_Common to pin one.
         var key = provider.Files.Keys.FirstOrDefault(k =>
             k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) &&
-            Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase));
+            (needle.Contains('/')
+                ? k.Equals(needle + ".uasset", StringComparison.OrdinalIgnoreCase) || k.Equals(needle, StringComparison.OrdinalIgnoreCase)
+                : Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase)));
         if (key == null) { Console.Error.WriteLine($"no .uasset named '{needle}'"); return 1; }
         Console.WriteLine($"dt: {key}");
         try

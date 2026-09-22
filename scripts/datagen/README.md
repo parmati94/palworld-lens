@@ -8,7 +8,12 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   game pak with a CUE4Parse extractor (replaces a manual FModel export).
 - **`data/json/spawns.json`** — wild spawn zones per species, from the pak's
   `DT_PalSpawnerPlacement` + `DT_PalWildSpawner` tables via the same extractor
-  (`generate_spawns.py`; `pal-extract dt <table> out.json` dumps any data table).
+  (`generate_spawns.py`; `pal-extract dt <table> out.json` dumps any data table --
+  pass a full pak path such as `Pal/Content/L10N/en/Pal/DataTable/Text/DT_SkillNameText_Common`
+  to pin one localisation, a bare name takes the first match).
+- **`data/json/partner_skills.json`** -- every species' partner skill name and description
+  rendered per condensing level, from the pak's skill text + parameter tables
+  (`generate_partner_skills.py`; see `backend/common/partner_skills.py` for the table map).
 
 Output is committed to the repo, so end users never run this.
 
