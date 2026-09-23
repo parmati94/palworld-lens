@@ -1,0 +1,193 @@
+{{!-- One Activity card: a building and what it is doing. `job` is an ActivityJob from /api/activity.
+     Header: building tile, name, status chip. Body by kind (machine / station / crop / incubator /
+     ranch / breeding / generator / expedition). Footer: the pals on it. --}}
+<div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-3"
+     :class="job.status === 'ready' ? 'border-amber-500/30' : (job.status === 'unstaffed' || job.status === 'no_materials') ? 'border-orange-500/30' : ''">
+    <!-- header -->
+    <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+            <div class="p-1.5 bg-gray-900/60 rounded-lg flex-shrink-0">
+                <img x-show="job.building_icon" :src="`/img/${job.building_icon || 'unknown'}.webp`" :alt="job.display_name" class="w-6 h-6" onerror="this.style.display='none'">
+            </div>
+            <div class="min-w-0">
+                <div class="font-medium text-white truncate" x-text="job.display_name"></div>
+                <div x-show="job.is_damaged" class="text-[11px] text-red-300">damaged</div>
+            </div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full border text-[11px] font-medium whitespace-nowrap" :class="activityStatus(job.status).chip"
+              x-text="job.kind === 'expedition' && job.expedition
+                        ? (job.expedition.state === 'out' ? 'Away' : job.expedition.state === 'back' ? 'Back' : job.status === 'ready' ? 'Haul waiting' : 'Idle')
+                        : activityStatus(job.status).label"></span>
+    </div>
+
+    <!-- machine / station: product, order, progress on the unit in hand -->
+    <template x-if="(job.kind === 'machine' || job.kind === 'station') && job.product">
+        <div>
+            <div class="flex items-center gap-2 min-w-0">
+                <template x-for="item in [job.product]" :key="item.item_id">
+                    {{> item-icon size="w-8 h-8" fallback="unknown" }}
+                </template>
+                <div class="min-w-0">
+                    <div class="text-sm text-white truncate" x-text="job.product.item_name"></div>
+                    <div class="text-[11px] text-gray-400 tabular-nums" x-text="orderLine(job) || 'gathers on its own while staffed'"></div>
+                </div>
+            </div>
+            <template x-if="job.progress != null">
+                <div class="mt-2">
+                    <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                        <span x-text="job.kind === 'machine' ? 'next one' : 'next batch'"></span>
+                        <span x-text="Math.round(job.progress * 100) + '%'"></span>
+                    </div>
+                    <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                        <div class="h-full rounded-full" :class="activityStatus(job.status).bar" :style="`width:${Math.round(job.progress * 100)}%`"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- crop -->
+    <template x-if="job.kind === 'crop' && job.crop">
+        <div>
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <template x-for="item in [{ item_id: job.crop.crop_id, item_name: job.crop.name, icon: job.crop.icon }]" :key="item.item_id">
+                        {{> item-icon size="w-8 h-8" fallback="food" }}
+                    </template>
+                    <div class="text-sm text-white truncate" x-text="job.crop.name"></div>
+                </div>
+                <span class="text-[11px] text-gray-400 tabular-nums whitespace-nowrap"
+                      :data-tip="job.crop.watered != null ? 'Watered ' + Math.round(job.crop.watered * 100) + '%' : ''"
+                      x-text="job.crop.watered != null ? '💧 ' + Math.round(job.crop.watered * 100) + '%' : ''"></span>
+            </div>
+            <template x-if="job.crop.growth != null">
+                <div class="mt-2">
+                    <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                        <span x-text="job.crop.growth >= 1 ? 'ready to harvest' : 'growing'"></span>
+                        <span x-text="Math.round(job.crop.growth * 100) + '%'"></span>
+                    </div>
+                    <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                        <div class="h-full rounded-full" :class="activityStatus(job.status).bar" :style="`width:${Math.round(job.crop.growth * 100)}%`"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- incubator -->
+    <template x-if="job.kind === 'incubator' && job.egg">
+        <div>
+            <template x-if="job.egg.hatched_species_id">
+                <div class="flex items-center gap-2">
+                    <img :src="`/img/t_${job.egg.hatched_image_candidates[0] || 'unknown'}_icon_normal.webp`" alt="" class="w-10 h-10 rounded-full bg-gray-900/60"
+                         @error="palIconError($el, { image_candidates: job.egg.hatched_image_candidates })">
+                    <div class="min-w-0">
+                        <div class="text-sm text-white truncate" x-text="job.egg.hatched_name || job.egg.hatched_species_id"></div>
+                        <div class="text-[11px] text-amber-200">hatched, waiting to be picked up</div>
+                    </div>
+                </div>
+            </template>
+            <template x-if="!job.egg.hatched_species_id && job.egg.egg">
+                <div>
+                    <div class="flex items-center gap-2 min-w-0">
+                        <template x-for="item in [job.egg.egg]" :key="item.item_id">
+                            {{> item-icon size="w-8 h-8" fallback="unknown" }}
+                        </template>
+                        <div class="text-sm text-white truncate" x-text="job.egg.egg.item_name"></div>
+                    </div>
+                    <template x-if="job.progress != null">
+                        <div class="mt-2">
+                            <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                                <span x-text="job.progress >= 1 ? 'ready to hatch' : 'incubating'"></span>
+                                <span x-text="Math.round(job.progress * 100) + '%'"></span>
+                            </div>
+                            <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                                <div class="h-full rounded-full" :class="activityStatus(job.status).bar" :style="`width:${Math.round(job.progress * 100)}%`"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <template x-if="!job.egg.hatched_species_id && !job.egg.egg">
+                <div class="text-sm text-gray-500 italic">Empty</div>
+            </template>
+        </div>
+    </template>
+
+    <!-- expedition -->
+    <template x-if="job.kind === 'expedition' && job.expedition">
+        <div>
+            <template x-if="job.expedition.state !== 'idle'">
+                <div>
+                    <div class="flex items-baseline justify-between gap-2">
+                        <span class="text-sm text-white truncate" x-text="job.expedition.name || job.expedition.mission_id"></span>
+                        <span class="text-[11px] text-gray-400 whitespace-nowrap" x-text="job.expedition.difficulty || ''"></span>
+                    </div>
+                    <template x-if="job.expedition.seconds_left != null">
+                        <div class="mt-2">
+                            <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                                <span x-text="job.expedition.state === 'back' ? 'time is up, haul waiting' : formatDuration(job.expedition.seconds_left) + ' left'"></span>
+                                <span x-text="Math.round(Math.min(1, job.expedition.elapsed / job.expedition.seconds) * 100) + '%'"></span>
+                            </div>
+                            <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                                <div class="h-full rounded-full" :class="activityStatus(job.status).bar" :style="`width:${Math.round(Math.min(1, job.expedition.elapsed / job.expedition.seconds) * 100)}%`"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <template x-if="job.expedition.state === 'idle'">
+                <div class="text-sm text-gray-500 italic" x-text="job.expedition.haul.length ? 'Idle, with a haul to collect' : 'Nobody is out'"></div>
+            </template>
+        </div>
+    </template>
+
+    <!-- generator -->
+    <template x-if="job.kind === 'generator' && job.stored_energy != null">
+        <div class="text-sm text-gray-300 tabular-nums"><span class="text-white font-semibold" x-text="Math.round(job.stored_energy).toLocaleString()"></span> energy banked</div>
+    </template>
+
+    <!-- inputs / outputs (machines), what sits inside (stations, ranches, expeditions' haul) -->
+    <template x-if="job.inputs.length || job.outputs.length || (job.expedition && job.expedition.haul.length)">
+        <div class="flex flex-col gap-1.5">
+            <template x-if="job.inputs.length">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="eyebrow w-8">in</span>
+                    <template x-for="item in job.inputs" :key="item.item_id">
+                        {{> item-icon size="w-8 h-8" fallback="unknown" count=true }}
+                    </template>
+                </div>
+            </template>
+            <template x-if="job.outputs.length && job.kind !== 'incubator'">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="eyebrow w-8" x-text="job.kind === 'machine' ? 'out' : 'holds'"></span>
+                    <template x-for="item in job.outputs" :key="item.item_id">
+                        {{> item-icon size="w-8 h-8" fallback="unknown" count=true }}
+                    </template>
+                </div>
+            </template>
+            <template x-if="job.expedition && job.expedition.haul.length">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="eyebrow w-8">haul</span>
+                    <template x-for="item in job.expedition.haul" :key="item.item_id">
+                        {{> item-icon size="w-8 h-8" fallback="unknown" count=true }}
+                    </template>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- pals on it -->
+    <template x-if="job.assigned.length || (job.expedition && job.expedition.pals.length)">
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <template x-for="pal in (job.expedition ? job.expedition.pals : job.assigned)" :key="pal.instance_id">
+                <button type="button" @click="openPalById(pal.instance_id)"
+                        class="flex items-center gap-1 pr-2 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
+                        :data-tip="pal.name + ' · Lv ' + pal.level + ' -- open'">
+                    <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full" @error="palIconError($el, pal)">
+                    <span class="text-xs text-gray-300 truncate max-w-[7rem]" x-text="pal.name"></span>
+                </button>
+            </template>
+        </div>
+    </template>
+</div>

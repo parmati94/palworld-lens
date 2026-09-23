@@ -106,11 +106,17 @@ export const api = {
         return await res.json();
     },
 
+    /** What every base is doing (machines, crops, incubators) plus each guild's expeditions and lab. */
+    async getActivity() {
+        const res = await fetchWithRetry('/api/activity');
+        return await res.json();
+    },
+
     /**
      * Load all data in parallel
      */
     async loadAll() {
-        const [saveInfo, gameData, players, pals, guilds, baseContainers, baseNames] = await Promise.all([
+        const [saveInfo, gameData, players, pals, guilds, baseContainers, baseNames, activity] = await Promise.all([
             this.getSaveInfo(),
             this.getGameData(),
             this.getPlayers(),
@@ -118,6 +124,7 @@ export const api = {
             this.getGuilds(),
             this.getBaseContainers(),
             this.getBaseNames().catch(() => ({ names: {}, writable: false })),
+            this.getActivity().catch(() => null),
         ]);
 
         return {
@@ -128,6 +135,7 @@ export const api = {
             guilds,
             baseContainers,
             baseNames,
+            activity,
         };
     },
 

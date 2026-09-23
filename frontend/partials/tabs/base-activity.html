@@ -1,0 +1,136 @@
+<!-- Activity sub-tab: what this base is doing, as of the last save.
+     Cards come from /api/activity (backend/parser/builders/activity.py); the guild's expeditions
+     and lab render as a strip at the top of whichever base belongs to that guild. -->
+<div x-show="baseTab === 'activity' && selectedBaseId" class="tab-content">
+    <div class="card rounded-t-none border-t-0">
+
+        <!-- Empty State -->
+        <template x-if="!activityFor(selectedBaseId) && !guildActivityFor(selectedBaseId)">
+            <div class="py-16 px-4 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-600/20 mb-4">
+                    <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-300 mb-1">Nothing is being worked here</h3>
+                <p class="text-sm text-gray-500">Machines, plots, incubators and stations show up here once the base has some.</p>
+            </div>
+        </template>
+
+        <template x-if="activityFor(selectedBaseId) || guildActivityFor(selectedBaseId)">
+            <div class="px-6 pt-4 pb-6 flex flex-col gap-6"
+                 x-data="{ get act() { return activityFor(selectedBaseId); }, get guildAct() { return guildActivityFor(selectedBaseId); } }">
+
+                <!-- Summary strip: counts + freshness -->
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <template x-if="act">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="px-2 py-0.5 rounded-full border text-xs font-medium tabular-nums" :class="activityStatus('working').chip">
+                                <span x-text="act.working"></span> working</span>
+                            <span x-show="act.ready" class="px-2 py-0.5 rounded-full border text-xs font-medium tabular-nums" :class="activityStatus('ready').chip">
+                                <span x-text="act.ready"></span> ready</span>
+                            <span x-show="act.stuck" class="px-2 py-0.5 rounded-full border text-xs font-medium tabular-nums" :class="activityStatus('unstaffed').chip">
+                                <span x-text="act.stuck"></span> stuck</span>
+                            <span class="px-2 py-0.5 rounded-full border text-xs font-medium tabular-nums" :class="activityStatus('idle').chip">
+                                <span x-text="act.idle"></span> idle</span>
+                        </div>
+                    </template>
+                    <span class="text-gray-500" :data-tip="saveInfo.last_updated ? formatDate(saveInfo.last_updated) : ''">
+                        As of the last save<template x-if="saveInfo.last_updated"><span>, <span x-text="formatRelativeTime(saveInfo.last_updated, now)"></span></span></template>.
+                        Timers count from there.
+                    </span>
+                </div>
+
+                <!-- Guild strip: expeditions + lab (they belong to the guild, not the base) -->
+                <template x-if="guildAct && (guildAct.expeditions.length || guildAct.lab)">
+                    <div>
+                        <div class="mb-3 flex items-center gap-2">
+                            <h3 class="text-sm font-semibold text-violet-300">Guild</h3>
+                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400">expeditions and research are shared by every base</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <template x-for="job in guildAct.expeditions" :key="job.instance_id">
+                                {{> activity-card }}
+                            </template>
+                            <template x-if="guildAct.lab">
+                                <div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4">
+                                    <div class="flex items-start justify-between gap-2 mb-3">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <div class="p-1.5 bg-violet-600/20 rounded-lg flex-shrink-0">
+                                                <img src="/img/t_icon_buildobject_lab.webp" alt="" class="w-6 h-6" onerror="this.style.display='none'">
+                                            </div>
+                                            <span class="font-medium text-white truncate">Research Lab</span>
+                                        </div>
+                                        <span class="px-2 py-0.5 rounded-full border text-[11px] font-medium whitespace-nowrap"
+                                              :class="activityStatus(guildAct.lab.current ? (guildAct.lab.assigned.length ? 'working' : 'unstaffed') : 'idle').chip"
+                                              x-text="guildAct.lab.current ? (guildAct.lab.assigned.length ? 'Researching' : 'Nobody on it') : 'Nothing queued'"></span>
+                                    </div>
+                                    <template x-if="guildAct.lab.current">
+                                        <div class="mb-3">
+                                            <div class="flex items-baseline justify-between gap-2">
+                                                <span class="text-sm text-white truncate" x-text="guildAct.lab.current.name"></span>
+                                                <span class="text-xs text-gray-400 tabular-nums whitespace-nowrap" x-text="Math.round((guildAct.lab.current.progress || 0) * 100) + '%'"></span>
+                                            </div>
+                                            <div class="mt-1.5 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                                                <div class="h-full rounded-full bg-violet-400" :style="`width:${Math.round((guildAct.lab.current.progress || 0) * 100)}%`"></div>
+                                            </div>
+                                            <div class="mt-1 text-[11px] text-gray-500" x-text="(guildAct.lab.current.category ? guildAct.lab.current.category + ' · ' : '') + Math.round(guildAct.lab.current.done).toLocaleString() + ' / ' + Math.round(guildAct.lab.current.work).toLocaleString()"></div>
+                                        </div>
+                                    </template>
+                                    <div class="text-xs text-gray-400">
+                                        <span class="text-gray-200 font-semibold tabular-nums" x-text="guildAct.lab.completed"></span> of
+                                        <span class="tabular-nums" x-text="guildAct.lab.known"></span> researched
+                                        <template x-if="guildAct.lab.parked.length"><span> · <span x-text="guildAct.lab.parked.length"></span> started and parked</span></template>
+                                    </div>
+                                    <template x-if="guildAct.lab.assigned.length">
+                                        <div class="mt-3 flex items-center gap-1.5 flex-wrap">
+                                            <template x-for="pal in guildAct.lab.assigned" :key="pal.instance_id">
+                                                <button type="button" @click="openPalById(pal.instance_id)" class="flex items-center gap-1 pr-2 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60"
+                                                        :data-tip="pal.name + ' · Lv ' + pal.level">
+                                                    <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full" @error="palIconError($el, pal)">
+                                                    <span class="text-xs text-gray-300 truncate max-w-[7rem]" x-text="pal.name"></span>
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- The base's own jobs, grouped -->
+                <template x-for="group in activityGroups(act)" :key="group.id">
+                    <div>
+                        <div class="mb-3 flex items-center gap-2">
+                            <h3 class="text-sm font-semibold" :class="group.id === 'attention' ? 'text-amber-300' : group.id === 'working' ? 'text-emerald-300' : 'text-gray-400'" x-text="group.label"></h3>
+                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="group.jobs.length"></span>
+                        </div>
+                        <!-- Idle buildings are furniture until someone queues work: one line each, no card -->
+                        <template x-if="group.id === 'idle'">
+                            <div class="flex flex-wrap gap-1.5">
+                                <template x-for="job in group.jobs" :key="job.instance_id">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-800/50 border border-gray-700/50 text-xs text-gray-400"
+                                          :data-tip="job.is_damaged ? job.display_name + ' -- damaged' : ''">
+                                        <img x-show="job.building_icon" :src="`/img/${job.building_icon || 'unknown'}.webp`" alt="" class="w-4 h-4" onerror="this.style.display='none'">
+                                        <span x-text="job.display_name"></span>
+                                        <span x-show="job.is_damaged" class="text-red-300">damaged</span>
+                                    </span>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="group.id !== 'idle'">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <template x-for="job in group.jobs" :key="job.instance_id">
+                                    {{> activity-card }}
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+            </div>
+        </template>
+
+    </div>
+</div>

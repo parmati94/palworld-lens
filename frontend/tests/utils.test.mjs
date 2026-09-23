@@ -177,3 +177,24 @@ test('storage search: matches by name, id or unlocked product; cards keep only t
     assert.equal(rarityRingClass(4), 'ring-amber-400/90');
     assert.equal(rarityRingClass(null), rarityRingClass(0));
 });
+
+test('activity: groups by attention, formats durations and order lines', async () => {
+    const { activityGroups, activityStatus, formatDuration, orderLine } = await import('../js/utils.js');
+    const jobs = [
+        { instance_id: 'a', status: 'working' }, { instance_id: 'b', status: 'ready' },
+        { instance_id: 'c', status: 'idle' }, { instance_id: 'd', status: 'no_materials' },
+    ];
+    assert.deepEqual(activityGroups(jobs).map(g => [g.id, g.jobs.map(j => j.instance_id)]),
+        [['attention', ['b', 'd']], ['working', ['a']], ['idle', ['c']]]);
+    assert.deepEqual(activityGroups([{ status: 'working' }]).map(g => g.id), ['working'], 'empty groups are dropped');
+    assert.equal(activityStatus('unstaffed').label, 'Nobody on it');
+    assert.equal(activityStatus('???').label, 'Idle');
+    assert.equal(formatDuration(4320), '1h 12m');
+    assert.equal(formatDuration(725), '12m');
+    assert.equal(formatDuration(45), '45s');
+    assert.equal(formatDuration(null), '');
+    assert.equal(orderLine({ recipe_id: 'IronIngot', order_remaining: 4999, craftable_now: 3271 }), '4,999 to go · can make 3,271 now');
+    assert.equal(orderLine({ recipe_id: 'IronIngot', order_remaining: 10, craftable_now: 0 }), '10 to go · nothing to make with');
+    assert.equal(orderLine({ recipe_id: 'IronIngot', order_remaining: 0, craftable_now: 0 }), 'order done');
+    assert.equal(orderLine({ recipe_id: null }), '');
+});

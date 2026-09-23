@@ -763,6 +763,21 @@
                                                     <span>Storage</span>
                                                 </div>
                                             </button>
+                                            <button 
+                                                @click="baseTab = 'activity'"
+                                                :class="baseTab === 'activity' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
+                                                class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors"
+                                                data-tip="What this base is doing: machines, crops, incubators, expeditions and the lab, as of the last save">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                    <span>Activity</span>
+                                                    <span x-show="activityAttention(base.base_id) > 0" class="px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                                                          :class="baseTab === 'activity' ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-700 text-gray-400'"
+                                                          x-text="activityAttention(base.base_id)"></span>
+                                                </div>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -1221,6 +1236,8 @@
                         </div>
                     </div>
                     <!-- End Storage Tab Content -->
+
+                    {{> base-activity }}
                 </div>
             </template>
 

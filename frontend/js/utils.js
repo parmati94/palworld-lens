@@ -260,6 +260,56 @@ export function searchElsewhere(containersByBase, currentBaseId, query, { skipTy
     return rows.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 
+// ---------------------------------------------------------------------------
+// Base activity (/api/activity). Status names come from the backend
+// (backend/parser/builders/activity.py); the words and colours live here.
+// ---------------------------------------------------------------------------
+export const ACTIVITY_STATUS = {
+    ready:        { label: 'Ready',            chip: 'bg-amber-500/15 text-amber-200 border-amber-500/40',   bar: 'bg-amber-400' },
+    working:      { label: 'Working',          chip: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/40', bar: 'bg-emerald-400' },
+    unstaffed:    { label: 'Nobody on it',     chip: 'bg-orange-500/15 text-orange-200 border-orange-500/40', bar: 'bg-orange-400' },
+    no_materials: { label: 'Out of materials', chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
+    idle:         { label: 'Idle',             chip: 'bg-gray-700/60 text-gray-400 border-gray-600/60',      bar: 'bg-gray-500' },
+};
+
+export function activityStatus(status) {
+    return ACTIVITY_STATUS[status] || ACTIVITY_STATUS.idle;
+}
+
+/** Job cards in three groups: what wants a look, what is running, what sits idle. Empty groups are dropped. */
+export function activityGroups(jobs) {
+    const groups = [
+        { id: 'attention', label: 'Needs a look', jobs: [] },
+        { id: 'working', label: 'Working', jobs: [] },
+        { id: 'idle', label: 'Idle', jobs: [] },
+    ];
+    for (const j of jobs || []) {
+        const g = j.status === 'working' ? groups[1] : j.status === 'idle' ? groups[2] : groups[0];
+        g.jobs.push(j);
+    }
+    return groups.filter(g => g.jobs.length);
+}
+
+/** "1h 12m", "12m", "45s" for a span in seconds; '' for nothing. */
+export function formatDuration(seconds) {
+    if (seconds == null || !isFinite(seconds)) return '';
+    const s = Math.max(0, Math.round(seconds));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    if (h) return `${h}h ${m}m`;
+    if (m) return `${m}m`;
+    return `${sec}s`;
+}
+
+/** One line for a machine's order: "4,999 to go · can make 3,271 now". */
+export function orderLine(job) {
+    if (!job || !job.recipe_id) return '';
+    const parts = [];
+    if (job.order_remaining > 0) parts.push(`${job.order_remaining.toLocaleString()} to go`);
+    else parts.push('order done');
+    if (job.order_remaining > 0) parts.push(job.craftable_now > 0 ? `can make ${job.craftable_now.toLocaleString()} now` : 'nothing to make with');
+    return parts.join(' · ');
+}
+
 /** Tooltip for a container slot: what a schematic unlocks, nothing for plain items. */
 export function itemTip(item) {
     const s = item && item.schematic;

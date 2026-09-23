@@ -238,6 +238,121 @@ class ItemSlot(BaseModel):
     schematic: Optional[SchematicInfo] = None  # set for blueprint items
 
 
+class ItemRef(BaseModel):
+    """An item named for the Activity view (a product, an input, an egg), with an optional count."""
+    item_id: str
+    item_name: str
+    icon: Optional[str] = None
+    rarity: Optional[int] = None
+    count: int = 0
+
+
+class ActivityPal(BaseModel):
+    """A pal named on an Activity card (assigned to a job, sent on an expedition)."""
+    instance_id: str
+    name: str
+    species_id: Optional[str] = None
+    image_candidates: List[str] = []
+    level: int = 0
+
+
+class CropInfo(BaseModel):
+    crop_id: str
+    name: str
+    icon: Optional[str] = None
+    growth: Optional[float] = None      # 0..1
+    watered: Optional[float] = None     # 0..1
+    required_s: Optional[float] = None
+    progress_s: Optional[float] = None
+
+
+class EggInfo(BaseModel):
+    egg: Optional[ItemRef] = None
+    hatched_species_id: Optional[str] = None    # set once the egg has hatched and waits for pickup
+    hatched_name: Optional[str] = None
+    hatched_image_candidates: List[str] = []
+
+
+class ExpeditionInfo(BaseModel):
+    mission_id: Optional[str] = None
+    name: Optional[str] = None
+    difficulty: Optional[str] = None
+    seconds: Optional[int] = None
+    state: str = "idle"                 # idle | out | back
+    seconds_left: Optional[float] = None
+    elapsed: Optional[float] = None
+    pals: List[ActivityPal] = []
+    haul: List[ItemRef] = []            # rewards sitting in the station
+
+
+class ActivityJob(BaseModel):
+    """One building doing (or not doing) something at a base."""
+    instance_id: str
+    kind: str                           # machine | station | crop | incubator | ranch | breeding | generator | expedition | lab
+    building_type: str
+    display_name: str
+    building_icon: Optional[str] = None
+    base_id: str
+    status: str                         # working | ready | unstaffed | no_materials | idle
+    recipe_id: Optional[str] = None
+    product: Optional[ItemRef] = None
+    order_remaining: int = 0
+    craftable_now: int = 0
+    unit_work: Optional[float] = None
+    unit_done: Optional[float] = None
+    progress: Optional[float] = None    # 0..1 on the unit in hand
+    inputs: List[ItemRef] = []
+    outputs: List[ItemRef] = []
+    assigned: List[ActivityPal] = []
+    crop: Optional[CropInfo] = None
+    egg: Optional[EggInfo] = None
+    expedition: Optional[ExpeditionInfo] = None
+    stored_energy: Optional[float] = None
+    is_damaged: bool = False
+
+
+class LabResearch(BaseModel):
+    research_id: str
+    name: str
+    category: Optional[str] = None
+    work: float = 0
+    done: float = 0
+    progress: Optional[float] = None
+    complete: bool = False
+
+
+class LabInfo(BaseModel):
+    guild_id: str
+    base_id: Optional[str] = None       # where the lab stands
+    current: Optional[LabResearch] = None
+    completed: int = 0
+    parked: List[LabResearch] = []      # started, not in hand
+    known: int = 0                      # research entries in the game table
+    assigned: List[ActivityPal] = []
+
+
+class BaseActivity(BaseModel):
+    base_id: str
+    jobs: List[ActivityJob] = []
+    working: int = 0
+    ready: int = 0
+    stuck: int = 0                      # unstaffed + no_materials
+    idle: int = 0
+
+
+class GuildActivity(BaseModel):
+    guild_id: str
+    lab: Optional[LabInfo] = None
+    expeditions: List[ActivityJob] = []
+
+
+class ActivityPayload(BaseModel):
+    """Everything the Activity view shows; timers are as of `as_of_ticks` (the save's real-time clock)."""
+    bases: Dict[str, BaseActivity] = {}
+    guilds: Dict[str, GuildActivity] = {}
+    as_of_ticks: Optional[int] = None
+
+
 class BaseContainerInfo(BaseModel):
     """Base container information (food bowls, storage, etc.)"""
     container_type: str  # "food_bowl", "storage", "ranch", etc.

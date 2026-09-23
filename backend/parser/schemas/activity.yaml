@@ -1,0 +1,181 @@
+# Schema for the base Activity view: what a building is doing, from MapObjectSaveData
+# entries (ConcreteModel fields per building kind), WorkSaveData entries (per-unit
+# work and progress, assigned pals) and the guild's Lab block.
+#
+# The map-object identity fields (map_object_id, base_camp_id, instance_id, hp,
+# concrete_model_type, module_map) come from structures.yaml; this file adds the
+# kind-specific ConcreteModel fields. WorkSaveData's two progress floats are labelled
+# by the save-tools parser as `current_work_amount` and `auto_work_self_amount_by_sec`;
+# against real saves the first is the per-unit requirement and the second the progress
+# on the unit in hand (see backend/common/activity.py), so they are named that way here.
+
+fields:
+  # ---- machines (PalMapObjectConvertItemModel) ----
+  recipe_id:
+    description: "Recipe the machine is set to (usually the product's item id)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "current_recipe_id"]
+    default: null
+
+  order_remaining:
+    description: "Units still to make on the current order"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "remain_product_num"]
+    default: 0
+
+  craftable_now:
+    description: "Units the inputs on hand can make"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "requested_product_num"]
+    default: 0
+
+  speed_rate:
+    description: "Machine speed multiplier applied to the recipe's work amount"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "work_speed_additional_rate"]
+    default: null
+
+  # ---- stations (PalMapObjectProductItemModel: pits, pumps, logging) ----
+  product_item_id:
+    description: "Item the station produces"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "product_item_id"]
+    default: null
+
+  # ---- crops (PalMapObjectFarmBlockV2Model) ----
+  crop_id:
+    description: "Crop item id (Berries, Wheat, ...)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "crop_data_id"]
+    default: null
+
+  crop_state:
+    description: "Plot state machine value"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "current_state"]
+    default: null
+
+  crop_required:
+    description: "Seconds of growth a harvest needs"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "state_machine", "growup_required_time"]
+    default: null
+
+  crop_progress:
+    description: "Seconds of growth so far"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "state_machine", "growup_progress_time"]
+    default: null
+
+  crop_watered:
+    description: "Watered fraction (0..1)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "water_stack_rate_value"]
+    default: null
+
+  # ---- incubators (PalMapObjectHatchingEggModel) ----
+  hatched_character_id:
+    description: "Species of the pal that hatched and waits for pickup"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "hatched_character_save_parameter", "SaveParameter", "value", "CharacterID", "value"]
+    default: null
+
+  hatched_nickname:
+    description: "Nickname of the hatched pal, when it has one"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "hatched_character_save_parameter", "SaveParameter", "value", "NickName", "value"]
+    default: null
+
+  egg_temp_diff:
+    description: "Temperature mismatch slowing the hatch (0 = comfortable)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "current_pal_egg_temp_diff"]
+    default: null
+
+  # ---- generators (PalMapObjectGenerateEnergyModel) ----
+  stored_energy:
+    description: "Energy banked in the generator"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "stored_energy_amount"]
+    default: null
+
+  # ---- expedition stations (PalMapObjectCharacterTeamMissionModel) ----
+  mission_id:
+    description: "Expedition underway ('None' when idle)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "mission_id"]
+    default: null
+
+  mission_state:
+    description: "Station state value"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "state"]
+    default: null
+
+  mission_start_ticks:
+    description: "When the expedition left, in the world's real-time ticks (100 ns)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "start_time"]
+    default: null
+
+  mission_pals:
+    description: "Pals sent on the expedition ({player_uid, instance_id} entries)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "assigned_individuals"]
+    default: []
+
+  # ---- WorkSaveData entries ----
+  work_id:
+    description: "Work record id (a building's Workee module points here)"
+    root_key: "RawData"
+    path: ["value", "id"]
+    default: null
+
+  workable_type:
+    description: "EPalWorkableType::Progress, Repair, MonsterFarm, OnlyJoin, ..."
+    root_key: "WorkableType"
+    path: ["value", "value"]
+    default: null
+
+  work_state:
+    description: "Work state value"
+    root_key: "RawData"
+    path: ["value", "current_state"]
+    default: null
+
+  work_unit:
+    description: "Work one unit needs (recipe WorkAmount / speed); -1 when the machine has no order"
+    root_key: "RawData"
+    path: ["value", "current_work_amount"]
+    default: null
+
+  work_done:
+    description: "Work put into the unit in hand"
+    root_key: "RawData"
+    path: ["value", "auto_work_self_amount_by_sec"]
+    default: null
+
+  work_owner_model_id:
+    description: "Map object (Model instance id) this work belongs to"
+    root_key: "RawData"
+    path: ["value", "owner_map_object_model_id"]
+    default: null
+
+  work_assign_map:
+    description: "Assigned pals: entries whose value.RawData.value.assigned_individual_id.instance_id is the pal"
+    root_key: "WorkAssignMap"
+    path: ["value"]
+    default: []
+
+  # ---- GuildExtraSaveDataMap entry value: Lab ----
+  lab_current_research_id:
+    description: "Research in hand ('None' when the lab is idle)"
+    root_key: "Lab"
+    path: ["value", "RawData", "value", "current_research_id"]
+    default: null
+
+  lab_research_info:
+    description: "[{research_id, work_amount}] work put into each research"
+    root_key: "Lab"
+    path: ["value", "RawData", "value", "research_info"]
+    default: []
