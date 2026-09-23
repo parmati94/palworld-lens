@@ -60,6 +60,18 @@ async def get_base_containers():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/activity", dependencies=[Depends(require_auth)])
+async def get_activity():
+    """What every base is doing: machines, crops, incubators, stations, plus each guild's expeditions and lab."""
+    if not parser.loaded:
+        raise HTTPException(status_code=400, detail="No save file loaded")
+    try:
+        return parser.activity_payload()
+    except Exception as e:
+        logger.error(f"Error getting activity: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/pals", dependencies=[Depends(require_auth)])
 async def get_pals():
     """Get list of all pals"""

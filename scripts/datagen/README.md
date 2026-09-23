@@ -21,6 +21,11 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   `DT_ItemRecipeDataTable` (UnlockItemID) and `DT_BuildObjectDataTable` (BlueprintItemID), so
   chests can draw the product instead of the game's one generic blueprint icon
   (`generate_schematics.py`; resolved at runtime by `backend/common/schematics.py`).
+- **`data/json/activity.json`** -- what the base Activity view needs to name what the save says a
+  base is doing: lab research names + work amounts (`DT_LabResearchDataTable` + text), expedition
+  names + durations (`DT_CharacterTeamMissionDataTable` + text), the few recipe ids that are not
+  the product's item id, and each power building's capacity (MaxEnergyStorage on its blueprint, found
+  through `DT_MapObjectMasterDataTable`) (`generate_activity_tables.py`; read by `backend/common/activity.py`).
 
 Output is committed to the repo, so end users never run this.
 

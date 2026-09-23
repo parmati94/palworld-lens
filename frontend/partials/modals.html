@@ -1044,3 +1044,89 @@
         </div>
     </div>
 
+        <!-- Crew modal: every pal on one Activity card (expeditions send a hundred) -->
+        <div x-data="crewModal()"
+             x-show="showCrewModal"
+             x-cloak
+             @click.self="closeCrewModal()"
+             @keydown.escape.window="showCrewModal && closeCrewModal()"
+             @open-crew-modal.window="openCrewModal($event.detail)"
+             class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[55] p-4"
+             style="display: none;">
+            <div @click.stop
+                 x-show="showCrewModal"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 class="bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-gray-700/60">
+                <template x-if="crew">
+                    <div>
+                        <div class="sticky top-0 z-10 px-5 py-4 border-b border-gray-700/60 flex items-center justify-between bg-gray-800">
+                            <div class="min-w-0">
+                                <h3 class="text-lg font-semibold text-white leading-tight truncate" x-text="crew.title"></h3>
+                                <p class="text-sm text-gray-400 truncate" x-text="crew.subtitle"></p>
+                            </div>
+                            <button @click="closeCrewModal()" class="text-gray-400 hover:text-white transition-colors p-2" aria-label="Close">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <!-- eggs: one row per slot -->
+                        <template x-if="crew.eggs">
+                            <div class="p-4 flex flex-col gap-1.5">
+                                <template x-for="e in crew.eggs" :key="e.slot">
+                                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-900/60 border border-gray-700/60">
+                                        <span class="text-[11px] text-gray-500 tabular-nums w-4" x-text="e.slot + 1"></span>
+                                        <template x-for="item in (e.egg ? [e.egg] : [])" :key="item.item_id">
+                                            {{> item-icon size="w-9 h-9" fallback="unknown" }}
+                                        </template>
+                                        <div x-show="!e.egg" class="w-9 h-9 rounded-md bg-gray-900/70 ring-1 ring-inset ring-gray-700/60"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <template x-if="e.hatched">
+                                                <div class="flex items-center gap-2 min-w-0">
+                                                    <img :src="`/img/t_${(e.image_candidates || [])[0] || 'unknown'}_icon_normal.webp`" alt="" class="w-7 h-7 rounded-full bg-gray-900/60"
+                                                         @error="palIconError($el, { image_candidates: e.image_candidates || [] })">
+                                                    <span class="min-w-0">
+                                                        <span class="block text-sm text-white truncate" x-text="e.name || e.species_id || 'Hatched'"></span>
+                                                        <span class="block text-[11px] text-amber-200">hatched, waiting to be picked up</span>
+                                                    </span>
+                                                </div>
+                                            </template>
+                                            <template x-if="!e.hatched">
+                                                <div>
+                                                    <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                                                        <span class="truncate" x-text="e.egg ? e.egg.item_name : 'empty'"></span>
+                                                        <span x-show="e.progress != null" x-text="Math.round((e.progress || 0) * 100) + '%'"></span>
+                                                    </div>
+                                                    <div x-show="e.progress != null" class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                                                        <div class="h-full rounded-full bg-amber-400" :style="`width:${Math.round((e.progress || 0) * 100)}%`"></div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <template x-if="eggTemperature(e)">
+                                            <span class="px-1.5 rounded-full border border-orange-500/40 bg-orange-500/15 text-orange-200 text-[11px] font-medium whitespace-nowrap"
+                                                  :data-tip="eggTemperature(e).tip" x-text="eggTemperature(e).label"></span>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <div x-show="crew.pals" class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
+                            <template x-for="pal in (crew.pals || [])" :key="pal.instance_id">
+                                <button type="button" @click="openPalById(pal.instance_id)"
+                                        class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors text-left min-w-0">
+                                    <img :src="palIconSrc(pal)" :alt="pal.name" class="w-7 h-7 rounded-full flex-shrink-0" @error="palIconError($el, pal)">
+                                    <span class="min-w-0">
+                                        <span class="block text-xs text-gray-200 truncate" x-text="pal.name"></span>
+                                        <span class="block text-[10px] text-gray-500 tabular-nums" x-text="'Lv ' + pal.level"></span>
+                                    </span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>

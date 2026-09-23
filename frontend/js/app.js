@@ -19,7 +19,7 @@ import {
     formatUptime,
     buildPageList,
     formatRelativeTime,
-    WORK_LEVEL_COLORS, searchContainers, sumItemCounts, searchElsewhere } from './utils.js';
+    WORK_LEVEL_COLORS, searchContainers, sumItemCounts, searchElsewhere, activityGroups } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
@@ -64,6 +64,7 @@ export function app() {
         guilds: [],
         bases: [],
         baseContainers: null,
+        activity: null,           // /api/activity: {bases: {id: BaseActivity}, guilds: {id: GuildActivity}, as_of_ticks}
         storageSearch: '',        // Storage sub-tab: filter this base's chests by item, see where else it is
         loading: false,
         error: null,
@@ -73,7 +74,7 @@ export function app() {
         sortColumn: pref(prefs, 'sortColumn', 'level', SORT_COLUMNS),
         sortDirection: pref(prefs, 'sortDirection', 'desc', ['asc', 'desc']),
         // Bases tab sub-tab and page size (shared with the Bases partial)
-        baseTab: pref(prefs, 'baseTab', 'pals', ['pals', 'food', 'storage']),
+        baseTab: pref(prefs, 'baseTab', 'pals', ['pals', 'food', 'storage', 'activity']),
         basePalPageSize: pref(prefs, 'basePalPageSize', 10, [10, 25, 50]),
         // Filter state
         filterElement: '',
@@ -539,6 +540,7 @@ export function app() {
             this.guilds = data.guilds || [];
             this.bases = data.bases || [];
             this.baseContainers = data.base_containers || null;
+            if (data.activity) this.activity = data.activity;
             this.loading = false;
             this.error = null;
             this.afterDataLoaded();
@@ -576,6 +578,7 @@ export function app() {
                     this.pals = data.pals;
                     this.guilds = data.guilds;
                     this.baseContainers = data.baseContainers;
+                    if (data.activity) this.activity = data.activity;
                     this.error = null;
                     this.afterDataLoaded();
                 }
@@ -856,6 +859,17 @@ export function app() {
             const ownerOf = () => (guild ? this.baseOwner(guild.guild_id) : '');
             return searchElsewhere(this.baseContainers?.containers, this.selectedBaseId, this.storageQuery, { ownerOf, onlyBases });
         },
+        // Activity sub-tab: what the base is doing, as of the last save.
+        activityFor(baseId) { return (this.activity?.bases || {})[baseId] || null; },
+        /** The guild-level part (expeditions, lab) for the guild that owns `baseId`. */
+        guildActivityFor(baseId) {
+            const guild = this.guilds.find(g => (g.base_locations || []).some(b => b.base_id === baseId));
+            return guild ? ((this.activity?.guilds || {})[guild.guild_id] || null) : null;
+        },
+        /** Cards grouped the way the eye wants them: attention first, then working, idle last. */
+        activityGroups(act) { return activityGroups(act ? act.jobs : []); },
+        /** Sub-tab badge: jobs that want a look (something to collect, nobody on it, out of materials). */
+        activityAttention(baseId) { const a = this.activityFor(baseId); return a ? a.ready + a.stuck : 0; },
         /** "Base 3 and Base 5" / "Base 1, Base 3 and Base 4" from a list of {base_name}. */
         baseNamesSentence(bases) {
             const names = (bases || []).map(b => b.base_name);

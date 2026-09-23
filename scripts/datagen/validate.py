@@ -29,6 +29,7 @@ from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
 from backend.common.schematics import MIN_SCHEMATICS, blueprint_ids
+from backend.common.activity import MIN_GENERATORS, MIN_LAB_RESEARCH, MIN_MISSIONS
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -200,6 +201,29 @@ def check_schematics():
     notes.append(f'schematics: {len(table)} resolved')
 
 
+def check_activity_tables():
+    """activity.json (optional): named lab research with work amounts, named expeditions with durations."""
+    p = DATA_JSON / 'activity.json'
+    if not p.exists():
+        notes.append('activity.json missing -- run generate_activity_tables.py (needs the pak); Activity shows raw ids, no expedition timers')
+        return
+    doc = _json(p)
+    lab, exp = doc.get('lab') or {}, doc.get('expeditions') or {}
+    if len(lab) < MIN_LAB_RESEARCH or len(exp) < MIN_MISSIONS:
+        problems.append(f'activity: only {len(lab)} research / {len(exp)} expeditions (expected >= {MIN_LAB_RESEARCH} / {MIN_MISSIONS}) -- partial extraction?')
+    bad = [k for k, v in lab.items() if not v.get('name') or not v.get('work')] + [k for k, v in exp.items() if not v.get('name') or not v.get('seconds')]
+    if bad:
+        problems.append(f'{len(bad)} activity entries without a name or amount: ' + ', '.join(bad[:8]))
+    items = _json(DATA_JSON / 'items.json')
+    missing = [k for k, v in (doc.get('recipe_products') or {}).items() if v not in items]
+    if missing:
+        problems.append(f'{len(missing)} recipe product(s) not in items.json: ' + ', '.join(missing[:8]))
+    gens = doc.get('generators') or {}
+    if len(gens) < MIN_GENERATORS or any(not v.get('capacity') for v in gens.values()):
+        problems.append(f'activity: {len(gens)} power buildings with a capacity (expected >= {MIN_GENERATORS}) -- rerun generate_activity_tables.py')
+    notes.append(f'activity: {len(lab)} research, {len(exp)} expeditions, {len(gens)} power buildings')
+
+
 def check_pal_parameters(pals):
     """pal_parameters.json (optional): every working species has a best job that is one of its jobs."""
     p = DATA_JSON / 'pal_parameters.json'
@@ -308,6 +332,7 @@ def main():
     check_partner_skills(pals)
     check_pal_parameters(pals)
     check_schematics()
+    check_activity_tables()
     check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)

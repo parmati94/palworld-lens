@@ -177,3 +177,63 @@ test('storage search: matches by name, id or unlocked product; cards keep only t
     assert.equal(rarityRingClass(4), 'ring-amber-400/90');
     assert.equal(rarityRingClass(null), rarityRingClass(0));
 });
+
+test('activity: groups by attention, formats durations and order lines', async () => {
+    const { activityGroups, activityStatus, formatDuration, orderLine, formatCount } = await import('../js/utils.js');
+    const jobs = [
+        { instance_id: 'a', status: 'working' }, { instance_id: 'b', status: 'ready' },
+        { instance_id: 'c', status: 'idle' }, { instance_id: 'd', status: 'no_materials' },
+    ];
+    assert.deepEqual(activityGroups(jobs).map(g => [g.id, g.jobs.map(j => j.instance_id)]),
+        [['attention', ['b', 'd']], ['working', ['a']], ['idle', ['c']]]);
+    assert.deepEqual(activityGroups([{ status: 'working' }]).map(g => g.id), ['working'], 'empty groups are dropped');
+    const mixed = [{ status: 'working', kind: 'crop', display_name: 'Berry Plantation' }, { status: 'working', kind: 'machine', display_name: 'Mill' },
+                   { status: 'working', kind: 'station', display_name: 'Coal Quarry' }, { status: 'working', kind: 'machine', display_name: 'Crusher' }];
+    assert.deepEqual(activityGroups(mixed)[0].jobs.map(j => j.display_name), ['Crusher', 'Mill', 'Coal Quarry', 'Berry Plantation'], 'same shapes sit together');
+    assert.equal(activityStatus('unstaffed').label, 'Nobody on it');
+    assert.equal(activityStatus('???').label, 'Idle');
+    assert.equal(formatDuration(4320), '1h 12m');
+    assert.equal(formatDuration(725), '12m');
+    assert.equal(formatDuration(45), '45s');
+    assert.equal(formatDuration(null), '');
+    assert.equal(orderLine({ recipe_id: 'Flour', order_total: 1335, order_left: 559, order_made: 776 }), '776 / 1,335 made');
+    assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 1841, order_left: 0, order_made: 1841 }), '1,841 made · complete');
+    assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 0, order_left: 0 }), 'no order');
+    const { itemTip } = await import('../js/utils.js');
+    assert.equal(itemTip({ item_id: 'IronIngot', note: '1,728 made so far, 3,271 to come' }), '1,728 made so far, 3,271 to come');
+    assert.equal(orderLine({ recipe_id: null }), '');
+    assert.deepEqual([1234, 12345, 250000, 1234567, 1000000, null].map(formatCount), ['1,234', '12.3K', '250K', '1.2M', '1M', '']);
+});
+
+test('activity: cards lead with the product and take the family colour', async () => {
+    const { activityHero, activityKind, eggTemperature } = await import('../js/utils.js');
+    const ingot = { item_id: 'IronIngot', item_name: 'Ingot', icon: 'i', rarity: 0 };
+    assert.deepEqual(activityHero({ kind: 'machine', display_name: 'Furnace', product: ingot }), { item: ingot, pal: null, title: 'Ingot', caption: 'Furnace' });
+    assert.equal(activityHero({ kind: 'crop', display_name: 'Berry Plantation', crop: { crop_id: 'Berries', name: 'Red Berries', icon: 'b' } }).title, 'Red Berries');
+    const hatched = activityHero({ kind: 'incubator', display_name: 'Egg Incubator', eggs: [{ hatched: true, species_id: 'Dumud', name: 'Dumud', image_candidates: ['Dumud'] }] });
+    assert.equal(hatched.pal.name, 'Dumud'); assert.equal(hatched.item, null);
+    assert.equal(activityHero({ kind: 'incubator', display_name: 'Large Incubator', eggs: [{ hatched: false }, { hatched: true }] }).title, 'Large Incubator');
+    const { eggSummary, eggModalDetail } = await import('../js/utils.js');
+    assert.equal(eggSummary([{ hatched: true }, { hatched: false }, { hatched: false }]), '1 hatched · 2 incubating');
+    assert.equal(eggSummary([]), '');
+    assert.equal(eggModalDetail({ display_name: 'Large Incubator', eggs: [{ hatched: true }, { hatched: false }] }).subtitle, '2 eggs · 1 hatched · 1 incubating');
+    assert.deepEqual(activityHero({ kind: 'generator', display_name: 'Power Generator' }), { item: null, pal: null, title: 'Power Generator', caption: '' });
+    assert.deepEqual(activityHero({ kind: 'expedition', display_name: 'Pal Expedition Station', expedition: { state: 'out', name: 'Astral Frost Cavern' } }),
+        { item: null, pal: null, title: 'Astral Frost Cavern', caption: 'Pal Expedition Station' });
+    assert.equal(activityHero({ kind: 'expedition', display_name: 'Pal Expedition Station', expedition: { state: 'idle' } }).title, 'Pal Expedition Station');
+    assert.equal(activityKind('machine').bar, 'bg-orange-400');
+    assert.equal(activityKind('nope').label, '');
+    assert.equal(eggTemperature({ temp_diff: 0 }), null);
+    assert.equal(eggTemperature({ temp_diff: -3 }).label, 'Wrong temperature');
+    assert.equal(eggTemperature(null), null);
+    const { fillBarClass, activityStatus: st } = await import('../js/utils.js');
+    assert.deepEqual([0.5, 0.95, 1, null].map(f => fillBarClass(f, 'bg-teal-400')), ['bg-teal-400', 'bg-amber-400', 'bg-red-400', 'bg-teal-400']);
+    assert.equal(st('full').label, 'Full');
+    assert.equal(st('empty').label, 'No power');
+    const { activityCrew, crewModalDetail, CREW_INLINE_MAX } = await import('../js/utils.js');
+    const many = Array.from({ length: 100 }, (_, i) => ({ instance_id: 'p' + i, name: 'Pal ' + i, level: 1, image_candidates: [] }));
+    const trip = { display_name: 'Pal Expedition Station', expedition: { name: 'Astral Frost Cavern', state: 'out', seconds_left: 3480, pals: many } };
+    assert.equal(activityCrew(trip).length, 100); assert.ok(100 > CREW_INLINE_MAX);
+    assert.deepEqual([crewModalDetail(trip).title, crewModalDetail(trip).subtitle], ['Astral Frost Cavern', '100 pals · On expedition, 58m left']);
+    assert.equal(activityCrew({ assigned: [{ instance_id: 'a' }] }).length, 1);
+});

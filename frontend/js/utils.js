@@ -260,8 +260,175 @@ export function searchElsewhere(containersByBase, currentBaseId, query, { skipTy
     return rows.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 
+// ---------------------------------------------------------------------------
+// Base activity (/api/activity). Status names come from the backend
+// (backend/parser/builders/activity.py); the words and colours live here.
+// ---------------------------------------------------------------------------
+export const ACTIVITY_STATUS = {
+    ready:        { label: 'Ready',            chip: 'bg-amber-500/15 text-amber-200 border-amber-500/40',   bar: 'bg-amber-400' },
+    working:      { label: 'Working',          chip: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/40', bar: 'bg-emerald-400' },
+    unstaffed:    { label: 'Nobody on it',     chip: 'bg-orange-500/15 text-orange-200 border-orange-500/40', bar: 'bg-orange-400' },
+    no_materials: { label: 'Out of materials', chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
+    full:         { label: 'Full',             chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
+    empty:        { label: 'No power',         chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
+    idle:         { label: 'Idle',             chip: 'bg-gray-700/60 text-gray-400 border-gray-600/60',      bar: 'bg-gray-500' },
+};
+
+export function activityStatus(status) {
+    return ACTIVITY_STATUS[status] || ACTIVITY_STATUS.idle;
+}
+
+/** Job cards in three groups: what wants a look, what is running, what sits idle. Empty groups are dropped. */
+export function activityGroups(jobs) {
+    const groups = [
+        { id: 'attention', label: 'Needs a look', jobs: [] },
+        { id: 'working', label: 'Working', jobs: [] },
+        { id: 'idle', label: 'Idle', jobs: [] },
+    ];
+    for (const j of jobs || []) {
+        const g = j.status === 'working' ? groups[1] : j.status === 'idle' ? groups[2] : groups[0];
+        g.jobs.push(j);
+    }
+    // same-shaped cards side by side: machines, then sites, power, plots, incubators, the rest
+    for (const g of groups) {
+        g.jobs.sort((a, b) => (kindRank(a.kind) - kindRank(b.kind)) || (a.display_name || '').localeCompare(b.display_name || '') || (a.instance_id || '').localeCompare(b.instance_id || ''));
+    }
+    return groups.filter(g => g.jobs.length);
+}
+
+const KIND_ORDER = ['machine', 'station', 'generator', 'crop', 'incubator', 'ranch', 'breeding', 'expedition', 'lab'];
+function kindRank(kind) {
+    const i = KIND_ORDER.indexOf(kind);
+    return i < 0 ? KIND_ORDER.length : i;
+}
+
+/** Palworld's per-family colours for the Activity cards: the hero tile, the progress bar, the caption. */
+export const ACTIVITY_KIND = {
+    machine:    { label: 'Machine',    tile: 'bg-orange-500/15 ring-orange-400/40', bar: 'bg-orange-400', text: 'text-orange-300' },
+    station:    { label: 'Station',    tile: 'bg-teal-500/15 ring-teal-400/40',     bar: 'bg-teal-400',   text: 'text-teal-300' },
+    crop:       { label: 'Plot',       tile: 'bg-lime-500/15 ring-lime-400/40',     bar: 'bg-lime-400',   text: 'text-lime-300' },
+    incubator:  { label: 'Incubator',  tile: 'bg-amber-500/15 ring-amber-400/40',   bar: 'bg-amber-400',  text: 'text-amber-300' },
+    ranch:      { label: 'Ranch',      tile: 'bg-pink-500/15 ring-pink-400/40',     bar: 'bg-pink-400',   text: 'text-pink-300' },
+    breeding:   { label: 'Breeding',   tile: 'bg-rose-500/15 ring-rose-400/40',     bar: 'bg-rose-400',   text: 'text-rose-300' },
+    generator:  { label: 'Power',      tile: 'bg-sky-500/15 ring-sky-400/40',       bar: 'bg-sky-400',    text: 'text-sky-300' },
+    expedition: { label: 'Expedition', tile: 'bg-violet-500/15 ring-violet-400/40', bar: 'bg-violet-400', text: 'text-violet-300' },
+    lab:        { label: 'Research',   tile: 'bg-violet-500/15 ring-violet-400/40', bar: 'bg-violet-400', text: 'text-violet-300' },
+};
+const PLAIN_KIND = { label: '', tile: 'bg-gray-900/60 ring-gray-700/60', bar: 'bg-gray-400', text: 'text-gray-400' };
+
+export function activityKind(kind) {
+    return ACTIVITY_KIND[kind] || PLAIN_KIND;
+}
+
+/**
+ * What a card leads with: the product (ingot, berry, egg, hatched pal) rather than the building.
+ * { item, pal, title, caption } -- one of item / pal is set when there is a product to show;
+ * otherwise the building's own icon is the tile and the title is the building.
+ */
+export function activityHero(job) {
+    if (!job) return { item: null, pal: null, title: '', caption: '' };
+    const building = job.display_name || '';
+    if ((job.kind === 'machine' || job.kind === 'station') && job.product) {
+        return { item: job.product, pal: null, title: job.product.item_name, caption: building };
+    }
+    if (job.kind === 'crop' && job.crop) {
+        return { item: { item_id: job.crop.crop_id, item_name: job.crop.name, icon: job.crop.icon, rarity: null },
+                 pal: null, title: job.crop.name, caption: building };
+    }
+    if (job.kind === 'incubator' && job.eggs && job.eggs.length === 1) {
+        const e = job.eggs[0];
+        if (e.hatched && e.species_id) {
+            return { item: null, pal: { name: e.name || e.species_id, image_candidates: e.image_candidates || [] },
+                     title: e.name || e.species_id, caption: building };
+        }
+        if (e.egg) return { item: e.egg, pal: null, title: e.egg.item_name, caption: building };
+    }
+    if (job.kind === 'expedition' && job.expedition && job.expedition.state !== 'idle') {
+        return { item: null, pal: null, title: job.expedition.name || job.expedition.mission_id, caption: building };
+    }
+    return { item: null, pal: null, title: building, caption: '' };
+}
+
+/** The pals on a card: an expedition's crew, otherwise whoever is assigned to the building. */
+export function activityCrew(job) {
+    if (!job) return [];
+    return job.expedition ? (job.expedition.pals || []) : (job.assigned || []);
+}
+export const CREW_INLINE_MAX = 3;   // more than this and the card shows a button that opens the crew modal (keeps the row to one line)
+
+/** Title + subtitle for the crew modal: "Astral Frost Cavern" / "100 pals · Away, 58m left". */
+export function crewModalDetail(job) {
+    const pals = activityCrew(job);
+    const e = job.expedition;
+    const title = e ? (e.name || e.mission_id || job.display_name) : job.display_name;
+    let state = '';
+    if (e) state = e.state === 'out' ? `On expedition, ${formatDuration(e.seconds_left)} left` : e.state === 'back' ? 'Haul waiting' : 'Idle';
+    return { title, subtitle: `${pals.length} pal${pals.length === 1 ? '' : 's'}${state ? ' · ' + state : ''}`, pals };
+}
+
+/** "2 hatched · 1 incubating" for an incubator's eggs; '' when empty. */
+export function eggSummary(eggs) {
+    const list = eggs || [];
+    const hatched = list.filter(e => e.hatched).length;
+    const incubating = list.length - hatched;
+    const parts = [];
+    if (hatched) parts.push(`${hatched} hatched`);
+    if (incubating) parts.push(`${incubating} incubating`);
+    return parts.join(' · ');
+}
+
+/** Title + subtitle + eggs for the egg modal (the crew modal, showing eggs). */
+export function eggModalDetail(job) {
+    const eggs = job.eggs || [];
+    return { title: job.display_name, subtitle: `${eggs.length} egg${eggs.length === 1 ? '' : 's'} · ${eggSummary(eggs)}`, eggs };
+}
+export const EGGS_INLINE_MAX = 1;   // one egg draws on the card itself; more open the modal
+
+/** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
+export function eggTemperature(egg) {
+    const d = egg && egg.temp_diff;
+    if (d == null || d === 0) return null;
+    return { label: 'Wrong temperature', tip: `Off by ${Math.abs(d)} -- a heater or cooler next to it fixes this` };
+}
+
+/** Bar colour for how full a site is: fine, filling up (90%+), full. */
+export function fillBarClass(fill, base) {
+    if (fill == null) return base;
+    if (fill >= 0.999) return 'bg-red-400';
+    if (fill >= 0.9) return 'bg-amber-400';
+    return base;
+}
+
+/** A stack count the way the game abbreviates it: 1,234 / 12.3K / 1.2M. */
+export function formatCount(n) {
+    if (n == null || !isFinite(n)) return '';
+    const short = (v) => v.toFixed(1).replace(/\.0$/, '');
+    if (n > 999999) return short(n / 1000000) + 'M';
+    if (n > 9999) return short(n / 1000) + 'K';
+    return n.toLocaleString();
+}
+
+/** "1h 12m", "12m", "45s" for a span in seconds; '' for nothing. */
+export function formatDuration(seconds) {
+    if (seconds == null || !isFinite(seconds)) return '';
+    const s = Math.max(0, Math.round(seconds));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    if (h) return `${h}h ${m}m`;
+    if (m) return `${m}m`;
+    return `${sec}s`;
+}
+
+/** One line for a machine's order, the way the game counts it: "776 / 1,335 made"; "order done" once nothing is left. */
+export function orderLine(job) {
+    if (!job || !job.recipe_id) return '';
+    if (!(job.order_total > 0)) return 'no order';
+    if (job.order_left <= 0) return `${job.order_total.toLocaleString()} made · complete`;
+    return `${(job.order_made || 0).toLocaleString()} / ${job.order_total.toLocaleString()} made`;
+}
+
 /** Tooltip for a container slot: what a schematic unlocks, nothing for plain items. */
 export function itemTip(item) {
+    if (item && item.note) return item.note;
     const s = item && item.schematic;
     if (!s) return '';
     const tier = s.rarity_name ? ` (${s.rarity_name})` : '';

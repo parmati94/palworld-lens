@@ -1,0 +1,200 @@
+# Schema for the base Activity view: what a building is doing, from MapObjectSaveData
+# entries (ConcreteModel fields per building kind), WorkSaveData entries (per-unit
+# work and progress, assigned pals) and the guild's Lab block.
+#
+# The map-object identity fields (map_object_id, base_camp_id, instance_id, hp,
+# concrete_model_type, module_map) come from structures.yaml; this file adds the
+# kind-specific ConcreteModel fields. WorkSaveData's two progress floats are labelled
+# by the save-tools parser as `current_work_amount` and `auto_work_self_amount_by_sec`;
+# against real saves the first is the per-unit requirement and the second the progress
+# on the unit in hand (see backend/common/activity.py), so they are named that way here.
+
+fields:
+  # ---- machines (PalMapObjectConvertItemModel) ----
+  recipe_id:
+    description: "Recipe the machine is set to (usually the product's item id)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "current_recipe_id"]
+    default: null
+
+  # The save's names read backwards: remain_product_num is the whole order, requested_product_num
+  # what is still to make. Verified on a live mill (1,335 ordered, 559 to go, 776 flour in the slot).
+  order_total:
+    description: "Units on the current order (the game's 'x / 1,335')"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "remain_product_num"]
+    default: 0
+
+  order_left:
+    description: "Units still to make on that order"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "requested_product_num"]
+    default: 0
+
+  speed_rate:
+    description: "Machine speed multiplier applied to the recipe's work amount"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "work_speed_additional_rate"]
+    default: null
+
+  # ---- stations (PalMapObjectProductItemModel: pits, pumps, logging) ----
+  product_item_id:
+    description: "Item the station produces"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "product_item_id"]
+    default: null
+
+  # ---- crops (PalMapObjectFarmBlockV2Model) ----
+  crop_id:
+    description: "Crop item id (Berries, Wheat, ...)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "crop_data_id"]
+    default: null
+
+  crop_state:
+    description: "Plot phase: 5 planting, 2 watering, 3 growing, 4 harvesting (the assign table names the work per state)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "current_state"]
+    default: null
+
+  crop_required:
+    description: "Seconds the growing phase takes (only that phase; 0 elsewhere)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "state_machine", "growup_required_time"]
+    default: null
+
+  crop_progress:
+    description: "Seconds into the growing phase"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "state_machine", "growup_progress_time"]
+    default: null
+
+  crop_watered:
+    description: "Watering phase progress (0..1)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "water_stack_rate_value"]
+    default: null
+
+  crop_work_rate:
+    description: "Planting / harvesting work progress (0..1); mirrors the work record's done / unit"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "crop_progress_rate_value"]
+    default: null
+
+  # ---- incubators (PalMapObjectHatchingEggModel) ----
+  # The pal is rolled when the timer ends (a large incubator at 60% had no pal in those slots,
+  # only in the finished one), so this field being present means hatched and waiting for pickup.
+  hatched_character_id:
+    description: "Species of the pal that hatched and waits for pickup"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "hatched_character_save_parameter", "SaveParameter", "value", "CharacterID", "value"]
+    default: null
+
+  hatched_nickname:
+    description: "Nickname of the hatched pal, when it has one"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "hatched_character_save_parameter", "SaveParameter", "value", "NickName", "value"]
+    default: null
+
+  egg_temp_diff:
+    description: "Temperature mismatch slowing the hatch (0 = comfortable)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "current_pal_egg_temp_diff"]
+    default: null
+
+  # Large incubator (PalMapObjectMultiHatchingEggModel): save-tools leaves the block undecoded;
+  # extractors/activity.decode_multi_eggs reads it (lead u32, count u32, then per egg: slot u32,
+  # work id guid, the rolled pal's SaveParameter, temp i32, guid, 8 bytes; 4 trailing bytes).
+  multi_egg_bytes:
+    description: "Raw per-egg block of a large incubator"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "unknown_bytes"]
+    default: null
+
+  # ---- generators (PalMapObjectGenerateEnergyModel) ----
+  stored_energy:
+    description: "Energy banked in the generator"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "stored_energy_amount"]
+    default: null
+
+  # ---- expedition stations (PalMapObjectCharacterTeamMissionModel) ----
+  mission_id:
+    description: "Expedition underway ('None' when idle)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "mission_id"]
+    default: null
+
+  mission_state:
+    description: "Station state value"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "state"]
+    default: null
+
+  mission_start_ticks:
+    description: "When the expedition left, in the world's real-time ticks (100 ns)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "start_time"]
+    default: null
+
+  mission_pals:
+    description: "Pals sent on the expedition ({player_uid, instance_id} entries)"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "assigned_individuals"]
+    default: []
+
+  # ---- WorkSaveData entries ----
+  work_id:
+    description: "Work record id (a building's Workee module points here)"
+    root_key: "RawData"
+    path: ["value", "id"]
+    default: null
+
+  workable_type:
+    description: "EPalWorkableType::Progress, Repair, MonsterFarm, OnlyJoin, ..."
+    root_key: "WorkableType"
+    path: ["value", "value"]
+    default: null
+
+  work_state:
+    description: "Work state value"
+    root_key: "RawData"
+    path: ["value", "current_state"]
+    default: null
+
+  work_unit:
+    description: "Work one unit needs (recipe WorkAmount / speed); -1 when the machine has no order"
+    root_key: "RawData"
+    path: ["value", "current_work_amount"]
+    default: null
+
+  work_done:
+    description: "Work put into the unit in hand"
+    root_key: "RawData"
+    path: ["value", "auto_work_self_amount_by_sec"]
+    default: null
+
+  work_owner_model_id:
+    description: "Map object (Model instance id) this work belongs to"
+    root_key: "RawData"
+    path: ["value", "owner_map_object_model_id"]
+    default: null
+
+  work_assign_map:
+    description: "Assigned pals: entries whose value.RawData.value.assigned_individual_id.instance_id is the pal"
+    root_key: "WorkAssignMap"
+    path: ["value"]
+    default: []
+
+  # ---- GuildExtraSaveDataMap entry value: Lab ----
+  lab_current_research_id:
+    description: "Research in hand ('None' when the lab is idle)"
+    root_key: "Lab"
+    path: ["value", "RawData", "value", "current_research_id"]
+    default: null
+
+  lab_research_info:
+    description: "[{research_id, work_amount}] work put into each research"
+    root_key: "Lab"
+    path: ["value", "RawData", "value", "research_info"]
+    default: []

@@ -8,19 +8,21 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from backend.models.models import SaveInfo, PalInfo, PlayerInfo, GuildInfo, BaseContainerInfo, GuildStorageInfo
+from backend.models.models import ActivityPayload, SaveInfo, PalInfo, PlayerInfo, GuildInfo, BaseContainerInfo, GuildStorageInfo
 from backend.parser.loaders.gvas_handler import GvasHandler
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.parser.extractors.characters import get_character_data, split_players
 from backend.parser.extractors.guilds import get_guild_data, get_base_data, get_guild_storage
 from backend.parser.extractors.bases import get_base_metadata, get_base_assignments
-from backend.parser.extractors.structures import get_food_bowls, get_storage_containers, index_item_containers
+from backend.parser.extractors.structures import get_food_bowls, get_storage_containers, index_item_containers, index_container_sizes
 from backend.parser.extractors.relationships import build_player_mapping, build_pal_ownership
 from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
 from backend.parser.builders.guilds import build_guilds
 from backend.parser.builders.base_containers import build_base_containers, build_guild_storage
+from backend.parser.builders.activity import build_activity
+from backend.parser.extractors.activity import get_activity_objects, get_guild_labs, get_real_time_ticks, index_works
 from backend.common.base_names import BaseNameStore
 from backend.common.config import config
 from backend.common.logging_config import get_logger
@@ -39,6 +41,7 @@ class Snapshot:
     pals: List[PalInfo] = field(default_factory=list)
     base_containers: Dict[str, List[BaseContainerInfo]] = field(default_factory=dict)
     guild_storage: Dict[str, GuildStorageInfo] = field(default_factory=dict)
+    activity: ActivityPayload = field(default_factory=ActivityPayload)
 
 
 EMPTY = Snapshot(info=SaveInfo(world_name="Not Loaded", loaded=False))
@@ -95,12 +98,15 @@ class SaveFileParser:
         containers = build_base_containers(base_meta, food_bowls, storage, item_index, self.data,
                                            guild_storage=get_guild_storage(world))
         guild_storage = build_guild_storage(containers)
+        activity = build_activity(get_activity_objects(world), index_works(world), get_guild_labs(world), base_meta,
+                                  item_index, pals, self.data, get_real_time_ticks(world),
+                                  container_sizes=index_container_sizes(world))
 
         info = self._save_info(player_count=len(player_data), pal_count=len(char_data) - len(player_data),
                                guild_count=len(guilds))
         logger.debug(f"snapshot build took {(datetime.now() - started).total_seconds():.2f}s")
         return Snapshot(info=info, players=players, guilds=guilds, pals=pals, base_containers=containers,
-                        guild_storage=guild_storage)
+                        guild_storage=guild_storage, activity=activity)
 
     def _save_info(self, player_count: int, pal_count: int, guild_count: int) -> SaveInfo:
         level_path = self.gvas.level_sav_path
@@ -149,6 +155,12 @@ class SaveFileParser:
 
     def get_guild_storage(self) -> Dict[str, GuildStorageInfo]:
         return self.snapshot.guild_storage
+
+    def get_activity(self) -> ActivityPayload:
+        return self.snapshot.activity
+
+    def activity_payload(self) -> Dict:
+        return self.snapshot.activity.model_dump()
 
     def rename_base(self, base_id: str, name: Optional[str]) -> Optional[str]:
         """Store a custom name (blank = back to "Base N") and patch the live snapshot.

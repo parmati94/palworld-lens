@@ -18,6 +18,7 @@ import { mapComponent } from './map-maplibre.js';
 import { serverInfoModal } from './components/serverInfoModal.js';
 import { containerModal } from './components/containerModal.js';
 import { palModal } from './components/palModal.js';
+import { crewModal } from './components/crewModal.js';
 import { speciesPicker } from './components/speciesPicker.js';
 import { selectMenu } from './components/selectMenu.js';
 import { installTooltips } from './components/tooltip.js';
@@ -28,6 +29,7 @@ Alpine.data('mapComponent', mapComponent);
 Alpine.data('serverInfoModal', serverInfoModal);
 Alpine.data('containerModal', containerModal);
 Alpine.data('palModal', palModal);
+Alpine.data('crewModal', crewModal);
 Alpine.data('speciesPicker', speciesPicker);
 Alpine.data('selectMenu', selectMenu);
 

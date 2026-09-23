@@ -178,6 +178,20 @@ def get_storage_containers(world_data: Dict) -> List[Dict]:
     return storage_containers
 
 
+def index_container_sizes(world_data: Dict) -> Dict[str, int]:
+    """{container_id: slot count} for every item container (a quarry has one slot, a chest many)."""
+    sizes: Dict[str, int] = {}
+    for entry in (world_data.get("ItemContainerSaveData") or {}).get("value", []):
+        if not isinstance(entry, dict):
+            continue
+        container_id = (entry.get("key") or {}).get("ID", {}).get("value")
+        if not container_id:
+            continue
+        slots = (((entry.get("value") or {}).get("Slots") or {}).get("value") or {}).get("values", [])
+        sizes[str(container_id)] = len(slots)
+    return sizes
+
+
 def index_item_containers(world_data: Dict) -> Dict[str, List[Dict]]:
     """{container_id: [{static_id, count}, ...]} for every item container.
 
@@ -194,13 +208,13 @@ def index_item_containers(world_data: Dict) -> Dict[str, List[Dict]]:
             continue
         slots = (((entry.get("value") or {}).get("Slots") or {}).get("value") or {}).get("values", [])
         items = []
-        for slot in slots:
+        for i, slot in enumerate(slots):
             if not isinstance(slot, dict):
                 continue
             slot_data = (slot.get("RawData") or {}).get("value") or {}
             static_id = (slot_data.get("item") or {}).get("static_id")
             count = slot_data.get("count", 0)
             if static_id and count > 0:
-                items.append({"static_id": static_id, "count": count})
+                items.append({"static_id": static_id, "count": count, "slot": i})
         index[str(container_id)] = items
     return index
