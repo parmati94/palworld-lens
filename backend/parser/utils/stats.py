@@ -249,29 +249,6 @@ def passive_work_bonuses(passive_skills: Optional[list]) -> Dict[str, int]:
     return out
 
 
-def condensing_work_bonus(base_work_suitability: Dict[str, int], stars: int) -> Dict[str, int]:
-    """{work type: +levels} from condensing stars (1.0 rule).
-
-    Star 1 raises the pal's best job by one, star 2 its second best, star 3
-    its third best, and star 4 raises every job it has. "Best" is the highest
-    species level; ties keep the game's work type order (the order of the
-    species' work_suitability map). A pal with fewer than three jobs cycles
-    back to the top: a Ranch-only Mozzarina puts all three stars into Ranch.
-    """
-    jobs = [t for t, lv in base_work_suitability.items() if lv > 0]
-    if not jobs or stars <= 0:
-        return {}
-    order = {t: i for i, t in enumerate(base_work_suitability)}
-    jobs.sort(key=lambda t: (-base_work_suitability[t], order[t]))
-    bonus = {t: 0 for t in jobs}
-    for star in range(min(stars, MAX_CONDENSE_STARS - 1)):
-        bonus[jobs[star % len(jobs)]] += 1
-    if stars >= MAX_CONDENSE_STARS:
-        for t in jobs:
-            bonus[t] += 1
-    return {t: b for t, b in bonus.items() if b}
-
-
 def condensing_work_bonus(base_work_suitability: Dict[str, int], stars: int, best: Optional[str] = None) -> Dict[str, int]:
     """{work type: +levels} from condensing stars (1.0 rule).
 

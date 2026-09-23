@@ -162,10 +162,11 @@
                                                 <span class="text-sm text-gray-400" x-text="selectedPal.gender"></span>
                                             </template>
                                         </div>
+                                        <!-- Condensing stars. The save's Rank is 1-5 (1 = never condensed), so stars = rank - 1. -->
                                         <template x-if="selectedPal.rank > 1">
-                                            <div class="flex items-center gap-1" :data-tip="'Rank ' + selectedPal.rank">
+                                            <div class="flex items-center gap-1" :data-tip="(selectedPal.rank - 1) + ' star' + (selectedPal.rank > 2 ? 's' : '') + ' (condensed)'">
                                                 <template x-for="i in 4" :key="i">
-                                                    <svg class="w-4 h-4" :class="i <= selectedPal.rank ? 'text-warn-400' : 'text-gray-600'" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg class="w-4 h-4" :class="i < selectedPal.rank ? 'text-warn-400' : 'text-gray-600'" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                     </svg>
                                                 </template>
