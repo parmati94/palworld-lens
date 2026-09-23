@@ -17,14 +17,16 @@ fields:
     path: ["value", "RawData", "value", "current_recipe_id"]
     default: null
 
-  order_remaining:
-    description: "Units still to make on the current order"
+  # The save's names read backwards: remain_product_num is the whole order, requested_product_num
+  # what is still to make. Verified on a live mill (1,335 ordered, 559 to go, 776 flour in the slot).
+  order_total:
+    description: "Units on the current order (the game's 'x / 1,335')"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "remain_product_num"]
     default: 0
 
-  craftable_now:
-    description: "Units the inputs on hand can make"
+  order_left:
+    description: "Units still to make on that order"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "requested_product_num"]
     default: 0

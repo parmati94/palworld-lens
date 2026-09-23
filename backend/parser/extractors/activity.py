@@ -103,8 +103,8 @@ def get_activity_objects(world_data: Dict) -> List[Dict]:
             "work_id": _guid(_module_raw(module_map, "Workee").get("target_work_id")),
             # machine
             "recipe_id": _id_or_none(f(obj, "recipe_id")),
-            "order_remaining": f(obj, "order_remaining"),
-            "craftable_now": f(obj, "craftable_now"),
+            "order_total": f(obj, "order_total"),
+            "order_left": f(obj, "order_left"),
             "speed_rate": f(obj, "speed_rate"),
             # station
             "product_item_id": _id_or_none(f(obj, "product_item_id")),

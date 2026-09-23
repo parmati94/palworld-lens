@@ -398,14 +398,12 @@ export function formatDuration(seconds) {
     return `${sec}s`;
 }
 
-/** One line for a machine's order: "4,999 to go · can make 3,271 now". */
+/** One line for a machine's order, the way the game counts it: "776 / 1,335 made"; "order done" once nothing is left. */
 export function orderLine(job) {
     if (!job || !job.recipe_id) return '';
-    const parts = [];
-    if (job.order_remaining > 0) parts.push(`${job.order_remaining.toLocaleString()} to go`);
-    else parts.push('order done');
-    if (job.order_remaining > 0) parts.push(job.craftable_now > 0 ? `can make ${job.craftable_now.toLocaleString()} now` : 'nothing to make with');
-    return parts.join(' · ');
+    if (!(job.order_total > 0)) return 'no order';
+    if (job.order_left <= 0) return `${job.order_total.toLocaleString()} made · order done`;
+    return `${(job.order_made || 0).toLocaleString()} / ${job.order_total.toLocaleString()} made`;
 }
 
 /** Tooltip for a container slot: what a schematic unlocks, nothing for plain items. */

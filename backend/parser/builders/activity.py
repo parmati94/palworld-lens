@@ -82,8 +82,9 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
         if kind == "machine":
             rid = obj.get("recipe_id")
             job.recipe_id = rid
-            job.order_remaining = int(obj.get("order_remaining") or 0)
-            job.craftable_now = int(obj.get("craftable_now") or 0)
+            job.order_total = int(obj.get("order_total") or 0)
+            job.order_left = int(obj.get("order_left") or 0)
+            job.order_made = max(0, job.order_total - job.order_left)
             unit, done = work.get("unit"), work.get("done")
             if rid:
                 product_id = tables["recipe_products"].get(rid, rid)
@@ -91,12 +92,13 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
                 job.outputs = [c for c in contents if c.item_id == product_id]
                 job.inputs = [c for c in contents if c.item_id != product_id]
                 if unit is not None and unit > 0:
-                    job.unit_work, job.unit_done, job.progress = unit, done, fraction(done, unit)
-                if job.order_remaining <= 0:
+                    job.unit_work, job.unit_done = unit, done
+                job.progress = fraction(job.order_made, job.order_total)     # the order as a whole, like a site's fill
+                if job.order_left <= 0:
                     job.status = "ready"
                 elif job.assigned:
                     job.status = "working"
-                elif job.craftable_now <= 0 and not job.inputs:
+                elif not job.inputs:
                     job.status = "no_materials"
                 else:
                     job.status = "unstaffed"

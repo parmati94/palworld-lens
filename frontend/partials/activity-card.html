@@ -36,7 +36,7 @@
             <div>
                 <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
                     <span class="truncate text-gray-400" x-text="orderLine(job)"></span>
-                    <span x-show="job.progress != null" class="whitespace-nowrap pl-2" x-text="'next one ' + Math.round((job.progress || 0) * 100) + '%'"></span>
+                    <span x-show="job.progress != null" class="whitespace-nowrap pl-2 font-semibold text-gray-300" x-text="Math.round((job.progress || 0) * 100) + '%'"></span>
                 </div>
                 <div class="mt-1.5 h-1.5 rounded-full bg-gray-700/70 overflow-hidden" :class="job.progress == null ? 'invisible' : ''">
                     <div class="h-full rounded-full" :class="kind.bar" :style="`width:${Math.round((job.progress || 0) * 100)}%`"></div>

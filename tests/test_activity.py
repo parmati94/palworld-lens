@@ -153,7 +153,7 @@ def test_extractors_read_works_buildings_labs_and_the_clock():
     assert set(objs) == {'BlastFurnace2', 'Workbench', 'HatchingPalEgg', 'FarmBlockV2_Berries', 'FarmBlockV2_Wheat', 'FarmBlockV2_Tomato', 'Expedition', 'Lab'}, \
         'walls are not activity; a furnace outside any base is skipped'
     f = objs['BlastFurnace2']
-    assert (f['kind'], f['recipe_id'], f['order_remaining'], f['craftable_now'], f['container_id'], f['work_id']) == \
+    assert (f['kind'], f['recipe_id'], f['order_total'], f['order_left'], f['container_id'], f['work_id']) == \
         ('machine', 'IronIngot', 4999, 3271, 'c-furnace', 'w-furnace')
     assert objs['Workbench']['recipe_id'] is None
     assert objs['HatchingPalEgg']['hatched_character_id'] == 'LazyCatfish_Gold'
@@ -217,8 +217,8 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
 
     furnace = by_type['BlastFurnace2']
     assert furnace.status == 'working' and furnace.product.item_name == 'Refined Ingot'
-    assert furnace.order_remaining == 4999 and furnace.craftable_now == 3271
-    assert round(furnace.progress, 3) == 0.492 and furnace.unit_work == 4666.67
+    assert (furnace.order_total, furnace.order_left, furnace.order_made) == (4999, 3271, 1728), 'made = the 1,728 ingots in the slot'
+    assert round(furnace.progress, 3) == round(1728 / 4999, 3) and furnace.unit_work == 4666.67
     assert [(i.item_id, i.count) for i in furnace.inputs] == [('CopperOre', 6542), ('Coal', 6542)]
     assert [(o.item_id, o.count) for o in furnace.outputs] == [('IronIngot', 1728)]
     assert [p.name for p in furnace.assigned] == ['Ragnahawk'] and furnace.is_damaged
@@ -309,10 +309,10 @@ def test_machine_status_tells_unstaffed_from_out_of_materials():
                                         'remain_product_num': 10, 'requested_product_num': 5}, model_id='m1',
                       modules={'ItemContainer': {'target_container_id': 'c1'}, 'Workee': {'target_work_id': 'w1'}}),
                  _obj('BlastFurnace2', {'concrete_model_type': 'PalMapObjectConvertItemModel', 'current_recipe_id': 'IronIngot',
-                                        'remain_product_num': 10, 'requested_product_num': 0}, model_id='m2',
+                                        'remain_product_num': 10, 'requested_product_num': 5}, model_id='m2',
                       modules={'ItemContainer': {'target_container_id': 'c2'}, 'Workee': {'target_work_id': 'w2'}}),
                  _obj('BlastFurnace2', {'concrete_model_type': 'PalMapObjectConvertItemModel', 'current_recipe_id': 'IronIngot',
-                                        'remain_product_num': 0, 'requested_product_num': 0}, model_id='m3',
+                                        'remain_product_num': 10, 'requested_product_num': 0}, model_id='m3',
                       modules={'ItemContainer': {'target_container_id': 'c3'}, 'Workee': {'target_work_id': 'w3'}}),
              ]}}, 'GuildExtraSaveDataMap': {'value': []}}
     items = {'c1': [{'static_id': 'CopperOre', 'count': 10}], 'c2': [], 'c3': [{'static_id': 'IronIngot', 'count': 10}]}
