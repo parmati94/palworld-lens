@@ -270,6 +270,7 @@ export const ACTIVITY_STATUS = {
     unstaffed:    { label: 'Nobody on it',     chip: 'bg-orange-500/15 text-orange-200 border-orange-500/40', bar: 'bg-orange-400' },
     no_materials: { label: 'Out of materials', chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
     full:         { label: 'Full',             chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
+    empty:        { label: 'No power',         chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
     idle:         { label: 'Idle',             chip: 'bg-gray-700/60 text-gray-400 border-gray-600/60',      bar: 'bg-gray-500' },
 };
 
@@ -402,7 +403,7 @@ export function formatDuration(seconds) {
 export function orderLine(job) {
     if (!job || !job.recipe_id) return '';
     if (!(job.order_total > 0)) return 'no order';
-    if (job.order_left <= 0) return `${job.order_total.toLocaleString()} made · order done`;
+    if (job.order_left <= 0) return `${job.order_total.toLocaleString()} made · complete`;
     return `${(job.order_made || 0).toLocaleString()} / ${job.order_total.toLocaleString()} made`;
 }
 

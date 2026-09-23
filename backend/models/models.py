@@ -297,7 +297,7 @@ class ActivityJob(BaseModel):
     display_name: str
     building_icon: Optional[str] = None
     base_id: str
-    status: str                         # working | ready | unstaffed | no_materials | full | idle
+    status: str                         # working | ready | unstaffed | no_materials | full | empty | idle
     recipe_id: Optional[str] = None
     product: Optional[ItemRef] = None
     order_made: int = 0                 # what sits in the output slot

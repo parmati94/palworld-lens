@@ -197,7 +197,7 @@ test('activity: groups by attention, formats durations and order lines', async (
     assert.equal(formatDuration(45), '45s');
     assert.equal(formatDuration(null), '');
     assert.equal(orderLine({ recipe_id: 'Flour', order_total: 1335, order_left: 559, order_made: 776 }), '776 / 1,335 made');
-    assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 1841, order_left: 0, order_made: 1841 }), '1,841 made · order done');
+    assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 1841, order_left: 0, order_made: 1841 }), '1,841 made · complete');
     assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 0, order_left: 0 }), 'no order');
     const { itemTip } = await import('../js/utils.js');
     assert.equal(itemTip({ item_id: 'IronIngot', note: '1,728 made so far, 3,271 to come' }), '1,728 made so far, 3,271 to come');
@@ -224,6 +224,7 @@ test('activity: cards lead with the product and take the family colour', async (
     const { fillBarClass, activityStatus: st } = await import('../js/utils.js');
     assert.deepEqual([0.5, 0.95, 1, null].map(f => fillBarClass(f, 'bg-teal-400')), ['bg-teal-400', 'bg-amber-400', 'bg-red-400', 'bg-teal-400']);
     assert.equal(st('full').label, 'Full');
+    assert.equal(st('empty').label, 'No power');
     const { activityCrew, crewModalDetail, CREW_INLINE_MAX } = await import('../js/utils.js');
     const many = Array.from({ length: 100 }, (_, i) => ({ instance_id: 'p' + i, name: 'Pal ' + i, level: 1, image_candidates: [] }));
     const trip = { display_name: 'Pal Expedition Station', expedition: { name: 'Astral Frost Cavern', state: 'out', seconds_left: 3480, pals: many } };

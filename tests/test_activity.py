@@ -273,13 +273,14 @@ def test_generator_fill_comes_from_the_blueprint_capacity():
              'MapObjectSaveData': {'value': {'values': [
                  _obj('ElectricGenerator', {'concrete_model_type': 'PalMapObjectGenerateEnergyModel', 'stored_energy_amount': 62500.0},
                       model_id='m-gen'),
-                 _obj('ManualElectricGenerator', {'concrete_model_type': 'PalMapObjectGenerateEnergyModel', 'stored_energy_amount': 100.0},
+                 _obj('ManualElectricGenerator', {'concrete_model_type': 'PalMapObjectGenerateEnergyModel', 'stored_energy_amount': 0.0},
                       model_id='m-manual'),
              ]}}}
     payload = build_activity(get_activity_objects(world), {}, {}, META, {}, [], _Data(), None)
     gen, manual = sorted(payload.bases['b1'].jobs, key=lambda j: j.instance_id)
     assert gen.kind == 'generator' and gen.stored_energy == 62500.0 and gen.energy_max == 250000.0 and gen.progress == 0.25
     assert manual.energy_max is None and manual.progress is None, 'no capacity in the table, no percentage'
+    assert manual.status == 'empty' and payload.bases['b1'].stuck == 1, 'a generator with nothing banked needs a look'
 
 
 def test_expedition_mission_id_case_does_not_matter():

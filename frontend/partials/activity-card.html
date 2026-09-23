@@ -4,7 +4,7 @@
      A card without items or pals keeps the empty slot rather than shrinking. The product leads (activityHero) and the
      building family sets the colour (activityKind). --}}
 <div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-2"
-     :class="job.status === 'ready' ? 'border-amber-500/30' : (job.status === 'unstaffed' || job.status === 'no_materials' || job.status === 'full') ? 'border-orange-500/30' : ''"
+     :class="job.status === 'ready' ? 'border-amber-500/30' : (job.status === 'unstaffed' || job.status === 'no_materials' || job.status === 'full' || job.status === 'empty') ? 'border-orange-500/30' : ''"
      x-data="{ get hero() { return activityHero(job); }, get kind() { return activityKind(job.kind); }, get crew() { return activityCrew(job); } }">
     <!-- 1. header -->
     <div class="flex items-start justify-between gap-2">

@@ -19,8 +19,8 @@ from backend.parser.utils.mappers import map_building_name
 
 logger = get_logger(__name__)
 
-STATUS_ORDER = {"full": 0, "ready": 1, "working": 2, "unstaffed": 3, "no_materials": 4, "idle": 5}
-STUCK = ("unstaffed", "no_materials", "full")
+STATUS_ORDER = {"full": 0, "empty": 0, "ready": 1, "working": 2, "unstaffed": 3, "no_materials": 4, "idle": 5}
+STUCK = ("unstaffed", "no_materials", "full", "empty")
 
 
 def _item(data: DataLoader, item_id: str, count: int = 0) -> ItemRef:
@@ -177,6 +177,10 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
                 job.stored_energy = obj.get("stored_energy")
                 job.energy_max = (tables.get("generators", {}).get(job.building_type) or {}).get("capacity")
                 job.progress = fraction(job.stored_energy, job.energy_max)
+                if job.stored_energy is not None and job.stored_energy <= 0:
+                    job.status = "empty"        # nothing banked: whatever runs off it has stopped
+                    bases[meta.base_id].append(job)
+                    continue
             job.status = "working" if job.assigned else "idle"
 
         elif kind == "expedition":
