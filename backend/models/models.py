@@ -233,6 +233,8 @@ class ItemSlot(BaseModel):
     item_name: str
     count: int
     icon: Optional[str] = None
+    rarity: Optional[int] = None   # the game's tier, 0 Common .. 4 Legendary (None when the table has no sane value)
+    type: Optional[str] = None     # items.json type_a: Weapon, Armor, Material, Consume, Blueprint, ...
     schematic: Optional[SchematicInfo] = None  # set for blueprint items
 
 

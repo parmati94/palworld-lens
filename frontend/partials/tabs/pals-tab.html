@@ -1018,7 +1018,7 @@
                                                         <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`food-item-${index}`">
                                                             <div class="flex items-center justify-between py-1.5 border-b border-gray-700/40 last:border-0">
                                                                 <div class="flex items-center gap-2 min-w-0">
-                                                                    {{> item-icon size="w-7 h-7" img="rounded bg-gray-700/60 object-cover" fallback="food" }}
+                                                                    {{> item-icon size="w-7 h-7" fallback="food" }}
                                                                     <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                 </div>
                                                                 <span class="text-sm font-semibold text-orange-400 tabular-nums ml-2" x-text="`×${item.count}`"></span>
@@ -1054,6 +1054,41 @@
                     <!-- Storage Tab Content -->
                     <div x-show="baseTab === 'storage' && selectedBaseId" class="tab-content">
                         <div class="card rounded-t-none border-t-0">
+
+                            <!-- Search: "where did I put the Paldium" -- this base's chests, then everywhere else -->
+                            <div class="px-6 pt-4 pb-2" x-show="baseContainers?.containers?.[selectedBaseId]?.some(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0)">
+                                <div class="relative">
+                                    <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+                                    </svg>
+                                    <input type="search" id="storage-search" x-model="storageSearch" placeholder="Find an item in this base's chests..."
+                                           class="w-full pl-9 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-lg text-gray-100 text-sm placeholder-gray-500 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 search-input">
+                                </div>
+                                <template x-if="storageQuery">
+                                    <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
+                                        <span class="text-gray-300" x-text="storageContainersAt(selectedBaseId).length
+                                            ? `×${storageMatchTotal.toLocaleString()} in ${storageContainersAt(selectedBaseId).length} chest${storageContainersAt(selectedBaseId).length === 1 ? '' : 's'} here`
+                                            : 'Nothing matching here'"></span>
+                                        <template x-if="storageElsewhere.length">
+                                            <span class="flex flex-wrap items-center gap-1.5">
+                                                <span class="text-gray-500">Also at</span>
+                                                <template x-for="row in storageElsewhere" :key="row.base_id">
+                                                    <button type="button" @click="storageGoToBase(row.base_id)"
+                                                            class="px-2 py-0.5 rounded-full bg-gray-800 border border-gray-700/60 hover:border-accent-500/60 hover:text-white text-gray-300 text-xs tabular-nums transition-colors"
+                                                            :data-tip="row.shared
+                                                                ? `Shared guild chest${row.owner ? ' (' + row.owner + ')' : ''}, the same at ${row.at.join(', ')} -- open ${row.base_name}`
+                                                                : `${row.chests} chest${row.chests === 1 ? '' : 's'} at ${row.base_name}${row.owner ? ' (' + row.owner + ')' : ''} -- open that base`">
+                                                        <span x-text="row.label + (row.ambiguous && row.owner ? ' · ' + row.owner : '')"></span> <span class="font-semibold" x-text="'×' + row.count.toLocaleString()"></span>
+                                                    </button>
+                                                </template>
+                                            </span>
+                                        </template>
+                                        <template x-if="!storageContainersAt(selectedBaseId).length && !storageElsewhere.length">
+                                            <span class="text-gray-500">and nowhere else on the server</span>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
                             
                             <!-- Empty State -->
                             <template x-if="!baseContainers?.containers?.[selectedBaseId] || baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0).length === 0">
@@ -1072,7 +1107,7 @@
                             <template x-if="baseContainers?.containers?.[selectedBaseId] && baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl').length > 0">
                                 <div class="px-6 pt-2 pb-6 space-y-6" x-data="{
                                     get storageContainers() {
-                                        return baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0);
+                                        return storageContainersAt(selectedBaseId);   // search-aware (app.js)
                                     },
                                     get groupedByType() {
                                         const groups = {};
@@ -1136,23 +1171,24 @@
                                                         <template x-if="container.items && container.items.length > 0">
                                                             <div>
                                                                 <div class="eyebrow mb-1">Contents</div>
-                                                                <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`card-item-${index}`">
+                                                                <template x-for="(item, index) in storageCardItems(container)" :key="`card-item-${index}`">
                                                                     <div class="flex items-center justify-between py-1.5 border-b border-gray-700/40 last:border-0">
                                                                         <div class="flex items-center gap-2 min-w-0">
-                                                                            {{> item-icon size="w-7 h-7" img="rounded bg-gray-700/60 object-cover" fallback="unknown" }}
+                                                                            {{> item-icon size="w-7 h-7" fallback="unknown" }}
                                                                             <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                         </div>
                                                                         <span class="text-sm font-semibold text-blue-400 tabular-nums ml-2" x-text="`×${item.count}`"></span>
                                                                     </div>
                                                                 </template>
-                                                                <!-- View All button -->
-                                                                <template x-if="container.items && container.items.length > 5">
-                                                                    <button 
-                                                                        @click="$dispatch('open-container-modal', { container: container })"
-                                                                        class="w-full mt-2 text-xs text-accent-400 hover:text-accent-300 py-1.5 px-2 rounded-md hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-1">
-                                                                        <span>View All</span>
-                                                                        <span class="font-semibold" x-text="container.items.length"></span>
-                                                                        <span>Items</span>
+                                                                <!-- View all: the whole chest (while searching the card lists only the matches,
+                                                                     so the modal is the way to the rest) -->
+                                                                <template x-if="storageQuery ? (container.unique_item_count || 0) > container.items.length : container.items.length > 5">
+                                                                    <button type="button"
+                                                                        @click="$dispatch('open-container-modal', { container: baseContainers.containers[selectedBaseId].find(c => c.container_id === container.container_id) || container })"
+                                                                        class="w-full mt-2 text-xs font-medium text-gray-300 hover:text-white py-1.5 px-2 rounded-md bg-gray-700/40 hover:bg-gray-700/70 border border-gray-700/60 transition-colors flex items-center justify-center gap-1">
+                                                                        <span>View all</span>
+                                                                        <span class="font-semibold tabular-nums" x-text="container.unique_item_count || container.items.length"></span>
+                                                                        <span>items</span>
                                                                     </button>
                                                                 </template>
                                                             </div>

@@ -121,3 +121,53 @@ test('schematic slots get a tooltip naming what they unlock', async () => {
     assert.equal(itemTip({ schematic: { kind: 'building', product_name: 'Majestic Wall Torch', rarity_name: 'Common' } }),
         'Schematic: lets you build Majestic Wall Torch (Common)');
 });
+
+test('storage search: matches by name, id or unlocked product; cards keep only the hits', async () => {
+    const { itemMatches, searchContainers, sumItemCounts, searchElsewhere, rarityRingClass } = await import('../js/utils.js');
+    const paldium = { item_id: 'PalIum_Fragment', item_name: 'Paldium Fragment', count: 100 };
+    const musketBp = { item_id: 'Blueprint_Musket_4', item_name: 'Musket Schematic 3', count: 1, schematic: { product_name: 'Musket' } };
+    const wood = { item_id: 'Wood', item_name: 'Wood', count: 9999 };
+    assert.equal(itemMatches(paldium, 'pald'), true);
+    assert.equal(itemMatches(paldium, 'PalIum'), true);
+    assert.equal(itemMatches(musketBp, 'musket'), true);
+    assert.equal(itemMatches(wood, 'musket'), false);
+    assert.equal(itemMatches(wood, '  '), true, 'blank query matches everything');
+
+    const chests = [
+        { container_id: 'a', base_name: 'Base 2', container_type: 'storage', items: [paldium, wood] },
+        { container_id: 'b', base_name: 'Base 2', container_type: 'storage', items: [musketBp] },
+    ];
+    assert.equal(searchContainers(chests, ''), chests, 'blank query returns the list untouched');
+    const hits = searchContainers(chests, 'pald');
+    assert.deepEqual(hits.map(c => [c.container_id, c.items.length]), [['a', 1]]);
+    assert.equal(sumItemCounts(hits), 100);
+    assert.equal(chests[0].items.length, 2, 'the original container is not mutated');
+
+    const byBase = {
+        b2: chests,
+        b1: [{ container_id: 'c', base_name: 'Base 1', container_type: 'storage', items: [{ ...paldium, count: 40 }] },
+             { container_id: 'f', base_name: 'Base 1', container_type: 'food_bowl', items: [{ ...paldium, count: 5 }] }],
+        b4: [{ container_id: 'a', base_name: 'Base 4', container_type: 'guild', shared: true, items: [paldium] },      // same shared chest as here
+             { container_id: 'd', base_name: 'Base 4', container_type: 'storage', items: [{ ...paldium, count: 300 }] }],
+        // another guild: its shared chest stands at two bases (counted once), and it also calls a base "Base 1"
+        b7: [{ container_id: 'g', base_name: 'Base 1', container_type: 'guild', shared: true, display_name: 'Guild Chest',
+               shared_at: [{ base_id: 'b7', base_name: 'Base 1' }, { base_id: 'b8', base_name: 'Base 2' }], items: [{ ...paldium, count: 70 }] },
+             { container_id: 'h', base_name: 'Base 1', container_type: 'storage', items: [{ ...paldium, count: 1 }] }],
+        b8: [{ container_id: 'g', base_name: 'Base 2', container_type: 'guild', shared: true, display_name: 'Guild Chest',
+               shared_at: [{ base_id: 'b7', base_name: 'Base 1' }, { base_id: 'b8', base_name: 'Base 2' }], items: [{ ...paldium, count: 70 }] }],
+    };
+    const owners = { b1: 'Envy', b4: 'Envy', b7: 'Rival', b8: 'Rival' };
+    const away = searchElsewhere(byBase, 'b2', 'pald', { ownerOf: id => owners[id] || '' });
+    assert.deepEqual(away.map(r => [r.label, r.count, r.chests, r.shared, r.ambiguous, r.owner]), [
+        ['Base 4', 300, 1, false, false, 'Envy'],
+        ['Guild Chest', 70, 1, true, false, 'Rival'],
+        ['Base 1', 40, 1, false, true, 'Envy'],
+        ['Base 1', 1, 1, false, true, 'Rival'],
+    ], 'biggest first; food bowls and the shared chest already on screen skipped; a shared chest once; clashing names flagged');
+    assert.deepEqual(away[1].at, ['Base 1', 'Base 2']);
+    assert.equal(away[1].base_id, 'b7', 'a shared chest row opens the first base it stands at');
+    assert.deepEqual(searchElsewhere(byBase, 'b2', ''), []);
+
+    assert.equal(rarityRingClass(4), 'ring-amber-400/90');
+    assert.equal(rarityRingClass(null), rarityRingClass(0));
+});

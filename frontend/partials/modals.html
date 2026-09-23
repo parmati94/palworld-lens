@@ -52,17 +52,11 @@
                                     <template x-for="(item, index) in selectedContainer.items" :key="`item-${index}`">
                                         <div class="bg-gray-800/60 border border-gray-700/60 rounded-lg p-3 hover:border-gray-600 transition-colors">
                                             <div class="flex flex-col items-center gap-2">
-                                                <!-- Icon -->
-                                                {{> item-icon size="w-16 h-16" img="object-contain" fallback="unknown" }}
+                                                <!-- Icon tile: rarity frame, count in the corner, like the game's slot -->
+                                                {{> item-icon size="w-16 h-16" fallback="unknown" count=true }}
                                                 <!-- Item Name -->
-                                                <div class="text-center w-full">
-                                                    <div class="text-sm font-medium text-white truncate" x-text="item.item_name || item.item_id"></div>
-                                                    <!-- Item Count -->
-                                                    <div class="text-xs font-semibold mt-1 px-2 py-0.5 rounded inline-block" 
-                                                         :class="selectedContainer.container_type === 'food_bowl' ? 'bg-orange-500/80 text-white' : 'bg-blue-500/80 text-white'"
-                                                         x-text="'×' + (item.count > 999 ? (item.count > 999999 ? (item.count/1000000).toFixed(1) + 'M' : (item.count/1000).toFixed(1) + 'K') : item.count.toLocaleString())">
-                                                    </div>
-                                                </div>
+                                                <div class="text-center w-full text-sm font-medium text-white leading-snug line-clamp-2 [text-wrap:balance]"
+                                                     x-text="item.item_name || item.item_id"></div>
                                             </div>
                                         </div>
                                     </template>

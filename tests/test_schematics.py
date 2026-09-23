@@ -70,6 +70,7 @@ def test_container_slots_draw_the_product_for_a_schematic():
     assert musket.schematic.icon == 't_itemicon_weapon_musket', 'the UI draws the product over it'
     assert musket.schematic.product_name == 'Musket' and musket.schematic.rarity_name == 'Epic'
     assert wood.icon == 't_itemicon_material_wood' and wood.schematic is None
+    assert (musket.rarity, musket.type) == (3, 'Blueprint') and (wood.rarity, wood.type) == (0, 'Material')
 
 
 def test_shipped_schematics_cover_the_blueprints_and_every_product_has_an_icon():

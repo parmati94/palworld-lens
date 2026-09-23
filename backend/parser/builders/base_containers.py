@@ -8,6 +8,7 @@ from backend.parser.extractors.bases import BaseMeta
 from backend.parser.loaders.data_loader import DataLoader
 from backend.parser.utils.mappers import map_building_name
 from backend.common.logging_config import get_logger
+from backend.common.schematics import rarity_name
 
 logger = get_logger(__name__)
 
@@ -38,6 +39,8 @@ def _items(container_id, item_index: Dict[str, List[Dict]], data: DataLoader) ->
             item_name=row.get("localized_name") or entry["static_id"],
             count=entry["count"],
             icon=row.get("icon"),
+            rarity=row.get("rarity") if rarity_name(row.get("rarity")) else None,
+            type=row.get("type_a") or None,
             schematic=SchematicInfo(**schematic) if schematic else None,
         ))
     return slots
