@@ -232,3 +232,22 @@ def test_catchable_levels_use_field_zones_only():
               'c': {'kind': 'field_boss', 'pals': {'Z': {'level': [45, 45]}, 'X': {'level': [30, 40]}}}}
     assert catchable_levels(groups) == {'X': 12, 'Z': 45}
     assert catchable_species(groups) == {'X', 'Z'}
+
+
+def test_owned_genders_and_generations_from(index):
+    from types import SimpleNamespace
+    from backend.common.breeding import generations_from, owned_genders
+    a, b = index.species[0], index.species[1]
+    pals = [SimpleNamespace(species_id=a, gender="Male", owner_uid="Envy"),
+            SimpleNamespace(species_id=a, gender="Female", owner_uid="Ricky"),
+            SimpleNamespace(species_id=b, gender="Male", owner_uid="Envy"),
+            SimpleNamespace(species_id=None, gender="Male", owner_uid="Envy"),
+            SimpleNamespace(species_id=b, gender="Unknown", owner_uid="Envy")]
+    assert owned_genders(pals) == {a: {"Male", "Female"}, b: {"Male"}}
+    assert owned_genders(pals, "Envy") == {a: {"Male"}, b: {"Male"}}
+    gens = generations_from(index, owned_genders(pals))
+    assert gens[a] == 0 and gens[b] == 0
+    child = index.child_of(a, b)[0].child
+    assert gens.get(child, 0) == (0 if child in (a, b) else 1)
+    # Envy alone owns only males, so nothing can be bred
+    assert set(generations_from(index, owned_genders(pals, "Envy"))) == {a, b}

@@ -27,7 +27,15 @@ import { loadPrefs, savePref, pref } from './prefs.js';
 import { breedingState, BREED_MODES } from './breeding-state.js';
 
 const prefs = loadPrefs();
-const TABS = ['overview', 'players', 'pals', 'bases', 'breeding', 'map'];
+const TABS = ['overview', 'players', 'pals', 'bases', 'tools', 'map'];
+// Tools: helpers over the save, grouped under one tab (frontend/partials/tabs/tools-tab.html)
+export const TOOLS = [
+    { id: 'breeding', label: 'Breeding', title: 'What two pals make, which of yours can make a pal, and the route to one you cannot',
+      icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+    { id: 'workers', label: 'Best workers', title: 'Best pal for a job: who has it, what you could catch, and what you could breed',
+      icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z' },
+];
+const TOOL_IDS = TOOLS.map(t => t.id);
 // Accent themes: ids match the [data-theme] blocks in css/styles.css.
 export const THEMES = [
     { id: 'sky', label: 'Sky', swatch: '#0ea5e9' },
@@ -42,6 +50,10 @@ export function app() {
     return {
         // Land on the last tab used unless the URL names one (applyHash runs in init)
         currentTab: pref(prefs, 'lastTab', 'overview', TABS),
+        tool: pref(prefs, 'lastTool', 'breeding', TOOL_IDS),   // which tool the Tools tab shows
+        // Set by findOnMap(): where the map was opened from, so it can offer a way back
+        // ({label, tab, tool?, pal?, route?}); cleared when you leave the map any other way.
+        mapReturn: null,
         saveInfo: { loaded: false },
         // Reference data from /api/game-data: elements, work types, conditions, map layers.
         // Every element/work id the API sends is resolved through this.
@@ -68,12 +80,12 @@ export function app() {
         filterWorkType: '',
         filterPassiveSkill: '',
         filterOwner: '',
-        // Workforce modal ("Best <work> on the server"): opened from the Pals tab's work filter
-        workers: null,              // last /api/workers payload (for the hint line and the modal)
+        // Best workers tool ("Best <work> on the server"): Tools tab, also reached from the Pals tab's work filter
+        workers: null,              // last /api/workers payload
         workersLoading: false,
-        workersOpen: false,
-        workersType: '',            // work type the modal is showing (its own picker; seeded from the filter)
+        workersType: '',            // work type showing (its own picker; seeded from the Pals filter the first time)
         workersMaxLevel: 0,         // "spawns at or under this level" -- the reader's own call; seeded from a player's level
+        workersOwner: '',           // whose pals count as breeding stock ('' = everyone); the "I am" preset
         _workersRequest: 0,
         // Base navigation state (shared with the Bases tab and deep links)
         selectedGuildId: null,
@@ -145,8 +157,9 @@ export function app() {
             // Reset to page 1 when filters change
             this.$watch('filterElement', () => this.currentPage = 1);
             this.$watch('filterWorkType', () => this.currentPage = 1);
-            this.$watch('pals', () => { if (this.workersOpen) this.loadWorkers(this.workersType, true); });
-            this.$watch('workersType', t => { if (this.workersOpen && t) this.loadWorkers(t); });
+            this.$watch('pals', () => { if (this.workersActive) this.loadWorkers(this.workersType, true); });
+            this.$watch('workersType', t => { if (this.workersActive && t) this.loadWorkers(t); });
+            this.$watch('workersOwner', () => { if (this.workersActive) this.loadWorkers(this.workersType, true); });
             this.$watch('filterPassiveSkill', () => this.currentPage = 1);
             this.$watch('filterOwner', () => this.currentPage = 1);
             
@@ -161,13 +174,15 @@ export function app() {
             // may not resolve until then), and write it whenever state changes.
             this.applyHash();
             window.addEventListener('hashchange', () => this.applyHash());
-            ['currentTab', 'selectedGuildId', 'selectedBaseId', 'palSearch', 'filterElement',
-             'filterWorkType', 'filterPassiveSkill', 'filterOwner'].forEach(key => {
+            ['currentTab', 'tool', 'selectedGuildId', 'selectedBaseId', 'palSearch', 'filterElement',
+             'filterWorkType', 'filterPassiveSkill', 'filterOwner', 'workersType', 'workersMaxLevel', 'workersOwner'].forEach(key => {
                 this.$watch(key, () => this.writeHash());
             });
+            // Leaving the map by any route other than its own "back" button forgets where it came from
+            this.$watch('currentTab', t => { if (t !== 'map') this.mapReturn = null; });
 
             // Remember the settings people expect to stick between visits.
-            [['currentTab', 'lastTab'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
+            [['currentTab', 'lastTab'], ['tool', 'lastTool'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
              ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize'],
              ['theme', 'theme'], ['reduceMotion', 'reduceMotion']]
                 .forEach(([key, name]) => this.$watch(key, v => savePref(name, v)));
@@ -179,10 +194,11 @@ export function app() {
             this.$watch('pals', () => this.ensureBaseSelection());
             this.$watch('selectedGuildId', () => this.ensureBaseSelection());
 
-            // Breeding: species list on first visit (or when a deep link / the pal
-            // modal lands there); owned-pal matches follow the pal list.
-            this.$watch('currentTab', t => { if (t === 'breeding') this.ensureBreedingSpecies(); });
-            if (this.currentTab === 'breeding') this.ensureBreedingSpecies();
+            // Tools: each loads what it needs the first time it shows (or when a deep
+            // link / the pal modal lands there); owned-pal matches follow the pal list.
+            this.$watch('currentTab', () => this.onToolShown());
+            this.$watch('tool', () => this.onToolShown());
+            this.onToolShown();
             this.$watch('pals', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); });
             this.$watch('breedOwner', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); this.writeHash(); });
             ['breedMode', 'breedA', 'breedB', 'breedChild'].forEach(key => {
@@ -207,9 +223,27 @@ export function app() {
                 { id: 'map', label: 'Map', count: null,
                   icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
                 // Tools (tool: true) render after a divider: helpers over the save, not views of it
-                { id: 'breeding', label: 'Breeding', count: null, tool: true, title: 'Breeding calculator: what two pals make, and which of yours can make a pal',
-                  icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' }
+                { id: 'tools', label: 'Tools', count: null, tool: true, title: 'Tools: breeding calculator, best workers',
+                  icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
             ];
+        },
+        get tools() { return TOOLS; },
+        /** True while the Best workers tool is on screen. */
+        get workersActive() { return this.currentTab === 'tools' && this.tool === 'workers'; },
+        /** Switch to a tool (Tools tab + pill). */
+        goToTool(id) {
+            if (!TOOL_IDS.includes(id)) return;
+            this.tool = id;
+            this.currentTab = 'tools';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        onToolShown() {
+            if (this.currentTab !== 'tools') return;
+            if (this.tool === 'breeding') this.ensureBreedingSpecies();
+            if (this.tool === 'workers') {
+                if (!this.workersType) this.workersType = this.workersDefaultType();
+                this.loadWorkers(this.workersType);
+            }
         },
 
         // ---- URL hash state -------------------------------------------------
@@ -217,11 +251,14 @@ export function app() {
         applyHash() {
             const raw = window.location.hash.replace(/^#\/?/, '');
             if (!raw) return;
-            const [tab, query = ''] = raw.split('?');
+            const [path, query = ''] = raw.split('?');
+            let [tab, sub] = path.split('/');
+            if (tab === 'breeding') { tab = 'tools'; sub = 'breeding'; }   // pre-Tools links keep working
             const params = new URLSearchParams(query);
             this.hashSyncing = true;
             try {
                 if (TABS.includes(tab)) this.currentTab = tab;
+                if (tab === 'tools' && TOOL_IDS.includes(sub)) this.tool = sub;
                 if (params.has('guild')) this.selectedGuildId = params.get('guild');
                 if (params.has('base')) this.selectedBaseId = params.get('base');
                 if (tab === 'pals') {
@@ -231,13 +268,18 @@ export function app() {
                     this.filterPassiveSkill = params.get('passive') || '';
                     this.filterOwner = params.get('owner') || '';
                 }
-                if (tab === 'breeding') {
+                if (tab === 'tools' && this.tool === 'breeding') {
                     const mode = params.get('mode');
                     if (BREED_MODES.includes(mode)) this.breedMode = mode;
                     if (params.has('a')) this.breedA = params.get('a');
                     if (params.has('b')) this.breedB = params.get('b');
                     if (params.has('child')) this.breedChild = params.get('child');
                     this.breedOwner = params.get('owner') || '';
+                }
+                if (tab === 'tools' && this.tool === 'workers') {
+                    if (params.has('job')) this.workersType = params.get('job');
+                    if (params.has('level')) this.workersMaxLevel = parseInt(params.get('level'), 10) || 0;
+                    this.workersOwner = params.get('owner') || '';
                 }
                 if (params.has('pal')) this.openPalById(params.get('pal'));
             } finally {
@@ -259,7 +301,7 @@ export function app() {
                 if (this.filterPassiveSkill) params.set('passive', this.filterPassiveSkill);
                 if (this.filterOwner) params.set('owner', this.filterOwner);
             }
-            if (this.currentTab === 'breeding') {
+            if (this.currentTab === 'tools' && this.tool === 'breeding') {
                 params.set('mode', this.breedMode);
                 if (this.breedOwner) params.set('owner', this.breedOwner);
                 if (this.breedMode === 'child') {
@@ -269,8 +311,13 @@ export function app() {
                     params.set('child', this.breedChild);
                 }
             }
+            if (this.currentTab === 'tools' && this.tool === 'workers') {
+                if (this.workersType) params.set('job', this.workersType);
+                if (this.workersMaxLevel) params.set('level', this.workersMaxLevel);
+                if (this.workersOwner) params.set('owner', this.workersOwner);
+            }
             const qs = params.toString();
-            const next = '#' + this.currentTab + (qs ? '?' + qs : '');
+            const next = '#' + this.currentTab + (this.currentTab === 'tools' ? '/' + this.tool : '') + (qs ? '?' + qs : '');
             if (window.location.hash !== next) history.replaceState(null, '', next);
         },
 
@@ -284,13 +331,26 @@ export function app() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
-        /** Pal modal: open the map with this species' wild spawn zones lit. */
-        findOnMap(speciesId, name) {
+        /** Open the map with this species' wild spawn zones lit.
+         *  `from` ({label, tab, tool?, pal?, route?}) is where the reader came from; the map
+         *  shows it as a "Back to ..." button so a look at the map is a round trip, not a reset. */
+        findOnMap(speciesId, name, from = null) {
             this.currentTab = 'map';
+            this.mapReturn = from;
             window.scrollTo({ top: 0, behavior: 'smooth' });
             this.$nextTick(() => window.dispatchEvent(new CustomEvent('show-pal-spawns', {
                 detail: { species: speciesId, name },
             })));
+        },
+        /** The map's "Back to ..." button: return to whatever opened the map, as it was. */
+        mapReturnGo() {
+            const r = this.mapReturn;
+            if (!r) return;
+            this.mapReturn = null;
+            if (r.tool) this.goToTool(r.tool);
+            else if (r.tab) { this.currentTab = r.tab; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            if (r.pal) this.openPalById(r.pal);
+            if (r.route) this.$nextTick(() => this.breedShowRoute());
         },
 
         /** Open the Bases tab on a specific base. */
@@ -637,25 +697,46 @@ export function app() {
                 .map(([id, w]) => ({ id, name: w.name || id }))
                 .sort((a, b) => a.name.localeCompare(b.name));
         },
-        /** Open the workforce modal on a work type (defaults to the filtered one, then the first known). */
-        openWorkers(type) {
+        /** The job to show when none was ever picked: the Pals filter, else Kindling (the game's first slot). */
+        workersDefaultType() {
             const known = this.workersTypeList().map(t => t.id);
-            const fallback = known.includes('EmitFlame') ? 'EmitFlame' : (known[0] || '');   // Kindling is the game's first slot
-            this.workersType = type || this.filterWorkType || fallback;
-            this.workersOpen = true;
-            this.loadWorkers(this.workersType);
+            if (this.filterWorkType && known.includes(this.filterWorkType)) return this.filterWorkType;
+            return known.includes('EmitFlame') ? 'EmitFlame' : (known[0] || '');
         },
-        closeWorkers() { this.workersOpen = false; },
+        /** Open Best workers on a job. With none given it stays on the job last looked at. */
+        openWorkers(type) {
+            this.workersType = type || this.workersType || this.workersDefaultType();
+            this.goToTool('workers');
+        },
         workersCatchOnMap(speciesId, name) {
-            this.workersOpen = false;
-            this.findOnMap(speciesId, name);
+            this.findOnMap(speciesId, name, { label: 'Back to Best workers', tool: 'workers' });
+        },
+        /** "I am <player>": their level for the catch list, their pals as breeding stock. Tap again for everyone. */
+        workersPickPlayer(p) {
+            this.workersMaxLevel = p.level;
+            this.workersOwner = this.workersOwner === p.name ? '' : p.name;
+        },
+        /** Breedable species worth listing: at least as good as the best the server owns. */
+        workersBreedList() {
+            const all = (this.workers && this.workers.breedable) || [];
+            const best = (this.workers && this.workers.best_owned_level) || 0;
+            return all.filter(b => b.work_level >= best);
+        },
+        /** A breedable row: open the route to it, for the same breeder, over this tool. */
+        workersBreedRoute(speciesId) {
+            this.ensureBreedingSpecies();
+            this.breedOwner = this.workersOwner;
+            this.breedMode = 'parents';
+            this.breedChild = speciesId;
+            this.breedShowRoute();
         },
         /** Level presets: one per player, highest first. The filtered owner (if any) is the default. */
         workersPlayers() { return (this.workers && this.workers.players) || []; },
         workersSeedLevel() {
             const ps = this.workersPlayers();
             if (!ps.length) return 50;
-            const mine = this.filterOwner && ps.find(p => p.name === this.filterOwner);
+            const who = this.workersOwner || this.filterOwner;
+            const mine = who && ps.find(p => p.name === who);
             return (mine || ps[0]).level;
         },
         /** Catchable species that spawn at or under the chosen level, best job level first, then easiest. */
@@ -680,11 +761,11 @@ export function app() {
         /** Fetch the best-owned list and every catchable species for one work type. */
         async loadWorkers(type, force = false) {
             if (!type) { this.workers = null; this.workersLoading = false; return; }
-            if (!force && this.workers && this.workers.work_type === type && !this.workersLoading) return;
+            if (!force && this.workers && this.workers.work_type === type && (this.workers.owner || '') === (this.workersOwner || '') && !this.workersLoading) return;
             const req = ++this._workersRequest;
             this.workersLoading = true;
             try {
-                const data = await api.getWorkers(type);
+                const data = await api.getWorkers(type, this.workersOwner);
                 if (req !== this._workersRequest) return;   // a newer pick won
                 this.workers = data;
                 if (!this.workersMaxLevel) this.workersMaxLevel = this.workersSeedLevel();
@@ -703,9 +784,7 @@ export function app() {
         },
         workersOpenPal(instanceId) {
             const pal = this.pals.find(p => p.instance_id === instanceId);
-            if (!pal) return;
-            this.workersOpen = false;
-            window.dispatchEvent(new CustomEvent('open-pal-modal', { detail: pal }));
+            if (pal) window.dispatchEvent(new CustomEvent('open-pal-modal', { detail: pal }));
         },
         workLevelColor(level) { return WORK_LEVEL_COLORS[Math.min(level, 8)] || '#9ca3af'; },
 

@@ -1,0 +1,23 @@
+<!-- One breedable species row inside the Best workers tool (x-for scope: `b`). Click -> the breeding route to it. -->
+<button @click="workersBreedRoute(b.species_id)"
+        class="w-full flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-gray-700/50 transition-colors text-left group"
+        :data-tip="'How would ' + (workersOwner || 'we') + ' breed ' + b.species_name + '?'">
+    <div class="relative flex-shrink-0">
+        <img :src="palIconSrc(b)" @error="palIconError($el, b)" loading="lazy" alt=""
+             class="w-9 h-9 rounded-lg bg-gray-900 object-cover group-hover:ring-2 group-hover:ring-accent-400">
+        <span class="absolute -bottom-1 -right-1 text-[10px] font-bold text-white rounded-full w-4 h-4 flex items-center justify-center border border-gray-900"
+              :style="`background:${workLevelColor(b.work_level)}`" x-text="b.work_level"></span>
+    </div>
+    <div class="min-w-0 flex-1">
+        <div class="text-sm font-medium text-gray-100 truncate flex items-center gap-1.5">
+            <span x-text="b.species_name"></span>
+            <svg class="w-3.5 h-3.5 text-accent-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            <span x-show="workers && b.work_level > workers.best_owned_level" class="px-1.5 py-px rounded text-[10px] font-medium bg-ok-500/20 text-ok-200 border border-ok-500/40 whitespace-nowrap">better than owned</span>
+            <span x-show="workers && workers.best_owned_level && b.work_level === workers.best_owned_level" class="px-1.5 py-px rounded text-[10px] font-medium bg-gray-700/60 text-gray-300 border border-gray-600/60 whitespace-nowrap">as good</span>
+        </div>
+        <div class="text-[11px] text-gray-400 truncate">
+            <span class="tabular-nums text-gray-300" x-text="b.generations"></span> <span x-text="b.generations === 1 ? 'breed' : 'breeds'"></span> away
+            <span x-show="b.catchable" class="text-gray-500"> · also wild from <span class="tabular-nums">Lv <span x-text="b.spawn_level"></span></span></span>
+        </div>
+    </div>
+</button>

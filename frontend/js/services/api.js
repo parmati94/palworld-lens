@@ -71,8 +71,8 @@ export const api = {
         return await res.json();
     },
     /** Fewest breeds from the owned pals (one player's, or everyone's) to a species. */
-    async getWorkers(workType) {
-        const res = await fetchWithRetry(`/api/workers?type=${encodeURIComponent(workType)}`);
+    async getWorkers(workType, owner = '') {
+        const res = await fetchWithRetry(`/api/workers?type=${encodeURIComponent(workType)}&owner=${encodeURIComponent(owner || '')}`);
         return await res.json();
     },
 

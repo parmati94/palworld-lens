@@ -202,7 +202,7 @@
                                             </button>
                                         </template>
                                         <!-- Icon only: opens the map with this species' wild spawn zones lit -->
-                                        <button @click="closePalModal(); findOnMap(selectedPal.species_id, selectedPal.display_name)"
+                                        <button @click="closePalModal(); findOnMap(selectedPal.species_id, selectedPal.display_name, { label: 'Back to ' + (selectedPal.nickname || selectedPal.display_name), tab: currentTab, pal: selectedPal.instance_id })"
                                                 class="inline-flex items-center justify-center w-7 h-[26px] rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-300 hover:text-white transition-colors"
                                                 data-tip="Where does this species spawn?" aria-label="Show spawn zones on the map">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -484,7 +484,15 @@
             <div class="card p-3 sm:p-4 shadow-2xl" x-data="mapComponent" x-init="init()">
                 <!-- Slim header: title + counts -->
                 <div class="flex items-center justify-between gap-3 mb-3">
-                    <h2 class="text-base font-semibold text-gray-200">World Map</h2>
+                    <div class="flex items-center gap-3 min-w-0">
+                        <h2 class="text-base font-semibold text-gray-200 shrink-0">World Map</h2>
+                        <!-- Opened from a tool or a pal? Offer the way back, as it was. -->
+                        <button x-show="mapReturn" x-cloak @click="mapReturnGo()"
+                                class="btn-quiet px-2.5 py-1 border border-gray-700/60 text-gray-300 text-xs font-medium flex items-center gap-1.5 min-w-0">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                            <span class="truncate" x-text="mapReturn && mapReturn.label"></span>
+                        </button>
+                    </div>
                     <div class="text-sm text-gray-400 flex items-center gap-3">
                         <span><span class="text-gray-200 font-medium" x-text="getAllBasesWithCoords().length"></span> bases</span>
                         <span><span class="text-gray-200 font-medium" x-text="players.filter(p => p.location && p.location.x !== undefined).length"></span> players</span>
