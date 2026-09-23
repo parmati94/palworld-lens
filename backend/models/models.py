@@ -239,12 +239,14 @@ class ItemSlot(BaseModel):
 
 
 class ItemRef(BaseModel):
-    """An item named for the Activity view (a product, an input, an egg), with an optional count."""
+    """An item tile on an Activity card (a product, an input, an egg) with a count; `note` is a tooltip
+    for when the count is not simply what sits there (a machine's out tile = slot + still to come)."""
     item_id: str
     item_name: str
     icon: Optional[str] = None
     rarity: Optional[int] = None
     count: int = 0
+    note: Optional[str] = None
 
 
 class ActivityPal(BaseModel):

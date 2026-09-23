@@ -199,6 +199,8 @@ test('activity: groups by attention, formats durations and order lines', async (
     assert.equal(orderLine({ recipe_id: 'Flour', order_total: 1335, order_left: 559, order_made: 776 }), '776 / 1,335 made');
     assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 1841, order_left: 0, order_made: 1841 }), '1,841 made · order done');
     assert.equal(orderLine({ recipe_id: 'IronIngot', order_total: 0, order_left: 0 }), 'no order');
+    const { itemTip } = await import('../js/utils.js');
+    assert.equal(itemTip({ item_id: 'IronIngot', note: '1,728 made so far, 3,271 to come' }), '1,728 made so far, 3,271 to come');
     assert.equal(orderLine({ recipe_id: null }), '');
     assert.deepEqual([1234, 12345, 250000, 1234567, 1000000, null].map(formatCount), ['1,234', '12.3K', '250K', '1.2M', '1M', '']);
 });

@@ -408,6 +408,7 @@ export function orderLine(job) {
 
 /** Tooltip for a container slot: what a schematic unlocks, nothing for plain items. */
 export function itemTip(item) {
+    if (item && item.note) return item.note;
     const s = item && item.schematic;
     if (!s) return '';
     const tier = s.rarity_name ? ` (${s.rarity_name})` : '';

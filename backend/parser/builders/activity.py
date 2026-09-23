@@ -91,6 +91,13 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
                 job.product = _item(data, product_id)
                 job.outputs = [c for c in contents if c.item_id == product_id]
                 job.inputs = [c for c in contents if c.item_id != product_id]
+                if job.order_left > 0:
+                    # the game's output number: what the slot holds now plus what is still coming
+                    in_slot = job.outputs[0].count if job.outputs else 0
+                    if not job.outputs:
+                        job.outputs = [job.product.model_copy()]
+                    job.outputs[0].count = in_slot + job.order_left
+                    job.outputs[0].note = f"{in_slot:,} made so far, {job.order_left:,} to come"
                 if unit is not None and unit > 0:
                     job.unit_work, job.unit_done = unit, done
                 job.progress = fraction(job.order_made, job.order_total)     # the order as a whole, like a site's fill

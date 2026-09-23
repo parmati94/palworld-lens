@@ -220,7 +220,8 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
     assert (furnace.order_total, furnace.order_left, furnace.order_made) == (4999, 3271, 1728), 'made = the 1,728 ingots in the slot'
     assert round(furnace.progress, 3) == round(1728 / 4999, 3) and furnace.unit_work == 4666.67
     assert [(i.item_id, i.count) for i in furnace.inputs] == [('CopperOre', 6542), ('Coal', 6542)]
-    assert [(o.item_id, o.count) for o in furnace.outputs] == [('IronIngot', 1728)]
+    assert [(o.item_id, o.count) for o in furnace.outputs] == [('IronIngot', 1728 + 3271)], 'the out tile is what the slot will hold when the order is done'
+    assert furnace.outputs[0].note == '1,728 made so far, 3,271 to come'
     assert [p.name for p in furnace.assigned] == ['Ragnahawk'] and furnace.is_damaged
 
     egg = by_type['HatchingPalEgg']
