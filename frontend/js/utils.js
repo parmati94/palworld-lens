@@ -221,15 +221,17 @@ export function sumItemCounts(containers) {
  * at); one already on screen at the current base is skipped. Different guilds name their
  * bases the same way ("Base 2") and every guild's chest is "Guild Chest", so pass
  * `ownerOf(baseId)` and rows whose label clashes are marked `ambiguous` with the owner attached.
+ * `onlyBases` (a Set of base ids) limits the sweep, e.g. to the guild's own bases: "where did
+ * I put it" is a question about your chests, not the neighbours'.
  */
-export function searchElsewhere(containersByBase, currentBaseId, query, { skipTypes = ['food_bowl'], ownerOf = null } = {}) {
+export function searchElsewhere(containersByBase, currentBaseId, query, { skipTypes = ['food_bowl'], ownerOf = null, onlyBases = null } = {}) {
     const q = (query || '').trim();
     if (!q || !containersByBase) return [];
     const seen = new Set((containersByBase[currentBaseId] || []).map(c => c.container_id));
     const perBase = new Map();
     const rows = [];
     for (const [baseId, containers] of Object.entries(containersByBase)) {
-        if (baseId === currentBaseId) continue;
+        if (baseId === currentBaseId || (onlyBases && !onlyBases.has(baseId))) continue;
         for (const c of searchContainers(containers.filter(c => !skipTypes.includes(c.container_type)), q)) {
             if (seen.has(c.container_id)) continue;
             seen.add(c.container_id);

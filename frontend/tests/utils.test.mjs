@@ -170,6 +170,9 @@ test('storage search: matches by name, id or unlocked product; cards keep only t
     assert.deepEqual(away[1].at, ['Base 1', 'Base 2']);
     assert.equal(away[1].base_id, 'b7', 'a shared chest row opens the first base it stands at');
     assert.deepEqual(searchElsewhere(byBase, 'b2', ''), []);
+    const mine = searchElsewhere(byBase, 'b2', 'pald', { ownerOf: () => 'Envy', onlyBases: new Set(['b1', 'b2', 'b4']) });
+    assert.deepEqual(mine.map(r => [r.label, r.count, r.ambiguous]), [['Base 4', 300, false], ['Base 1', 40, false]],
+        'limited to the guild\'s own bases, nothing clashes');
 
     assert.equal(rarityRingClass(4), 'ring-amber-400/90');
     assert.equal(rarityRingClass(null), rarityRingClass(0));

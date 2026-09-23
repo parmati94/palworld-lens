@@ -849,12 +849,12 @@ export function app() {
             if (g) this.selectedGuildId = g.guild_id;
             this.selectedBaseId = baseId;
         },
+        /** Other bases of the guild that owns the current base: the search sweeps your chests, not the neighbours'. */
         get storageElsewhere() {
-            const ownerOf = (baseId) => {
-                const g = this.guilds.find(g => (g.base_locations || []).some(b => b.base_id === baseId));
-                return g ? this.baseOwner(g.guild_id) : '';
-            };
-            return searchElsewhere(this.baseContainers?.containers, this.selectedBaseId, this.storageQuery, { ownerOf });
+            const guild = this.guilds.find(g => (g.base_locations || []).some(b => b.base_id === this.selectedBaseId));
+            const onlyBases = new Set((guild?.base_locations || []).map(b => b.base_id));
+            const ownerOf = () => (guild ? this.baseOwner(guild.guild_id) : '');
+            return searchElsewhere(this.baseContainers?.containers, this.selectedBaseId, this.storageQuery, { ownerOf, onlyBases });
         },
         /** "Base 3 and Base 5" / "Base 1, Base 3 and Base 4" from a list of {base_name}. */
         baseNamesSentence(bases) {
