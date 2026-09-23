@@ -10,8 +10,10 @@ from palworld_save_tools.paltypes import PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PR
 
 from backend.common.config import config
 from backend.common.logging_config import get_logger
+from backend.parser.loaders.savetools_extras import register_missing_buildings
 
 logger = get_logger(__name__)
+register_missing_buildings()      # before any GvasFile.read: the decoder consults the table per object
 
 
 class GvasHandler:

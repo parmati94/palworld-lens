@@ -376,3 +376,12 @@ def test_shipped_activity_tables_are_complete():
     assert len(doc['generators']) >= MIN_GENERATORS
     items = json.loads((DATA / 'items.json').read_text(encoding='utf-8'))
     assert all(v in items for v in doc['recipe_products'].values()), 'every recipe product is an item'
+
+
+def test_buildings_save_tools_lacks_are_registered_before_parsing():
+    from palworld_save_tools.rawdata import map_concrete_model as m
+    from backend.parser.loaders import gvas_handler  # noqa: F401  (importing the loader registers them)
+    from backend.parser.loaders.savetools_extras import SAVE_TOOLS_MAP_OBJECT_EXTRAS, register_missing_buildings
+    assert m.MAP_OBJECT_NAME_TO_CONCRETE_MODEL_CLASS['stationdeforest3'] == 'PalMapObjectProductItemModel'
+    assert register_missing_buildings() == 0, 'idempotent'
+    assert all(k == k.lower() for k in SAVE_TOOLS_MAP_OBJECT_EXTRAS), 'save-tools keys are lower-case ids'
