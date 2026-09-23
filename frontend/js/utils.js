@@ -350,6 +350,15 @@ export function activityHero(job) {
 }
 
 /** The pals on a card: an expedition's crew, otherwise whoever is assigned to the building. */
+/** A breeding farm's one line: eggs to pick up, else what the pair is doing. */
+export function breedingLine(job, crewCount) {
+    const eggs = job.held || 0;
+    const noCake = crewCount && !(job.inputs || []).length;
+    if (eggs) return `${eggs} egg${eggs === 1 ? '' : 's'} to collect${noCake ? ' · no cake' : ''}`;
+    if (!crewCount) return 'nobody on it';
+    return noCake ? 'no cake' : 'breeding';
+}
+
 export function activityCrew(job) {
     if (!job) return [];
     return job.expedition ? (job.expedition.pals || []) : (job.assigned || []);
@@ -383,6 +392,21 @@ export function eggModalDetail(job) {
     return { title: job.display_name, subtitle: `${eggs.length} egg${eggs.length === 1 ? '' : 's'} · ${eggSummary(eggs)}`, eggs };
 }
 export const EGGS_INLINE_MAX = 1;   // one egg draws on the card itself; more open the modal
+
+/** A breeding farm's eggs on the ground, one tile per egg for the stacked button (capped). */
+export function eggStack(job, max = 5) {
+    const out = [];
+    for (const item of job.outputs || []) {
+        for (let i = 0; i < (item.count || 0) && out.length < max; i++) out.push({ ...item, key: `${item.item_id}-${i}` });
+    }
+    return out;
+}
+
+/** Title + subtitle + item rows for the modal behind that button: "Breeding Farm" / "15 eggs on the ground". */
+export function farmEggsModalDetail(job) {
+    const n = job.held || 0;
+    return { title: job.display_name, subtitle: `${n} egg${n === 1 ? '' : 's'} on the ground`, items: job.outputs || [] };
+}
 
 /** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
 export function eggTemperature(egg) {

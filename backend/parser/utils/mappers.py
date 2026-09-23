@@ -55,6 +55,15 @@ _CHEST_TECH_KEYS: Dict[str, str] = {
 }
 
 
+def building_row(building_type: str, data: DataLoader) -> Dict:
+    """Buildings-table row for a map-object id, tolerating the save's casing (Workbench vs WorkBench)."""
+    row = data.buildings.get(building_type)
+    if row is None and building_type:
+        low = building_type.lower()
+        row = next((v for k, v in data.buildings.items() if k.lower() == low), None)
+    return row or {}
+
+
 def map_building_name(building_type: str, data: DataLoader) -> str:
     """Building/map-object id -> localized name, with the chest-key fallback."""
     for key in (building_type, _CHEST_TECH_KEYS.get(building_type)):
@@ -63,7 +72,7 @@ def map_building_name(building_type: str, data: DataLoader) -> str:
         name = (data.technologies.get(key) or {}).get('localized_name')
         if name:
             return name
-        name = (data.buildings.get(key) or {}).get('localized_name')
+        name = building_row(key, data).get('localized_name')
         if name:
             return name
     return building_type.replace('_', ' ').title()

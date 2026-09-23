@@ -27,6 +27,7 @@
         <span class="px-2 py-0.5 rounded-full border text-[11px] font-medium whitespace-nowrap" :class="activityStatus(job.status).chip"
               x-text="job.kind === 'expedition' && job.expedition
                         ? (job.expedition.state === 'out' ? 'On expedition' : (job.expedition.state === 'back' || job.status === 'ready') ? 'Haul waiting' : 'Idle')
+                        : (job.kind === 'breeding' && job.status === 'no_materials') ? 'No cake'
                         : activityStatus(job.status).label"></span>
     </div>
 
@@ -110,12 +111,16 @@
                 </div>
             </div>
         </template>
-        <template x-if="job.kind === 'ranch' || job.kind === 'breeding' || (job.kind === 'machine' && !job.product)">
-            <div class="text-[11px] text-gray-500" x-text="job.kind === 'ranch' ? (crew.length ? 'dropping while staffed' : 'nobody on it') : job.kind === 'breeding' ? (crew.length ? 'breeding' : 'nobody on it') : 'no order queued'"></div>
+        <template x-if="job.kind === 'ranch' || (job.kind === 'machine' && !job.product)">
+            <div class="text-[11px] text-gray-500" x-text="job.kind === 'ranch' ? (crew.length ? 'dropping while staffed' : 'nobody on it') : 'no order queued'"></div>
+        </template>
+        <template x-if="job.kind === 'breeding'">
+            <div class="text-[11px] tabular-nums" :class="job.held ? 'text-amber-200' : job.status === 'no_materials' ? 'text-red-300' : 'text-gray-500'"
+                 x-text="breedingLine(job, crew.length)"></div>
         </template>
     </div>
 
-    <!-- 3. one row: item tiles on the left (in -> out for machines, the haul, what a ranch holds), pals on the right -->
+    <!-- 3. one row: item tiles on the left (in -> out for machines, the haul, what a ranch holds, a farm's cake and eggs), pals on the right -->
     <div class="min-h-7 flex items-center gap-1.5 flex-wrap">
         <!-- a large incubator: stacked egg tiles and a count, into the egg modal -->
         <template x-if="job.kind === 'incubator' && job.eggs.length > EGGS_INLINE_MAX">
@@ -134,16 +139,32 @@
             </button>
         </template>
         <!-- machines: the recipe as pictures, in -> out; the counts are on hover and in the status line -->
-        <template x-for="item in job.inputs" :key="'in-' + item.item_id">
+        <template x-for="item in (job.kind === 'machine' ? job.inputs : [])" :key="'in-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" }}
         </template>
         <span x-show="job.inputs.length && job.outputs.length && job.kind === 'machine'" class="text-gray-600 text-xs px-0.5">&rarr;</span>
         <template x-for="item in (job.kind === 'machine' ? job.outputs : [])" :key="'out-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" }}
         </template>
-        <!-- ranches, breeding farms: what sits inside, with counts -->
-        <template x-for="item in (job.kind === 'ranch' || job.kind === 'breeding' ? job.outputs : [])" :key="'holds-' + item.item_id">
+        <!-- ranches: what sits inside, with counts; breeding farms: cake in -> eggs on the ground, with counts -->
+        <template x-for="item in (job.kind === 'ranch' ? job.outputs : job.kind === 'breeding' ? job.inputs : [])" :key="'holds-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
+        </template>
+        <span x-show="job.kind === 'breeding' && job.inputs.length && job.held" class="text-gray-600 text-xs px-0.5">&rarr;</span>
+        <!-- a breeding farm's eggs: stacked tiles and a count, into the modal (same shape as the crew button) -->
+        <template x-if="job.kind === 'breeding' && job.held">
+            <button type="button" @click="$dispatch('open-crew-modal', farmEggsModalDetail(job))"
+                    class="flex items-center gap-2 pl-1 pr-3 py-0.5 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
+                    :data-tip="'See all ' + job.held + ' eggs'">
+                <span class="flex -space-x-2">
+                    <template x-for="e in eggStack(job)" :key="e.key">
+                        <span class="w-6 h-6 rounded-full ring-2 ring-gray-800 bg-gray-900 overflow-hidden flex items-center justify-center">
+                            <img :src="`/img/${e.icon || 'unknown'}.webp`" alt="" class="w-5 h-5 object-contain">
+                        </span>
+                    </template>
+                </span>
+                <span class="text-xs text-gray-300 tabular-nums"><span x-text="job.held"></span> eggs</span>
+            </button>
         </template>
         <template x-for="item in (job.expedition ? job.expedition.haul : [])" :key="'haul-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}

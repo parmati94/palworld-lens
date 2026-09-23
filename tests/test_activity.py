@@ -7,7 +7,7 @@ from backend.common.activity import (build_activity_tables, crop_phase, expediti
                                      MIN_LAB_RESEARCH, MIN_MISSIONS, TICKS_PER_SECOND)
 from backend.parser.builders.activity import build_activity
 from backend.parser.extractors.activity import (decode_multi_eggs, get_activity_objects, get_guild_labs, get_real_time_ticks,
-                                                index_works)
+                                                index_ground_eggs, index_works)
 from backend.parser.extractors.bases import BaseMeta
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -173,7 +173,7 @@ def test_extractors_read_works_buildings_labs_and_the_clock():
 # ---------------------------------------------------------------------------
 class _Data:
     buildings = {'BlastFurnace2': {'icon': 'i_furnace'}, 'HatchingPalEgg': {'icon': 'i_egg'}, 'Expedition': {'icon': 'i_exp'},
-                 'FarmBlockV2_Berries': {'icon': 'i_berry'}, 'Workbench': {'icon': 'i_bench'}, 'Lab': {'icon': 'i_lab'}}
+                 'FarmBlockV2_Berries': {'icon': 'i_berry'}, 'WorkBench': {'icon': 'i_bench'}, 'Lab': {'icon': 'i_lab'}}
     technologies = {'Lab': {'localized_name': 'Pal Labor Research Lab'}}
     activity = {'lab': {'Mining1': {'name': 'Mining Speed 1', 'work': 50000, 'category': 'Mining'},
                         'Mining1_2': {'name': 'Mining Speed 2', 'work': 200000, 'category': 'Mining'}},
@@ -186,6 +186,8 @@ class _Data:
               'Coal': {'localized_name': 'Coal', 'icon': 'i_coal', 'rarity': 0, 'max_stack_count': 9999},
               'Berries': {'localized_name': 'Red Berries', 'icon': 'i_berries', 'rarity': 0},
               'PalEgg_Earth_03': {'localized_name': 'Large Rocky Egg', 'icon': 'i_rockyegg', 'rarity': 2},
+              'PalEgg_Ice_05': {'localized_name': 'Huge Frozen Egg', 'icon': 'i_frozenegg', 'rarity': 4},
+              'Cake': {'localized_name': 'Cake', 'icon': 'i_cake', 'rarity': 0},
               'Gold': {'localized_name': 'Gold Coin', 'icon': 'i_gold', 'rarity': 0}}
 
     def item(self, item_id):
@@ -239,6 +241,7 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
     assert planting.crop.phase == 'planting' and planting.crop.progress == 0.803 and planting.status == 'working'
 
     assert by_type['Workbench'].status == 'idle' and by_type['Workbench'].product is None
+    assert by_type['Workbench'].building_icon == 'i_bench', 'the save says Workbench, the buildings table WorkBench'
 
     guild = payload.guilds['g1']
     exp = guild.expeditions[0].expedition
@@ -301,6 +304,45 @@ def test_large_incubator_reports_every_egg():
     sparse = {'c-multi': [{'static_id': 'PalEgg_Leaf_03', 'count': 1, 'slot': 0}, {'static_id': 'PalEgg_Leaf_03', 'count': 1, 'slot': 1}]}
     job = build_activity(get_activity_objects(world), index_works(world), {}, META, sparse, [], _Data(), None).bases['b1'].jobs[0]
     assert [(e.slot, e.egg and e.egg.item_id) for e in job.eggs] == [(0, 'PalEgg_Leaf_03'), (1, 'PalEgg_Leaf_03'), (2, None)]
+
+
+def _breed_world(farms):
+    """A breeding farm lays eggs as separate map objects and lists their ids; three such eggs, two of them ice."""
+    eggs = [_obj('PalEgg_Ice', {'concrete_model_type': 'PalMapObjectPalEggModel'}, model_id=f'egg-{i}',
+                 modules={'ItemContainer': {'target_container_id': f'c-egg-{i}'}}) for i in range(3)]
+    return {'WorkSaveData': {'value': {'values': [_work('w-breed', 100.0, 20.0, assigned=('pal-a', 'pal-b'), wtype='OnlyJoin', owner='m-full')]}},
+            'GuildExtraSaveDataMap': {'value': []},
+            'MapObjectSaveData': {'value': {'values': farms + eggs}}}
+
+
+def test_breeding_farm_counts_the_eggs_lying_around_it_and_warns_when_the_cake_is_gone():
+    farms = [
+        _obj('BreedFarm', {'concrete_model_type': 'PalMapObjectBreedFarmModel', 'spawned_egg_instance_ids': ['egg-0', 'egg-1', 'egg-2', 'egg-gone']},
+             model_id='m-full', modules={'ItemContainer': {'target_container_id': 'c-cake'}, 'Workee': {'target_work_id': 'w-breed'}}),
+        _obj('BreedFarm', {'concrete_model_type': 'PalMapObjectBreedFarmModel', 'spawned_egg_instance_ids': []},
+             model_id='m-nocake', modules={'ItemContainer': {'target_container_id': 'c-empty'}, 'Workee': {'target_work_id': 'w-breed'}}),
+        _obj('BreedFarm', {'concrete_model_type': 'PalMapObjectBreedFarmModel', 'spawned_egg_instance_ids': []},
+             model_id='m-idle', modules={'ItemContainer': {'target_container_id': 'c-cake'}}),
+    ]
+    world = _breed_world(farms)
+    items = {'c-cake': [{'static_id': 'Cake', 'count': 40}],
+             'c-egg-0': [{'static_id': 'PalEgg_Ice_05', 'count': 1}], 'c-egg-1': [{'static_id': 'PalEgg_Earth_03', 'count': 1}],
+             'c-egg-2': [{'static_id': 'PalEgg_Ice_05', 'count': 1}]}
+    ground = index_ground_eggs(world, items)
+    assert ground == {'egg-0': 'PalEgg_Ice_05', 'egg-1': 'PalEgg_Earth_03', 'egg-2': 'PalEgg_Ice_05'}
+    objs = get_activity_objects(world)
+    assert [o['kind'] for o in objs] == ['breeding'] * 3, 'an egg on the ground is not a card of its own'
+    assert objs[0]['spawned_egg_ids'] == ['egg-0', 'egg-1', 'egg-2', 'egg-gone']
+
+    payload = build_activity(objs, index_works(world), {}, META, items, PALS, _Data(), None, ground_eggs=ground)
+    by_id = {j.instance_id: j for j in payload.bases['b1'].jobs}
+    full = by_id['m-full']
+    assert full.status == 'ready' and full.held == 3, 'eggs to pick up; an id with no object behind it is not counted'
+    assert [(o.item_name, o.count) for o in full.outputs] == [('Huge Frozen Egg', 2), ('Large Rocky Egg', 1)], 'most laid first'
+    assert [(i.item_id, i.count) for i in full.inputs] == [('Cake', 40)] and [p.name for p in full.assigned] == ['Ragnahawk', 'Digtoise']
+    assert by_id['m-nocake'].status == 'no_materials', 'a pair on it and no cake: needs a look'
+    assert by_id['m-idle'].status == 'idle' and by_id['m-idle'].held == 0
+    assert payload.bases['b1'].stuck == 1 and payload.bases['b1'].ready == 1
 
 
 def test_generator_fill_comes_from_the_blueprint_capacity():

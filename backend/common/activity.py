@@ -64,6 +64,7 @@ KINDS = {
     'PalMapObjectCharacterTeamMissionModel': 'expedition',
     'PalMapObjectLabModel': 'lab',
 }
+GROUND_EGG_MODEL = 'PalMapObjectPalEggModel'     # an egg a breeding farm dropped; not a card, counted on the farm's
 
 
 def _text(rows: Dict[str, Dict], key: str) -> Optional[str]:

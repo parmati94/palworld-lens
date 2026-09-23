@@ -111,6 +111,15 @@ fields:
     path: ["value", "RawData", "value", "unknown_bytes"]
     default: null
 
+  # ---- breeding farms (PalMapObjectBreedFarmModel) ----
+  # An egg the farm lays is its own map object (PalMapObjectPalEggModel, one PalEgg item in its container)
+  # dropped on the ground; the farm keeps the Model instance ids of the ones not picked up yet.
+  spawned_egg_ids:
+    description: "Model instance ids of the eggs lying around the farm"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "spawned_egg_instance_ids"]
+    default: []
+
   # ---- generators (PalMapObjectGenerateEnergyModel) ----
   stored_energy:
     description: "Energy banked in the generator"
