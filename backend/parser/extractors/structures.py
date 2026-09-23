@@ -208,13 +208,13 @@ def index_item_containers(world_data: Dict) -> Dict[str, List[Dict]]:
             continue
         slots = (((entry.get("value") or {}).get("Slots") or {}).get("value") or {}).get("values", [])
         items = []
-        for slot in slots:
+        for i, slot in enumerate(slots):
             if not isinstance(slot, dict):
                 continue
             slot_data = (slot.get("RawData") or {}).get("value") or {}
             static_id = (slot_data.get("item") or {}).get("static_id")
             count = slot_data.get("count", 0)
             if static_id and count > 0:
-                items.append({"static_id": static_id, "count": count})
+                items.append({"static_id": static_id, "count": count, "slot": i})
         index[str(container_id)] = items
     return index

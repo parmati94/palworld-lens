@@ -51,6 +51,47 @@ def _module_raw(module_map: List, module_type: str) -> Dict:
     return {}
 
 
+def decode_multi_eggs(raw) -> List[Dict]:
+    """The large incubator's per-egg block, which save-tools leaves as bytes.
+
+    [{slot, work_id, character_id, nickname, temp_diff}] in slot order. The work id is the
+    key into WorkSaveData for that egg's timer. Layout (verified on a live 3-egg incubator):
+    u32 lead, u32 count, per egg: u32 slot, guid work id, property list (SaveParameter) until
+    None, i32 temp diff, guid, 8 bytes; then 4 trailing bytes. Empty incubators are 12 zero bytes.
+    """
+    if not raw:
+        return []
+    data = bytes(raw) if not isinstance(raw, (bytes, bytearray)) else bytes(raw)
+    if len(data) <= 12:
+        return []
+    try:
+        from palworld_save_tools.archive import FArchiveReader
+        from palworld_save_tools.paltypes import PALWORLD_CUSTOM_PROPERTIES, PALWORLD_TYPE_HINTS
+        reader = FArchiveReader(data, PALWORLD_TYPE_HINTS, PALWORLD_CUSTOM_PROPERTIES, debug=False)
+        reader.u32()
+        count = reader.u32()
+        out = []
+        for _ in range(min(count, 64)):
+            slot = reader.u32()
+            work_id = reader.guid()
+            props = reader.properties_until_end()
+            temp = reader.i32()
+            reader.guid()
+            reader.data.read(8)
+            param = ((props.get("SaveParameter") or {}).get("value") or {})
+            out.append({
+                "slot": int(slot),
+                "work_id": _guid(work_id),
+                "character_id": _id_or_none((param.get("CharacterID") or {}).get("value")),
+                "nickname": _id_or_none((param.get("NickName") or {}).get("value")),
+                "temp_diff": int(temp),
+            })
+        return out
+    except Exception as e:      # a layout we have not seen: show the eggs without timers rather than fail the load
+        logger.warning(f"Could not decode a large incubator's egg block ({len(data)} bytes): {e}")
+        return []
+
+
 def index_works(world_data: Dict) -> Dict[str, Dict]:
     """{work_id: {type, state, unit, done, assigned: [pal instance ids], owner_model_id}}."""
     out: Dict[str, Dict] = {}
@@ -119,6 +160,7 @@ def get_activity_objects(world_data: Dict) -> List[Dict]:
             "hatched_character_id": _id_or_none(f(obj, "hatched_character_id")),
             "hatched_nickname": _id_or_none(f(obj, "hatched_nickname")),
             "egg_temp_diff": f(obj, "egg_temp_diff"),
+            "multi_eggs": decode_multi_eggs(f(obj, "multi_egg_bytes")) if kind == "incubator" else [],
             # generator
             "stored_energy": _num(f(obj, "stored_energy")),
             # expedition

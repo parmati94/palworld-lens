@@ -82,6 +82,8 @@ fields:
     default: null
 
   # ---- incubators (PalMapObjectHatchingEggModel) ----
+  # The pal is rolled when the timer ends (a large incubator at 60% had no pal in those slots,
+  # only in the finished one), so this field being present means hatched and waiting for pickup.
   hatched_character_id:
     description: "Species of the pal that hatched and waits for pickup"
     root_key: "ConcreteModel"
@@ -98,6 +100,15 @@ fields:
     description: "Temperature mismatch slowing the hatch (0 = comfortable)"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "current_pal_egg_temp_diff"]
+    default: null
+
+  # Large incubator (PalMapObjectMultiHatchingEggModel): save-tools leaves the block undecoded;
+  # extractors/activity.decode_multi_eggs reads it (lead u32, count u32, then per egg: slot u32,
+  # work id guid, the rolled pal's SaveParameter, temp i32, guid, 8 bytes; 4 trailing bytes).
+  multi_egg_bytes:
+    description: "Raw per-egg block of a large incubator"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "unknown_bytes"]
     default: null
 
   # ---- generators (PalMapObjectGenerateEnergyModel) ----

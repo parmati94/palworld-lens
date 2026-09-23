@@ -6,7 +6,8 @@ from types import SimpleNamespace
 from backend.common.activity import (build_activity_tables, crop_phase, expedition_state, fraction, lab_summary, MIN_GENERATORS,
                                      MIN_LAB_RESEARCH, MIN_MISSIONS, TICKS_PER_SECOND)
 from backend.parser.builders.activity import build_activity
-from backend.parser.extractors.activity import get_activity_objects, get_guild_labs, get_real_time_ticks, index_works
+from backend.parser.extractors.activity import (decode_multi_eggs, get_activity_objects, get_guild_labs, get_real_time_ticks,
+                                                index_works)
 from backend.parser.extractors.bases import BaseMeta
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -226,9 +227,9 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
     assert [p.name for p in furnace.assigned] == ['Ragnahawk'] and furnace.is_damaged
 
     egg = by_type['HatchingPalEgg']
-    assert egg.status == 'ready' and egg.egg.egg.item_name == 'Large Rocky Egg'
-    assert egg.egg.hatched_species_id == 'LazyCatfish_Gold' and egg.egg.hatched_name == 'Dumud (Gold)'
-    assert egg.egg.hatched_image_candidates[0] == 'lazycatfish_gold'
+    assert egg.status == 'ready' and len(egg.eggs) == 1 and egg.eggs[0].egg.item_name == 'Large Rocky Egg'
+    assert egg.eggs[0].hatched and egg.eggs[0].species_id == 'LazyCatfish_Gold' and egg.eggs[0].name == 'Dumud (Gold)'
+    assert egg.eggs[0].image_candidates[0] == 'lazycatfish_gold'
 
     crop = by_type['FarmBlockV2_Berries']
     assert crop.status == 'working' and crop.crop.name == 'Red Berries' and crop.crop.phase == 'growing' and crop.crop.progress == 0.25
@@ -266,6 +267,36 @@ def test_station_reports_how_full_the_site_is():
     assert (coal.held, coal.capacity, coal.fill, coal.status) == (161, 9999, 161 / 9999, 'idle')
     assert (quartz.held, quartz.capacity, quartz.fill, quartz.status) == (9999, 9999, 1.0, 'full')
     assert payload.bases['b1'].stuck == 1 and quartz.outputs == [] or quartz.outputs, 'a full site counts as stuck'
+
+
+MULTI_EGG_BLOCK = bytes.fromhex((ROOT / 'tests' / 'fixtures' / 'multi_hatching_egg_block.hex').read_text().strip())
+
+
+def test_decode_multi_eggs_reads_the_large_incubator_block():
+    # captured from a live large incubator with three eggs: two still incubating, the dark one hatched (a Loupmoon)
+    eggs = decode_multi_eggs(MULTI_EGG_BLOCK)
+    assert [(e['slot'], e['character_id'], e['temp_diff']) for e in eggs] == [(0, None, 0), (1, None, 0), (2, 'Werewolf', 0)]
+    assert eggs[0]['work_id'] == 'a21248e6-94d9-410e-ac80-011051b955cc'
+    assert eggs[2]['work_id'] == 'dc4b59d5-b46d-492e-b238-a53ee7618e5a'
+    assert decode_multi_eggs(b'\x00' * 12) == [] and decode_multi_eggs(None) == [] and decode_multi_eggs(b'garbage!' * 4) == []
+
+
+def test_large_incubator_reports_every_egg():
+    works = [_work('a21248e6-94d9-410e-ac80-011051b955cc', 180.0, 110.0), _work('dc4b59d5-b46d-492e-b238-a53ee7618e5a', 30.0, 30.0),
+             _work('1936757f-9ac7-4497-9977-22cca17fb2f5', 180.0, 108.0)]
+    world = {'WorkSaveData': {'value': {'values': works}}, 'GuildExtraSaveDataMap': {'value': []},
+             'MapObjectSaveData': {'value': {'values': [
+                 _obj('MultiHatchingPalEgg', {'concrete_model_type': 'PalMapObjectMultiHatchingEggModel', 'unknown_bytes': MULTI_EGG_BLOCK},
+                      model_id='m-multi', modules={'ItemContainer': {'target_container_id': 'c-multi'}})]}}}
+    items = {'c-multi': [{'static_id': 'PalEgg_Ice_04', 'count': 1, 'slot': 0}, {'static_id': 'PalEgg_Electricity_03', 'count': 1, 'slot': 1},
+                         {'static_id': 'PalEgg_Dark_02', 'count': 1, 'slot': 2}]}
+    payload = build_activity(get_activity_objects(world), index_works(world), {}, META, items, [], _Data(), None)
+    job = payload.bases['b1'].jobs[0]
+    assert job.kind == 'incubator' and job.status == 'ready' and len(job.eggs) == 3
+    assert [(e.slot, e.egg.item_id, e.hatched, e.progress and round(e.progress, 2)) for e in job.eggs] == \
+        [(0, 'PalEgg_Ice_04', False, 0.61), (1, 'PalEgg_Electricity_03', False, 0.6), (2, 'PalEgg_Dark_02', True, 1.0)]
+    assert job.eggs[2].species_id == 'Werewolf'
+    assert round(job.progress, 3) == round((110 / 180 + 108 / 180) / 2, 3), 'the bar averages the eggs still incubating'
 
 
 def test_generator_fill_comes_from_the_blueprint_capacity():

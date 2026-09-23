@@ -66,20 +66,22 @@
                 </div>
             </div>
         </template>
-        <template x-if="job.kind === 'incubator' && job.egg">
+        <template x-if="job.kind === 'incubator'">
             <div>
                 <div class="flex items-center justify-between text-[11px] tabular-nums">
                     <span class="flex items-center gap-2 min-w-0">
-                        <span class="truncate" :class="job.egg.hatched_species_id ? 'text-amber-200' : 'text-gray-500'"
-                              x-text="job.egg.hatched_species_id ? 'hatched, waiting to be picked up' : job.egg.egg ? (job.progress >= 1 ? 'ready to hatch' : 'incubating') : 'empty'"></span>
-                        <template x-if="eggTemperature(job.egg)">
+                        <span class="truncate" :class="job.eggs.some(e => e.hatched) ? 'text-amber-200' : 'text-gray-500'"
+                              x-text="!job.eggs.length ? 'empty'
+                                      : job.eggs.length === 1 ? (job.eggs[0].hatched ? 'hatched, waiting to be picked up' : 'incubating')
+                                      : eggSummary(job.eggs)"></span>
+                        <template x-if="job.eggs.length === 1 && eggTemperature(job.eggs[0])">
                             <span class="px-1.5 rounded-full border border-orange-500/40 bg-orange-500/15 text-orange-200 font-medium whitespace-nowrap"
-                                  :data-tip="eggTemperature(job.egg).tip" x-text="eggTemperature(job.egg).label"></span>
+                                  :data-tip="eggTemperature(job.eggs[0]).tip" x-text="eggTemperature(job.eggs[0]).label"></span>
                         </template>
                     </span>
-                    <span x-show="!job.egg.hatched_species_id && job.egg.egg && job.progress != null" class="text-gray-500" x-text="Math.round((job.progress || 0) * 100) + '%'"></span>
+                    <span x-show="job.progress != null && job.eggs.some(e => !e.hatched)" class="text-gray-500" x-text="Math.round((job.progress || 0) * 100) + '%'"></span>
                 </div>
-                <div class="mt-1.5 h-1.5 rounded-full bg-gray-700/70 overflow-hidden" :class="(job.egg.hatched_species_id || !job.egg.egg || job.progress == null) ? 'invisible' : ''">
+                <div class="mt-1.5 h-1.5 rounded-full bg-gray-700/70 overflow-hidden" :class="(job.progress == null || !job.eggs.some(e => !e.hatched)) ? 'invisible' : ''">
                     <div class="h-full rounded-full" :class="kind.bar" :style="`width:${Math.round((job.progress || 0) * 100)}%`"></div>
                 </div>
             </div>
@@ -115,6 +117,22 @@
 
     <!-- 3. one row: item tiles on the left (in -> out for machines, the haul, what a ranch holds), pals on the right -->
     <div class="min-h-7 flex items-center gap-1.5 flex-wrap">
+        <!-- a large incubator: stacked egg tiles and a count, into the egg modal -->
+        <template x-if="job.kind === 'incubator' && job.eggs.length > EGGS_INLINE_MAX">
+            <button type="button" @click="$dispatch('open-crew-modal', eggModalDetail(job))"
+                    class="flex items-center gap-2 pl-1 pr-3 py-0.5 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
+                    :data-tip="'See all ' + job.eggs.length + ' eggs'">
+                <span class="flex -space-x-2">
+                    <template x-for="e in job.eggs.slice(0, 5)" :key="e.slot">
+                        <span class="w-6 h-6 rounded-full ring-2 ring-gray-800 bg-gray-900 overflow-hidden flex items-center justify-center">
+                            <img x-show="e.hatched" :src="`/img/t_${(e.image_candidates || [])[0] || 'unknown'}_icon_normal.webp`" alt="" class="w-6 h-6" @error="palIconError($el, { image_candidates: e.image_candidates || [] })">
+                            <img x-show="!e.hatched && e.egg" :src="e.egg ? `/img/${e.egg.icon}.webp` : ''" alt="" class="w-5 h-5 object-contain">
+                        </span>
+                    </template>
+                </span>
+                <span class="text-xs text-gray-300 tabular-nums"><span x-text="job.eggs.length"></span> eggs</span>
+            </button>
+        </template>
         <!-- machines: the recipe as pictures, in -> out; the counts are on hover and in the status line -->
         <template x-for="item in job.inputs" :key="'in-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" }}

@@ -210,8 +210,13 @@ test('activity: cards lead with the product and take the family colour', async (
     const ingot = { item_id: 'IronIngot', item_name: 'Ingot', icon: 'i', rarity: 0 };
     assert.deepEqual(activityHero({ kind: 'machine', display_name: 'Furnace', product: ingot }), { item: ingot, pal: null, title: 'Ingot', caption: 'Furnace' });
     assert.equal(activityHero({ kind: 'crop', display_name: 'Berry Plantation', crop: { crop_id: 'Berries', name: 'Red Berries', icon: 'b' } }).title, 'Red Berries');
-    const hatched = activityHero({ kind: 'incubator', display_name: 'Egg Incubator', egg: { hatched_species_id: 'Dumud', hatched_name: 'Dumud', hatched_image_candidates: ['Dumud'] } });
+    const hatched = activityHero({ kind: 'incubator', display_name: 'Egg Incubator', eggs: [{ hatched: true, species_id: 'Dumud', name: 'Dumud', image_candidates: ['Dumud'] }] });
     assert.equal(hatched.pal.name, 'Dumud'); assert.equal(hatched.item, null);
+    assert.equal(activityHero({ kind: 'incubator', display_name: 'Large Incubator', eggs: [{ hatched: false }, { hatched: true }] }).title, 'Large Incubator');
+    const { eggSummary, eggModalDetail } = await import('../js/utils.js');
+    assert.equal(eggSummary([{ hatched: true }, { hatched: false }, { hatched: false }]), '1 hatched · 2 incubating');
+    assert.equal(eggSummary([]), '');
+    assert.equal(eggModalDetail({ display_name: 'Large Incubator', eggs: [{ hatched: true }, { hatched: false }] }).subtitle, '2 eggs · 1 hatched · 1 incubating');
     assert.deepEqual(activityHero({ kind: 'generator', display_name: 'Power Generator' }), { item: null, pal: null, title: 'Power Generator', caption: '' });
     assert.deepEqual(activityHero({ kind: 'expedition', display_name: 'Pal Expedition Station', expedition: { state: 'out', name: 'Astral Frost Cavern' } }),
         { item: null, pal: null, title: 'Astral Frost Cavern', caption: 'Pal Expedition Station' });

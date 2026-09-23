@@ -335,12 +335,13 @@ export function activityHero(job) {
         return { item: { item_id: job.crop.crop_id, item_name: job.crop.name, icon: job.crop.icon, rarity: null },
                  pal: null, title: job.crop.name, caption: building };
     }
-    if (job.kind === 'incubator' && job.egg) {
-        if (job.egg.hatched_species_id) {
-            return { item: null, pal: { name: job.egg.hatched_name || job.egg.hatched_species_id, image_candidates: job.egg.hatched_image_candidates || [] },
-                     title: job.egg.hatched_name || job.egg.hatched_species_id, caption: building };
+    if (job.kind === 'incubator' && job.eggs && job.eggs.length === 1) {
+        const e = job.eggs[0];
+        if (e.hatched && e.species_id) {
+            return { item: null, pal: { name: e.name || e.species_id, image_candidates: e.image_candidates || [] },
+                     title: e.name || e.species_id, caption: building };
         }
-        if (job.egg.egg) return { item: job.egg.egg, pal: null, title: job.egg.egg.item_name, caption: building };
+        if (e.egg) return { item: e.egg, pal: null, title: e.egg.item_name, caption: building };
     }
     if (job.kind === 'expedition' && job.expedition && job.expedition.state !== 'idle') {
         return { item: null, pal: null, title: job.expedition.name || job.expedition.mission_id, caption: building };
@@ -364,6 +365,24 @@ export function crewModalDetail(job) {
     if (e) state = e.state === 'out' ? `On expedition, ${formatDuration(e.seconds_left)} left` : e.state === 'back' ? 'Haul waiting' : 'Idle';
     return { title, subtitle: `${pals.length} pal${pals.length === 1 ? '' : 's'}${state ? ' · ' + state : ''}`, pals };
 }
+
+/** "2 hatched · 1 incubating" for an incubator's eggs; '' when empty. */
+export function eggSummary(eggs) {
+    const list = eggs || [];
+    const hatched = list.filter(e => e.hatched).length;
+    const incubating = list.length - hatched;
+    const parts = [];
+    if (hatched) parts.push(`${hatched} hatched`);
+    if (incubating) parts.push(`${incubating} incubating`);
+    return parts.join(' · ');
+}
+
+/** Title + subtitle + eggs for the egg modal (the crew modal, showing eggs). */
+export function eggModalDetail(job) {
+    const eggs = job.eggs || [];
+    return { title: job.display_name, subtitle: `${eggs.length} egg${eggs.length === 1 ? '' : 's'} · ${eggSummary(eggs)}`, eggs };
+}
+export const EGGS_INLINE_MAX = 1;   // one egg draws on the card itself; more open the modal
 
 /** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
 export function eggTemperature(egg) {

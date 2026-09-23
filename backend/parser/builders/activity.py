@@ -153,23 +153,39 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
                 job.status = "idle"
 
         elif kind == "incubator":
-            eggs = [c for c in contents if c.item_id.startswith("PalEgg")]
-            hatched = obj.get("hatched_character_id")
-            job.egg = EggInfo(egg=eggs[0] if eggs else None,
-                              hatched_species_id=hatched,
-                              hatched_name=(obj.get("hatched_nickname") or (data.pal_name(hatched) if hatched else None)),
-                              hatched_image_candidates=pal_icons.icon_candidates(hatched) if hatched else [],
-                              temp_diff=obj.get("egg_temp_diff"))
-            unit, done = work.get("unit"), work.get("done")
-            if unit is not None and unit > 0:
-                job.unit_work, job.unit_done, job.progress = unit, done, fraction(done, unit)
-            if hatched:
+            raw_slots = item_index.get(obj.get("container_id") or "", [])
+            by_slot = {e.get("slot", i): e for i, e in enumerate(raw_slots) if str(e.get("static_id", "")).startswith("PalEgg")}
+            entries = obj.get("multi_eggs") or []
+            if not entries and (obj.get("hatched_character_id") or by_slot):
+                entries = [{"slot": min(by_slot) if by_slot else 0, "work_id": obj.get("work_id"),
+                            "character_id": obj.get("hatched_character_id"), "nickname": obj.get("hatched_nickname"),
+                            "temp_diff": obj.get("egg_temp_diff")}]
+            for e in entries:
+                w = works.get(e.get("work_id") or "") or {}
+                prog = fraction(w.get("done"), w.get("unit")) if (w.get("unit") or 0) > 0 else None
+                species = e.get("character_id")
+                slot_item = by_slot.get(e.get("slot", 0))
+                job.eggs.append(EggInfo(
+                    slot=e.get("slot", 0),
+                    egg=_item(data, slot_item["static_id"], slot_item["count"]) if slot_item else None,
+                    species_id=species,
+                    name=e.get("nickname") or (data.pal_name(species) if species else None),
+                    image_candidates=pal_icons.icon_candidates(species) if species else [],
+                    progress=prog,
+                    hatched=bool(species) or (prog is not None and prog >= 1.0),
+                    temp_diff=e.get("temp_diff"),
+                ))
+            job.eggs.sort(key=lambda x: x.slot)
+            incubating = [x for x in job.eggs if not x.hatched]
+            if incubating:
+                progs = [x.progress for x in incubating if x.progress is not None]
+                job.progress = sum(progs) / len(progs) if progs else None
+            if any(x.hatched for x in job.eggs):
                 job.status = "ready"
-            elif eggs:
-                job.status = "ready" if (job.progress or 0) >= 1.0 else "working"
+            elif job.eggs:
+                job.status = "working"
             else:
                 job.status = "idle"
-            job.outputs = eggs
 
         elif kind in ("ranch", "breeding", "generator"):
             job.outputs = contents

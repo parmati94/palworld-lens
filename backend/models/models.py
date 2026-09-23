@@ -270,10 +270,14 @@ class CropInfo(BaseModel):
 
 
 class EggInfo(BaseModel):
+    """One egg in an incubator. The pal is rolled when the timer ends; species is only known once hatched."""
+    slot: int = 0
     egg: Optional[ItemRef] = None
-    hatched_species_id: Optional[str] = None    # set once the egg has hatched and waits for pickup
-    hatched_name: Optional[str] = None
-    hatched_image_candidates: List[str] = []
+    species_id: Optional[str] = None
+    name: Optional[str] = None                  # nickname or species name
+    image_candidates: List[str] = []
+    progress: Optional[float] = None            # 0..1 of the hatch timer
+    hatched: bool = False                       # the pal is rolled and waits to be picked up
     temp_diff: Optional[int] = None             # the save's current_pal_egg_temp_diff; 0 = comfortable
 
 
@@ -310,7 +314,7 @@ class ActivityJob(BaseModel):
     outputs: List[ItemRef] = []
     assigned: List[ActivityPal] = []
     crop: Optional[CropInfo] = None
-    egg: Optional[EggInfo] = None
+    eggs: List[EggInfo] = []                    # incubators: one per slot (a large one holds ten)
     expedition: Optional[ExpeditionInfo] = None
     held: Optional[int] = None                  # stations: units of the product sitting in the site
     capacity: Optional[int] = None              # stations: slots x the product's max stack
