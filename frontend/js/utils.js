@@ -290,6 +290,56 @@ export function activityGroups(jobs) {
     return groups.filter(g => g.jobs.length);
 }
 
+/** Palworld's per-family colours for the Activity cards: the hero tile, the progress bar, the caption. */
+export const ACTIVITY_KIND = {
+    machine:    { label: 'Machine',    tile: 'bg-orange-500/15 ring-orange-400/40', bar: 'bg-orange-400', text: 'text-orange-300' },
+    station:    { label: 'Station',    tile: 'bg-teal-500/15 ring-teal-400/40',     bar: 'bg-teal-400',   text: 'text-teal-300' },
+    crop:       { label: 'Plot',       tile: 'bg-lime-500/15 ring-lime-400/40',     bar: 'bg-lime-400',   text: 'text-lime-300' },
+    incubator:  { label: 'Incubator',  tile: 'bg-amber-500/15 ring-amber-400/40',   bar: 'bg-amber-400',  text: 'text-amber-300' },
+    ranch:      { label: 'Ranch',      tile: 'bg-pink-500/15 ring-pink-400/40',     bar: 'bg-pink-400',   text: 'text-pink-300' },
+    breeding:   { label: 'Breeding',   tile: 'bg-rose-500/15 ring-rose-400/40',     bar: 'bg-rose-400',   text: 'text-rose-300' },
+    generator:  { label: 'Power',      tile: 'bg-sky-500/15 ring-sky-400/40',       bar: 'bg-sky-400',    text: 'text-sky-300' },
+    expedition: { label: 'Expedition', tile: 'bg-violet-500/15 ring-violet-400/40', bar: 'bg-violet-400', text: 'text-violet-300' },
+    lab:        { label: 'Research',   tile: 'bg-violet-500/15 ring-violet-400/40', bar: 'bg-violet-400', text: 'text-violet-300' },
+};
+const PLAIN_KIND = { label: '', tile: 'bg-gray-900/60 ring-gray-700/60', bar: 'bg-gray-400', text: 'text-gray-400' };
+
+export function activityKind(kind) {
+    return ACTIVITY_KIND[kind] || PLAIN_KIND;
+}
+
+/**
+ * What a card leads with: the product (ingot, berry, egg, hatched pal) rather than the building.
+ * { item, pal, title, caption } -- one of item / pal is set when there is a product to show;
+ * otherwise the building's own icon is the tile and the title is the building.
+ */
+export function activityHero(job) {
+    if (!job) return { item: null, pal: null, title: '', caption: '' };
+    const building = job.display_name || '';
+    if ((job.kind === 'machine' || job.kind === 'station') && job.product) {
+        return { item: job.product, pal: null, title: job.product.item_name, caption: building };
+    }
+    if (job.kind === 'crop' && job.crop) {
+        return { item: { item_id: job.crop.crop_id, item_name: job.crop.name, icon: job.crop.icon, rarity: null },
+                 pal: null, title: job.crop.name, caption: building };
+    }
+    if (job.kind === 'incubator' && job.egg) {
+        if (job.egg.hatched_species_id) {
+            return { item: null, pal: { name: job.egg.hatched_name || job.egg.hatched_species_id, image_candidates: job.egg.hatched_image_candidates || [] },
+                     title: job.egg.hatched_name || job.egg.hatched_species_id, caption: building };
+        }
+        if (job.egg.egg) return { item: job.egg.egg, pal: null, title: job.egg.egg.item_name, caption: building };
+    }
+    return { item: null, pal: null, title: building, caption: '' };
+}
+
+/** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
+export function eggTemperature(egg) {
+    const d = egg && egg.temp_diff;
+    if (d == null || d === 0) return null;
+    return { label: 'Wrong temperature', tip: `Off by ${Math.abs(d)} -- a heater or cooler next to it fixes this` };
+}
+
 /** A stack count the way the game abbreviates it: 1,234 / 12.3K / 1.2M. */
 export function formatCount(n) {
     if (n == null || !isFinite(n)) return '';

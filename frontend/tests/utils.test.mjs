@@ -199,3 +199,18 @@ test('activity: groups by attention, formats durations and order lines', async (
     assert.equal(orderLine({ recipe_id: null }), '');
     assert.deepEqual([1234, 12345, 250000, 1234567, 1000000, null].map(formatCount), ['1,234', '12.3K', '250K', '1.2M', '1M', '']);
 });
+
+test('activity: cards lead with the product and take the family colour', async () => {
+    const { activityHero, activityKind, eggTemperature } = await import('../js/utils.js');
+    const ingot = { item_id: 'IronIngot', item_name: 'Ingot', icon: 'i', rarity: 0 };
+    assert.deepEqual(activityHero({ kind: 'machine', display_name: 'Furnace', product: ingot }), { item: ingot, pal: null, title: 'Ingot', caption: 'Furnace' });
+    assert.equal(activityHero({ kind: 'crop', display_name: 'Berry Plantation', crop: { crop_id: 'Berries', name: 'Red Berries', icon: 'b' } }).title, 'Red Berries');
+    const hatched = activityHero({ kind: 'incubator', display_name: 'Egg Incubator', egg: { hatched_species_id: 'Dumud', hatched_name: 'Dumud', hatched_image_candidates: ['Dumud'] } });
+    assert.equal(hatched.pal.name, 'Dumud'); assert.equal(hatched.item, null);
+    assert.deepEqual(activityHero({ kind: 'generator', display_name: 'Power Generator' }), { item: null, pal: null, title: 'Power Generator', caption: '' });
+    assert.equal(activityKind('machine').bar, 'bg-orange-400');
+    assert.equal(activityKind('nope').label, '');
+    assert.equal(eggTemperature({ temp_diff: 0 }), null);
+    assert.equal(eggTemperature({ temp_diff: -3 }).label, 'Wrong temperature');
+    assert.equal(eggTemperature(null), null);
+});

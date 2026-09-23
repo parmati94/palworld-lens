@@ -271,6 +271,7 @@ class EggInfo(BaseModel):
     hatched_species_id: Optional[str] = None    # set once the egg has hatched and waits for pickup
     hatched_name: Optional[str] = None
     hatched_image_candidates: List[str] = []
+    temp_diff: Optional[int] = None             # the save's current_pal_egg_temp_diff; 0 = comfortable
 
 
 class ExpeditionInfo(BaseModel):

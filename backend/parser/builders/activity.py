@@ -135,7 +135,8 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
             job.egg = EggInfo(egg=eggs[0] if eggs else None,
                               hatched_species_id=hatched,
                               hatched_name=(obj.get("hatched_nickname") or (data.pal_name(hatched) if hatched else None)),
-                              hatched_image_candidates=pal_icons.icon_candidates(hatched) if hatched else [])
+                              hatched_image_candidates=pal_icons.icon_candidates(hatched) if hatched else [],
+                              temp_diff=obj.get("egg_temp_diff"))
             unit, done = work.get("unit"), work.get("done")
             if unit is not None and unit > 0:
                 job.unit_work, job.unit_done, job.progress = unit, done, fraction(done, unit)
