@@ -6,7 +6,7 @@ from collections import defaultdict
 from backend.models.models import BaseContainerInfo, BaseLocation, GuildStorageInfo, ItemSlot, SchematicInfo
 from backend.parser.extractors.bases import BaseMeta
 from backend.parser.loaders.data_loader import DataLoader
-from backend.parser.utils.mappers import map_building_name
+from backend.parser.utils.mappers import building_row, map_building_name
 from backend.common.logging_config import get_logger
 from backend.common.schematics import rarity_name
 
@@ -53,7 +53,7 @@ def _container(kind: str, building_type: str, display_name: str, raw: Dict,
         container_type=kind,
         building_type=building_type,
         display_name=display_name,
-        building_icon=(data.buildings.get(building_type) or {}).get("icon"),
+        building_icon=building_row(building_type, data).get("icon"),
         base_id=meta.base_id,
         base_name=meta.name,
         container_id=raw.get("container_id"),
