@@ -19,7 +19,8 @@ from backend.parser.utils.mappers import map_building_name
 
 logger = get_logger(__name__)
 
-STATUS_ORDER = {"ready": 0, "working": 1, "unstaffed": 2, "no_materials": 3, "idle": 4}
+STATUS_ORDER = {"full": 0, "ready": 1, "working": 2, "unstaffed": 3, "no_materials": 4, "idle": 5}
+STUCK = ("unstaffed", "no_materials", "full")
 
 
 def _item(data: DataLoader, item_id: str, count: int = 0) -> ItemRef:
@@ -60,7 +61,7 @@ def _job(obj: Dict, data: DataLoader, meta: BaseMeta) -> ActivityJob:
 
 def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, Dict], base_meta: Dict[str, BaseMeta],
                    item_index: Dict[str, List[Dict]], pals: List, data: DataLoader,
-                   now_ticks: Optional[int]) -> ActivityPayload:
+                   now_ticks: Optional[int], container_sizes: Optional[Dict[str, int]] = None) -> ActivityPayload:
     by_pal = {p.instance_id: p for p in pals}
     tables = data.activity
     bases: Dict[str, List[ActivityJob]] = defaultdict(list)
@@ -106,11 +107,18 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
             pid = obj.get("product_item_id")
             if pid:
                 job.product = _item(data, pid)
+                # what matters here is how full the site is: pals keep mining into a full one for nothing
+                slots = (container_sizes or {}).get(obj.get("container_id") or "") or 1
+                max_stack = data.item(pid).get("max_stack_count")
+                job.held = sum(c.count for c in contents if c.item_id == pid)
+                if isinstance(max_stack, int) and max_stack > 0:
+                    job.capacity = max_stack * slots
+                    job.fill = fraction(job.held, job.capacity)
             job.outputs = contents
-            unit, done = work.get("unit"), work.get("done")
-            if unit is not None and unit > 0 and unit != IDLE_UNIT:
-                job.unit_work, job.unit_done, job.progress = unit, done, fraction(done, unit)
-            job.status = "working" if job.assigned else "idle"
+            if job.fill is not None and job.fill >= 1.0:
+                job.status = "full"
+            else:
+                job.status = "working" if job.assigned else "idle"
 
         elif kind == "crop":
             cid = obj.get("crop_id") or ""
@@ -199,7 +207,7 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
             base_id=base_id, jobs=jobs,
             working=sum(j.status == "working" for j in jobs),
             ready=sum(j.status == "ready" for j in jobs),
-            stuck=sum(j.status in ("unstaffed", "no_materials") for j in jobs),
+            stuck=sum(j.status in STUCK for j in jobs),
             idle=sum(j.status == "idle" for j in jobs),
         )
     for g in guilds.values():

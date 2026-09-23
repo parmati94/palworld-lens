@@ -15,7 +15,7 @@ from backend.parser.loaders.schema_loader import SchemaManager
 from backend.parser.extractors.characters import get_character_data, split_players
 from backend.parser.extractors.guilds import get_guild_data, get_base_data, get_guild_storage
 from backend.parser.extractors.bases import get_base_metadata, get_base_assignments
-from backend.parser.extractors.structures import get_food_bowls, get_storage_containers, index_item_containers
+from backend.parser.extractors.structures import get_food_bowls, get_storage_containers, index_item_containers, index_container_sizes
 from backend.parser.extractors.relationships import build_player_mapping, build_pal_ownership
 from backend.parser.builders.pals import build_pals
 from backend.parser.builders.players import build_players
@@ -99,7 +99,8 @@ class SaveFileParser:
                                            guild_storage=get_guild_storage(world))
         guild_storage = build_guild_storage(containers)
         activity = build_activity(get_activity_objects(world), index_works(world), get_guild_labs(world), base_meta,
-                                  item_index, pals, self.data, get_real_time_ticks(world))
+                                  item_index, pals, self.data, get_real_time_ticks(world),
+                                  container_sizes=index_container_sizes(world))
 
         info = self._save_info(player_count=len(player_data), pal_count=len(char_data) - len(player_data),
                                guild_count=len(guilds))

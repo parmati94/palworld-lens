@@ -179,9 +179,10 @@ class _Data:
                 'expeditions': {'Dungeon_Grass': {'name': 'Verdant Hollow', 'seconds': 1800, 'difficulty': 'Easy'}},
                 'recipe_products': {},
                 'generators': {'ElectricGenerator': {'capacity': 250000.0, 'rate': None}}}
-    _items = {'IronIngot': {'localized_name': 'Refined Ingot', 'icon': 'i_ingot', 'rarity': 0},
+    _items = {'Quartz': {'localized_name': 'Pure Quartz', 'icon': 'i_quartz', 'rarity': 0, 'max_stack_count': 9999},
+              'IronIngot': {'localized_name': 'Refined Ingot', 'icon': 'i_ingot', 'rarity': 0},
               'CopperOre': {'localized_name': 'Ore', 'icon': 'i_ore', 'rarity': 0},
-              'Coal': {'localized_name': 'Coal', 'icon': 'i_coal', 'rarity': 0},
+              'Coal': {'localized_name': 'Coal', 'icon': 'i_coal', 'rarity': 0, 'max_stack_count': 9999},
               'Berries': {'localized_name': 'Red Berries', 'icon': 'i_berries', 'rarity': 0},
               'PalEgg_Earth_03': {'localized_name': 'Large Rocky Egg', 'icon': 'i_rockyegg', 'rarity': 2},
               'Gold': {'localized_name': 'Gold Coin', 'icon': 'i_gold', 'rarity': 0}}
@@ -246,6 +247,23 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
     assert lab.completed == 1 and [p.name for p in lab.assigned] == ['Digtoise']
     assert 'g2' not in payload.guilds, 'a guild with no lab building and no research shows nothing'
     assert payload.as_of_ticks == 1000 * TICKS_PER_SECOND
+
+
+def test_station_reports_how_full_the_site_is():
+    world = {'WorkSaveData': {'value': {'values': []}}, 'GuildExtraSaveDataMap': {'value': []},
+             'MapObjectSaveData': {'value': {'values': [
+                 _obj('CoalPit', {'concrete_model_type': 'PalMapObjectProductItemModel', 'product_item_id': 'Coal'},
+                      model_id='m-coal', modules={'ItemContainer': {'target_container_id': 'c-coal'}}),
+                 _obj('QuartzPit', {'concrete_model_type': 'PalMapObjectProductItemModel', 'product_item_id': 'Quartz'},
+                      model_id='m-quartz', modules={'ItemContainer': {'target_container_id': 'c-quartz'}}),
+             ]}}}
+    items = {'c-coal': [{'static_id': 'Coal', 'count': 161}], 'c-quartz': [{'static_id': 'Quartz', 'count': 9999}]}
+    payload = build_activity(get_activity_objects(world), {}, {}, META, items, [], _Data(), None,
+                             container_sizes={'c-coal': 1, 'c-quartz': 1})
+    coal, quartz = sorted(payload.bases['b1'].jobs, key=lambda j: j.instance_id)
+    assert (coal.held, coal.capacity, coal.fill, coal.status) == (161, 9999, 161 / 9999, 'idle')
+    assert (quartz.held, quartz.capacity, quartz.fill, quartz.status) == (9999, 9999, 1.0, 'full')
+    assert payload.bases['b1'].stuck == 1 and quartz.outputs == [] or quartz.outputs, 'a full site counts as stuck'
 
 
 def test_generator_fill_comes_from_the_blueprint_capacity():

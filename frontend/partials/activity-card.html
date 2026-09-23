@@ -3,7 +3,7 @@
      building underneath in the family's colour (activityKind); the bar takes the same colour.
      Body by kind (machine / station / crop / incubator / expedition / generator). Footer: the pals on it. --}}
 <div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-3"
-     :class="job.status === 'ready' ? 'border-amber-500/30' : (job.status === 'unstaffed' || job.status === 'no_materials') ? 'border-orange-500/30' : ''"
+     :class="job.status === 'ready' ? 'border-amber-500/30' : (job.status === 'unstaffed' || job.status === 'no_materials' || job.status === 'full') ? 'border-orange-500/30' : ''"
      x-data="{ get hero() { return activityHero(job); }, get kind() { return activityKind(job.kind); } }">
     <!-- header: hero tile, title, building caption, status chip -->
     <div class="flex items-start justify-between gap-2">
@@ -29,14 +29,14 @@
                         : activityStatus(job.status).label"></span>
     </div>
 
-    <!-- machine / station: the order and progress on the unit in hand -->
-    <template x-if="(job.kind === 'machine' || job.kind === 'station') && job.product">
+    <!-- machine: the order and progress on the unit in hand -->
+    <template x-if="job.kind === 'machine' && job.product">
         <div>
-            <div class="text-[11px] text-gray-400 tabular-nums" x-text="orderLine(job) || 'gathers on its own while staffed'"></div>
+            <div class="text-[11px] text-gray-400 tabular-nums" x-text="orderLine(job)"></div>
             <template x-if="job.progress != null">
                 <div class="mt-2">
                     <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
-                        <span x-text="'next one'"></span>
+                        <span>next one</span>
                         <span x-text="Math.round(job.progress * 100) + '%'"></span>
                     </div>
                     <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
@@ -44,6 +44,19 @@
                     </div>
                 </div>
             </template>
+        </div>
+    </template>
+
+    <!-- station (quarry, mining site, logging site): how full it is -- a full site wastes the pals on it -->
+    <template x-if="job.kind === 'station' && job.product">
+        <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                <span x-text="job.capacity != null ? (job.held || 0).toLocaleString() + ' / ' + job.capacity.toLocaleString() + ' in the site' : (job.held || 0).toLocaleString() + ' in the site'"></span>
+                <span x-show="job.fill != null" class="text-sm font-semibold" :class="job.fill >= 0.999 ? 'text-red-300' : job.fill >= 0.9 ? 'text-amber-300' : 'text-white'" x-text="Math.round((job.fill || 0) * 100) + '%'"></span>
+            </div>
+            <div x-show="job.fill != null" class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                <div class="h-full rounded-full" :class="fillBarClass(job.fill, kind.bar)" :style="`width:${Math.round((job.fill || 0) * 100)}%`"></div>
+            </div>
         </div>
     </template>
 
@@ -140,7 +153,7 @@
                     </template>
                 </div>
             </template>
-            <template x-if="job.outputs.length && job.kind !== 'incubator'">
+            <template x-if="job.outputs.length && job.kind !== 'incubator' && job.kind !== 'station'">
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="eyebrow w-8" x-text="job.kind === 'machine' ? 'out' : 'holds'"></span>
                     <template x-for="item in job.outputs" :key="item.item_id">

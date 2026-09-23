@@ -213,4 +213,7 @@ test('activity: cards lead with the product and take the family colour', async (
     assert.equal(eggTemperature({ temp_diff: 0 }), null);
     assert.equal(eggTemperature({ temp_diff: -3 }).label, 'Wrong temperature');
     assert.equal(eggTemperature(null), null);
+    const { fillBarClass, activityStatus: st } = await import('../js/utils.js');
+    assert.deepEqual([0.5, 0.95, 1, null].map(f => fillBarClass(f, 'bg-teal-400')), ['bg-teal-400', 'bg-amber-400', 'bg-red-400', 'bg-teal-400']);
+    assert.equal(st('full').label, 'Full');
 });

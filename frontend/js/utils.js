@@ -269,6 +269,7 @@ export const ACTIVITY_STATUS = {
     working:      { label: 'Working',          chip: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/40', bar: 'bg-emerald-400' },
     unstaffed:    { label: 'Nobody on it',     chip: 'bg-orange-500/15 text-orange-200 border-orange-500/40', bar: 'bg-orange-400' },
     no_materials: { label: 'Out of materials', chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
+    full:         { label: 'Full',             chip: 'bg-red-500/15 text-red-200 border-red-500/40',         bar: 'bg-red-400' },
     idle:         { label: 'Idle',             chip: 'bg-gray-700/60 text-gray-400 border-gray-600/60',      bar: 'bg-gray-500' },
 };
 
@@ -338,6 +339,14 @@ export function eggTemperature(egg) {
     const d = egg && egg.temp_diff;
     if (d == null || d === 0) return null;
     return { label: 'Wrong temperature', tip: `Off by ${Math.abs(d)} -- a heater or cooler next to it fixes this` };
+}
+
+/** Bar colour for how full a site is: fine, filling up (90%+), full. */
+export function fillBarClass(fill, base) {
+    if (fill == null) return base;
+    if (fill >= 0.999) return 'bg-red-400';
+    if (fill >= 0.9) return 'bg-amber-400';
+    return base;
 }
 
 /** A stack count the way the game abbreviates it: 1,234 / 12.3K / 1.2M. */

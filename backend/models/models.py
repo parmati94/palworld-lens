@@ -295,7 +295,7 @@ class ActivityJob(BaseModel):
     display_name: str
     building_icon: Optional[str] = None
     base_id: str
-    status: str                         # working | ready | unstaffed | no_materials | idle
+    status: str                         # working | ready | unstaffed | no_materials | full | idle
     recipe_id: Optional[str] = None
     product: Optional[ItemRef] = None
     order_remaining: int = 0
@@ -309,6 +309,9 @@ class ActivityJob(BaseModel):
     crop: Optional[CropInfo] = None
     egg: Optional[EggInfo] = None
     expedition: Optional[ExpeditionInfo] = None
+    held: Optional[int] = None                  # stations: units of the product sitting in the site
+    capacity: Optional[int] = None              # stations: slots x the product's max stack
+    fill: Optional[float] = None                # held / capacity
     stored_energy: Optional[float] = None
     energy_max: Optional[float] = None          # generator capacity from its blueprint; progress = fill
     is_damaged: bool = False
