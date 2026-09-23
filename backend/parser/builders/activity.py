@@ -15,7 +15,7 @@ from backend.models.models import (ActivityJob, ActivityPal, ActivityPayload, Ba
                                    ExpeditionInfo, GuildActivity, ItemRef, LabInfo, LabResearch)
 from backend.parser.extractors.bases import BaseMeta
 from backend.parser.loaders.data_loader import DataLoader
-from backend.parser.utils.mappers import map_building_name
+from backend.parser.utils.mappers import building_row, map_building_name
 
 logger = get_logger(__name__)
 
@@ -52,7 +52,7 @@ def _job(obj: Dict, data: DataLoader, meta: BaseMeta) -> ActivityJob:
         kind=obj["kind"],
         building_type=building_type,
         display_name=map_building_name(building_type, data),
-        building_icon=(data.buildings.get(building_type) or {}).get("icon"),
+        building_icon=building_row(building_type, data).get("icon"),
         base_id=meta.base_id,
         status="idle",
         is_damaged=bool(hp_max) and hp_max > 0 and (obj.get("hp_current") or 0) < hp_max,
@@ -61,7 +61,8 @@ def _job(obj: Dict, data: DataLoader, meta: BaseMeta) -> ActivityJob:
 
 def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, Dict], base_meta: Dict[str, BaseMeta],
                    item_index: Dict[str, List[Dict]], pals: List, data: DataLoader,
-                   now_ticks: Optional[int], container_sizes: Optional[Dict[str, int]] = None) -> ActivityPayload:
+                   now_ticks: Optional[int], container_sizes: Optional[Dict[str, int]] = None,
+                   ground_eggs: Optional[Dict[str, str]] = None) -> ActivityPayload:
     by_pal = {p.instance_id: p for p in pals}
     tables = data.activity
     missions = {k.lower(): v for k, v in tables["expeditions"].items()}   # the save says DUNGEON_SNOW, the table Dungeon_Snow
@@ -190,7 +191,24 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
             else:
                 job.status = "idle"
 
-        elif kind in ("ranch", "breeding", "generator"):
+        elif kind == "breeding":
+            # cake goes in, eggs come out onto the ground around the farm (each one its own map object)
+            job.inputs = contents
+            laid: Dict[str, int] = defaultdict(int)
+            for egg_id in obj.get("spawned_egg_ids") or []:
+                item_id = (ground_eggs or {}).get(egg_id)
+                if item_id:
+                    laid[item_id] += 1
+            job.outputs = [_item(data, item_id, n) for item_id, n in sorted(laid.items(), key=lambda kv: -kv[1])]
+            job.held = sum(laid.values())
+            if job.held:
+                job.status = "ready"             # eggs to pick up
+            elif job.assigned and not job.inputs:
+                job.status = "no_materials"      # a pair on it and no cake: nothing happens
+            else:
+                job.status = "working" if job.assigned else "idle"
+
+        elif kind in ("ranch", "generator"):
             job.outputs = contents
             if kind == "generator":
                 job.stored_energy = obj.get("stored_energy")

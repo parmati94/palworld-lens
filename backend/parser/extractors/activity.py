@@ -17,7 +17,7 @@ the same way structures.py finds a chest's container.
 """
 from typing import Any, Dict, List, Optional
 
-from backend.common.activity import KINDS, NONE
+from backend.common.activity import GROUND_EGG_MODEL, KINDS, NONE
 from backend.common.logging_config import get_logger
 from backend.parser.loaders.schema_loader import SchemaManager
 
@@ -161,6 +161,8 @@ def get_activity_objects(world_data: Dict) -> List[Dict]:
             "hatched_nickname": _id_or_none(f(obj, "hatched_nickname")),
             "egg_temp_diff": f(obj, "egg_temp_diff"),
             "multi_eggs": decode_multi_eggs(f(obj, "multi_egg_bytes")) if kind == "incubator" else [],
+            # breeding farm
+            "spawned_egg_ids": [_guid(e) for e in (f(obj, "spawned_egg_ids") or []) if _guid(e)],
             # generator
             "stored_energy": _num(f(obj, "stored_energy")),
             # expedition
@@ -170,6 +172,26 @@ def get_activity_objects(world_data: Dict) -> List[Dict]:
             "mission_pals": [_guid(p.get("instance_id")) for p in (f(obj, "mission_pals") or []) if isinstance(p, dict)],
         })
     logger.info(f"Found {len(out)} activity buildings at bases")
+    return out
+
+
+def index_ground_eggs(world_data: Dict, item_index: Dict[str, List[Dict]]) -> Dict[str, str]:
+    """{egg map object's Model instance id: egg item id} for every egg lying on the ground.
+
+    A breeding farm lays eggs as separate map objects and lists them in spawned_egg_instance_ids;
+    this is the other half of that join. The egg object's container holds the one PalEgg item.
+    """
+    out: Dict[str, str] = {}
+    g = map_object_schema.extract_field
+    for obj in ((world_data.get("MapObjectSaveData") or {}).get("value") or {}).get("values") or []:
+        if not isinstance(obj, dict) or g(obj, "concrete_model_type") != GROUND_EGG_MODEL:
+            continue
+        model_id = _guid(g(obj, "instance_id"))
+        cid = _guid(_module_raw(g(obj, "module_map") or [], "ItemContainer").get("target_container_id"))
+        items = item_index.get(cid or "", [])
+        egg = next((str(i["static_id"]) for i in items if str(i.get("static_id", "")).startswith("PalEgg")), None)
+        if model_id and egg:
+            out[model_id] = egg
     return out
 
 

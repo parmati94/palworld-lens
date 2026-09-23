@@ -1114,6 +1114,18 @@
                                 </template>
                             </div>
                         </template>
+                        <!-- items: one row per kind with its count (a breeding farm's eggs) -->
+                        <template x-if="crew.items">
+                            <div class="p-4 flex flex-col gap-1.5">
+                                <template x-for="item in crew.items" :key="item.item_id">
+                                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-900/60 border border-gray-700/60">
+                                        {{> item-icon size="w-9 h-9" fallback="unknown" }}
+                                        <span class="flex-1 min-w-0 text-sm text-white truncate" x-text="item.item_name"></span>
+                                        <span class="text-sm text-gray-300 tabular-nums" x-text="'×' + item.count"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
                         <div x-show="crew.pals" class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5">
                             <template x-for="pal in (crew.pals || [])" :key="pal.instance_id">
                                 <button type="button" @click="openPalById(pal.instance_id)"

@@ -237,3 +237,20 @@ test('activity: cards lead with the product and take the family colour', async (
     assert.deepEqual([crewModalDetail(trip).title, crewModalDetail(trip).subtitle], ['Astral Frost Cavern', '100 pals · On expedition, 58m left']);
     assert.equal(activityCrew({ assigned: [{ instance_id: 'a' }] }).length, 1);
 });
+
+test('activity: a breeding farm keeps its own picture, stacks its eggs into a button and says when the cake is gone', async () => {
+    const { activityHero, breedingLine, eggStack, farmEggsModalDetail } = await import('../js/utils.js');
+    const egg = { item_id: 'PalEgg_Ice_05', item_name: 'Huge Frozen Egg', icon: 'e', count: 14 };
+    const rocky = { item_id: 'PalEgg_Earth_03', item_name: 'Large Rocky Egg', icon: 'r', count: 2 };
+    const cake = { item_id: 'Cake', item_name: 'Cake', icon: 'c', count: 4 };
+    const laid = { kind: 'breeding', display_name: 'Breeding Farm', held: 16, inputs: [cake], outputs: [egg, rocky] };
+    assert.equal(activityHero(laid).title, 'Breeding Farm', 'the farm, not the egg, leads the card');
+    assert.deepEqual(eggStack(laid).map(e => e.item_id), Array(5).fill('PalEgg_Ice_05'), 'five tiles at most');
+    assert.deepEqual(eggStack({ outputs: [{ ...egg, count: 1 }, rocky] }).map(e => e.key), ['PalEgg_Ice_05-0', 'PalEgg_Earth_03-0', 'PalEgg_Earth_03-1']);
+    assert.deepEqual(farmEggsModalDetail(laid), { title: 'Breeding Farm', subtitle: '16 eggs on the ground', items: [egg, rocky] });
+    assert.equal(breedingLine(laid, 2), '16 eggs to collect');
+    assert.equal(breedingLine({ ...laid, held: 1, inputs: [] }, 2), '1 egg to collect · no cake');
+    assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 2), 'no cake');
+    assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [cake], outputs: [] }, 2), 'breeding');
+    assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 0), 'nobody on it');
+});

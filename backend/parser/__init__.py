@@ -22,7 +22,8 @@ from backend.parser.builders.players import build_players
 from backend.parser.builders.guilds import build_guilds
 from backend.parser.builders.base_containers import build_base_containers, build_guild_storage
 from backend.parser.builders.activity import build_activity
-from backend.parser.extractors.activity import get_activity_objects, get_guild_labs, get_real_time_ticks, index_works
+from backend.parser.extractors.activity import (get_activity_objects, get_guild_labs, get_real_time_ticks, index_ground_eggs,
+                                                index_works)
 from backend.common.base_names import BaseNameStore
 from backend.common.config import config
 from backend.common.logging_config import get_logger
@@ -100,7 +101,8 @@ class SaveFileParser:
         guild_storage = build_guild_storage(containers)
         activity = build_activity(get_activity_objects(world), index_works(world), get_guild_labs(world), base_meta,
                                   item_index, pals, self.data, get_real_time_ticks(world),
-                                  container_sizes=index_container_sizes(world))
+                                  container_sizes=index_container_sizes(world),
+                                  ground_eggs=index_ground_eggs(world, item_index))
 
         info = self._save_info(player_count=len(player_data), pal_count=len(char_data) - len(player_data),
                                guild_count=len(guilds))

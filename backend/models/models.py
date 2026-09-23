@@ -316,7 +316,7 @@ class ActivityJob(BaseModel):
     crop: Optional[CropInfo] = None
     eggs: List[EggInfo] = []                    # incubators: one per slot (a large one holds ten)
     expedition: Optional[ExpeditionInfo] = None
-    held: Optional[int] = None                  # stations: units of the product sitting in the site
+    held: Optional[int] = None                  # stations: units of the product in the site; breeding farms: eggs on the ground
     capacity: Optional[int] = None              # stations: slots x the product's max stack
     fill: Optional[float] = None                # held / capacity
     stored_energy: Optional[float] = None
