@@ -25,7 +25,7 @@
         </div>
         <span class="px-2 py-0.5 rounded-full border text-[11px] font-medium whitespace-nowrap" :class="activityStatus(job.status).chip"
               x-text="job.kind === 'expedition' && job.expedition
-                        ? (job.expedition.state === 'out' ? 'Away' : job.expedition.state === 'back' ? 'Back' : job.status === 'ready' ? 'Haul waiting' : 'Idle')
+                        ? (job.expedition.state === 'out' ? 'On expedition' : job.expedition.state === 'back' ? 'Returned' : job.status === 'ready' ? 'Haul waiting' : 'Idle')
                         : activityStatus(job.status).label"></span>
     </div>
 

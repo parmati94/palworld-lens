@@ -223,6 +223,6 @@ test('activity: cards lead with the product and take the family colour', async (
     const many = Array.from({ length: 100 }, (_, i) => ({ instance_id: 'p' + i, name: 'Pal ' + i, level: 1, image_candidates: [] }));
     const trip = { display_name: 'Pal Expedition Station', expedition: { name: 'Astral Frost Cavern', state: 'out', seconds_left: 3480, pals: many } };
     assert.equal(activityCrew(trip).length, 100); assert.ok(100 > CREW_INLINE_MAX);
-    assert.deepEqual([crewModalDetail(trip).title, crewModalDetail(trip).subtitle], ['Astral Frost Cavern', '100 pals · Away, 58m left']);
+    assert.deepEqual([crewModalDetail(trip).title, crewModalDetail(trip).subtitle], ['Astral Frost Cavern', '100 pals · On expedition, 58m left']);
     assert.equal(activityCrew({ assigned: [{ instance_id: 'a' }] }).length, 1);
 });
