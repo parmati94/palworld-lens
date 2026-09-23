@@ -153,18 +153,21 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
                 job.status = "idle"
 
         elif kind == "incubator":
+            # An entry's slot is the position on the tray (an egg can sit in tray slot 3 with slot 2
+            # empty); the item container packs eggs in insertion order. Both lists are in tray order,
+            # so the i-th entry is the i-th egg item.
             raw_slots = item_index.get(obj.get("container_id") or "", [])
-            by_slot = {e.get("slot", i): e for i, e in enumerate(raw_slots) if str(e.get("static_id", "")).startswith("PalEgg")}
-            entries = obj.get("multi_eggs") or []
-            if not entries and (obj.get("hatched_character_id") or by_slot):
-                entries = [{"slot": min(by_slot) if by_slot else 0, "work_id": obj.get("work_id"),
-                            "character_id": obj.get("hatched_character_id"), "nickname": obj.get("hatched_nickname"),
-                            "temp_diff": obj.get("egg_temp_diff")}]
-            for e in entries:
+            egg_items = sorted((e for i, e in enumerate(raw_slots) if str(e.get("static_id", "")).startswith("PalEgg")),
+                               key=lambda e: e.get("slot", 0))
+            entries = sorted(obj.get("multi_eggs") or [], key=lambda e: e.get("slot", 0))
+            if not entries and (obj.get("hatched_character_id") or egg_items):
+                entries = [{"slot": 0, "work_id": obj.get("work_id"), "character_id": obj.get("hatched_character_id"),
+                            "nickname": obj.get("hatched_nickname"), "temp_diff": obj.get("egg_temp_diff")}]
+            for i, e in enumerate(entries):
                 w = works.get(e.get("work_id") or "") or {}
                 prog = fraction(w.get("done"), w.get("unit")) if (w.get("unit") or 0) > 0 else None
                 species = e.get("character_id")
-                slot_item = by_slot.get(e.get("slot", 0))
+                slot_item = egg_items[i] if i < len(egg_items) else None
                 job.eggs.append(EggInfo(
                     slot=e.get("slot", 0),
                     egg=_item(data, slot_item["static_id"], slot_item["count"]) if slot_item else None,

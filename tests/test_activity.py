@@ -297,6 +297,10 @@ def test_large_incubator_reports_every_egg():
         [(0, 'PalEgg_Ice_04', False, 0.61), (1, 'PalEgg_Electricity_03', False, 0.6), (2, 'PalEgg_Dark_02', True, 1.0)]
     assert job.eggs[2].species_id == 'Werewolf'
     assert round(job.progress, 3) == round((110 / 180 + 108 / 180) / 2, 3), 'the bar averages the eggs still incubating'
+    # tray slots can be sparse (eggs in tray slots 1 and 3) while the container packs them: pair by order
+    sparse = {'c-multi': [{'static_id': 'PalEgg_Leaf_03', 'count': 1, 'slot': 0}, {'static_id': 'PalEgg_Leaf_03', 'count': 1, 'slot': 1}]}
+    job = build_activity(get_activity_objects(world), index_works(world), {}, META, sparse, [], _Data(), None).bases['b1'].jobs[0]
+    assert [(e.slot, e.egg and e.egg.item_id) for e in job.eggs] == [(0, 'PalEgg_Leaf_03'), (1, 'PalEgg_Leaf_03'), (2, None)]
 
 
 def test_generator_fill_comes_from_the_blueprint_capacity():
