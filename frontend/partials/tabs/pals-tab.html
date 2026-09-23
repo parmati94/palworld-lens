@@ -732,6 +732,7 @@
                                         <div class="flex gap-1 overflow-x-auto scrollbar-hide">
                                             <button 
                                                 @click="baseTab = 'pals'"
+                                                x-effect="if (baseTab === 'pals') $el.scrollIntoView({ block: 'nearest', inline: 'nearest' })"
                                                 :class="baseTab === 'pals' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
                                                 class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0">
                                                 <div class="flex items-center gap-2">
@@ -744,6 +745,7 @@
                                             </button>
                                             <button 
                                                 @click="baseTab = 'food'"
+                                                x-effect="if (baseTab === 'food') $el.scrollIntoView({ block: 'nearest', inline: 'nearest' })"
                                                 :class="baseTab === 'food' ? 'border-orange-400 text-orange-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
                                                 class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0">
                                                 <div class="flex items-center gap-2">
@@ -755,6 +757,7 @@
                                             </button>
                                             <button 
                                                 @click="baseTab = 'storage'"
+                                                x-effect="if (baseTab === 'storage') $el.scrollIntoView({ block: 'nearest', inline: 'nearest' })"
                                                 :class="baseTab === 'storage' ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
                                                 class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0">
                                                 <div class="flex items-center gap-2">
@@ -766,6 +769,7 @@
                                             </button>
                                             <button 
                                                 @click="baseTab = 'activity'"
+                                                x-effect="if (baseTab === 'activity') $el.scrollIntoView({ block: 'nearest', inline: 'nearest' })"
                                                 :class="baseTab === 'activity' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-gray-400 hover:text-gray-300'"
                                                 class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap flex-shrink-0"
                                                 data-tip="What this base is doing: machines, crops, incubators, expeditions and the lab, as of the last save">
