@@ -235,7 +235,14 @@ export function app() {
             if (!TOOL_IDS.includes(id)) return;
             this.tool = id;
             this.currentTab = 'tools';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.jumpToTop();
+        },
+        /** Land a tab switch at the top. Instant on purpose: a smooth scroll gets cancelled on
+         *  phones when the new tab lays itself out (the map does), leaving the page half-way
+         *  down. Done again after the swap because the old tab's height is what was scrolled. */
+        jumpToTop() {
+            window.scrollTo({ top: 0 });
+            this.$nextTick(() => window.scrollTo({ top: 0 }));
         },
         onToolShown() {
             if (this.currentTab !== 'tools') return;
@@ -337,7 +344,7 @@ export function app() {
         findOnMap(speciesId, name, from = null) {
             this.currentTab = 'map';
             this.mapReturn = from;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.jumpToTop();
             this.$nextTick(() => window.dispatchEvent(new CustomEvent('show-pal-spawns', {
                 detail: { species: speciesId, name },
             })));
@@ -348,7 +355,7 @@ export function app() {
             if (!r) return;
             this.mapReturn = null;
             if (r.tool) this.goToTool(r.tool);
-            else if (r.tab) { this.currentTab = r.tab; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            else if (r.tab) { this.currentTab = r.tab; this.jumpToTop(); }
             if (r.pal) this.openPalById(r.pal);
             if (r.route) this.$nextTick(() => this.breedShowRoute());
         },
