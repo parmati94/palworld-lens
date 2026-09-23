@@ -13,6 +13,9 @@ class _Data:
     def item(self, static_id):
         return {"localized_name": static_id.title(), "icon": f"icon_{static_id}"}
 
+    def schematic(self, static_id):
+        return None
+
 
 def _meta(base_id, guild, name):
     return BaseMeta(base_id=base_id, guild_id=guild, name=name, container_id="w" + base_id)

@@ -23,6 +23,7 @@ from backend.common.game_tables import TABLES, Table
 from backend.common.logging_config import get_logger
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.breeding import BreedingIndex
+from backend.common import schematics as schematics_table
 from backend.common.constants import (
     CONDITION_DISPLAY_NAMES,
     CONDITION_DESCRIPTIONS,
@@ -148,12 +149,16 @@ class DataLoader:
         # Partner skills (data/json/partner_skills.json): {species: {name, levels[5]}}, rendered
         # per condensing level. Optional -- the modal hides the block when absent.
         self.partner_skills: Dict[str, Dict] = (self.tables.get('partner_skills') or {}).get('species') or {}
+        # Schematics (data/json/schematics.json): {blueprint_id: {product, kind}} -- the item or building
+        # a schematic unlocks, so containers can draw the product instead of the generic blueprint.
+        # Optional -- without it schematics keep the game's own icon.
+        self.schematics: Dict[str, Dict] = (self.tables.get('schematics') or {}).get('schematics') or {}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '
                     f'{len(self.map_objects)} map objects, {len(self.map_layers)} map layers, '
                     f'{len(self.spawns)} spawner groups, '
-                    f'{len(self.partner_skills)} partner skills, '
+                    f'{len(self.partner_skills)} partner skills, {len(self.schematics)} schematics, '
                     f'{len(self.breeding.species)} breedable species / {self.breeding.pair_count()} pairs')
 
     # ------------------------------------------------------------------
@@ -173,6 +178,14 @@ class DataLoader:
 
     def item_name(self, item_id: str) -> str:
         return self.item(item_id).get('localized_name') or item_id
+
+    def schematic(self, item_id: str) -> Optional[Dict]:
+        """What a schematic unlocks (product id/name/kind, its icon, the schematic's rarity), or None."""
+        key = item_id if item_id in self.schematics else self._items_lower.get((item_id or '').lower())
+        entry = self.schematics.get(key) if key else None
+        if not entry:
+            return None
+        return schematics_table.resolve(entry, key, self.items, self.buildings)
 
     def element_name(self, element_id: str) -> str:
         return (self.elements.get(element_id) or {}).get('localized_name') or element_id

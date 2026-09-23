@@ -1018,11 +1018,7 @@
                                                         <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`food-item-${index}`">
                                                             <div class="flex items-center justify-between py-1.5 border-b border-gray-700/40 last:border-0">
                                                                 <div class="flex items-center gap-2 min-w-0">
-                                                                    <img 
-                                                                        :src="item.icon ? `/img/${item.icon}.webp` : '/img/food.webp'" 
-                                                                        :alt="item.item_name"
-                                                                        :onerror="`this.onerror=null; this.src='/img/food.webp'`"
-                                                                        class="w-7 h-7 rounded bg-gray-700/60 object-cover flex-shrink-0">
+                                                                    {{> item-icon size="w-7 h-7" img="rounded bg-gray-700/60 object-cover" fallback="food" }}
                                                                     <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                 </div>
                                                                 <span class="text-sm font-semibold text-orange-400 tabular-nums ml-2" x-text="`×${item.count}`"></span>
@@ -1143,11 +1139,7 @@
                                                                 <template x-for="(item, index) in (container.items || []).slice(0, 5)" :key="`card-item-${index}`">
                                                                     <div class="flex items-center justify-between py-1.5 border-b border-gray-700/40 last:border-0">
                                                                         <div class="flex items-center gap-2 min-w-0">
-                                                                            <img 
-                                                                                :src="item.icon ? `/img/${item.icon}.webp` : '/img/item.webp'" 
-                                                                                :alt="item.item_name"
-                                                                                :onerror="`this.onerror=null; this.src='/img/unknown.webp'`"
-                                                                                class="w-7 h-7 rounded bg-gray-700/60 object-cover flex-shrink-0">
+                                                                            {{> item-icon size="w-7 h-7" img="rounded bg-gray-700/60 object-cover" fallback="unknown" }}
                                                                             <span class="text-sm text-white truncate" x-text="item.item_name || item.item_id"></span>
                                                                         </div>
                                                                         <span class="text-sm font-semibold text-blue-400 tabular-nums ml-2" x-text="`×${item.count}`"></span>

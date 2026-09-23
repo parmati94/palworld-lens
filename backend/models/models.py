@@ -216,12 +216,22 @@ class GuildInfo(BaseModel):
     base_locations: List[BaseLocation] = []
 
 
+class SchematicInfo(BaseModel):
+    """What a schematic unlocks (data/json/schematics.json); the slot's icon is the product's."""
+    product_id: str
+    product_name: str
+    kind: str                      # "item" | "building"
+    rarity: Optional[int] = None   # the schematic's tier, 0 Common .. 4 Legendary
+    rarity_name: Optional[str] = None
+
+
 class ItemSlot(BaseModel):
     """Item in a container slot"""
     item_id: str
     item_name: str
     count: int
     icon: Optional[str] = None
+    schematic: Optional[SchematicInfo] = None  # set for blueprint items; icon is then the product's
 
 
 class BaseContainerInfo(BaseModel):

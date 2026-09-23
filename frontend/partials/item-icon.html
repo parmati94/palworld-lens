@@ -1,0 +1,19 @@
+{{!-- One container slot's picture. Params: size (w-7 h-7 ...), img (extra <img> classes), fallback (img stem).
+     A schematic shows the item or building it unlocks (the API already swapped the icon) with a
+     rarity-coloured blueprint badge in the corner, so it never reads as the product itself. --}}
+<div class="relative flex-shrink-0 {{size}}" :data-tip="itemTip(item)">
+    <img :src="item.icon ? `/img/${item.icon}.webp` : '/img/{{fallback}}.webp'"
+         :alt="item.item_name"
+         onerror="this.onerror=null; this.src='/img/{{fallback}}.webp'"
+         class="w-full h-full {{img}}">
+    <template x-if="item.schematic">
+        <span class="absolute -bottom-0.5 -right-0.5 flex items-center justify-center w-[46%] h-[46%] min-w-[14px] min-h-[14px] rounded-full ring-2 ring-gray-900 shadow"
+              :class="schematicBadgeClass(item.schematic.rarity)" aria-hidden="true">
+            <svg class="w-[62%] h-[62%]" viewBox="0 0 20 20" fill="currentColor">
+                <!-- a scroll: rolled edges top and bottom, a few lines of plan between -->
+                <path d="M4 3.5A1.5 1.5 0 0 1 5.5 2h9A1.5 1.5 0 0 1 16 3.5v13a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 4 16.5v-13Zm2 1v12h8v-12H6Z"/>
+                <path d="M7.5 7h5v1.5h-5V7Zm0 3h5v1.5h-5V10Zm0 3h3v1.5h-3V13Z"/>
+            </svg>
+        </span>
+    </template>
+</div>

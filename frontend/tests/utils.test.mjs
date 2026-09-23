@@ -112,3 +112,14 @@ test('baseLabel joins the name and the place, once', () => {
     assert.equal(baseLabel({ base_name: 'Base 1', base_place: 'Oasis Isle' }), 'Base 1 · Oasis Isle');   // pal shape
     assert.equal(baseLabel(null), '');
 });
+
+test('schematic slots get a rarity-coloured badge and a tooltip naming what they unlock', async () => {
+    const { schematicBadgeClass, itemTip } = await import('../js/utils.js');
+    assert.equal(schematicBadgeClass(3), 'bg-purple-600 text-white');
+    assert.equal(schematicBadgeClass(undefined), schematicBadgeClass(0));
+    assert.equal(itemTip({ item_id: 'Wood' }), '');
+    assert.equal(itemTip({ schematic: { kind: 'item', product_name: 'Musket', rarity_name: 'Epic' } }),
+        'Schematic: unlocks the Musket recipe (Epic)');
+    assert.equal(itemTip({ schematic: { kind: 'building', product_name: 'Majestic Wall Torch', rarity_name: 'Common' } }),
+        'Schematic: lets you build Majestic Wall Torch (Common)');
+});

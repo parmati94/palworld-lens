@@ -53,13 +53,7 @@
                                         <div class="bg-gray-800/60 border border-gray-700/60 rounded-lg p-3 hover:border-gray-600 transition-colors">
                                             <div class="flex flex-col items-center gap-2">
                                                 <!-- Icon -->
-                                                <div class="w-16 h-16 flex items-center justify-center">
-                                                    <img 
-                                                        :src="item.icon ? `/img/${item.icon}.webp` : '/img/unknown.webp'" 
-                                                        :alt="item.item_name"
-                                                        onerror="this.onerror=null; this.src='/img/unknown.webp'"
-                                                        class="w-full h-full object-contain">
-                                                </div>
+                                                {{> item-icon size="w-16 h-16" img="object-contain" fallback="unknown" }}
                                                 <!-- Item Name -->
                                                 <div class="text-center w-full">
                                                     <div class="text-sm font-medium text-white truncate" x-text="item.item_name || item.item_id"></div>

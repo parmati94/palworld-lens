@@ -168,6 +168,34 @@ export function partnerSkillHtml(gameData, text) {
     return out.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
 }
 
+// ---------------------------------------------------------------------------
+// Items. A schematic slot arrives with the product's icon and a `schematic`
+// block (backend/common/schematics.py); the badge colour is the game's rarity
+// tier for the schematic itself (0 Common .. 4 Legendary).
+// ---------------------------------------------------------------------------
+export const RARITY_BADGE_CLASSES = {
+    0: 'bg-gray-500 text-white',
+    1: 'bg-green-600 text-white',
+    2: 'bg-blue-600 text-white',
+    3: 'bg-purple-600 text-white',
+    4: 'bg-amber-500 text-gray-950',
+};
+
+/** Badge colour classes for a schematic's rarity; unknown tiers read as Common. */
+export function schematicBadgeClass(rarity) {
+    return RARITY_BADGE_CLASSES[rarity] ?? RARITY_BADGE_CLASSES[0];
+}
+
+/** Tooltip for a container slot: what a schematic unlocks, nothing for plain items. */
+export function itemTip(item) {
+    const s = item && item.schematic;
+    if (!s) return '';
+    const tier = s.rarity_name ? ` (${s.rarity_name})` : '';
+    return s.kind === 'building'
+        ? `Schematic: lets you build ${s.product_name}${tier}`
+        : `Schematic: unlocks the ${s.product_name} recipe${tier}`;
+}
+
 /**
  * Get rank icon filename for passive skills
  */
