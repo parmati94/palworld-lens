@@ -1,4 +1,5 @@
-"""Best pals for a work type: the ones the server already has, and the wild ones that could do it.
+"""Best pals for a work type: the ones the server already has, the wild ones that could do it,
+and the ones that could be bred from what is owned.
 
 Pure functions over three inputs the app already holds -- the pal list from the
 save, the species table (data/json/pals.json) and the catchable-level table from
@@ -102,6 +103,40 @@ def catchable_workers(species: Dict[str, Dict], catchable: Dict[str, int], work_
         rows.append(CatchWorker(species_id=sid, work_level=wl, spawn_level=int(catchable[sid]),
                                 owned=int(owned_counts.get(sid, 0))))
     rows.sort(key=lambda r: (-r.work_level, r.spawn_level, r.species_id))
+    return rows
+
+
+@dataclass(frozen=True)
+class BreedWorker:
+    species_id: str
+    work_level: int        # base level from the species table
+    generations: int       # fewest breeds from the owned pals (1 = one owned pair makes it)
+    catchable: bool        # also spawns in the wild (so it is in the catch list too)
+    spawn_level: int = 0   # lowest field spawn level when catchable
+
+
+def breedable_workers(species: Dict[str, Dict], generations: Dict[str, int], work_type: str,
+                      catchable: Optional[Dict[str, int]] = None) -> List[BreedWorker]:
+    """Every species that can do `work_type` and could be bred from the owned pals.
+
+    `generations` is breeding.generations_from(): fewest breeds to each
+    reachable species, 0 for ones already owned -- those are left out, since
+    the point is what you do not have yet. Best work level first, then the
+    shortest route, so "one breed away and better than anything owned" tops
+    the list.
+    """
+    catchable = catchable or {}
+    rows: List[BreedWorker] = []
+    for sid, row in species.items():
+        gens = generations.get(sid, 0)
+        if gens <= 0 or sid.startswith(_SKIP_PREFIXES):
+            continue
+        wl = int((row.get("work_suitability") or {}).get(work_type) or 0)
+        if wl <= 0:
+            continue
+        rows.append(BreedWorker(species_id=sid, work_level=wl, generations=gens,
+                                catchable=sid in catchable, spawn_level=int(catchable.get(sid, 0))))
+    rows.sort(key=lambda r: (-r.work_level, r.generations, r.species_id))
     return rows
 
 

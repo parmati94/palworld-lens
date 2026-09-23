@@ -62,3 +62,16 @@ def test_catchable_workers_skips_bosses_and_uncatchable_and_ranks_by_spawn_level
 def test_owned_species_counts():
     pals = [_pal("a", "Kitsunebi", 1, {}), _pal("b", "Kitsunebi", 1, {}), _pal("c", None, 1, {})]
     assert owned_species_counts(pals) == {"Kitsunebi": 2}
+
+
+def test_breedable_workers_lists_unowned_reachable_species_best_first():
+    from backend.common.workers import breedable_workers
+    generations = {"Kitsunebi": 0, "Ragnahawk": 2, "Jormuntide_Ignis": 3, "Blazehowl": 1, "BOSS_Ragnahawk": 1, "Lamball": 1}
+    rows = breedable_workers(SPECIES, generations, "EmitFlame", catchable=CATCHABLE)
+    # owned (0 generations), bosses and species without the job are gone; best level first, then fewest breeds
+    assert [(r.species_id, r.work_level, r.generations, r.catchable, r.spawn_level) for r in rows] == [
+        ("Jormuntide_Ignis", 4, 3, False, 0),
+        ("Blazehowl", 3, 1, True, 22),
+        ("Ragnahawk", 3, 2, True, 28),
+    ]
+    assert breedable_workers(SPECIES, {}, "EmitFlame") == []

@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from backend.common import pal_icons
 from backend.common.auth import require_auth
-from backend.common.breeding import Combo, Owned, plan_route, shortcuts
+from backend.common.breeding import Combo, Owned, owned_genders, plan_route, shortcuts
 from backend.common.spawns import catchable_levels
 from backend.parser import parser
 
@@ -88,14 +88,7 @@ async def get_partners(a: str = Query(...), child: str = Query(...)):
 
 
 def _owned(owner: str) -> Owned:
-    """Species -> genders owned, optionally for one player (owner_uid is the player name)."""
-    owned: Owned = {}
-    for pal in parser.get_pals():
-        if owner and pal.owner_uid != owner:
-            continue
-        if pal.species_id and pal.gender in ("Male", "Female"):
-            owned.setdefault(pal.species_id, set()).add(pal.gender)
-    return owned
+    return owned_genders(parser.get_pals(), owner)
 
 
 @router.get("/route")

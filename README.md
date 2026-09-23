@@ -21,7 +21,9 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
-- 🧬 **Breeding Calculator** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want). Can't breed it yet? The route planner draws the shortest chain from what you own, and which wild pal to catch instead
+- 🧰 **Tools** - Helpers over the save, grouped under one tab:
+  - 🧬 **Breeding Calculator** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want). Can't breed it yet? The route planner draws the shortest chain from what you own, and which wild pal to catch instead
+  - ⭐ **Best Workers** - The best pal for a job: who on the server already has it, what you could catch at your level, and what you could breed from your own pals (with the route to it). A look at the map from any tool offers the way back.
 - 🖥️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
 - 🐳 **Containerized** - Single Docker container with nginx + FastAPI
 - 🚫 **Read-Only** - No editing functionality, just viewing

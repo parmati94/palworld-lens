@@ -7,8 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from backend.common import pal_icons
 from backend.common.auth import require_auth
+from backend.common.breeding import generations_from, owned_genders
 from backend.common.spawns import catchable_levels
-from backend.common.workers import best_owned, catchable_workers, max_work_level, owned_species_counts, work_types
+from backend.common.workers import (best_owned, breedable_workers, catchable_workers, max_work_level,
+                                    owned_species_counts, work_types)
 from backend.parser import parser
 
 router = APIRouter(prefix="/api/workers", tags=["workers"], dependencies=[Depends(require_auth)])
@@ -18,13 +20,17 @@ router = APIRouter(prefix="/api/workers", tags=["workers"], dependencies=[Depend
 async def get_workers(
     type: str = Query(..., description="work type id, e.g. EmitFlame"),
     owned_limit: int = Query(5, ge=1, le=20),
+    owner: str = Query("", description="player whose pals count as breeding stock ('' = everyone)"),
 ):
-    """Top owned pals for one work type, every wild species that can do it, and every player's level.
+    """Top owned pals for one work type, every wild species that can do it, what could be bred, and every player's level.
 
     `catchable` is the full list (best work level first, then lowest spawn
     level) so the UI can trim it to a level the reader picks without another
     request. No player-level cutoff here -- `players` carries each player's
-    level so the picker can offer them as presets.
+    level so the picker can offer them as presets. `breedable` is every species
+    with the job that `owner`'s pals (everyone's when blank) could breed, with
+    how many breeds away it is; the `owned`/`best_owned_level` view stays
+    server-wide.
     """
     data = parser.data
     if type not in work_types(data.pals):
@@ -32,8 +38,10 @@ async def get_workers(
 
     pals = parser.get_pals()
     owned = best_owned(pals, type, limit=owned_limit)
-    catchable = catchable_workers(data.pals, catchable_levels(data.spawns), type,
-                                  owned_counts=owned_species_counts(pals))
+    levels = catchable_levels(data.spawns)
+    catchable = catchable_workers(data.pals, levels, type, owned_counts=owned_species_counts(pals))
+    breedable = breedable_workers(data.pals, generations_from(data.breeding, owned_genders(pals, owner)), type,
+                                  catchable=levels)
 
     def species(sid: str) -> dict:
         return {"species_id": sid, "species_name": data.pal_name(sid),
@@ -49,6 +57,9 @@ async def get_workers(
                    "base_name": o.base_name, "count": o.count} for o in owned],
         "catchable": [{**species(c.species_id), "work_level": c.work_level,
                        "spawn_level": c.spawn_level, "owned": c.owned} for c in catchable],
+        "owner": owner,
+        "breedable": [{**species(b.species_id), "work_level": b.work_level, "generations": b.generations,
+                       "catchable": b.catchable, "spawn_level": b.spawn_level} for b in breedable],
         "players": sorted(({"name": p.nickname or p.player_name, "level": p.level}
                            for p in parser.get_players()), key=lambda p: -p["level"]),
     }

@@ -307,7 +307,8 @@ export function breedingState() {
         /** Shortcut row -> the map, lit for that species. */
         breedShortcutOnMap(species) {
             this.breedRouteOpen = false;
-            this.findOnMap(species, this.breedSpecies(species).name);
+            this.findOnMap(species, this.breedSpecies(species).name,
+                           { label: 'Back to the breeding route', tool: 'breeding', route: true });
         },
 
         /** Short human line for the route button / banner. */
@@ -393,16 +394,14 @@ export function breedingState() {
             this.breedMode = 'child';
             this.breedA = speciesId || '';
             this.breedB = '';
-            this.currentTab = 'breeding';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.goToTool('breeding');
         },
 
         /** Pal modal: show every pair that produces this species. */
         breedHowTo(speciesId) {
             this.breedMode = 'parents';
             this.breedChild = speciesId || '';
-            this.currentTab = 'breeding';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.goToTool('breeding');
         },
 
         breedSwap() {

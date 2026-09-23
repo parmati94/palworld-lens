@@ -325,6 +325,30 @@ def _reach(index: BreedingIndex, owned: Owned) -> Tuple[Dict[str, int], Set[str]
     return gen, {s for s, g in gen.items() if g > 0}
 
 
+def owned_genders(pals, owner: str = '') -> Owned:
+    """Species -> genders owned, optionally for one player (owner_uid is the player name).
+
+    `pals` are PalInfo-like objects; pals without a species or a known gender
+    are skipped, since only a male + female pair can breed.
+    """
+    owned: Owned = {}
+    for pal in pals:
+        if owner and getattr(pal, 'owner_uid', None) != owner:
+            continue
+        if getattr(pal, 'species_id', None) and getattr(pal, 'gender', None) in ('Male', 'Female'):
+            owned.setdefault(pal.species_id, set()).add(pal.gender)
+    return owned
+
+
+def generations_from(index: BreedingIndex, owned: Owned) -> Dict[str, int]:
+    """Fewest breeds from `owned` to every reachable species (0 = already owned).
+
+    The reachability pass the route planner starts from; one cheap sweep, so
+    callers can ask "how far away is every species?" without planning each.
+    """
+    return _reach(index, owned)[0]
+
+
 def _descendants(sp: str, chosen: Dict[str, Combo]) -> Set[str]:
     """Species in `chosen` whose derivation (transitively) uses `sp`."""
     out: Set[str] = set()

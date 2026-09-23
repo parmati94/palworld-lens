@@ -1,13 +1,11 @@
-<!-- Workforce modal: "Best <work> on the server". Data: /api/workers via loadWorkers().
-     Opened from the Pals tab's "Best workers" pill. Server-wide on purpose -- who already
-     has the best, and what could be caught. The only per-reader input is "up to level N":
-     every species' lowest field spawn level is compared against a level the reader picks,
-     with each player's level offered as a preset, so nobody has to say who they are. -->
-<div x-show="workersOpen" x-cloak
-     @keydown.escape.window="closeWorkers()"
-     class="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm">
-    <div @click.away="closeWorkers()"
-         class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col border border-gray-700/60 overflow-hidden">
+<!-- Best workers tool (Tools tab): "Best <work> on the server". Data: /api/workers via loadWorkers().
+     Also reached from the Pals tab's "Best workers" pill, which brings its work filter along.
+     Server-wide on purpose -- who already has the best, and what could be caught. The only
+     per-reader input is the "I am" preset: it sets "up to level N" for the catch list (every
+     species' lowest field spawn level is compared against it) and whose pals count as
+     breeding stock for the breed list. -->
+<div x-show="tool === 'workers'">
+    <div class="card overflow-hidden">
 
         <!-- Header -->
         <div class="px-4 sm:px-5 py-3 border-b border-gray-700/60 flex items-center gap-3">
@@ -16,11 +14,8 @@
             </div>
             <div class="min-w-0 flex-1">
                 <div class="text-base font-semibold text-gray-100">Best workers</div>
-                <div class="text-xs text-gray-400 truncate">Who already has the best pal for a job on this server, and what you could catch</div>
+                <div class="text-xs text-gray-400 truncate">Who already has the best pal for a job on this server, what you could catch, and what you could breed</div>
             </div>
-            <button @click="closeWorkers()" class="btn-quiet p-1.5" aria-label="Close">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
         </div>
 
         <!-- Job picker row -->
@@ -42,7 +37,7 @@
         </div>
 
         <!-- Body -->
-        <div class="overflow-y-auto p-4 sm:p-5">
+        <div class="p-4 sm:p-5">
             <template x-if="workers && workers.work_type === workersType">
                 <div class="space-y-5">
                     <!-- Already on the server: compact row of the best -->
@@ -85,13 +80,14 @@
                             </label>
                             <input type="range" min="1" max="100" x-model.number="workersMaxLevel" aria-label="Up to level"
                                    class="flex-1 min-w-[8rem] accent-accent-500">
-                            <!-- Player presets: tap your own name -->
+                            <!-- "I am": tap your own name -- your level here, your pals as breeding stock below -->
                             <div class="flex items-center gap-1 flex-wrap">
+                                <span class="text-xs text-gray-500 mr-0.5">I am</span>
                                 <template x-for="p in workersPlayers()" :key="p.name">
-                                    <button @click="workersMaxLevel = p.level"
+                                    <button @click="workersPickPlayer(p)"
                                             class="px-2 py-0.5 rounded-full text-xs border transition-colors tabular-nums"
-                                            :class="workersMaxLevel === p.level ? 'bg-accent-500/20 border-accent-500/50 text-accent-100' : 'border-gray-700/60 text-gray-400 hover:text-gray-200 hover:border-gray-600'"
-                                            :data-tip="p.name + ' is level ' + p.level">
+                                            :class="workersOwner === p.name ? 'bg-accent-500/20 border-accent-500/50 text-accent-100' : 'border-gray-700/60 text-gray-400 hover:text-gray-200 hover:border-gray-600'"
+                                            :data-tip="p.name + ' is level ' + p.level + (workersOwner === p.name ? ' · tap again for everyone\'s pals' : ' · their pals become the breeding stock')">
                                         <span x-text="p.name"></span> <span x-text="p.level"></span>
                                     </button>
                                 </template>
@@ -116,6 +112,22 @@
                                 <button @click="workersMaxLevel = workersNextUp().spawn_level" class="btn-quiet px-2 py-0.5 border border-gray-700/60 text-gray-300 ml-1">Go to <span class="tabular-nums" x-text="workersNextUp().spawn_level"></span></button>
                             </div>
                         </template>
+                    </section>
+
+                    <!-- Breedable from the owned pals: species at least as good as the best owned -->
+                    <section>
+                        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+                            <div class="eyebrow">Or breed</div>
+                            <span class="text-xs text-gray-500">from <span class="text-gray-300" x-text="workersOwner ? workersOwner + '\'s' : 'everyone\'s'"></span> pals · species at least as good as the best owned</span>
+                        </div>
+                        <div x-show="workersBreedList().length === 0" class="text-sm text-gray-500">
+                            Nothing <span x-text="workersOwner || 'anyone'"></span> could breed beats what the server already has.
+                        </div>
+                        <div class="grid gap-1 sm:grid-cols-2">
+                            <template x-for="b in workersBreedList()" :key="b.species_id">
+                                {{> workers-breed-row }}
+                            </template>
+                        </div>
                     </section>
                 </div>
             </template>

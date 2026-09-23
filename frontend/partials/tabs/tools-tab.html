@@ -1,0 +1,18 @@
+        <!-- Tools tab: helpers over the save rather than views of it, one pill per tool
+             (TOOLS in app.js). Each tool keeps its own state, so switching pills or tabs and
+             coming back lands exactly where you left off; the tab remembers the last tool. -->
+        <div x-show="currentTab === 'tools' && saveInfo.loaded" class="tab-content">
+            <div class="mb-4 flex items-center gap-1 border-b border-gray-800 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Tools">
+                <template x-for="t in tools" :key="t.id">
+                    <button @click="goToTool(t.id)" role="tab" :aria-selected="tool === t.id"
+                            :class="tool === t.id ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
+                            class="px-3 py-2.5 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap flex items-center gap-2 shrink-0"
+                            :data-tip="t.title">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="t.icon" /></svg>
+                        <span x-text="t.label"></span>
+                    </button>
+                </template>
+            </div>
+            {{> breeding-tab }}
+            {{> workers-tool }}
+        </div>
