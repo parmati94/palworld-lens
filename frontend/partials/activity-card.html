@@ -36,7 +36,7 @@
             <template x-if="job.progress != null">
                 <div class="mt-2">
                     <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
-                        <span x-text="job.kind === 'machine' ? 'next one' : 'next batch'"></span>
+                        <span x-text="'next one'"></span>
                         <span x-text="Math.round(job.progress * 100) + '%'"></span>
                     </div>
                     <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
@@ -47,19 +47,16 @@
         </div>
     </template>
 
-    <!-- crop: growth and water -->
-    <template x-if="job.kind === 'crop' && job.crop && job.crop.growth != null">
+    <!-- crop: which step of plant -> water -> grow -> harvest, and how far -->
+    <template x-if="job.kind === 'crop' && job.crop">
         <div>
             <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
-                <span x-text="job.crop.growth >= 1 ? 'ready to harvest' : 'growing'"></span>
-                <span class="flex items-center gap-2">
-                    <span x-show="job.crop.watered != null" class="text-sky-300/80" :data-tip="'Watered ' + Math.round((job.crop.watered || 0) * 100) + '%'"
-                          x-text="'💧 ' + Math.round((job.crop.watered || 0) * 100) + '%'"></span>
-                    <span x-text="Math.round(job.crop.growth * 100) + '%'"></span>
-                </span>
+                <span :class="job.crop.phase === 'watering' ? 'text-sky-300/80' : ''"
+                      x-text="job.crop.phase ? (job.crop.phase === 'watering' ? '💧 watering' : job.crop.phase) : 'empty plot'"></span>
+                <span x-show="job.crop.progress != null" x-text="Math.round((job.crop.progress || 0) * 100) + '%'"></span>
             </div>
-            <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
-                <div class="h-full rounded-full" :class="kind.bar" :style="`width:${Math.round(job.crop.growth * 100)}%`"></div>
+            <div x-show="job.crop.progress != null" class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                <div class="h-full rounded-full" :class="job.crop.phase === 'watering' ? 'bg-sky-400' : kind.bar" :style="`width:${Math.round((job.crop.progress || 0) * 100)}%`"></div>
             </div>
         </div>
     </template>

@@ -50,27 +50,33 @@ fields:
     default: null
 
   crop_state:
-    description: "Plot state machine value"
+    description: "Plot phase: 5 planting, 2 watering, 3 growing, 4 harvesting (the assign table names the work per state)"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "current_state"]
     default: null
 
   crop_required:
-    description: "Seconds of growth a harvest needs"
+    description: "Seconds the growing phase takes (only that phase; 0 elsewhere)"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "state_machine", "growup_required_time"]
     default: null
 
   crop_progress:
-    description: "Seconds of growth so far"
+    description: "Seconds into the growing phase"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "state_machine", "growup_progress_time"]
     default: null
 
   crop_watered:
-    description: "Watered fraction (0..1)"
+    description: "Watering phase progress (0..1)"
     root_key: "ConcreteModel"
     path: ["value", "RawData", "value", "water_stack_rate_value"]
+    default: null
+
+  crop_work_rate:
+    description: "Planting / harvesting work progress (0..1); mirrors the work record's done / unit"
+    root_key: "ConcreteModel"
+    path: ["value", "RawData", "value", "crop_progress_rate_value"]
     default: null
 
   # ---- incubators (PalMapObjectHatchingEggModel) ----

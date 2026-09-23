@@ -114,6 +114,7 @@ def get_activity_objects(world_data: Dict) -> List[Dict]:
             "crop_required": _num(f(obj, "crop_required")),
             "crop_progress": _num(f(obj, "crop_progress")),
             "crop_watered": _num(f(obj, "crop_watered")),
+            "crop_work_rate": _num(f(obj, "crop_work_rate")),
             # incubator
             "hatched_character_id": _id_or_none(f(obj, "hatched_character_id")),
             "hatched_nickname": _id_or_none(f(obj, "hatched_nickname")),

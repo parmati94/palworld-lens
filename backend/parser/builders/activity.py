@@ -8,7 +8,7 @@ DataLoader (item and building names, data/json/activity.json).
 from collections import defaultdict
 from typing import Dict, Iterable, List, Optional
 
-from backend.common.activity import IDLE_UNIT, expedition_state, fraction, lab_summary
+from backend.common.activity import IDLE_UNIT, crop_phase, expedition_state, fraction, lab_summary
 from backend.common.logging_config import get_logger
 from backend.common import pal_icons
 from backend.models.models import (ActivityJob, ActivityPal, ActivityPayload, BaseActivity, CropInfo, EggInfo,
@@ -114,20 +114,21 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
 
         elif kind == "crop":
             cid = obj.get("crop_id") or ""
-            growth = fraction(obj.get("crop_progress"), obj.get("crop_required"))
+            step = crop_phase(obj.get("crop_state"), obj.get("crop_work_rate"), obj.get("crop_watered"),
+                              obj.get("crop_progress"), obj.get("crop_required"), work.get("unit"), work.get("done"))
             row = data.item(cid)
             job.crop = CropInfo(crop_id=cid, name=row.get("localized_name") or cid, icon=row.get("icon"),
-                                growth=growth, watered=fraction(obj.get("crop_watered"), 1.0),
+                                phase=step["phase"], progress=step["progress"],
+                                watered=fraction(obj.get("crop_watered"), 1.0),
                                 required_s=obj.get("crop_required"), progress_s=obj.get("crop_progress"))
             job.product = _item(data, cid) if row else None
-            job.progress = growth
-            watered = obj.get("crop_watered") or 0
-            if growth is not None and growth >= 1.0:
-                job.status = "ready"
-            elif job.assigned or (growth or 0) > 0 or watered > 0:
+            job.progress = step["progress"]
+            # growing needs nobody; the other phases are pal work, so a plot with no one on it and
+            # nothing done yet is waiting (idle), not stuck -- pals cycle through plots on their own
+            if step["phase"] == "growing" or job.assigned or (step["progress"] or 0) > 0:
                 job.status = "working"
             else:
-                job.status = "idle"          # a bare plot: nothing planted or watered, nobody on it
+                job.status = "idle"
 
         elif kind == "incubator":
             eggs = [c for c in contents if c.item_id.startswith("PalEgg")]

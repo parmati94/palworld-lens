@@ -260,9 +260,10 @@ class CropInfo(BaseModel):
     crop_id: str
     name: str
     icon: Optional[str] = None
-    growth: Optional[float] = None      # 0..1
-    watered: Optional[float] = None     # 0..1
-    required_s: Optional[float] = None
+    phase: Optional[str] = None         # planting | watering | growing | harvesting; None = unknown state
+    progress: Optional[float] = None    # 0..1 through that phase
+    watered: Optional[float] = None     # 0..1 (the watering phase's progress)
+    required_s: Optional[float] = None  # growing phase timer
     progress_s: Optional[float] = None
 
 

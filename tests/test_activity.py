@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from backend.common.activity import (build_activity_tables, expedition_state, fraction, lab_summary, MIN_GENERATORS,
+from backend.common.activity import (build_activity_tables, crop_phase, expedition_state, fraction, lab_summary, MIN_GENERATORS,
                                      MIN_LAB_RESEARCH, MIN_MISSIONS, TICKS_PER_SECOND)
 from backend.parser.builders.activity import build_activity
 from backend.parser.extractors.activity import get_activity_objects, get_guild_labs, get_real_time_ticks, index_works
@@ -37,6 +37,16 @@ def test_build_activity_tables_names_research_and_missions_and_keeps_only_odd_re
     assert doc['lab']['Mining1_2']['requires'] == 'Mining1' and doc['lab']['Mining1_2']['name'] == 'Mining Speed 2'
     assert doc['expeditions'] == {'Dungeon_Grass': {'name': 'Verdant Hollow', 'seconds': 1800, 'difficulty': 'Easy'}}
     assert doc['recipe_products'] == {'Head001_1': 'Head001'}
+
+
+def test_crop_phase_reads_the_field_that_moves_in_each_phase():
+    assert crop_phase(5, 0.754, 0.0, 0.0, 330.0) == {'phase': 'planting', 'progress': 0.754}
+    assert crop_phase(2, 0.0, 0.37, 0.0, 270.0) == {'phase': 'watering', 'progress': 0.37}
+    assert crop_phase(3, 0.0, 0.0, 45.0, 180.0) == {'phase': 'growing', 'progress': 0.25}
+    assert crop_phase(4, None, 0.0, 0.0, 180.0, unit=4500.0, done=2876.1)['progress'] == 2876.1 / 4500.0, 'work record as fallback'
+    assert crop_phase(4, 0.947, 0.0, 0.0, 390.0)['phase'] == 'harvesting'
+    assert crop_phase(0, 0.0, 0.0, 0.0, 0.0) == {'phase': None, 'progress': None}
+    assert crop_phase(None, None, None, None, None) == {'phase': None, 'progress': None}
 
 
 def test_fraction_and_expedition_state():
@@ -109,8 +119,13 @@ WORLD = {
                                      'water_stack_rate_value': 1.0, 'state_machine': {'growup_required_time': 180.0, 'growup_progress_time': 45.0}},
              model_id='m-crop'),
         _obj('FarmBlockV2_Wheat', {'concrete_model_type': 'PalMapObjectFarmBlockV2Model', 'crop_data_id': 'Wheat', 'current_state': 2,
-                                   'water_stack_rate_value': 0.0, 'state_machine': {'growup_required_time': 270.0, 'growup_progress_time': 0.0}},
+                                   'water_stack_rate_value': 0.0, 'crop_progress_rate_value': 0.0,
+                                   'state_machine': {'growup_required_time': 270.0, 'growup_progress_time': 0.0}},
              model_id='m-bare'),
+        _obj('FarmBlockV2_Tomato', {'concrete_model_type': 'PalMapObjectFarmBlockV2Model', 'crop_data_id': 'Tomato', 'current_state': 5,
+                                    'water_stack_rate_value': 0.0, 'crop_progress_rate_value': 0.803,
+                                    'state_machine': {'growup_required_time': 300.0, 'growup_progress_time': 0.0}},
+             model_id='m-planting'),
         _obj('Expedition', {'concrete_model_type': 'PalMapObjectCharacterTeamMissionModel', 'mission_id': 'Dungeon_Grass', 'state': 1,
                             'start_time': 400 * TICKS_PER_SECOND, 'assigned_individuals': [{'player_uid': '0', 'instance_id': 'pal-c'}]},
              model_id='m-exp', modules={'ItemContainer': {'target_container_id': 'c-exp'}}),
@@ -135,7 +150,7 @@ def test_extractors_read_works_buildings_labs_and_the_clock():
     assert works['w-lab']['type'] == 'OnlyJoin' and works['w-lab']['assigned'] == ['pal-b']
 
     objs = {o['map_object_id']: o for o in get_activity_objects(WORLD)}
-    assert set(objs) == {'BlastFurnace2', 'Workbench', 'HatchingPalEgg', 'FarmBlockV2_Berries', 'FarmBlockV2_Wheat', 'Expedition', 'Lab'}, \
+    assert set(objs) == {'BlastFurnace2', 'Workbench', 'HatchingPalEgg', 'FarmBlockV2_Berries', 'FarmBlockV2_Wheat', 'FarmBlockV2_Tomato', 'Expedition', 'Lab'}, \
         'walls are not activity; a furnace outside any base is skipped'
     f = objs['BlastFurnace2']
     assert (f['kind'], f['recipe_id'], f['order_remaining'], f['craftable_now'], f['container_id'], f['work_id']) == \
@@ -194,9 +209,9 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
                              get_real_time_ticks(WORLD))
     base = payload.bases['b1']
     by_type = {j.building_type: j for j in base.jobs}
-    assert [j.building_type for j in base.jobs] == ['HatchingPalEgg', 'BlastFurnace2', 'FarmBlockV2_Berries', 'FarmBlockV2_Wheat', 'Workbench'], \
+    assert [j.building_type for j in base.jobs] == ['HatchingPalEgg', 'BlastFurnace2', 'FarmBlockV2_Berries', 'FarmBlockV2_Tomato', 'FarmBlockV2_Wheat', 'Workbench'], \
         'ready first, then working, idle last'
-    assert (base.ready, base.working, base.stuck, base.idle) == (1, 2, 0, 2)
+    assert (base.ready, base.working, base.stuck, base.idle) == (1, 3, 0, 2)
     assert by_type['FarmBlockV2_Wheat'].status == 'idle', 'a bare plot: nothing planted, nothing watered, nobody on it'
 
     furnace = by_type['BlastFurnace2']
@@ -213,7 +228,11 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
     assert egg.egg.hatched_image_candidates[0] == 'lazycatfish_gold'
 
     crop = by_type['FarmBlockV2_Berries']
-    assert crop.status == 'working' and crop.crop.name == 'Red Berries' and crop.crop.growth == 0.25 and crop.crop.watered == 1.0
+    assert crop.status == 'working' and crop.crop.name == 'Red Berries' and crop.crop.phase == 'growing' and crop.crop.progress == 0.25
+    bare = by_type['FarmBlockV2_Wheat']
+    assert bare.crop.phase == 'watering' and bare.crop.progress == 0.0 and bare.status == 'idle', 'waiting for a waterer'
+    planting = by_type['FarmBlockV2_Tomato']
+    assert planting.crop.phase == 'planting' and planting.crop.progress == 0.803 and planting.status == 'working'
 
     assert by_type['Workbench'].status == 'idle' and by_type['Workbench'].product is None
 

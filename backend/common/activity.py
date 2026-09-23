@@ -15,8 +15,14 @@ What the save records, and how it is read here
   `auto_work_self_amount_by_sec`; against real saves the first is the per-unit
   requirement (recipe WorkAmount / the machine's speed rate) and the second the
   progress on the unit in hand, so those are the names used here.
-* Crops (FarmBlockV2) keep their own growth clock: `growup_required_time` and
-  `growup_progress_time` seconds, plus a watered fraction.
+* Crops (FarmBlockV2) cycle through phases; `current_state` says which, and the
+  assign table (DT_MapObjectAssignData_Common, rows FarmBlockV2_<crop>_<state>)
+  names the work each needs: 5 planting (Seeding), 2 watering, 4 harvesting
+  (Collection); 3 is the timed growing phase with no work row. Progress lives in
+  a different field per phase: `crop_progress_rate_value` for planting and
+  harvesting (= the work record's done / unit), `water_stack_rate_value` for
+  watering, `state_machine.growup_progress_time / growup_required_time` for
+  growing. Verified on a 58-plot save except growing, which no plot was in.
 * Incubators hold the egg item in their container and, once hatched, the whole
   pal in `hatched_character_save_parameter` until someone picks it up.
 * Expedition stations (CharacterTeamMissionModel) carry the mission id, the
@@ -41,6 +47,7 @@ MIN_MISSIONS = 10
 MIN_GENERATORS = 3                  # Power Generator, Large, Manual, Ancient, the battery
 GENERATOR_TYPE_B = 'Infra_GeneratePower'
 IDLE_UNIT = -1.0                    # a machine with no order keeps -1 in the per-unit slot
+CROP_PHASES = {5: 'planting', 2: 'watering', 3: 'growing', 4: 'harvesting'}
 
 # Concrete model class -> the kind of card the UI draws. Anything else at a base is furniture.
 KINDS = {
@@ -135,6 +142,26 @@ def fraction(done: Optional[float], total: Optional[float]) -> Optional[float]:
     if total is None or done is None or total <= 0:
         return None
     return max(0.0, min(1.0, float(done) / float(total)))
+
+
+def _unit(v: Optional[float]) -> Optional[float]:
+    return None if v is None else max(0.0, min(1.0, float(v)))
+
+
+def crop_phase(state: Optional[int], work_rate: Optional[float], watered: Optional[float],
+               grow_progress: Optional[float], grow_required: Optional[float],
+               unit: Optional[float] = None, done: Optional[float] = None) -> Dict[str, Any]:
+    """{phase, progress} for a plot: which step of plant -> water -> grow -> harvest it is on, and how far."""
+    phase = CROP_PHASES.get(state) if state is not None else None
+    if phase == 'watering':
+        progress = _unit(watered)
+    elif phase == 'growing':
+        progress = fraction(grow_progress, grow_required)
+    elif phase in ('planting', 'harvesting'):
+        progress = _unit(work_rate) if work_rate is not None else fraction(done, unit)
+    else:
+        progress = None
+    return {'phase': phase, 'progress': progress}
 
 
 def ticks_to_seconds(ticks: Optional[int]) -> Optional[float]:
