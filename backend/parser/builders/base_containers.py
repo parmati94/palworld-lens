@@ -31,13 +31,13 @@ def _items(container_id, item_index: Dict[str, List[Dict]], data: DataLoader) ->
     slots = []
     for entry in item_index.get(str(container_id), []):
         row = data.item(entry["static_id"])
-        # A schematic draws the thing it unlocks, with the UI adding a blueprint badge.
+        # A schematic keeps its blueprint icon; the UI layers the product's icon over it.
         schematic = data.schematic(entry["static_id"])
         slots.append(ItemSlot(
             item_id=entry["static_id"],
             item_name=row.get("localized_name") or entry["static_id"],
             count=entry["count"],
-            icon=(schematic or {}).get("icon") or row.get("icon"),
+            icon=row.get("icon"),
             schematic=SchematicInfo(**schematic) if schematic else None,
         ))
     return slots

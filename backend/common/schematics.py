@@ -10,7 +10,9 @@ it unlocks lives one table away. Two pak tables link them:
 `build_schematics` turns those into {blueprint_id: {product, kind}} for
 data/json/schematics.json (generate_schematics.py); the DataLoader resolves the
 product's icon, name and the schematic's own rarity at runtime so the UI can
-draw the product with a small blueprint badge. Pure python, no dependencies.
+draw the product over the blueprint paper, the way the game's item widget does
+(WBP_PalInGameMenuItemIcon: Image_Main = the item's icon, Image_Main_BP = the
+product at 0.8 scale on top). Pure python, no dependencies.
 """
 from __future__ import annotations
 

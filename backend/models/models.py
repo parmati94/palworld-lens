@@ -217,10 +217,12 @@ class GuildInfo(BaseModel):
 
 
 class SchematicInfo(BaseModel):
-    """What a schematic unlocks (data/json/schematics.json); the slot's icon is the product's."""
+    """What a schematic unlocks (data/json/schematics.json). The slot keeps the game's blueprint
+    icon; the UI draws `icon` (the product's) on top of it at 80%, the way the game's item widget does."""
     product_id: str
     product_name: str
     kind: str                      # "item" | "building"
+    icon: Optional[str] = None     # the product's icon
     rarity: Optional[int] = None   # the schematic's tier, 0 Common .. 4 Legendary
     rarity_name: Optional[str] = None
 
@@ -231,7 +233,7 @@ class ItemSlot(BaseModel):
     item_name: str
     count: int
     icon: Optional[str] = None
-    schematic: Optional[SchematicInfo] = None  # set for blueprint items; icon is then the product's
+    schematic: Optional[SchematicInfo] = None  # set for blueprint items
 
 
 class BaseContainerInfo(BaseModel):

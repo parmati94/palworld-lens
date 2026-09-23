@@ -66,7 +66,8 @@ def test_container_slots_draw_the_product_for_a_schematic():
     index = {'c1': [{'static_id': 'Blueprint_Musket_4', 'count': 2}, {'static_id': 'Wood', 'count': 40}]}
     musket, wood = _items('c1', index, _Data())
     assert musket.item_name == 'Musket Schematic 3' and musket.count == 2
-    assert musket.icon == 't_itemicon_weapon_musket', 'the slot shows the product, the UI adds the badge'
+    assert musket.icon == 't_itemicon_material_blueprint', 'the slot keeps the blueprint paper'
+    assert musket.schematic.icon == 't_itemicon_weapon_musket', 'the UI draws the product over it'
     assert musket.schematic.product_name == 'Musket' and musket.schematic.rarity_name == 'Epic'
     assert wood.icon == 't_itemicon_material_wood' and wood.schematic is None
 
