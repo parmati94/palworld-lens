@@ -1,9 +1,9 @@
 {{!-- One Activity card: a building and what it is doing. `job` is an ActivityJob from /api/activity.
-     Every card has the same four slots so a row of them lines up: header (hero tile, title, building,
-     status chip), a status line + bar, one strip of item tiles, one row of pals. A card without items
-     or pals keeps the empty slot rather than shrinking. The product leads (activityHero) and the
+     Every card has the same three slots so a row of them lines up: header (hero tile, title, building,
+     status chip), a status line + bar, and one row with item tiles on the left and pals on the right.
+     A card without items or pals keeps the empty slot rather than shrinking. The product leads (activityHero) and the
      building family sets the colour (activityKind). --}}
-<div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-2.5"
+<div class="bg-gray-800/60 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-2"
      :class="job.status === 'ready' ? 'border-amber-500/30' : (job.status === 'unstaffed' || job.status === 'no_materials' || job.status === 'full') ? 'border-orange-500/30' : ''"
      x-data="{ get hero() { return activityHero(job); }, get kind() { return activityKind(job.kind); }, get crew() { return activityCrew(job); } }">
     <!-- 1. header -->
@@ -113,49 +113,39 @@
         </template>
     </div>
 
-    <!-- 3. one strip of item tiles: in -> out for machines, the haul for expeditions, what a ranch holds -->
-    <div class="min-h-8 flex items-center gap-1.5 flex-wrap">
-        <template x-if="job.inputs.length">
-            <span class="eyebrow">in</span>
-        </template>
+    <!-- 3. one row: item tiles on the left (in -> out for machines, the haul, what a ranch holds), pals on the right -->
+    <div class="min-h-7 flex items-center gap-1.5 flex-wrap">
         <template x-for="item in job.inputs" :key="'in-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
         </template>
-        <template x-if="job.outputs.length && job.kind !== 'incubator' && job.kind !== 'station'">
-            <span class="eyebrow" :class="job.inputs.length ? 'ml-1' : ''" x-text="job.kind === 'machine' ? 'out' : 'holds'"></span>
-        </template>
+        <span x-show="job.inputs.length && job.outputs.length && job.kind === 'machine'" class="text-gray-600 text-xs px-0.5">&rarr;</span>
         <template x-for="item in (job.kind === 'incubator' || job.kind === 'station' ? [] : job.outputs)" :key="'out-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
-        </template>
-        <template x-if="job.expedition && job.expedition.haul.length">
-            <span class="eyebrow">haul</span>
         </template>
         <template x-for="item in (job.expedition ? job.expedition.haul : [])" :key="'haul-' + item.item_id">
             {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
         </template>
-    </div>
-
-    <!-- 4. one row of pals: chips up to CREW_INLINE_MAX, else stacked faces + a count into the crew modal -->
-    <div class="min-h-7 flex items-center gap-1.5">
-        <template x-if="crew.length > CREW_INLINE_MAX">
-            <button type="button" @click="$dispatch('open-crew-modal', crewModalDetail(job))"
-                    class="flex items-center gap-2 pl-1 pr-3 py-0.5 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
-                    :data-tip="'See all ' + crew.length + ' pals'">
-                <span class="flex -space-x-2">
-                    <template x-for="pal in crew.slice(0, 5)" :key="pal.instance_id">
-                        <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full ring-2 ring-gray-800 bg-gray-900" @error="palIconError($el, pal)">
-                    </template>
-                </span>
-                <span class="text-xs text-gray-300 tabular-nums"><span x-text="crew.length"></span> pals</span>
-            </button>
-        </template>
-        <template x-for="pal in (crew.length <= CREW_INLINE_MAX ? crew : [])" :key="pal.instance_id">
-            <button type="button" @click="openPalById(pal.instance_id)"
-                    class="flex items-center gap-1 pr-2 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors min-w-0"
-                    :data-tip="pal.name + ' · Lv ' + pal.level + ' -- open'">
-                <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full flex-shrink-0" @error="palIconError($el, pal)">
-                <span class="text-xs text-gray-300 truncate max-w-[6rem]" x-text="pal.name"></span>
-            </button>
-        </template>
+        <div class="ml-auto flex items-center gap-1.5 min-w-0">
+            <template x-if="crew.length > CREW_INLINE_MAX">
+                <button type="button" @click="$dispatch('open-crew-modal', crewModalDetail(job))"
+                        class="flex items-center gap-2 pl-1 pr-3 py-0.5 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
+                        :data-tip="'See all ' + crew.length + ' pals'">
+                    <span class="flex -space-x-2">
+                        <template x-for="pal in crew.slice(0, 5)" :key="pal.instance_id">
+                            <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full ring-2 ring-gray-800 bg-gray-900" @error="palIconError($el, pal)">
+                        </template>
+                    </span>
+                    <span class="text-xs text-gray-300 tabular-nums"><span x-text="crew.length"></span> pals</span>
+                </button>
+            </template>
+            <template x-for="pal in (crew.length <= CREW_INLINE_MAX ? crew : [])" :key="pal.instance_id">
+                <button type="button" @click="openPalById(pal.instance_id)"
+                        class="flex items-center gap-1 pr-2 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors min-w-0"
+                        :data-tip="pal.name + ' · Lv ' + pal.level + ' -- open'">
+                    <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full flex-shrink-0" @error="palIconError($el, pal)">
+                    <span class="text-xs text-gray-300 truncate max-w-[5.5rem]" x-text="pal.name"></span>
+                </button>
+            </template>
+        </div>
     </div>
 </div>
