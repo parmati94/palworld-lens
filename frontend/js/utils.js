@@ -219,8 +219,8 @@ export function sumItemCounts(containers) {
  * A shared guild chest stands at several bases with one container_id, so it is counted once
  * and gets its own row (label = the chest's name, click lands on the first base it stands
  * at); one already on screen at the current base is skipped. Different guilds name their
- * bases the same way ("Base 2"), so pass `ownerOf(baseId)` and clashing rows are marked
- * `ambiguous` with the owner attached.
+ * bases the same way ("Base 2") and every guild's chest is "Guild Chest", so pass
+ * `ownerOf(baseId)` and rows whose label clashes are marked `ambiguous` with the owner attached.
  */
 export function searchElsewhere(containersByBase, currentBaseId, query, { skipTypes = ['food_bowl'], ownerOf = null } = {}) {
     const q = (query || '').trim();
@@ -251,9 +251,10 @@ export function searchElsewhere(containersByBase, currentBaseId, query, { skipTy
             row.count += count;
         }
     }
-    const names = new Map();
-    for (const r of rows) if (!r.shared) names.set(r.base_name, (names.get(r.base_name) || 0) + 1);
-    for (const r of rows) r.ambiguous = !r.shared && (names.get(r.base_name) || 0) > 1;
+    // Two guilds' "Base 2", or two guilds' "Guild Chest": the label alone will not do.
+    const labels = new Map();
+    for (const r of rows) labels.set(r.label, (labels.get(r.label) || 0) + 1);
+    for (const r of rows) r.ambiguous = (labels.get(r.label) || 0) > 1;
     return rows.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 }
 

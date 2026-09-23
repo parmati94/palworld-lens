@@ -155,15 +155,18 @@ test('storage search: matches by name, id or unlocked product; cards keep only t
              { container_id: 'h', base_name: 'Base 1', container_type: 'storage', items: [{ ...paldium, count: 1 }] }],
         b8: [{ container_id: 'g', base_name: 'Base 2', container_type: 'guild', shared: true, display_name: 'Guild Chest',
                shared_at: [{ base_id: 'b7', base_name: 'Base 1' }, { base_id: 'b8', base_name: 'Base 2' }], items: [{ ...paldium, count: 70 }] }],
+        b9: [{ container_id: 'k', base_name: 'Camp', container_type: 'guild', shared: true, display_name: 'Guild Chest',
+               shared_at: [{ base_id: 'b9', base_name: 'Camp' }], items: [{ ...paldium, count: 60 }] }],
     };
-    const owners = { b1: 'Envy', b4: 'Envy', b7: 'Rival', b8: 'Rival' };
+    const owners = { b1: 'Envy', b4: 'Envy', b7: 'Rival', b8: 'Rival', b9: 'Third' };
     const away = searchElsewhere(byBase, 'b2', 'pald', { ownerOf: id => owners[id] || '' });
     assert.deepEqual(away.map(r => [r.label, r.count, r.chests, r.shared, r.ambiguous, r.owner]), [
         ['Base 4', 300, 1, false, false, 'Envy'],
-        ['Guild Chest', 70, 1, true, false, 'Rival'],
+        ['Guild Chest', 70, 1, true, true, 'Rival'],
+        ['Guild Chest', 60, 1, true, true, 'Third'],
         ['Base 1', 40, 1, false, true, 'Envy'],
         ['Base 1', 1, 1, false, true, 'Rival'],
-    ], 'biggest first; food bowls and the shared chest already on screen skipped; a shared chest once; clashing names flagged');
+    ], 'biggest first; food bowls and the shared chest already on screen skipped; a shared chest once; clashing labels flagged');
     assert.deepEqual(away[1].at, ['Base 1', 'Base 2']);
     assert.equal(away[1].base_id, 'b7', 'a shared chest row opens the first base it stands at');
     assert.deepEqual(searchElsewhere(byBase, 'b2', ''), []);

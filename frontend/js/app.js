@@ -832,6 +832,17 @@ export function app() {
             return this.storageQuery ? container.items : (container.items || []).slice(0, 5);
         },
         get storageMatchTotal() { return sumItemCounts(this.storageContainersAt(this.selectedBaseId)); },
+        /** Distinct items the search hits at this base, counts summed across chests, biggest first. */
+        get storageMatchedItems() {
+            const acc = new Map();
+            for (const c of this.storageContainersAt(this.selectedBaseId)) {
+                for (const i of c.items || []) {
+                    const e = acc.get(i.item_id);
+                    if (e) e.count += i.count || 0; else acc.set(i.item_id, { ...i });
+                }
+            }
+            return [...acc.values()].sort((a, b) => b.count - a.count);
+        },
         /** An "also at" chip: show that base (and its guild, so the pills above follow) without losing the search. */
         storageGoToBase(baseId) {
             const g = this.guilds.find(g => (g.base_locations || []).some(b => b.base_id === baseId));
