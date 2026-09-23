@@ -187,6 +187,9 @@ test('activity: groups by attention, formats durations and order lines', async (
     assert.deepEqual(activityGroups(jobs).map(g => [g.id, g.jobs.map(j => j.instance_id)]),
         [['attention', ['b', 'd']], ['working', ['a']], ['idle', ['c']]]);
     assert.deepEqual(activityGroups([{ status: 'working' }]).map(g => g.id), ['working'], 'empty groups are dropped');
+    const mixed = [{ status: 'working', kind: 'crop', display_name: 'Berry Plantation' }, { status: 'working', kind: 'machine', display_name: 'Mill' },
+                   { status: 'working', kind: 'station', display_name: 'Coal Quarry' }, { status: 'working', kind: 'machine', display_name: 'Crusher' }];
+    assert.deepEqual(activityGroups(mixed)[0].jobs.map(j => j.display_name), ['Crusher', 'Mill', 'Coal Quarry', 'Berry Plantation'], 'same shapes sit together');
     assert.equal(activityStatus('unstaffed').label, 'Nobody on it');
     assert.equal(activityStatus('???').label, 'Idle');
     assert.equal(formatDuration(4320), '1h 12m');

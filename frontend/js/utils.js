@@ -288,7 +288,17 @@ export function activityGroups(jobs) {
         const g = j.status === 'working' ? groups[1] : j.status === 'idle' ? groups[2] : groups[0];
         g.jobs.push(j);
     }
+    // same-shaped cards side by side: machines, then sites, power, plots, incubators, the rest
+    for (const g of groups) {
+        g.jobs.sort((a, b) => (kindRank(a.kind) - kindRank(b.kind)) || (a.display_name || '').localeCompare(b.display_name || '') || (a.instance_id || '').localeCompare(b.instance_id || ''));
+    }
     return groups.filter(g => g.jobs.length);
+}
+
+const KIND_ORDER = ['machine', 'station', 'generator', 'crop', 'incubator', 'ranch', 'breeding', 'expedition', 'lab'];
+function kindRank(kind) {
+    const i = KIND_ORDER.indexOf(kind);
+    return i < 0 ? KIND_ORDER.length : i;
 }
 
 /** Palworld's per-family colours for the Activity cards: the hero tile, the progress bar, the caption. */
@@ -342,7 +352,7 @@ export function activityCrew(job) {
     if (!job) return [];
     return job.expedition ? (job.expedition.pals || []) : (job.assigned || []);
 }
-export const CREW_INLINE_MAX = 6;   // more than this and the card shows a button that opens the crew modal
+export const CREW_INLINE_MAX = 3;   // more than this and the card shows a button that opens the crew modal (keeps the row to one line)
 
 /** Title + subtitle for the crew modal: "Astral Frost Cavern" / "100 pals · Away, 58m left". */
 export function crewModalDetail(job) {

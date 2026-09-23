@@ -47,7 +47,7 @@
                             <h3 class="text-sm font-semibold text-violet-300">Guild</h3>
                             <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400">shared</span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <template x-for="job in guildAct.expeditions" :key="job.instance_id">
                                 {{> activity-card }}
                             </template>
@@ -121,7 +121,7 @@
                             </div>
                         </template>
                         <template x-if="group.id !== 'idle'">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <template x-for="job in group.jobs" :key="job.instance_id">
                                     {{> activity-card }}
                                 </template>
