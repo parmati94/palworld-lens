@@ -19,8 +19,7 @@ import {
     formatUptime,
     buildPageList,
     formatRelativeTime,
-    WORK_LEVEL_COLORS
-} from './utils.js';
+    WORK_LEVEL_COLORS, searchContainers, sumItemCounts, searchElsewhere } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
@@ -65,6 +64,7 @@ export function app() {
         guilds: [],
         bases: [],
         baseContainers: null,
+        storageSearch: '',        // Storage sub-tab: filter this base's chests by item, see where else it is
         loading: false,
         error: null,
         palSearch: '',
@@ -819,6 +819,42 @@ export function app() {
                 this.baseRename.busy = false;
                 this.baseRename.error = err.message || 'Could not rename the base';
             }
+        },
+        // Storage sub-tab search. Non-food containers at the selected base, cut down to the
+        // matching items when a query is set; blank query = everything, five items per card.
+        get storageQuery() { return (this.storageSearch || '').trim(); },
+        storageContainersAt(baseId) {
+            const all = (this.baseContainers?.containers?.[baseId] || []).filter(c => c.container_type !== 'food_bowl' && c.items && c.items.length > 0);
+            return searchContainers(all, this.storageQuery);
+        },
+        /** Items to list on a chest card: every match while searching, else the first five. */
+        storageCardItems(container) {
+            return this.storageQuery ? container.items : (container.items || []).slice(0, 5);
+        },
+        get storageMatchTotal() { return sumItemCounts(this.storageContainersAt(this.selectedBaseId)); },
+        /** Distinct items the search hits at this base, counts summed across chests, biggest first. */
+        get storageMatchedItems() {
+            const acc = new Map();
+            for (const c of this.storageContainersAt(this.selectedBaseId)) {
+                for (const i of c.items || []) {
+                    const e = acc.get(i.item_id);
+                    if (e) e.count += i.count || 0; else acc.set(i.item_id, { ...i });
+                }
+            }
+            return [...acc.values()].sort((a, b) => b.count - a.count);
+        },
+        /** An "also at" chip: show that base (and its guild, so the pills above follow) without losing the search. */
+        storageGoToBase(baseId) {
+            const g = this.guilds.find(g => (g.base_locations || []).some(b => b.base_id === baseId));
+            if (g) this.selectedGuildId = g.guild_id;
+            this.selectedBaseId = baseId;
+        },
+        /** Other bases of the guild that owns the current base: the search sweeps your chests, not the neighbours'. */
+        get storageElsewhere() {
+            const guild = this.guilds.find(g => (g.base_locations || []).some(b => b.base_id === this.selectedBaseId));
+            const onlyBases = new Set((guild?.base_locations || []).map(b => b.base_id));
+            const ownerOf = () => (guild ? this.baseOwner(guild.guild_id) : '');
+            return searchElsewhere(this.baseContainers?.containers, this.selectedBaseId, this.storageQuery, { ownerOf, onlyBases });
         },
         /** "Base 3 and Base 5" / "Base 1, Base 3 and Base 4" from a list of {base_name}. */
         baseNamesSentence(bases) {

@@ -196,6 +196,17 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
     box-shadow: 0 0 0 3px rgb(var(--accent-500) / 0.2);
 }
 
+/* Phones zoom the whole page when a focused field's text is under 16px (Chrome on Android
+   and Safari on iOS both do it), which drags the nav bar in with it. 16px on touch screens
+   keeps the page where it is; desktop keeps the 14px the layouts were drawn at. */
+@media (hover: none) and (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
 
 /* Compact numbered circles for mobile */
 @media (max-width: 768px) {

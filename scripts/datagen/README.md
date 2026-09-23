@@ -17,6 +17,10 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
 - **`data/json/partner_skills.json`** -- every species' partner skill name and description
   rendered per condensing level, from the pak's skill text + parameter tables
   (`generate_partner_skills.py`; see `backend/common/partner_skills.py` for the table map).
+- **`data/json/schematics.json`** -- what each schematic unlocks, from the pak's
+  `DT_ItemRecipeDataTable` (UnlockItemID) and `DT_BuildObjectDataTable` (BlueprintItemID), so
+  chests can draw the product instead of the game's one generic blueprint icon
+  (`generate_schematics.py`; resolved at runtime by `backend/common/schematics.py`).
 
 Output is committed to the repo, so end users never run this.
 

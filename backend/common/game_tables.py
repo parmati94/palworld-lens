@@ -63,6 +63,7 @@ TABLES: Dict[str, Table] = {t.name: t for t in (
     Table('spawns', l10n=False, generated=True, required=False),      # wild spawner groups per species (generate_spawns.py, from the pak)
     Table('partner_skills', l10n=False, generated=True, required=False),  # partner skill name + text per level (generate_partner_skills.py, from the pak)
     Table('pal_parameters', l10n=False, generated=True, required=False),  # per-species pak fields save-pal lacks: best job (generate_pal_parameters.py)
+    Table('schematics', l10n=False, generated=True, required=False),  # blueprint id -> the item/building it unlocks (generate_schematics.py, from the pak)
 )}
 
 

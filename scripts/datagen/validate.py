@@ -28,6 +28,7 @@ from backend.common.breeding import BreedingIndex
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
+from backend.common.schematics import MIN_SCHEMATICS, blueprint_ids
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -172,6 +173,33 @@ def check_partner_skills(pals):
     notes.append(f'partner skills: {len(table)} species')
 
 
+def check_schematics():
+    """schematics.json (optional): every entry is a known blueprint pointing at an item or building with an icon."""
+    p = DATA_JSON / 'schematics.json'
+    if not p.exists():
+        notes.append('schematics.json missing -- run generate_schematics.py (needs the pak); schematics keep the generic blueprint icon')
+        return
+    items, buildings = _json(DATA_JSON / 'items.json'), _json(DATA_JSON / 'buildings.json')
+    table = _json(p).get('schematics') or {}
+    if len(table) < MIN_SCHEMATICS:
+        problems.append(f'schematics: only {len(table)} resolved (expected >= {MIN_SCHEMATICS}) -- partial extraction?')
+    known = set(blueprint_ids(items))
+    unknown = sorted(k for k in table if k not in known)
+    if unknown:
+        problems.append(f'{len(unknown)} schematic(s) not a blueprint in items.json: ' + ', '.join(unknown[:8]))
+    bad = []
+    for k, e in table.items():
+        row = (buildings if e.get('kind') == 'building' else items).get(e.get('product')) or {}
+        if e.get('kind') not in ('item', 'building') or not row or not (IMG_DIR / f"{row.get('icon')}.webp").exists():
+            bad.append(k)
+    if bad:
+        problems.append(f'{len(bad)} schematic(s) point at a product with no icon on disk: ' + ', '.join(bad[:8]))
+    gap = sorted(known - set(table))
+    if gap:
+        notes.append(f'{len(gap)} schematic(s) nothing unlocks (retired ids): ' + ', '.join(gap[:8]))
+    notes.append(f'schematics: {len(table)} resolved')
+
+
 def check_pal_parameters(pals):
     """pal_parameters.json (optional): every working species has a best job that is one of its jobs."""
     p = DATA_JSON / 'pal_parameters.json'
@@ -279,6 +307,7 @@ def main():
     check_spawns(layers, species, pals)
     check_partner_skills(pals)
     check_pal_parameters(pals)
+    check_schematics()
     check_breeding(pals, species)
     check_referenced_icons()
     check_layers(layers, objs, args.skip_tiles)

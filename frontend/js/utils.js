@@ -168,6 +168,108 @@ export function partnerSkillHtml(gameData, text) {
     return out.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
 }
 
+// ---------------------------------------------------------------------------
+// Items. A schematic slot keeps the game's blueprint icon and carries a
+// `schematic` block (backend/common/schematics.py) whose `icon` is the product
+// the UI layers on top, the way the game's item widget does.
+// ---------------------------------------------------------------------------
+// The game frames each inventory slot in its rarity colour. Ring classes for the icon tile;
+// tiers outside 0-4 (or missing) get the plain Common frame.
+export const RARITY_RING_CLASSES = {
+    0: 'ring-gray-600/70',
+    1: 'ring-green-500/70',
+    2: 'ring-blue-500/80',
+    3: 'ring-purple-500/80',
+    4: 'ring-amber-400/90',
+};
+
+export function rarityRingClass(rarity) {
+    return RARITY_RING_CLASSES[rarity] ?? RARITY_RING_CLASSES[0];
+}
+
+/** Case-insensitive match on the item's name, id, or (for a schematic) the product it unlocks. */
+export function itemMatches(item, query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) return true;
+    const hay = [item.item_name, item.item_id, item.schematic && item.schematic.product_name];
+    return hay.some(s => s && String(s).toLowerCase().includes(q));
+}
+
+/**
+ * Containers that hold something matching `query`, each with `items` cut down to the matches.
+ * A blank query returns the list untouched, so callers can bind to it unconditionally.
+ */
+export function searchContainers(containers, query) {
+    const q = (query || '').trim();
+    if (!q) return containers || [];
+    return (containers || [])
+        .map(c => ({ ...c, items: (c.items || []).filter(i => itemMatches(i, q)) }))
+        .filter(c => c.items.length > 0);
+}
+
+/** Sum of item counts across a container list (after searchContainers, the matching total). */
+export function sumItemCounts(containers) {
+    return (containers || []).reduce((n, c) => n + (c.items || []).reduce((m, i) => m + (i.count || 0), 0), 0);
+}
+
+/**
+ * Where else on the server `query` turns up: one row per other base, biggest total first.
+ * `containersByBase` is the API's {base_id: [container]} map.
+ *
+ * A shared guild chest stands at several bases with one container_id, so it is counted once
+ * and gets its own row (label = the chest's name, click lands on the first base it stands
+ * at); one already on screen at the current base is skipped. Different guilds name their
+ * bases the same way ("Base 2") and every guild's chest is "Guild Chest", so pass
+ * `ownerOf(baseId)` and rows whose label clashes are marked `ambiguous` with the owner attached.
+ * `onlyBases` (a Set of base ids) limits the sweep, e.g. to the guild's own bases: "where did
+ * I put it" is a question about your chests, not the neighbours'.
+ */
+export function searchElsewhere(containersByBase, currentBaseId, query, { skipTypes = ['food_bowl'], ownerOf = null, onlyBases = null } = {}) {
+    const q = (query || '').trim();
+    if (!q || !containersByBase) return [];
+    const seen = new Set((containersByBase[currentBaseId] || []).map(c => c.container_id));
+    const perBase = new Map();
+    const rows = [];
+    for (const [baseId, containers] of Object.entries(containersByBase)) {
+        if (baseId === currentBaseId || (onlyBases && !onlyBases.has(baseId))) continue;
+        for (const c of searchContainers(containers.filter(c => !skipTypes.includes(c.container_type)), q)) {
+            if (seen.has(c.container_id)) continue;
+            seen.add(c.container_id);
+            const count = sumItemCounts([c]);
+            if (c.shared) {
+                const at = (c.shared_at && c.shared_at.length ? c.shared_at : [{ base_id: baseId, base_name: c.base_name }]);
+                rows.push({ base_id: at[0].base_id, base_name: at[0].base_name || baseId, label: c.display_name || 'Guild chest',
+                            shared: true, at: at.map(b => b.base_name), chests: 1, count, owner: ownerOf ? ownerOf(at[0].base_id) : '' });
+                continue;
+            }
+            let row = perBase.get(baseId);
+            if (!row) {
+                row = { base_id: baseId, base_name: c.base_name || baseId, label: c.base_name || baseId, shared: false,
+                        chests: 0, count: 0, owner: ownerOf ? ownerOf(baseId) : '' };
+                perBase.set(baseId, row);
+                rows.push(row);
+            }
+            row.chests += 1;
+            row.count += count;
+        }
+    }
+    // Two guilds' "Base 2", or two guilds' "Guild Chest": the label alone will not do.
+    const labels = new Map();
+    for (const r of rows) labels.set(r.label, (labels.get(r.label) || 0) + 1);
+    for (const r of rows) r.ambiguous = (labels.get(r.label) || 0) > 1;
+    return rows.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+/** Tooltip for a container slot: what a schematic unlocks, nothing for plain items. */
+export function itemTip(item) {
+    const s = item && item.schematic;
+    if (!s) return '';
+    const tier = s.rarity_name ? ` (${s.rarity_name})` : '';
+    return s.kind === 'building'
+        ? `Schematic: lets you build ${s.product_name}${tier}`
+        : `Schematic: unlocks the ${s.product_name} recipe${tier}`;
+}
+
 /**
  * Get rank icon filename for passive skills
  */

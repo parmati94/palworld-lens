@@ -1,0 +1,21 @@
+{{!-- One container slot, drawn like the game's: a dark inset tile framed in the item's rarity colour.
+     Params: size (w-7 h-7 ...), fallback (img stem), count (any value: draw ×N in the tile's corner).
+     A schematic is layered the way the game's item widget does it (WBP_PalInGameMenuItemIcon): the
+     schematic's own blueprint-paper icon fills the tile and the product it unlocks sits on top at
+     80% scale, centred. Two <img>s in one box, nothing precomputed. --}}
+<div class="relative flex-shrink-0 rounded-md bg-gray-900/70 ring-1 ring-inset {{size}}"
+     :class="rarityRingClass(item.rarity)" :data-tip="itemTip(item)">
+    <img :src="item.icon ? `/img/${item.icon}.webp` : '/img/{{fallback}}.webp'"
+         :alt="item.item_name"
+         onerror="this.onerror=null; this.src='/img/{{fallback}}.webp'"
+         class="w-full h-full object-contain p-0.5">
+    <template x-if="item.schematic && item.schematic.icon">
+        <img :src="`/img/${item.schematic.icon}.webp`" alt="" aria-hidden="true"
+             onerror="this.remove()"
+             class="absolute inset-0 w-full h-full object-contain scale-[0.8] drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)] pointer-events-none">
+    </template>
+    {{#if count}}
+    <span class="absolute bottom-0.5 right-0.5 px-1 rounded bg-gray-950/85 text-[11px] font-semibold leading-4 text-white tabular-nums"
+          x-text="'×' + (item.count > 999999 ? (item.count / 1000000).toFixed(1) + 'M' : item.count > 9999 ? (item.count / 1000).toFixed(1) + 'K' : item.count.toLocaleString())"></span>
+    {{/if}}
+</div>
