@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from backend.common.activity import (build_activity_tables, expedition_state, fraction, lab_summary,
+from backend.common.activity import (build_activity_tables, expedition_state, fraction, lab_summary, MIN_GENERATORS,
                                      MIN_LAB_RESEARCH, MIN_MISSIONS, TICKS_PER_SECOND)
 from backend.parser.builders.activity import build_activity
 from backend.parser.extractors.activity import get_activity_objects, get_guild_labs, get_real_time_ticks, index_works
@@ -27,7 +27,12 @@ def test_build_activity_tables_names_research_and_missions_and_keeps_only_odd_re
                                   'Difficulty': 'EPalCharacterTeamMissionDifficulty::Easy'}}
     mission_text = {'DUNGEON_GRASS': {'TextData': {'LocalizedString': 'Verdant Hollow'}}}
     recipes = {'IronIngot': {'Product_Id': 'IronIngot'}, 'Head001_1': {'Product_Id': 'Head001'}, 'X': {'Product_Id': 'None'}}
-    doc = build_activity_tables(lab_rows, lab_text, missions, mission_text, recipes)
+    blueprints = {'ElectricGenerator': [{'Type': 'Function'}, {'Properties': {'MaxEnergyStorage': 250000.0}}],
+                  'ElectricGenerator_Large': [{'Properties': {'GenerateEnergyRateByWorker': 3.0, 'MaxEnergyStorage': 1000000.0}}],
+                  'Lamp': [{'Properties': {'Brightness': 3}}]}
+    doc = build_activity_tables(lab_rows, lab_text, missions, mission_text, recipes, blueprints)
+    assert doc['generators'] == {'ElectricGenerator': {'capacity': 250000.0, 'rate': None},
+                                 'ElectricGenerator_Large': {'capacity': 1000000.0, 'rate': 3.0}}, 'no MaxEnergyStorage, no row'
     assert doc['lab']['Mining1'] == {'name': 'Mining Speed 1', 'work': 50000.0, 'category': 'Mining', 'requires': None}
     assert doc['lab']['Mining1_2']['requires'] == 'Mining1' and doc['lab']['Mining1_2']['name'] == 'Mining Speed 2'
     assert doc['expeditions'] == {'Dungeon_Grass': {'name': 'Verdant Hollow', 'seconds': 1800, 'difficulty': 'Easy'}}
@@ -157,7 +162,8 @@ class _Data:
     activity = {'lab': {'Mining1': {'name': 'Mining Speed 1', 'work': 50000, 'category': 'Mining'},
                         'Mining1_2': {'name': 'Mining Speed 2', 'work': 200000, 'category': 'Mining'}},
                 'expeditions': {'Dungeon_Grass': {'name': 'Verdant Hollow', 'seconds': 1800, 'difficulty': 'Easy'}},
-                'recipe_products': {}}
+                'recipe_products': {},
+                'generators': {'ElectricGenerator': {'capacity': 250000.0, 'rate': None}}}
     _items = {'IronIngot': {'localized_name': 'Refined Ingot', 'icon': 'i_ingot', 'rarity': 0},
               'CopperOre': {'localized_name': 'Ore', 'icon': 'i_ore', 'rarity': 0},
               'Coal': {'localized_name': 'Coal', 'icon': 'i_coal', 'rarity': 0},
@@ -223,6 +229,20 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
     assert payload.as_of_ticks == 1000 * TICKS_PER_SECOND
 
 
+def test_generator_fill_comes_from_the_blueprint_capacity():
+    world = {'WorkSaveData': {'value': {'values': []}}, 'GuildExtraSaveDataMap': {'value': []},
+             'MapObjectSaveData': {'value': {'values': [
+                 _obj('ElectricGenerator', {'concrete_model_type': 'PalMapObjectGenerateEnergyModel', 'stored_energy_amount': 62500.0},
+                      model_id='m-gen'),
+                 _obj('ManualElectricGenerator', {'concrete_model_type': 'PalMapObjectGenerateEnergyModel', 'stored_energy_amount': 100.0},
+                      model_id='m-manual'),
+             ]}}}
+    payload = build_activity(get_activity_objects(world), {}, {}, META, {}, [], _Data(), None)
+    gen, manual = sorted(payload.bases['b1'].jobs, key=lambda j: j.instance_id)
+    assert gen.kind == 'generator' and gen.stored_energy == 62500.0 and gen.energy_max == 250000.0 and gen.progress == 0.25
+    assert manual.energy_max is None and manual.progress is None, 'no capacity in the table, no percentage'
+
+
 def test_idle_expedition_station_with_a_haul_inside_is_ready():
     world = {'WorkSaveData': {'value': {'values': []}}, 'GuildExtraSaveDataMap': {'value': []},
              'MapObjectSaveData': {'value': {'values': [
@@ -265,5 +285,8 @@ def test_shipped_activity_tables_are_complete():
     assert all(v['name'] and v['seconds'] > 0 for v in doc['expeditions'].values())
     assert doc['expeditions']['Dungeon_Grass'] == {'name': 'Verdant Hollow', 'seconds': 1800, 'difficulty': 'Easy'}
     assert doc['lab']['Mining1']['category'] == 'Mining'
+    assert doc['generators']['ElectricGenerator'] == {'capacity': 250000.0, 'rate': None}
+    assert doc['generators']['ElectricGenerator_Large']['capacity'] == 1000000.0
+    assert len(doc['generators']) >= MIN_GENERATORS
     items = json.loads((DATA / 'items.json').read_text(encoding='utf-8'))
     assert all(v in items for v in doc['recipe_products'].values()), 'every recipe product is an item'

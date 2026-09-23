@@ -29,7 +29,7 @@ from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
 from backend.common.schematics import MIN_SCHEMATICS, blueprint_ids
-from backend.common.activity import MIN_LAB_RESEARCH, MIN_MISSIONS
+from backend.common.activity import MIN_GENERATORS, MIN_LAB_RESEARCH, MIN_MISSIONS
 
 # Pals that genuinely have no icon texture in the pak. One id per line; '#' comments.
 KNOWN_MISSING = ROOT / 'scripts' / 'datagen' / 'icons_known_missing.txt'
@@ -218,7 +218,10 @@ def check_activity_tables():
     missing = [k for k, v in (doc.get('recipe_products') or {}).items() if v not in items]
     if missing:
         problems.append(f'{len(missing)} recipe product(s) not in items.json: ' + ', '.join(missing[:8]))
-    notes.append(f'activity: {len(lab)} research, {len(exp)} expeditions')
+    gens = doc.get('generators') or {}
+    if len(gens) < MIN_GENERATORS or any(not v.get('capacity') for v in gens.values()):
+        problems.append(f'activity: {len(gens)} power buildings with a capacity (expected >= {MIN_GENERATORS}) -- rerun generate_activity_tables.py')
+    notes.append(f'activity: {len(lab)} research, {len(exp)} expeditions, {len(gens)} power buildings')
 
 
 def check_pal_parameters(pals):

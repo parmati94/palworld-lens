@@ -24,6 +24,9 @@ What the save records, and how it is read here
   says how long it takes.
 * Lab research lives on the guild (GuildExtraSaveDataMap.Lab): the research in
   progress and the work put into each one; the lab table says how much it needs.
+* Generators (GenerateEnergyModel) carry `stored_energy_amount`; the capacity is
+  not in any data table but on each generator's blueprint (MaxEnergyStorage),
+  which the datagen dumps so the card can show a fill percentage.
 
 Timers are only as fresh as the save: every figure is "as of" the save time.
 """
@@ -35,6 +38,8 @@ NONE = 'None'
 TICKS_PER_SECOND = 10_000_000       # GameTimeSaveData.RealDateTimeTicks: 100 ns ticks
 MIN_LAB_RESEARCH = 100
 MIN_MISSIONS = 10
+MIN_GENERATORS = 3                  # Power Generator, Large, Manual, Ancient, the battery
+GENERATOR_TYPE_B = 'Infra_GeneratePower'
 IDLE_UNIT = -1.0                    # a machine with no order keeps -1 in the per-unit slot
 
 # Concrete model class -> the kind of card the UI draws. Anything else at a base is furniture.
@@ -61,10 +66,44 @@ def _enum(v: Any) -> str:
     return str(v or '').split('::')[-1]
 
 
+def _find_number(obj: Any, key: str) -> Optional[float]:
+    """First numeric `key` anywhere in a dumped blueprint (its properties sit in a nested export list)."""
+    if isinstance(obj, dict):
+        if key in obj and isinstance(obj[key], (int, float)):
+            return float(obj[key])
+        for v in obj.values():
+            found = _find_number(v, key)
+            if found is not None:
+                return found
+    elif isinstance(obj, list):
+        for v in obj:
+            found = _find_number(v, key)
+            if found is not None:
+                return found
+    return None
+
+
+def energy_from_blueprint(blueprint: Any) -> Optional[Dict[str, Optional[float]]]:
+    """{capacity, rate} from a generator blueprint dump; None when it has no MaxEnergyStorage."""
+    capacity = _find_number(blueprint, 'MaxEnergyStorage')
+    if not capacity:
+        return None
+    return {'capacity': capacity, 'rate': _find_number(blueprint, 'GenerateEnergyRateByWorker')}
+
+
+def generator_ids(build_rows: Dict[str, Dict]) -> List[str]:
+    """Build-object rows that generate or bank power (TypeB Infra_GeneratePower)."""
+    return sorted(k for k, r in build_rows.items() if _enum(r.get('TypeB')) == GENERATOR_TYPE_B)
+
+
 def build_activity_tables(lab_rows: Dict[str, Dict], lab_text: Dict[str, Dict],
                           mission_rows: Dict[str, Dict], mission_text: Dict[str, Dict],
-                          recipe_rows: Dict[str, Dict]) -> Dict[str, Dict]:
-    """The three tables data/json/activity.json ships, from the raw pak dumps."""
+                          recipe_rows: Dict[str, Dict],
+                          generator_blueprints: Optional[Dict[str, Any]] = None) -> Dict[str, Dict]:
+    """The tables data/json/activity.json ships, from the raw pak dumps.
+
+    generator_blueprints: build-object id -> the dumped blueprint (obj) for each power building.
+    """
     lab = {}
     for rid, r in lab_rows.items():
         lab[rid] = {
@@ -82,8 +121,13 @@ def build_activity_tables(lab_rows: Dict[str, Dict], lab_text: Dict[str, Dict],
         }
     recipe_products = {rid: r['Product_Id'] for rid, r in recipe_rows.items()
                        if r.get('Product_Id') and r['Product_Id'] != NONE and r['Product_Id'] != rid}
+    generators = {}
+    for oid, bp in (generator_blueprints or {}).items():
+        energy = energy_from_blueprint(bp)
+        if energy:
+            generators[oid] = energy
     return {'lab': dict(sorted(lab.items())), 'expeditions': dict(sorted(expeditions.items())),
-            'recipe_products': dict(sorted(recipe_products.items()))}
+            'recipe_products': dict(sorted(recipe_products.items())), 'generators': dict(sorted(generators.items()))}
 
 
 def fraction(done: Optional[float], total: Optional[float]) -> Optional[float]:

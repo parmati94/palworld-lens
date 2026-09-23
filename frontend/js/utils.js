@@ -293,8 +293,9 @@ export function activityGroups(jobs) {
 /** A stack count the way the game abbreviates it: 1,234 / 12.3K / 1.2M. */
 export function formatCount(n) {
     if (n == null || !isFinite(n)) return '';
-    if (n > 999999) return (n / 1000000).toFixed(1) + 'M';
-    if (n > 9999) return (n / 1000).toFixed(1) + 'K';
+    const short = (v) => v.toFixed(1).replace(/\.0$/, '');
+    if (n > 999999) return short(n / 1000000) + 'M';
+    if (n > 9999) return short(n / 1000) + 'K';
     return n.toLocaleString();
 }
 

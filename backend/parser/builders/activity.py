@@ -151,6 +151,8 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
             job.outputs = contents
             if kind == "generator":
                 job.stored_energy = obj.get("stored_energy")
+                job.energy_max = (tables.get("generators", {}).get(job.building_type) or {}).get("capacity")
+                job.progress = fraction(job.stored_energy, job.energy_max)
             job.status = "working" if job.assigned else "idle"
 
         elif kind == "expedition":

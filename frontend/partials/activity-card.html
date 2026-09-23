@@ -142,9 +142,17 @@
         </div>
     </template>
 
-    <!-- generator -->
+    <!-- generator: how full the bank is -->
     <template x-if="job.kind === 'generator' && job.stored_energy != null">
-        <div class="text-sm text-gray-300 tabular-nums"><span class="text-white font-semibold" x-text="Math.round(job.stored_energy).toLocaleString()"></span> energy banked</div>
+        <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
+                <span x-text="job.energy_max ? formatCount(Math.round(job.stored_energy)) + ' / ' + formatCount(job.energy_max) + ' energy' : formatCount(Math.round(job.stored_energy)) + ' energy banked'"></span>
+                <span x-show="job.progress != null" class="text-sm font-semibold" :class="job.progress >= 0.999 ? 'text-emerald-300' : job.progress <= 0.1 ? 'text-orange-300' : 'text-white'" x-text="Math.round(job.progress * 100) + '%'"></span>
+            </div>
+            <div x-show="job.progress != null" class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
+                <div class="h-full rounded-full" :class="job.progress >= 0.999 ? 'bg-emerald-400' : job.progress <= 0.1 ? 'bg-orange-400' : 'bg-sky-400'" :style="`width:${Math.round(job.progress * 100)}%`"></div>
+            </div>
+        </div>
     </template>
 
     <!-- inputs / outputs (machines), what sits inside (stations, ranches, expeditions' haul) -->

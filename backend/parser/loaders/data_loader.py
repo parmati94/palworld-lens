@@ -156,7 +156,7 @@ class DataLoader:
         # Activity tables (data/json/activity.json): lab research names/work, expedition names/durations,
         # recipe ids that are not the product's id. Optional -- without it ids show raw and timers hide.
         act = self.tables.get('activity') or {}
-        self.activity: Dict[str, Dict] = {k: (act.get(k) or {}) for k in ('lab', 'expeditions', 'recipe_products')}
+        self.activity: Dict[str, Dict] = {k: (act.get(k) or {}) for k in ('lab', 'expeditions', 'recipe_products', 'generators')}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '

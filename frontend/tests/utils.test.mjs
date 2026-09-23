@@ -197,5 +197,5 @@ test('activity: groups by attention, formats durations and order lines', async (
     assert.equal(orderLine({ recipe_id: 'IronIngot', order_remaining: 10, craftable_now: 0 }), '10 to go · nothing to make with');
     assert.equal(orderLine({ recipe_id: 'IronIngot', order_remaining: 0, craftable_now: 0 }), 'order done');
     assert.equal(orderLine({ recipe_id: null }), '');
-    assert.deepEqual([1234, 12345, 1234567, null].map(formatCount), ['1,234', '12.3K', '1.2M', '']);
+    assert.deepEqual([1234, 12345, 250000, 1234567, 1000000, null].map(formatCount), ['1,234', '12.3K', '250K', '1.2M', '1M', '']);
 });

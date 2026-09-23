@@ -308,6 +308,7 @@ class ActivityJob(BaseModel):
     egg: Optional[EggInfo] = None
     expedition: Optional[ExpeditionInfo] = None
     stored_energy: Optional[float] = None
+    energy_max: Optional[float] = None          # generator capacity from its blueprint; progress = fill
     is_damaged: bool = False
 
 
