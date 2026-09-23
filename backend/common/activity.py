@@ -25,9 +25,11 @@ What the save records, and how it is read here
   growing. Verified on a 58-plot save except growing, which no plot was in.
 * Incubators hold the egg item in their container and, once hatched, the whole
   pal in `hatched_character_save_parameter` until someone picks it up.
-* Expedition stations (CharacterTeamMissionModel) carry the mission id, the
-  pals sent and a start time in the world's real-time ticks; the mission table
-  says how long it takes.
+* Expedition stations (CharacterTeamMissionModel) carry the mission id (upper
+  case in the save, mixed case in the table), the pals sent (auto-assign sends
+  about a hundred) and a start time in the world's real-time ticks
+  (GameTimeSaveData.RealDateTimeTicks advances with wall time; verified live);
+  the mission table says how long it takes. `state` 2 = out, 3 = home.
 * Lab research lives on the guild (GuildExtraSaveDataMap.Lab): the research in
   progress and the work put into each one; the lab table says how much it needs.
 * Generators (GenerateEnergyModel) carry `stored_energy_amount`; the capacity is

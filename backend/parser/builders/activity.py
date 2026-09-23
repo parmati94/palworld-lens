@@ -64,6 +64,7 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
                    now_ticks: Optional[int], container_sizes: Optional[Dict[str, int]] = None) -> ActivityPayload:
     by_pal = {p.instance_id: p for p in pals}
     tables = data.activity
+    missions = {k.lower(): v for k, v in tables["expeditions"].items()}   # the save says DUNGEON_SNOW, the table Dungeon_Snow
     bases: Dict[str, List[ActivityJob]] = defaultdict(list)
     guilds: Dict[str, GuildActivity] = {}
     lab_objects: Dict[str, Dict] = {}   # guild -> the lab building (first one)
@@ -167,7 +168,7 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
 
         elif kind == "expedition":
             mid = obj.get("mission_id")
-            row = tables["expeditions"].get(mid or "") or {}
+            row = missions.get((mid or "").lower()) or {}
             st = expedition_state(mid, obj.get("mission_start_ticks"), now_ticks, row.get("seconds"))
             job.expedition = ExpeditionInfo(mission_id=mid, name=row.get("name") or mid, difficulty=row.get("difficulty"),
                                             seconds=row.get("seconds"), state=st["state"],

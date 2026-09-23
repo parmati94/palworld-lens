@@ -106,14 +106,10 @@
         <div>
             <template x-if="job.expedition.state !== 'idle'">
                 <div>
-                    <div class="flex items-baseline justify-between gap-2">
-                        <span class="text-sm text-white truncate" x-text="job.expedition.name || job.expedition.mission_id"></span>
-                        <span class="text-[11px] text-gray-400 whitespace-nowrap" x-text="job.expedition.difficulty || ''"></span>
-                    </div>
                     <template x-if="job.expedition.seconds_left != null">
-                        <div class="mt-2">
+                        <div>
                             <div class="flex items-center justify-between text-[11px] text-gray-500 tabular-nums">
-                                <span x-text="job.expedition.state === 'back' ? 'time is up, haul waiting' : formatDuration(job.expedition.seconds_left) + ' left'"></span>
+                                <span x-text="(job.expedition.state === 'back' ? 'time is up, haul waiting' : formatDuration(job.expedition.seconds_left) + ' left') + (job.expedition.difficulty ? ' · ' + job.expedition.difficulty : '')"></span>
                                 <span x-text="Math.round(Math.min(1, job.expedition.elapsed / job.expedition.seconds) * 100) + '%'"></span>
                             </div>
                             <div class="mt-1 h-1.5 rounded-full bg-gray-700/70 overflow-hidden">
@@ -172,10 +168,22 @@
         </div>
     </template>
 
-    <!-- pals on it -->
-    <template x-if="job.assigned.length || (job.expedition && job.expedition.pals.length)">
+    <!-- pals on it: chips, or one button into the crew modal when there are many (expeditions send ~100) -->
+    <template x-if="activityCrew(job).length > CREW_INLINE_MAX">
+        <button type="button" @click="$dispatch('open-crew-modal', crewModalDetail(job))"
+                class="self-start flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
+                :data-tip="'See all ' + activityCrew(job).length + ' pals'">
+            <span class="flex -space-x-2">
+                <template x-for="pal in activityCrew(job).slice(0, 5)" :key="pal.instance_id">
+                    <img :src="palIconSrc(pal)" :alt="pal.name" class="w-6 h-6 rounded-full ring-2 ring-gray-800 bg-gray-900" @error="palIconError($el, pal)">
+                </template>
+            </span>
+            <span class="text-xs text-gray-300 tabular-nums"><span x-text="activityCrew(job).length"></span> pals</span>
+        </button>
+    </template>
+    <template x-if="activityCrew(job).length && activityCrew(job).length <= CREW_INLINE_MAX">
         <div class="flex items-center gap-1.5 flex-wrap">
-            <template x-for="pal in (job.expedition ? job.expedition.pals : job.assigned)" :key="pal.instance_id">
+            <template x-for="pal in activityCrew(job)" :key="pal.instance_id">
                 <button type="button" @click="openPalById(pal.instance_id)"
                         class="flex items-center gap-1 pr-2 rounded-full bg-gray-900/60 border border-gray-700/60 hover:border-accent-500/60 transition-colors"
                         :data-tip="pal.name + ' · Lv ' + pal.level + ' -- open'">

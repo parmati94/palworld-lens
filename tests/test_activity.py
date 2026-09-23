@@ -280,6 +280,17 @@ def test_generator_fill_comes_from_the_blueprint_capacity():
     assert manual.energy_max is None and manual.progress is None, 'no capacity in the table, no percentage'
 
 
+def test_expedition_mission_id_case_does_not_matter():
+    world = {'WorkSaveData': {'value': {'values': []}}, 'GuildExtraSaveDataMap': {'value': []},
+             'GameTimeSaveData': {'value': {'RealDateTimeTicks': {'value': 1000 * TICKS_PER_SECOND}}},
+             'MapObjectSaveData': {'value': {'values': [
+                 _obj('Expedition', {'concrete_model_type': 'PalMapObjectCharacterTeamMissionModel', 'mission_id': 'DUNGEON_GRASS', 'state': 2,
+                                     'start_time': 934 * TICKS_PER_SECOND, 'assigned_individuals': []}, model_id='m-exp')]}}}
+    payload = build_activity(get_activity_objects(world), {}, {}, META, {}, [], _Data(), 1000 * TICKS_PER_SECOND)
+    e = payload.guilds['g1'].expeditions[0].expedition
+    assert e.name == 'Verdant Hollow' and e.state == 'out' and e.elapsed == 66 and e.seconds_left == 1800 - 66
+
+
 def test_idle_expedition_station_with_a_haul_inside_is_ready():
     world = {'WorkSaveData': {'value': {'values': []}}, 'GuildExtraSaveDataMap': {'value': []},
              'MapObjectSaveData': {'value': {'values': [

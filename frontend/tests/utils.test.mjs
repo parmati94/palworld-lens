@@ -208,6 +208,9 @@ test('activity: cards lead with the product and take the family colour', async (
     const hatched = activityHero({ kind: 'incubator', display_name: 'Egg Incubator', egg: { hatched_species_id: 'Dumud', hatched_name: 'Dumud', hatched_image_candidates: ['Dumud'] } });
     assert.equal(hatched.pal.name, 'Dumud'); assert.equal(hatched.item, null);
     assert.deepEqual(activityHero({ kind: 'generator', display_name: 'Power Generator' }), { item: null, pal: null, title: 'Power Generator', caption: '' });
+    assert.deepEqual(activityHero({ kind: 'expedition', display_name: 'Pal Expedition Station', expedition: { state: 'out', name: 'Astral Frost Cavern' } }),
+        { item: null, pal: null, title: 'Astral Frost Cavern', caption: 'Pal Expedition Station' });
+    assert.equal(activityHero({ kind: 'expedition', display_name: 'Pal Expedition Station', expedition: { state: 'idle' } }).title, 'Pal Expedition Station');
     assert.equal(activityKind('machine').bar, 'bg-orange-400');
     assert.equal(activityKind('nope').label, '');
     assert.equal(eggTemperature({ temp_diff: 0 }), null);
@@ -216,4 +219,10 @@ test('activity: cards lead with the product and take the family colour', async (
     const { fillBarClass, activityStatus: st } = await import('../js/utils.js');
     assert.deepEqual([0.5, 0.95, 1, null].map(f => fillBarClass(f, 'bg-teal-400')), ['bg-teal-400', 'bg-amber-400', 'bg-red-400', 'bg-teal-400']);
     assert.equal(st('full').label, 'Full');
+    const { activityCrew, crewModalDetail, CREW_INLINE_MAX } = await import('../js/utils.js');
+    const many = Array.from({ length: 100 }, (_, i) => ({ instance_id: 'p' + i, name: 'Pal ' + i, level: 1, image_candidates: [] }));
+    const trip = { display_name: 'Pal Expedition Station', expedition: { name: 'Astral Frost Cavern', state: 'out', seconds_left: 3480, pals: many } };
+    assert.equal(activityCrew(trip).length, 100); assert.ok(100 > CREW_INLINE_MAX);
+    assert.deepEqual([crewModalDetail(trip).title, crewModalDetail(trip).subtitle], ['Astral Frost Cavern', '100 pals · Away, 58m left']);
+    assert.equal(activityCrew({ assigned: [{ instance_id: 'a' }] }).length, 1);
 });

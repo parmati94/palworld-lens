@@ -331,7 +331,27 @@ export function activityHero(job) {
         }
         if (job.egg.egg) return { item: job.egg.egg, pal: null, title: job.egg.egg.item_name, caption: building };
     }
+    if (job.kind === 'expedition' && job.expedition && job.expedition.state !== 'idle') {
+        return { item: null, pal: null, title: job.expedition.name || job.expedition.mission_id, caption: building };
+    }
     return { item: null, pal: null, title: building, caption: '' };
+}
+
+/** The pals on a card: an expedition's crew, otherwise whoever is assigned to the building. */
+export function activityCrew(job) {
+    if (!job) return [];
+    return job.expedition ? (job.expedition.pals || []) : (job.assigned || []);
+}
+export const CREW_INLINE_MAX = 6;   // more than this and the card shows a button that opens the crew modal
+
+/** Title + subtitle for the crew modal: "Astral Frost Cavern" / "100 pals · Away, 58m left". */
+export function crewModalDetail(job) {
+    const pals = activityCrew(job);
+    const e = job.expedition;
+    const title = e ? (e.name || e.mission_id || job.display_name) : job.display_name;
+    let state = '';
+    if (e) state = e.state === 'out' ? `Away, ${formatDuration(e.seconds_left)} left` : e.state === 'back' ? 'Back, haul waiting' : 'Idle';
+    return { title, subtitle: `${pals.length} pal${pals.length === 1 ? '' : 's'}${state ? ' · ' + state : ''}`, pals };
 }
 
 /** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
