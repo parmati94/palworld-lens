@@ -361,7 +361,7 @@ export function crewModalDetail(job) {
     const e = job.expedition;
     const title = e ? (e.name || e.mission_id || job.display_name) : job.display_name;
     let state = '';
-    if (e) state = e.state === 'out' ? `On expedition, ${formatDuration(e.seconds_left)} left` : e.state === 'back' ? 'Returned, haul waiting' : 'Idle';
+    if (e) state = e.state === 'out' ? `On expedition, ${formatDuration(e.seconds_left)} left` : e.state === 'back' ? 'Haul waiting' : 'Idle';
     return { title, subtitle: `${pals.length} pal${pals.length === 1 ? '' : 's'}${state ? ' · ' + state : ''}`, pals };
 }
 
