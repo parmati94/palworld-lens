@@ -154,7 +154,7 @@
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="eyebrow w-8">in</span>
                     <template x-for="item in job.inputs" :key="item.item_id">
-                        {{> item-icon size="w-8 h-8" fallback="unknown" count=true }}
+                        {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
                     </template>
                 </div>
             </template>
@@ -162,7 +162,7 @@
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="eyebrow w-8" x-text="job.kind === 'machine' ? 'out' : 'holds'"></span>
                     <template x-for="item in job.outputs" :key="item.item_id">
-                        {{> item-icon size="w-8 h-8" fallback="unknown" count=true }}
+                        {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
                     </template>
                 </div>
             </template>
@@ -170,7 +170,7 @@
                 <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="eyebrow w-8">haul</span>
                     <template x-for="item in job.expedition.haul" :key="item.item_id">
-                        {{> item-icon size="w-8 h-8" fallback="unknown" count=true }}
+                        {{> item-icon size="w-8 h-8" fallback="unknown" countBeside=true }}
                     </template>
                 </div>
             </template>

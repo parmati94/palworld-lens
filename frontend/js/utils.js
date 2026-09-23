@@ -290,6 +290,14 @@ export function activityGroups(jobs) {
     return groups.filter(g => g.jobs.length);
 }
 
+/** A stack count the way the game abbreviates it: 1,234 / 12.3K / 1.2M. */
+export function formatCount(n) {
+    if (n == null || !isFinite(n)) return '';
+    if (n > 999999) return (n / 1000000).toFixed(1) + 'M';
+    if (n > 9999) return (n / 1000).toFixed(1) + 'K';
+    return n.toLocaleString();
+}
+
 /** "1h 12m", "12m", "45s" for a span in seconds; '' for nothing. */
 export function formatDuration(seconds) {
     if (seconds == null || !isFinite(seconds)) return '';
