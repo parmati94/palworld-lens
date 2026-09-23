@@ -1105,7 +1105,7 @@
                             
                             <!-- Storage Containers Grouped by Type -->
                             <template x-if="baseContainers?.containers?.[selectedBaseId] && baseContainers.containers[selectedBaseId].filter(c => c.container_type !== 'food_bowl').length > 0">
-                                <div class="px-6 pt-2 pb-6 space-y-6" x-data="{
+                                <div class="px-6 pt-2 pb-6 flex flex-col gap-6" x-data="{
                                     get storageContainers() {
                                         return storageContainersAt(selectedBaseId);   // search-aware (app.js)
                                     },
