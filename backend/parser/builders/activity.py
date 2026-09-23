@@ -82,21 +82,25 @@ def build_activity(objects: List[Dict], works: Dict[str, Dict], labs: Dict[str, 
         if kind == "machine":
             rid = obj.get("recipe_id")
             job.recipe_id = rid
-            job.order_total = int(obj.get("order_total") or 0)
             job.order_left = int(obj.get("order_left") or 0)
-            job.order_made = max(0, job.order_total - job.order_left)
             unit, done = work.get("unit"), work.get("done")
             if rid:
                 product_id = tables["recipe_products"].get(rid, rid)
                 job.product = _item(data, product_id)
                 job.outputs = [c for c in contents if c.item_id == product_id]
                 job.inputs = [c for c in contents if c.item_id != product_id]
+                # The game counts the order as what sits in the output slot plus what is still to
+                # come (853 / 1,013); the save's remain_product_num is the order as placed and drifts
+                # by whatever has been taken out of the slot since (1,014 there), so it is not shown.
+                in_slot = job.outputs[0].count if job.outputs else 0
+                job.order_made = in_slot
+                job.order_total = in_slot + job.order_left if job.order_left > 0 else (in_slot or int(obj.get("order_total") or 0))
+                for c in job.inputs:
+                    c.note = f"{c.count:,} {c.item_name} on hand"
                 if job.order_left > 0:
-                    # the game's output number: what the slot holds now plus what is still coming
-                    in_slot = job.outputs[0].count if job.outputs else 0
                     if not job.outputs:
                         job.outputs = [job.product.model_copy()]
-                    job.outputs[0].count = in_slot + job.order_left
+                    job.outputs[0].count = job.order_total
                     job.outputs[0].note = f"{in_slot:,} made so far, {job.order_left:,} to come"
                 if unit is not None and unit > 0:
                     job.unit_work, job.unit_done = unit, done

@@ -217,8 +217,9 @@ def test_build_activity_makes_cards_for_the_base_and_the_guild():
 
     furnace = by_type['BlastFurnace2']
     assert furnace.status == 'working' and furnace.product.item_name == 'Refined Ingot'
-    assert (furnace.order_total, furnace.order_left, furnace.order_made) == (4999, 3271, 1728), 'made = the 1,728 ingots in the slot'
+    assert (furnace.order_made, furnace.order_left, furnace.order_total) == (1728, 3271, 4999), 'made = the ingots in the slot; total = made + left'
     assert round(furnace.progress, 3) == round(1728 / 4999, 3) and furnace.unit_work == 4666.67
+    assert furnace.inputs[0].note == '6,542 Ore on hand'
     assert [(i.item_id, i.count) for i in furnace.inputs] == [('CopperOre', 6542), ('Coal', 6542)]
     assert [(o.item_id, o.count) for o in furnace.outputs] == [('IronIngot', 1728 + 3271)], 'the out tile is what the slot will hold when the order is done'
     assert furnace.outputs[0].note == '1,728 made so far, 3,271 to come'

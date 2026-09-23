@@ -300,9 +300,9 @@ class ActivityJob(BaseModel):
     status: str                         # working | ready | unstaffed | no_materials | full | idle
     recipe_id: Optional[str] = None
     product: Optional[ItemRef] = None
-    order_total: int = 0                # the whole order
-    order_left: int = 0                 # still to make; produced = total - left
-    order_made: int = 0
+    order_made: int = 0                 # what sits in the output slot
+    order_left: int = 0                 # still to make
+    order_total: int = 0                # made + left: the game's "x / 1,013"
     unit_work: Optional[float] = None
     unit_done: Optional[float] = None
     progress: Optional[float] = None    # 0..1 on the unit in hand
