@@ -200,6 +200,8 @@ export function app() {
             this.$watch('currentTab', () => this.onToolShown());
             this.$watch('tool', () => this.onToolShown());
             this.onToolShown();
+            // The species table gates the pal modal's Breed button, so it must not wait for the Breeding tab.
+            this.ensureBreedingSpecies();
             this.$watch('pals', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); });
             this.$watch('breedOwner', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); this.writeHash(); });
             ['breedMode', 'breedA', 'breedB', 'breedChild'].forEach(key => {
