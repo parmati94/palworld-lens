@@ -843,7 +843,7 @@
              x-cloak
              @click.self="closePlayerModal()"
              @keydown.escape.window="showPlayerModal && closePlayerModal()"
-             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[58] p-4"
+             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[58] p-0 sm:p-4"
              style="display: none;">
             <div @click.stop
                  x-show="showPlayerModal"
@@ -853,7 +853,7 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel max-w-6xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+                 class="modal-panel max-w-6xl w-full h-[100dvh] max-h-[100dvh] sm:h-auto sm:max-h-[92vh] rounded-none sm:rounded-lg flex flex-col shadow-2xl overflow-hidden">
               <span class="modal-corners" aria-hidden="true"></span>
               <div class="min-h-0 overflow-y-auto">
                 <template x-if="selectedPlayer">
@@ -876,11 +876,19 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
                             </div>
-                            <div class="px-5 flex items-center gap-1 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Player">
+                            <!-- Desktop: the inventory screen is one pill. Phones: it is paged as Bag / Gear / Status. -->
+                            <div class="px-5 hidden lg:flex items-center gap-1 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Player">
                                 <template x-for="t in [['inventory', 'Inventory'], ['party', 'Party'], ['records', 'Records']]" :key="t[0]">
-                                    <button type="button" role="tab" :aria-selected="playerTab === t[0]" @click="playerTab = t[0]"
-                                            :class="playerTab === t[0] ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
+                                    <button type="button" role="tab" :aria-selected="playerTabIs(t[0])" @click="playerTab = t[0]"
+                                            :class="playerTabIs(t[0]) ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
                                             class="px-3 py-2 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap shrink-0" x-text="t[1]"></button>
+                                </template>
+                            </div>
+                            <div class="px-4 flex lg:hidden items-center gap-0.5 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Player">
+                                <template x-for="t in [['bag', 'Bag'], ['gear', 'Gear'], ['status', 'Status'], ['party', 'Party'], ['records', 'Records']]" :key="t[0]">
+                                    <button type="button" role="tab" :aria-selected="playerTabIs(t[0])" @click="playerTab = t[0]"
+                                            :class="playerTabIs(t[0]) ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
+                                            class="px-2.5 py-2 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap shrink-0" x-text="t[1]"></button>
                                 </template>
                             </div>
                         </div>
@@ -888,10 +896,10 @@
                         <!-- Inventory, laid out like the game's screen: the bag on the left (with the key items
                              as its second sub-tab and the weight bar under it), the equipment in the middle
                              around where the character stands, level and stats on the right. -->
-                        <div x-show="playerTab === 'inventory'" class="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-[auto_1fr_minmax(15rem,17rem)] gap-5 lg:gap-6">
+                        <div x-show="['inventory', 'bag', 'gear', 'status'].includes(playerTab)" class="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-[auto_1fr_minmax(15rem,17rem)] gap-5 lg:gap-6">
 
                             <!-- Bag -->
-                            <div class="min-w-0 flex flex-col">
+                            <div class="min-w-0 lg:!flex flex-col" :class="playerTab === 'inventory' || playerTab === 'bag' ? 'flex' : 'hidden'">
                                 <div class="flex items-center gap-1 mb-3 rounded-md bg-gray-900/60 border border-gray-700/60 p-0.5 w-fit">
                                     <template x-for="t in [['bag', 'Inventory'], ['key', 'Key Items']]" :key="t[0]">
                                         <button type="button" @click="bagTab = t[0]"
@@ -932,7 +940,7 @@
 
                             <!-- Equipment: weapons, accessories and food on the left of where the character stands,
                                  head / body / shield / glider / module on the right -->
-                            <div class="min-w-0 grid grid-cols-[auto_1fr_auto] gap-x-4 sm:gap-x-6">
+                            <div class="min-w-0 lg:!grid grid-cols-[auto_auto] justify-between sm:grid-cols-[auto_1fr_auto] gap-x-4 sm:gap-x-6" :class="playerTab === 'gear' ? 'grid' : 'hidden'">
                                 <div class="flex flex-col gap-4">
                                     <div>
                                         <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Weapon</div>
@@ -1007,7 +1015,7 @@
                                         </div>
                                     </template>
                                 </div>
-                                <div class="col-span-3 mt-4">
+                                <div class="col-span-2 sm:col-span-3 mt-4">
                                     <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Food</div>
                                     <div class="flex gap-1.5 flex-wrap">
                                         <template x-for="(item, i) in slotGrid(selectedPlayer.food, selectedPlayer.food_slots || 5)" :key="'f' + i">
@@ -1018,7 +1026,7 @@
                             </div>
 
                             <!-- Level, condition, stats, gold -->
-                            <div class="min-w-0 flex flex-col gap-4">
+                            <div class="min-w-0 lg:!flex flex-col gap-4" :class="playerTab === 'status' ? 'flex' : 'hidden'">
                                 <div class="flex items-center gap-3">
                                     <div class="w-14 h-14 rounded-md bg-accent-500 text-gray-950 flex items-center justify-center text-2xl font-bold tabular-nums flex-shrink-0" x-text="selectedPlayer.level"></div>
                                     <div class="min-w-0">

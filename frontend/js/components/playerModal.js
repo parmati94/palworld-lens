@@ -20,6 +20,15 @@ export function playerModal() {
             }, 200);
         },
 
+        /** Which pill is lit: on phones the inventory screen is paged (bag / gear / status), on desktop it is
+         *  one pill, so 'inventory' lights Bag on a phone and any of the three pages lights Inventory on desktop. */
+        playerTabIs(id) {
+            const pages = ['inventory', 'bag', 'gear', 'status'];
+            if (id === 'inventory') return pages.includes(this.playerTab);
+            if (id === 'bag') return this.playerTab === 'bag' || this.playerTab === 'inventory';
+            return this.playerTab === id;
+        },
+
         /** The full PalInfo for a party entry (the app's pal list is passed in from the template,
          *  since a component's `this` does not see the app scope), so the party pane can show HP and elements. */
         partyPal(ref, pals) {
