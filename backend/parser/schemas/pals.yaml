@@ -137,7 +137,7 @@ fields:
   # Trust/Friendship
   Friendship:
     description: "Friendship/trust points with owner (affects Trust rank bonus)"
-    root_key: "Friendship"
+    root_key: "FriendshipPoint"
     path: ["value"]
     default: 0
   

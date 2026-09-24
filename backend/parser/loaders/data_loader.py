@@ -112,6 +112,10 @@ class DataLoader:
             if sid in self.pals and isinstance(extra, dict):
                 self.pals[sid].update(extra)
         self.species = SpeciesIndex(self.pals.keys())
+        # Per pak-row stat inputs (data/json/pal_parameters.json stat_rows), keyed by the save's
+        # CharacterID: boss / lucky / variant rows carry their own hp scale and friendship values.
+        self.stat_rows: Dict[str, Dict] = (self.tables.get('pal_parameters') or {}).get('stat_rows') or {}
+        self._stat_rows_lower = {k.lower(): k for k in self.stat_rows}
 
         # Skills ----------------------------------------------------------
         self.active_skills: Dict[str, Dict] = self.tables['active_skills']
@@ -175,6 +179,20 @@ class DataLoader:
     def pal_name(self, species_id: str) -> str:
         row = self.pals.get(species_id) or {}
         return row.get('localized_name') or species_id
+
+    def stat_row(self, character_id: str, species_id: Optional[str] = None) -> Dict:
+        """The stat inputs for a save CharacterID: its own pak row when there is one (BOSS_X has
+        its own), else the species row from pals.json translated to the same keys, else {}."""
+        key = self._stat_rows_lower.get((character_id or '').lower())
+        if key:
+            return self.stat_rows[key]
+        row = self.pals.get(species_id or '') or {}
+        sc = row.get('scaling') or {}
+        if not sc:
+            return {}
+        return {'hp': sc.get('hp', 0), 'shot': sc.get('attack', 0), 'melee': sc.get('attack', 0), 'defense': sc.get('defense', 0),
+                'craft': 100, 'f_hp': row.get('friendship_hp', 0.0), 'f_shot': row.get('friendship_shotattack', 0.0),
+                'f_defense': row.get('friendship_defense', 0.0), 'f_craft': row.get('friendship_craftspeed', 0.0)}
 
     def item(self, item_id: str) -> Dict:
         """Item row by id, tolerating the save's inconsistent casing."""

@@ -63,6 +63,7 @@ class PalInfo(BaseModel):
     exp: int
     owner_uid: Optional[str] = None
     in_party: bool = False   # riding along in its owner's party (OtomoCharacterContainer), not the box
+    stat_breakdown: Dict[str, Dict[str, int]] = {}   # hp / attack / defense: {base, trust, souls_pct, passives_pct, total}, the status screen's hover
     container_id: Optional[str] = Field(default=None, exclude=True)  # builders only: which container the pal sits in
     slot_index: Optional[int] = Field(default=None, exclude=True)
     gender: str

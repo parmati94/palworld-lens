@@ -78,7 +78,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
         soul_work_speed = pal_schema.extract_field(char_info, "Rank_CraftSpeed") or 0
 
         calculated_stats = calculate_pal_stats(
-            species_scaling=species.get("scaling"),
+            row=data.stat_row(char_id, species_id),
             level=level,
             talent_hp=talent_hp,
             talent_melee=talent_melee,
@@ -86,13 +86,6 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             talent_defense=talent_defense,
             rank=rank,
             trust_level=trust_level,
-            friendship_multipliers={
-                "friendship_hp": species.get("friendship_hp", 0),
-                "friendship_shotattack": species.get("friendship_shotattack", 0),
-                "friendship_defense": species.get("friendship_defense", 0),
-                "friendship_craftspeed": species.get("friendship_craftspeed", 0),
-            } if species else None,
-            is_alpha=is_boss_id(char_id),
             passive_skills=passive_skills,
             soul_hp=soul_hp,
             soul_attack=soul_attack,
@@ -149,6 +142,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             calculated_defense=calculated_stats["defense"],
             calculated_hp=calculated_stats["hp"],
             calculated_work_speed=calculated_stats["work_speed"],
+            stat_breakdown=calculated_stats.get("breakdown") or {},
             friendship_points=friendship_points,
             trust_level=trust_level,
         ))
