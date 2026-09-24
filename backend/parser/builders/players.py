@@ -231,7 +231,7 @@ def _calculate_player_stats(level: int, stat_points: Dict[str, int],
     Args:
         level: Player level (not used in calculation, kept for future compatibility)
         stat_points: Regular stat points from GotStatusPointList
-        ex_stat_points: Extra stat points from GotExStatusPointList (statues/tech)
+        ex_stat_points: Extra stat points from elixirs (GotExStatusPointList)
         
     Returns:
         Dict with calculated stat values

@@ -506,7 +506,8 @@ export function weightLine(player) {
     return { carried, max, pct, over: max > 0 && carried > max };
 }
 
-/** The game's status page: [{key, label, value, base, gear, food, enhanced, points, ancient}].
+/** The game's status page: [{key, label, value, base, gear, food, enhanced, points, ancient}] (`ancient` = the
+ *  save's GotExStatusPointList: extra points from elixirs, DT_GainStatusPointsItem).
  *  `value` is the enhanced total when the player carries a stats breakdown, else the base value.
  *  Capture power is points only. */
 export function statusRows(player) {
@@ -530,17 +531,18 @@ export function statusRows(player) {
     ].filter(r => r.value != null || r.points || r.key === 'capture');
 }
 
-/** The hover text behind a status row, like the game's: "1,900 base · +1,650 gear · +435 food (Pizza)". */
+/** The hover text behind a status row: "Base 1,900 · Gear +1,650 · Food +435 (Pizza) · 14 pts spent · 29 from elixirs". */
 export function statusTip(row, player) {
     if (!row || row.value == null) return '';
-    const parts = [`${row.base.toLocaleString()} base`];
-    if (row.gear) parts.push(`${row.gear > 0 ? '+' : ''}${row.gear.toLocaleString()} gear`);
+    const parts = [`Base ${row.base.toLocaleString()}`];
+    if (row.gear) parts.push(`Gear ${row.gear > 0 ? '+' : ''}${row.gear.toLocaleString()}`);
     if (row.food) {
         const dish = player && player.food_buff && player.food_buff.item_name;
-        parts.push(`${row.food > 0 ? '+' : ''}${row.food.toLocaleString()} food${dish ? ` (${dish})` : ''}`);
+        parts.push(`Food ${row.food > 0 ? '+' : ''}${row.food.toLocaleString()}${dish ? ` (${dish})` : ''}`);
     }
-    const pts = statusPoints(row);
-    return parts.join(' · ') + (pts ? ` · ${pts} spent` : '');
+    if (row.points) parts.push(`${row.points} pts spent`);
+    if (row.ancient) parts.push(`${row.ancient} from elixirs`);
+    return parts.join(' · ');
 }
 
 /** "Pizza · +30% work speed · 2 min left" for the running dish; '' when none. */
@@ -555,12 +557,9 @@ export function foodBuffLine(player) {
     return [b.item_name, ...fx, left].filter(Boolean).join(' · ');
 }
 
-/** "14 pts" / "14 pts +3 ancient" / "" for a status row. */
+/** The small figure beside a status row: the stat points spent on it ("14 pts"); elixir points show on hover. */
 export function statusPoints(row) {
-    const parts = [];
-    if (row.points) parts.push(`${row.points} pts`);
-    if (row.ancient) parts.push(`+${row.ancient} ancient`);
-    return parts.join(' ');
+    return row && row.points ? `${row.points} pts` : '';
 }
 
 

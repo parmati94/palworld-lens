@@ -262,7 +262,7 @@ class PlayerInfo(BaseModel):
     stat_points_weight: int = 0
     stat_points_capture: int = 0
     stat_points_work_speed: int = 0
-    # Extra stat points (from statues/ancient tech)
+    # Extra stat points from elixirs (the save's GotExStatusPointList)
     ex_stat_points_hp: int = 0
     ex_stat_points_stamina: int = 0
     ex_stat_points_attack: int = 0

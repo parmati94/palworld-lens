@@ -302,14 +302,14 @@ test('player modal: gear sits in the game\'s fixed slots, the bag pads to its si
     assert.deepEqual(rows2.map(r => r.label), ['Health', 'Stamina', 'Attack', 'Work speed', 'Weight', 'Capture power']);   // no defense without the breakdown
     assert.equal(rows2[0].value, 1900);
     assert.equal(statusPoints(rows2[0]), '14 pts');
-    assert.equal(statusPoints(rows2[1]), '+29 ancient');
+    assert.equal(statusPoints(rows2[1]), '');                       // elixir points only on hover
     assert.equal(statusPoints(rows2[2]), '');
 });
 
 test('player modal: enhanced stats read from the breakdown, with the game\'s hover text and the food buff line', async () => {
     const { statusRows, statusTip, foodBuffLine, weightLine } = await import('../js/utils.js');
     const envy = {
-        calculated_max_hp: 1900, calculated_weight: 1650, stat_points_hp: 14,
+        calculated_max_hp: 1900, calculated_weight: 1650, stat_points_hp: 14, ex_stat_points_stamina: 29,
         stats: { hp: { base: 1900, gear: 1650, food: 0, total: 3550 }, stamina: { base: 490, gear: 0, food: 0, total: 490 },
                  attack: { base: 132, gear: 0, food: 0, total: 132 }, defense: { base: 100, gear: 550, food: 0, total: 650 },
                  work_speed: { base: 1450, gear: 0, food: 435, total: 1885 }, weight: { base: 1650, gear: 200, food: 0, total: 1850 } },
@@ -318,9 +318,9 @@ test('player modal: enhanced stats read from the breakdown, with the game\'s hov
     const rows = statusRows(envy);
     assert.deepEqual(rows.map(r => [r.label, r.value, r.enhanced]),
         [['Health', 3550, true], ['Stamina', 490, false], ['Attack', 132, false], ['Defense', 650, true], ['Work speed', 1885, true], ['Weight', 1850, true], ['Capture power', null, false]]);
-    assert.equal(statusTip(rows[0], envy), '1,900 base · +1,650 gear · 14 pts spent');
-    assert.equal(statusTip(rows[4], envy), '1,450 base · +435 food (Pizza)');
-    assert.equal(statusTip(rows[1], envy), '490 base');
+    assert.equal(statusTip(rows[0], envy), 'Base 1,900 · Gear +1,650 · 14 pts spent');
+    assert.equal(statusTip(rows[4], envy), 'Base 1,450 · Food +435 (Pizza)');
+    assert.equal(statusTip(rows[1], envy), 'Base 490 · 29 from elixirs');
     assert.equal(statusTip(rows[6], envy), '');
     assert.equal(foodBuffLine(envy), 'Pizza · +30% work speed · +25% slower hunger · 2 min left');
     assert.equal(foodBuffLine({ food_buff: { item_name: 'Salad', seconds_left: 15, effects: [] } }), 'Salad · 15 s left');

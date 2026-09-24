@@ -233,13 +233,13 @@ lists:
         path: ["StatusPoint", "value"]
   
   GotExStatusPointList:
-    description: "Additional stat points from Ancient Technology upgrades"
+    description: "Extra stat points from elixirs (DT_GainStatusPointsItem: Elixir_hp_01 = +1 HP point, ...)"
     root_key: "GotExStatusPointList"
     path: ["value", "values"]
     items:
       stat_name:
-        description: "Name of stat from Ancient Tech (e.g., WorkSpeed, Weight)"
+        description: "Name of the stat the elixir raised (e.g., WorkSpeed, Weight)"
         path: ["StatusName", "value"]
       stat_points:
-        description: "Number of Ancient Tech points in this stat"
+        description: "Elixir points in this stat"
         path: ["StatusPoint", "value"]
