@@ -417,7 +417,7 @@ export const GEAR_SLOT_ROWS = [
     { label: 'Body', slots: [1] },
     { label: 'Shield', slots: [4] },
     { label: 'Glider', slots: [5] },
-    { label: 'Sphere Module', slots: [8] },
+    { label: 'Sphere Module', short: 'Module', slots: [8] },
 ];
 export const ACCESSORY_SLOTS = [2, 3, 6, 7];
 const GEAR_SLOTS_BY_TYPE = { ArmorHead: [0], ArmorBody: [1], Accessory: ACCESSORY_SLOTS, Shield: [4], Glider: [5], SphereModule: [8] };
@@ -442,7 +442,7 @@ export function gearBySlot(player) {
  *  that fits nowhere (a slot we don't know). */
 export function gearRows(player) {
     const { at, other } = gearBySlot(player);
-    const rows = GEAR_SLOT_ROWS.map(r => ({ label: r.label, items: r.slots.map(s => at[s] || null) }));
+    const rows = GEAR_SLOT_ROWS.map(r => ({ label: r.label, short: r.short, items: r.slots.map(s => at[s] || null) }));
     if (other.length) rows.push({ label: 'Other', items: other });
     return rows;
 }

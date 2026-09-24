@@ -900,6 +900,7 @@
 
                             <!-- Bag -->
                             <div class="min-w-0 lg:!flex flex-col" :class="playerTab === 'inventory' || playerTab === 'bag' ? 'flex' : 'hidden'">
+                              <div class="w-fit mx-auto lg:mx-0">
                                 <div class="flex items-center gap-1 mb-3 rounded-md bg-gray-900/60 border border-gray-700/60 p-0.5 w-fit">
                                     <template x-for="t in [['bag', 'Inventory'], ['key', 'Key Items']]" :key="t[0]">
                                         <button type="button" @click="bagTab = t[0]"
@@ -922,9 +923,9 @@
                                         </template>
                                     </div>
                                 </div>
-                                <!-- the weight bar under the grid, like the game's -->
+                                <!-- the weight bar under the grid, like the game's, as wide as the grid -->
                                 <template x-for="w in [weightLine(selectedPlayer)]" :key="'wt'">
-                                    <div class="mt-3 flex items-center gap-3 px-3 py-2 rounded-md bg-gray-900/60 border border-gray-700/60 text-xs">
+                                    <div class="mt-3 w-full flex items-center gap-3 px-3 py-2 rounded-md bg-gray-900/60 border border-gray-700/60 text-xs">
                                         <span class="text-gray-300 font-medium">Weight</span>
                                         <div class="flex-1 bg-gray-700 rounded-full h-1.5 min-w-[4rem]">
                                             <div class="h-1.5 rounded-full" :class="w.over ? 'bg-red-400' : w.pct >= 80 ? 'bg-amber-400' : 'bg-accent-400'" :style="`width: ${w.pct}%`"></div>
@@ -932,10 +933,11 @@
                                         <span class="tabular-nums" :class="w.over ? 'text-red-300' : 'text-gray-200'">
                                             <span x-text="w.carried.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })"></span>
                                             <span class="text-gray-500">/</span>
-                                            <span class="text-accent-300" x-text="w.max.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })" data-tip="Max weight before gear bonuses"></span>
+                                            <span class="text-accent-300" x-text="w.max.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })" data-tip="Max weight with gear"></span>
                                         </span>
                                     </div>
                                 </template>
+                              </div>
                             </div>
 
                             <!-- Equipment: weapons, accessories and food on the left of where the character stands,
@@ -978,7 +980,7 @@
                                 <div class="flex flex-col gap-3">
                                     <template x-for="row in gearRows(selectedPlayer)" :key="row.label">
                                         <div>
-                                            <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5 whitespace-nowrap"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span><span x-text="row.label"></span></div>
+                                            <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5 whitespace-nowrap"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span><span class="sm:hidden" x-text="row.short || row.label"></span><span class="hidden sm:inline" x-text="row.label"></span></div>
                                             <div class="flex gap-1.5">
                                                 <template x-for="(item, i) in row.items" :key="row.label + i">
                                                     {{> inv-slot size="w-12 h-12" }}
