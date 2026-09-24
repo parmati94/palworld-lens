@@ -1043,9 +1043,15 @@
                                         </div>
                                     </template>
                                 </div>
-                                <div class="mt-auto flex items-center justify-end gap-2 px-3 py-2 rounded-md bg-gray-900/60 border border-gray-700/60" data-tip="Gold">
-                                    <img src="/img/t_itemicon_material_money.webp" alt="" class="w-5 h-5">
-                                    <span class="text-base font-semibold text-amber-200 tabular-nums" x-text="selectedPlayer.gold.toLocaleString()"></span>
+                                <!-- Gold, like the game's box: the coin at the left edge, the figure at the right -->
+                                <div class="mt-auto flex items-center justify-between gap-3 pl-2 pr-3 py-1.5 rounded-md bg-gradient-to-r from-amber-500/15 to-gray-900/60 border border-amber-500/30">
+                                    <span class="flex items-center gap-2 min-w-0">
+                                        <span class="w-8 h-8 rounded-md bg-gray-900/70 ring-1 ring-inset ring-amber-500/40 flex items-center justify-center flex-shrink-0">
+                                            <img src="/img/t_itemicon_material_money.webp" alt="" class="w-6 h-6">
+                                        </span>
+                                        <span class="text-xs font-medium text-amber-200/90">Gold</span>
+                                    </span>
+                                    <span class="text-lg font-semibold text-amber-100 tabular-nums" x-text="selectedPlayer.gold.toLocaleString()"></span>
                                 </div>
                             </div>
                         </div>
