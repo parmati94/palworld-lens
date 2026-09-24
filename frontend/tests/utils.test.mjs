@@ -327,3 +327,19 @@ test('player modal: enhanced stats read from the breakdown, with the game\'s hov
     assert.equal(foodBuffLine({}), '');
     assert.equal(weightLine(envy).max, 1850);
 });
+
+
+test('player modal: the mini-map crops the tile pyramid around the player and keeps the box on the map', async () => {
+    const { miniMap, MAP_LAYERS } = await import('../js/utils.js');
+    const m = MAP_LAYERS.MainMap;
+    const centre = { x: (m.minX + m.maxX) / 2, y: (m.minY + m.maxY) / 2 };
+    const mm = miniMap(centre, 288, 192, 4);
+    assert.equal(mm.layer, 'MainMap');
+    assert.deepEqual(mm.pin, { left: 144, top: 96 });                       // the player sits at the centre of the box
+    assert.ok(mm.tiles.length >= 4 && mm.tiles.every(t => t.src.startsWith('/img/tiles/4/')));
+    const corner = miniMap({ x: m.maxX, y: m.minY }, 288, 192, 4);          // top-left of the image: box clamps, pin moves
+    assert.deepEqual(corner.pin, { left: 0, top: 0 });
+    assert.ok(corner.tiles.every(t => t.left >= 0 && t.top >= 0));
+    assert.equal(miniMap(null), null);
+    assert.equal(miniMap({ x: 500000, y: -600000 }).layer, 'Tree');
+});

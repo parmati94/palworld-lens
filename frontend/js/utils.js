@@ -794,6 +794,32 @@ export function saveToLngLat(saveX, saveY, layer = 'MainMap') {
 }
 
 /**
+ * A static map crop around a world position, for the player modal: the tiles of the layer's pyramid
+ * (cut straight from the square map image, so tile (z, x, y) covers u in [x, x+1] / 2^z and v likewise)
+ * placed so the position sits at the centre of a w x h box. {layer, tiles: [{src, left, top}], size}.
+ */
+export function miniMap(location, w = 288, h = 192, zoom = 4) {
+    if (!location || !isFinite(location.x) || !isFinite(location.y)) return null;
+    const layer = layerForCoords(location.x, location.y);
+    const m = MAP_LAYERS[layer];
+    const size = 256 * Math.pow(2, zoom);
+    const u = (location.y - m.minY) / (m.maxY - m.minY);
+    const v = 1 - (location.x - m.minX) / (m.maxX - m.minX);
+    const px = Math.min(Math.max(u * size, w / 2), size - w / 2);   // keep the box inside the map
+    const py = Math.min(Math.max(v * size, h / 2), size - h / 2);
+    const offX = w / 2 - px, offY = h / 2 - py;
+    const tiles = [];
+    const n = Math.pow(2, zoom);
+    for (let ty = Math.floor((py - h / 2) / 256); ty <= Math.floor((py + h / 2 - 1) / 256); ty++) {
+        for (let tx = Math.floor((px - w / 2) / 256); tx <= Math.floor((px + w / 2 - 1) / 256); tx++) {
+            if (tx < 0 || ty < 0 || tx >= n || ty >= n) continue;
+            tiles.push({ src: `${m.tiles}/${zoom}/${tx}/${ty}.webp`, left: tx * 256 + offX, top: ty * 256 + offY });
+        }
+    }
+    return { layer, label: m.label, tiles, size: 256, pin: { left: u * size + offX, top: v * size + offY } };
+}
+
+/**
  * Fetch with automatic retry logic
  */
 export async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
