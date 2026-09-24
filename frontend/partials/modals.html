@@ -1010,7 +1010,8 @@
                                 <div class="col-span-3 mt-4">
                                     <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5 flex-wrap">
                                         <span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Food
-                                        <span x-show="selectedPlayer.food_buff" class="ml-1 px-1.5 rounded-full border border-orange-500/40 bg-orange-500/15 text-orange-200 text-[11px] font-normal" x-text="foodBuffLine(selectedPlayer)"></span>
+                                        <span x-show="selectedPlayer.food_buff" class="ml-1 px-1.5 rounded-full border border-orange-500/40 bg-orange-500/15 text-orange-200 text-[11px] font-normal"
+                                              :data-tip="foodBuffEffects(selectedPlayer)" x-text="selectedPlayer.food_buff ? selectedPlayer.food_buff.item_name : ''"></span>
                                     </div>
                                     <div class="flex gap-1.5 flex-wrap">
                                         <template x-for="(item, i) in slotGrid(selectedPlayer.food, selectedPlayer.food_slots || 5)" :key="'f' + i">
