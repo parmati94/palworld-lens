@@ -93,9 +93,11 @@ class SaveFileParser:
         pal_to_owner = build_pal_ownership(world, player_uid_to_containers)
         base_assignments = get_base_assignments(char_data, base_meta)
 
-        players = build_players(player_data, guild_data, player_uid_to_containers)
+        party_containers = {d["party_container_id"] for d in player_uid_to_containers.values() if d.get("party_container_id")}
+        pals = build_pals(char_data, base_assignments, self.data, pal_to_owner, party_containers=party_containers)
+        players = build_players(player_data, guild_data, player_uid_to_containers,
+                                item_index=item_index, data=self.data, pals=pals)
         guilds = build_guilds(guild_data, base_meta, player_names)
-        pals = build_pals(char_data, base_assignments, self.data, pal_to_owner)
         containers = build_base_containers(base_meta, food_bowls, storage, item_index, self.data,
                                            guild_storage=get_guild_storage(world))
         guild_storage = build_guild_storage(containers)

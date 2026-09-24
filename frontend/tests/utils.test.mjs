@@ -116,6 +116,8 @@ test('baseLabel joins the name and the place, once', () => {
 test('schematic slots get a tooltip naming what they unlock', async () => {
     const { itemTip } = await import('../js/utils.js');
     assert.equal(itemTip({ item_id: 'Wood' }), '');
+    assert.equal(itemTip({ item_id: 'Wood', item_name: 'Wood', count: 1 }), 'Wood');
+    assert.equal(itemTip({ item_id: 'Salad', item_name: 'Salad', count: 12345 }), 'Salad ×12.3K');
     assert.equal(itemTip({ schematic: { kind: 'item', product_name: 'Musket', rarity_name: 'Epic' } }),
         'Schematic: unlocks the Musket recipe (Epic)');
     assert.equal(itemTip({ schematic: { kind: 'building', product_name: 'Majestic Wall Torch', rarity_name: 'Common' } }),
@@ -253,4 +255,23 @@ test('activity: a breeding farm keeps its own picture, stacks its eggs into a bu
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 2), 'no cake');
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [cake], outputs: [] }, 2), 'breeding');
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 0), 'nobody on it');
+});
+
+test('player card: the bag opens as an items modal and the records strip reads tech first', async () => {
+    const { bagModalDetail, playerRecordCells } = await import('../js/utils.js');
+    const salad = { item_id: 'Salad', item_name: 'Salad', count: 75 };
+    const player = {
+        player_name: 'Ricky', bag: [salad],
+        tech: { unlocked: 201, points: 19, ancient_points: 43 },
+        records: { towers: 5, alphas: 62, paldeck: 161, caught: 614, fast_travels: 100, dungeons: 13 },
+    };
+    assert.deepEqual(bagModalDetail(player), { title: 'Ricky', subtitle: '1 stack in the bag', items: [salad] });
+    assert.equal(bagModalDetail({ player_name: 'bagel' }).subtitle, '0 stacks in the bag');
+    const cells = playerRecordCells(player);
+    assert.deepEqual(cells.map(c => [c.label, c.value]),
+        [['Tech', 201], ['Paldeck', 161], ['Towers', 5], ['Alphas', 62], ['Dungeons', 13], ['Fast travel', 100]]);
+    assert.equal(cells[0].tip, '19 tech pts, 43 ancient pts to spend');
+    assert.equal(cells[1].tip, '614 pals caught');
+    assert.equal(playerRecordCells({ tech: { unlocked: 3, points: 0, ancient_points: 0 } })[0].tip, 'nothing to spend');
+    assert.deepEqual(playerRecordCells({}), []);
 });

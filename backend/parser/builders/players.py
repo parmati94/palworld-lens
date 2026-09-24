@@ -3,7 +3,8 @@ import logging
 from typing import List, Optional, Dict
 import math
 
-from backend.models.models import PlayerInfo
+from backend.models.models import PlayerInfo, PlayerRecords, PlayerTech
+from backend.parser.utils.mappers import item_ref, pal_ref
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
@@ -23,13 +24,17 @@ STAT_NAME_MAP = {
 }
 
 
-def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_containers: Dict = None) -> List[PlayerInfo]:
+def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_containers: Dict = None,
+                  item_index: Dict = None, data=None, pals: List = None) -> List[PlayerInfo]:
     """Build list of all players from save data
     
     Args:
         players_data: Extracted player data from get_player_data()
         guilds_data: Extracted guild data from get_guild_data()
         player_uid_to_containers: Mapping of player UID to container and location data
+        item_index: {container_id: [{static_id, count}]} from Level.sav, for what the player carries
+        data: static game data (item names, icons)
+        pals: the built PalInfo list, for the party
         
     Returns:
         List of PlayerInfo objects
@@ -61,11 +66,15 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
         
         # Get location from player_uid_to_containers (from Players/*.sav LastTransform)
         location = None
+        save_info = {}
         if player_uid_to_containers:
             for player_uid, player_data in player_uid_to_containers.items():
                 if player_data.get("instance_id") == instance_id:
                     location = player_data.get("location")
+                    save_info = player_data
                     break
+        details = save_info.get("details") or {}
+        kit = _kit(details.get("containers") or {}, item_index or {}, data)
         
         player = PlayerInfo(
             uid=instance_id,
@@ -80,6 +89,14 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             sanity=player_schema.extract_field(char_info, "SanityValue"),
             guild_id=_get_player_guild(guilds_data, instance_id),
             location=location,
+            last_online=details.get("last_online"),
+            party=_party(save_info.get("party_container_id"), pals or []),
+            gear=kit["gear"],
+            weapons=kit["weapons"],
+            food=kit["food"],
+            bag=kit["bag"],
+            tech=PlayerTech(**details["tech"]) if details.get("tech") else None,
+            records=PlayerRecords(**details["records"]) if details.get("records") else None,
             stat_points_hp=stat_points["hp"],
             stat_points_stamina=stat_points["stamina"],
             stat_points_attack=stat_points["attack"],
@@ -100,6 +117,26 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
         players.append(player)
     
     return players
+
+
+def _party(container_id: Optional[str], pals: List) -> List:
+    """The pals riding in this party container, in slot order."""
+    if not container_id:
+        return []
+    riders = [p for p in pals if getattr(p, "container_id", None) == container_id]
+    riders.sort(key=lambda p: (p.slot_index is None, p.slot_index or 0))
+    return [pal_ref(p) for p in riders]
+
+
+def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data) -> Dict[str, List]:
+    """What sits in the player's gear, weapon, food and bag containers, as item tiles."""
+    out = {"gear": [], "weapons": [], "food": [], "bag": []}
+    if data is None:
+        return out
+    for role in out:
+        for entry in item_index.get(containers.get(role) or "", []):
+            out[role].append(item_ref(entry["static_id"], data, entry["count"]))
+    return out
 
 
 def _extract_stat_points(char_info: Dict, field_name: str) -> Dict[str, int]:

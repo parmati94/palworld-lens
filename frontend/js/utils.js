@@ -408,6 +408,34 @@ export function farmEggsModalDetail(job) {
     return { title: job.display_name, subtitle: `${n} egg${n === 1 ? '' : 's'} on the ground`, items: job.outputs || [] };
 }
 
+// ---- player card ----
+
+/** The bag as an items modal: one row per stack. */
+export function bagModalDetail(player) {
+    const bag = (player && player.bag) || [];
+    return { title: player.player_name, subtitle: `${bag.length} stack${bag.length === 1 ? '' : 's'} in the bag`, items: bag };
+}
+
+/** The records strip on a player card: [{label, value, tip}], tech first. Empty when the save had none. */
+export function playerRecordCells(player) {
+    const r = player && player.records;
+    const t = player && player.tech;
+    if (!r && !t) return [];
+    const cells = [];
+    if (t) {
+        const spend = [t.points ? `${t.points} tech pts` : '', t.ancient_points ? `${t.ancient_points} ancient pts` : ''].filter(Boolean).join(', ');
+        cells.push({ label: 'Tech', value: t.unlocked, tip: spend ? `${spend} to spend` : 'nothing to spend' });
+    }
+    if (r) cells.push(
+        { label: 'Paldeck', value: r.paldeck, tip: `${r.caught.toLocaleString()} pals caught` },
+        { label: 'Towers', value: r.towers, tip: 'tower bosses beaten' },
+        { label: 'Alphas', value: r.alphas, tip: 'field bosses beaten' },
+        { label: 'Dungeons', value: r.dungeons, tip: 'roaming and set dungeons cleared' },
+        { label: 'Fast travel', value: r.fast_travels, tip: 'points unlocked' },
+    );
+    return cells;
+}
+
 /** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
 export function eggTemperature(egg) {
     const d = egg && egg.temp_diff;
@@ -454,7 +482,7 @@ export function orderLine(job) {
 export function itemTip(item) {
     if (item && item.note) return item.note;
     const s = item && item.schematic;
-    if (!s) return '';
+    if (!s) return (item && item.item_name) ? (item.count > 1 ? `${item.item_name} ×${formatCount(item.count)}` : item.item_name) : '';
     const tier = s.rarity_name ? ` (${s.rarity_name})` : '';
     return s.kind === 'building'
         ? `Schematic: lets you build ${s.product_name}${tier}`

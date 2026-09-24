@@ -15,7 +15,7 @@ from backend.models.models import (ActivityJob, ActivityPal, ActivityPayload, Ba
                                    ExpeditionInfo, GuildActivity, ItemRef, LabInfo, LabResearch)
 from backend.parser.extractors.bases import BaseMeta
 from backend.parser.loaders.data_loader import DataLoader
-from backend.parser.utils.mappers import building_row, map_building_name
+from backend.parser.utils.mappers import building_row, item_ref, map_building_name, pal_ref
 
 logger = get_logger(__name__)
 
@@ -24,16 +24,11 @@ STUCK = ("unstaffed", "no_materials", "full", "empty")
 
 
 def _item(data: DataLoader, item_id: str, count: int = 0) -> ItemRef:
-    row = data.item(item_id)
-    rarity = row.get("rarity")
-    return ItemRef(item_id=item_id, item_name=row.get("localized_name") or item_id, icon=row.get("icon"),
-                   rarity=rarity if isinstance(rarity, int) and 0 <= rarity <= 4 else None, count=count)
+    return item_ref(item_id, data, count)
 
 
 def _pal(p) -> ActivityPal:
-    return ActivityPal(instance_id=p.instance_id, name=getattr(p, "nickname", None) or p.name,
-                       species_id=getattr(p, "species_id", None), image_candidates=list(p.image_candidates),
-                       level=int(getattr(p, "level", 0) or 0))
+    return pal_ref(p)
 
 
 def _pals(ids: Iterable[str], by_id: Dict[str, object]) -> List[ActivityPal]:

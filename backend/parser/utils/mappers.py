@@ -6,7 +6,7 @@ UI never looks up by id (skill names, building names) are localised here.
 """
 from typing import Dict, List
 
-from backend.models.models import SkillInfo
+from backend.models.models import ActivityPal, ItemRef, SkillInfo
 from backend.parser.loaders.data_loader import DataLoader
 
 
@@ -76,3 +76,18 @@ def map_building_name(building_type: str, data: DataLoader) -> str:
         if name:
             return name
     return building_type.replace('_', ' ').title()
+
+
+def item_ref(item_id: str, data: DataLoader, count: int = 0) -> ItemRef:
+    """An item tile (name, icon, rarity) for an item id, with a count."""
+    row = data.item(item_id)
+    rarity = row.get("rarity")
+    return ItemRef(item_id=item_id, item_name=row.get("localized_name") or item_id, icon=row.get("icon"),
+                   rarity=rarity if isinstance(rarity, int) and 0 <= rarity <= 4 else None, count=count)
+
+
+def pal_ref(p) -> ActivityPal:
+    """A pal tile (name, picture, level) for a built PalInfo."""
+    return ActivityPal(instance_id=p.instance_id, name=getattr(p, "nickname", None) or p.name,
+                       species_id=getattr(p, "species_id", None), image_candidates=list(p.image_candidates),
+                       level=int(getattr(p, "level", 0) or 0))

@@ -88,6 +88,108 @@ fields:
     path: ["value", "ID", "value"]
     default: null
 
+  # ---- more from Players/*.sav (SaveData.value level) ----
+  # The player's own item containers; each resolves in Level.sav's ItemContainerSaveData, the
+  # same index that fills the chest view. Common = the bag, Essential = key items.
+  CommonContainerId:
+    description: "Bag"
+    root_key: "InventoryInfo"
+    path: ["value", "CommonContainerId", "value", "ID", "value"]
+    default: null
+
+  EssentialContainerId:
+    description: "Key items"
+    root_key: "InventoryInfo"
+    path: ["value", "EssentialContainerId", "value", "ID", "value"]
+    default: null
+
+  WeaponLoadOutContainerId:
+    description: "Weapon slots"
+    root_key: "InventoryInfo"
+    path: ["value", "WeaponLoadOutContainerId", "value", "ID", "value"]
+    default: null
+
+  PlayerEquipArmorContainerId:
+    description: "Head, body, accessories, shield, glider"
+    root_key: "InventoryInfo"
+    path: ["value", "PlayerEquipArmorContainerId", "value", "ID", "value"]
+    default: null
+
+  FoodEquipContainerId:
+    description: "Food slots"
+    root_key: "InventoryInfo"
+    path: ["value", "FoodEquipContainerId", "value", "ID", "value"]
+    default: null
+
+  TechnologyPoint:
+    description: "Unspent technology points"
+    root_key: "TechnologyPoint"
+    path: ["value"]
+    default: 0
+
+  bossTechnologyPoint:
+    description: "Unspent ancient technology points (absent on a player who has none)"
+    root_key: "bossTechnologyPoint"
+    path: ["value"]
+    default: 0
+
+  UnlockedRecipeTechnologyNames:
+    description: "Every technology the player has unlocked, by id"
+    root_key: "UnlockedRecipeTechnologyNames"
+    path: ["value", "values"]
+    default: []
+
+  # Despite the name this is the last LOGIN: verified against the server log 2026-09-24 (Envy joined
+  # 22:49:57Z, field 22:49:55Z; left 04:00Z, unchanged). UTC ticks.
+  LastOnlineDateTime:
+    description: ".NET ticks (100 ns since 0001-01-01 UTC) of the player's last login"
+    root_key: "LastOnlineDateTime"
+    path: ["value"]
+    default: null
+
+  # RecordData: the player's tallies. Maps are [{key, value}] lists; only their size or sum is used.
+  TowerBossDefeatFlag:
+    description: "Tower bosses beaten ({boss battle name: true})"
+    root_key: "RecordData"
+    path: ["value", "TowerBossDefeatFlag", "value"]
+    default: []
+
+  NormalBossDefeatFlag:
+    description: "Alpha (field) bosses beaten"
+    root_key: "RecordData"
+    path: ["value", "NormalBossDefeatFlag", "value"]
+    default: []
+
+  PaldeckUnlockFlag:
+    description: "Paldeck entries unlocked ({species: true})"
+    root_key: "RecordData"
+    path: ["value", "PaldeckUnlockFlag", "value"]
+    default: []
+
+  PalCaptureCount:
+    description: "Pals caught per species ({species: n})"
+    root_key: "RecordData"
+    path: ["value", "PalCaptureCount", "value"]
+    default: []
+
+  FastTravelPointUnlockFlag:
+    description: "Fast travel points unlocked ({point: true})"
+    root_key: "RecordData"
+    path: ["value", "FastTravelPointUnlockFlag", "value"]
+    default: []
+
+  NormalDungeonClearCount:
+    description: "Dungeons cleared"
+    root_key: "RecordData"
+    path: ["value", "NormalDungeonClearCount", "value"]
+    default: 0
+
+  FixedDungeonClearCount:
+    description: "Set dungeons cleared"
+    root_key: "RecordData"
+    path: ["value", "FixedDungeonClearCount", "value"]
+    default: 0
+
 # Lists
 lists:
   GotStatusPointList:

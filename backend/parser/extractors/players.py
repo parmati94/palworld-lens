@@ -85,7 +85,9 @@ def extract_player_save_data(players_dir: Path) -> Dict[str, Dict]:
                 player_save_data[individual_id] = {
                     "player_uid": player_uid,
                     "location": location,
-                    "containers": container_ids
+                    "containers": container_ids,
+                    "party_container_id": str(otomo_container) if otomo_container else None,
+                    "details": extract_player_details(save_data),
                 }
                 
                 logger.debug(f"Extracted player save data: individual_id={individual_id[:16]}..., location={location is not None}, containers={len(container_ids)}")
@@ -94,3 +96,54 @@ def extract_player_save_data(players_dir: Path) -> Dict[str, Dict]:
             logger.warning(f"Failed to read player .sav {player_sav.name}: {e}")
     
     return player_save_data
+
+
+# .NET ticks are 100 ns since 0001-01-01; this many of them fall before the Unix epoch
+_UNIX_EPOCH_TICKS = 621355968000000000
+
+
+def net_ticks_to_iso(ticks) -> Optional[str]:
+    """LastOnlineDateTime (.NET ticks, UTC; the last login, not logout) -> ISO 8601, or None when unset."""
+    if not isinstance(ticks, (int, float)) or ticks <= _UNIX_EPOCH_TICKS:
+        return None
+    from datetime import datetime, timezone
+    return datetime.fromtimestamp((ticks - _UNIX_EPOCH_TICKS) / 10_000_000, tz=timezone.utc).isoformat()
+
+
+def _map_size(entries) -> int:
+    """Entries in a save MapProperty ([{key, value}] once parsed) with a truthy value."""
+    return sum(1 for e in (entries or []) if isinstance(e, dict) and e.get("value"))
+
+
+def _map_sum(entries) -> int:
+    return sum(int(e.get("value") or 0) for e in (entries or []) if isinstance(e, dict))
+
+
+def extract_player_details(save_data: Dict) -> Dict:
+    """The rest of a Players/*.sav worth showing: the player's item containers, tech tree
+    standing, records and last login. Container ids resolve in Level.sav's item index."""
+    f = player_schema.extract_field
+    cid = lambda name: (str(f(save_data, name)) if f(save_data, name) else None)
+    return {
+        "containers": {
+            "bag": cid("CommonContainerId"),
+            "key_items": cid("EssentialContainerId"),
+            "weapons": cid("WeaponLoadOutContainerId"),
+            "gear": cid("PlayerEquipArmorContainerId"),
+            "food": cid("FoodEquipContainerId"),
+        },
+        "tech": {
+            "unlocked": len(f(save_data, "UnlockedRecipeTechnologyNames") or []),
+            "points": int(f(save_data, "TechnologyPoint") or 0),
+            "ancient_points": int(f(save_data, "bossTechnologyPoint") or 0),
+        },
+        "records": {
+            "towers": _map_size(f(save_data, "TowerBossDefeatFlag")),
+            "alphas": _map_size(f(save_data, "NormalBossDefeatFlag")),
+            "paldeck": _map_size(f(save_data, "PaldeckUnlockFlag")),
+            "caught": _map_sum(f(save_data, "PalCaptureCount")),
+            "fast_travels": _map_size(f(save_data, "FastTravelPointUnlockFlag")),
+            "dungeons": int(f(save_data, "NormalDungeonClearCount") or 0) + int(f(save_data, "FixedDungeonClearCount") or 0),
+        },
+        "last_online": net_ticks_to_iso(f(save_data, "LastOnlineDateTime")),
+    }

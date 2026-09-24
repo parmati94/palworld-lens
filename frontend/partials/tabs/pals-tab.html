@@ -417,8 +417,10 @@
                                                     class="absolute -top-1 -left-1 w-4 h-4 md:w-5 md:h-5">
                                             </div>
                                             <!-- Pal Info -->
-                                            <div class="flex items-center min-w-0">
+                                            <div class="flex items-center gap-1.5 min-w-0">
                                                 <div class="font-medium text-sm md:text-base truncate max-w-[9rem] sm:max-w-none" x-text="pal.nickname || pal.display_name"></div>
+                                                <span x-show="pal.in_party" class="px-1.5 rounded-full border border-accent-500/40 bg-accent-500/15 text-accent-200 text-[10px] font-medium leading-4 whitespace-nowrap"
+                                                      :data-tip="'In ' + (pal.owner_uid || 'its owner') + '\'s party'">Party</span>
                                             </div>
                                         </div>
                                     </td>

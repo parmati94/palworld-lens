@@ -29,6 +29,26 @@ class SaveInfo(BaseModel):
     file_size: Optional[int] = None
     level_meta_size: Optional[int] = None
 
+class ItemRef(BaseModel):
+    """An item tile on an Activity card (a product, an input, an egg) with a count; `note` is a tooltip
+    for when the count is not simply what sits there (a machine's out tile = slot + still to come)."""
+    item_id: str
+    item_name: str
+    icon: Optional[str] = None
+    rarity: Optional[int] = None
+    count: int = 0
+    note: Optional[str] = None
+
+
+class ActivityPal(BaseModel):
+    """A pal named on an Activity card (assigned to a job, sent on an expedition)."""
+    instance_id: str
+    name: str
+    species_id: Optional[str] = None
+    image_candidates: List[str] = []
+    level: int = 0
+
+
 class PalInfo(BaseModel):
     """Pal information"""
     instance_id: str
@@ -39,6 +59,9 @@ class PalInfo(BaseModel):
     level: int
     exp: int
     owner_uid: Optional[str] = None
+    in_party: bool = False   # riding along in its owner's party (OtomoCharacterContainer), not the box
+    container_id: Optional[str] = Field(default=None, exclude=True)  # builders only: which container the pal sits in
+    slot_index: Optional[int] = Field(default=None, exclude=True)
     gender: str
     hp: int
     max_hp: int
@@ -159,6 +182,23 @@ class PalInfo(BaseModel):
         rarely have their own texture; the frontend walks this list on <img> error."""
         return pal_icons.icon_candidates(self.character_id)
 
+class PlayerTech(BaseModel):
+    """What the player has unlocked on the tech tree and what they still have to spend."""
+    unlocked: int = 0
+    points: int = 0          # technology points in hand
+    ancient_points: int = 0  # ancient technology points in hand
+
+
+class PlayerRecords(BaseModel):
+    """The player's tallies from RecordData in their Players/*.sav."""
+    towers: int = 0          # tower bosses beaten
+    alphas: int = 0          # field (alpha) bosses beaten
+    paldeck: int = 0         # Paldeck entries
+    caught: int = 0          # pals caught, all species
+    fast_travels: int = 0
+    dungeons: int = 0        # dungeons cleared, roaming and set
+
+
 class PlayerInfo(BaseModel):
     """Player information"""
     uid: str
@@ -173,8 +213,16 @@ class PlayerInfo(BaseModel):
     hunger: float
     sanity: float
     guild_id: Optional[str] = None
-    last_online: Optional[str] = None
+    last_online: Optional[str] = None   # last LOGIN (the save's LastOnlineDateTime is set on join), ISO UTC
     location: Optional[Dict[str, float]] = None
+    # From the player's own Players/*.sav: who rides along and what they carry
+    party: List[ActivityPal] = []
+    gear: List[ItemRef] = []      # head, body, accessories, shield, glider
+    weapons: List[ItemRef] = []
+    food: List[ItemRef] = []
+    bag: List[ItemRef] = []
+    tech: Optional[PlayerTech] = None
+    records: Optional[PlayerRecords] = None
     # Stat points allocation
     stat_points_hp: int = 0
     stat_points_stamina: int = 0
@@ -238,24 +286,6 @@ class ItemSlot(BaseModel):
     schematic: Optional[SchematicInfo] = None  # set for blueprint items
 
 
-class ItemRef(BaseModel):
-    """An item tile on an Activity card (a product, an input, an egg) with a count; `note` is a tooltip
-    for when the count is not simply what sits there (a machine's out tile = slot + still to come)."""
-    item_id: str
-    item_name: str
-    icon: Optional[str] = None
-    rarity: Optional[int] = None
-    count: int = 0
-    note: Optional[str] = None
-
-
-class ActivityPal(BaseModel):
-    """A pal named on an Activity card (assigned to a job, sent on an expedition)."""
-    instance_id: str
-    name: str
-    species_id: Optional[str] = None
-    image_candidates: List[str] = []
-    level: int = 0
 
 
 class CropInfo(BaseModel):
