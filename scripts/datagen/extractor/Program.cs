@@ -54,6 +54,7 @@ internal static class Program
             case "dt":    return Dt(provider, args[1], args.Length > 2 ? args[2] : null);
             case "list":  return List(provider, args.Length > 1 ? args[1] : "", args.Length > 2 ? args[2] : null);
             case "obj":   return Obj(provider, args[1], args.Length > 2 ? args[2] : null);
+            case "mesh":  return Mesh(provider, args[1], args[2]);
             default:
                 Console.Error.WriteLine($"unknown command: {cmd}");
                 return 2;
@@ -177,6 +178,50 @@ internal static class Program
     // from palworld-save-pal rather than being generated here.
     // Dump every export of any asset (blueprint defaults, structs, settings objects) as JSON.
     // Same name / pak-path matching as `dt`.
+    /// mesh <asset name or mount path> <out dir>: a skeletal or static mesh as glTF 2 (first LOD, no
+    /// materials -- pull textures with `tex`). Written under <out dir>/<mount path>/<Name>.glb.
+    private static int Mesh(DefaultFileProvider provider, string needle, string outDir)
+    {
+        var key = provider.Files.Keys.FirstOrDefault(k =>
+            k.EndsWith(".uasset", StringComparison.OrdinalIgnoreCase) &&
+            (needle.Contains('/')
+                ? k.Equals(needle + ".uasset", StringComparison.OrdinalIgnoreCase) || k.Equals(needle, StringComparison.OrdinalIgnoreCase)
+                : Path.GetFileNameWithoutExtension(k).Equals(needle, StringComparison.OrdinalIgnoreCase)));
+        if (key == null) { Console.Error.WriteLine($"no .uasset named '{needle}'"); return 1; }
+        Console.WriteLine($"mesh: {key}");
+        try
+        {
+            var options = new CUE4Parse_Conversion.ExporterOptions
+            {
+                LodFormat = CUE4Parse_Conversion.Meshes.ELodFormat.FirstLod,
+                MeshFormat = CUE4Parse_Conversion.Meshes.EMeshFormat.Gltf2,
+                ExportMaterials = false,
+            };
+            var pkg = provider.LoadPackage(key);
+            var exports = pkg.GetExports().ToList();
+            Console.WriteLine($"  exports: " + string.Join(", ", exports.Select(e => $"{e.Name} ({e.ExportType})")));
+            CUE4Parse_Conversion.Meshes.MeshExporter? exporter = null;
+            var sk = exports.OfType<CUE4Parse.UE4.Assets.Exports.SkeletalMesh.USkeletalMesh>().FirstOrDefault();
+            if (sk != null) exporter = new CUE4Parse_Conversion.Meshes.MeshExporter(sk, options);
+            else
+            {
+                var sm = exports.OfType<CUE4Parse.UE4.Assets.Exports.StaticMesh.UStaticMesh>().FirstOrDefault();
+                if (sm != null) exporter = new CUE4Parse_Conversion.Meshes.MeshExporter(sm, options);
+            }
+            if (exporter == null) { Console.Error.WriteLine("  no skeletal or static mesh in the package"); return 1; }
+            Directory.CreateDirectory(outDir);
+            if (!exporter.TryWriteToDir(new DirectoryInfo(outDir), out var label, out var savedPath))
+            { Console.Error.WriteLine("  export failed"); return 1; }
+            Console.WriteLine($"  wrote {label} -> {savedPath}");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"  FAILED: {ex.GetType().Name}: {ex.Message}");
+            return 1;
+        }
+    }
+
     private static int Obj(DefaultFileProvider provider, string needle, string? outFile)
     {
         var key = provider.Files.Keys.FirstOrDefault(k =>
