@@ -1005,7 +1005,7 @@
                                             ['/img/health.webp', 'Health', selectedPlayer.hp / selectedPlayer.max_hp * 100, `${selectedPlayer.hp} / ${selectedPlayer.max_hp}`, 'bg-green-500'],
                                             ['/img/food.webp', 'Hunger', selectedPlayer.hunger, `${Math.round(selectedPlayer.hunger)} / 100`, 'bg-orange-500'],
                                             ['/img/heart.webp', 'Sanity', selectedPlayer.sanity, `${Math.round(selectedPlayer.sanity)} / 100`, 'bg-purple-500']]" :key="n[1]">
-                                        <div class="flex items-center gap-2" :data-tip="n[1]">
+                                        <div class="flex items-center gap-2 cursor-help" :data-tip="n[1]">
                                             <img :src="n[0]" alt="" class="w-4 h-4 opacity-80 flex-shrink-0">
                                             <div class="relative flex-1 h-5 rounded bg-gray-900/70 border border-gray-700/60 overflow-hidden">
                                                 <div class="absolute inset-y-0 left-0 opacity-80" :class="n[4]" :style="`width: ${Math.min(100, Math.max(0, n[2]))}%`"></div>
@@ -1025,7 +1025,7 @@
                                             <span class="text-accent-300 font-semibold tabular-nums" x-text="selectedPlayer.unspent_points"></span>
                                         </div>
                                         <template x-for="row in statusRows(selectedPlayer)" :key="row.label">
-                                            <div class="flex items-center justify-between gap-3 px-3 py-1.5 text-sm" :data-tip="statusTip(row, selectedPlayer) || (statusPoints(row) ? statusPoints(row) + ' spent' : '')">
+                                            <div class="flex items-center justify-between gap-3 px-3 py-1.5 text-sm cursor-help hover:bg-gray-800/60 transition-colors" :data-tip="statusTip(row, selectedPlayer) || (statusPoints(row) ? statusPoints(row) + ' spent' : '')">
                                                 <span class="text-gray-300" x-text="row.label"></span>
                                                 <span class="flex items-baseline gap-2">
                                                     <span class="text-[10px] text-gray-500 tabular-nums" x-text="statusPoints(row)"></span>
@@ -1093,7 +1093,7 @@
                             <div x-show="!playerRecordCells(selectedPlayer).length" class="text-sm text-gray-500">No records in this player's save.</div>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                 <template x-for="cell in playerRecordCells(selectedPlayer)" :key="cell.label">
-                                    <div class="px-3 py-2.5 rounded-md bg-gray-900/50 border border-gray-700/60" :data-tip="cell.tip">
+                                    <div class="px-3 py-2.5 rounded-md bg-gray-900/50 border border-gray-700/60 cursor-help hover:border-gray-600 transition-colors" :data-tip="cell.tip">
                                         <div class="text-[11px] uppercase tracking-wide text-gray-500" x-text="cell.label"></div>
                                         <div class="text-xl font-semibold text-white tabular-nums mt-0.5" x-text="cell.value.toLocaleString()"></div>
                                     </div>
