@@ -116,6 +116,8 @@ test('baseLabel joins the name and the place, once', () => {
 test('schematic slots get a tooltip naming what they unlock', async () => {
     const { itemTip } = await import('../js/utils.js');
     assert.equal(itemTip({ item_id: 'Wood' }), '');
+    assert.equal(itemTip({ item_id: 'Wood', item_name: 'Wood', count: 1 }), 'Wood');
+    assert.equal(itemTip({ item_id: 'Salad', item_name: 'Salad', count: 12345 }), 'Salad ×12.3K');
     assert.equal(itemTip({ schematic: { kind: 'item', product_name: 'Musket', rarity_name: 'Epic' } }),
         'Schematic: unlocks the Musket recipe (Epic)');
     assert.equal(itemTip({ schematic: { kind: 'building', product_name: 'Majestic Wall Torch', rarity_name: 'Common' } }),
@@ -253,4 +255,88 @@ test('activity: a breeding farm keeps its own picture, stacks its eggs into a bu
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 2), 'no cake');
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [cake], outputs: [] }, 2), 'breeding');
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 0), 'nobody on it');
+});
+
+test('player modal: the records strip reads tech first, then the tallies', async () => {
+    const { playerRecordCells } = await import('../js/utils.js');
+    const player = {
+        tech: { unlocked: 201, points: 19, ancient_points: 43 },
+        records: { towers: 5, alphas: 62, paldeck: 161, caught: 614, fast_travels: 100, dungeons: 13 },
+    };
+    const cells = playerRecordCells(player);
+    assert.deepEqual(cells.map(c => [c.label, c.value]),
+        [['Tech', 201], ['Paldeck', 161], ['Towers', 5], ['Alphas', 62], ['Dungeons', 13], ['Fast travel', 100]]);
+    assert.equal(cells[0].tip, '19 tech pts, 43 ancient pts to spend');
+    assert.equal(cells[1].tip, '614 pals caught');
+    assert.equal(playerRecordCells({ tech: { unlocked: 3, points: 0, ancient_points: 0 } })[0].tip, 'nothing to spend');
+    assert.deepEqual(playerRecordCells({}), []);
+});
+
+test('player modal: gear sits in the game\'s fixed slots, the bag pads to its size, weight and status read from the player', async () => {
+    const { gearRows, accessorySlots, weaponColumns, slotGrid, bagGrid, stackWeight, showCount, rarityBarClass, weightLine, statusRows, statusPoints } = await import('../js/utils.js');
+    const helm = { item_id: 'StealHelmet', slot: 'ArmorHead', slot_index: 0 }, ring = { item_id: 'Accessory_Heat', slot: 'Accessory', slot_index: 3 };
+    const module = { item_id: 'SphereModule_Sniper', slot: 'SphereModule', slot_index: 8 }, odd = { item_id: 'Mystery', slot: 'Whatever' };
+    const body = { item_id: 'PlasticArmor', slot: 'ArmorBody' };                     // no slot index: placed by type
+    const rows = gearRows({ gear: [helm, ring, module, odd, body] });
+    assert.deepEqual(rows.map(r => [r.label, r.items.map(i => i && i.item_id)]),
+        [['Head', ['StealHelmet']], ['Body', ['PlasticArmor']], ['Shield', [null]], ['Glider', [null]], ['Sphere Module', ['SphereModule_Sniper']], ['Other', ['Mystery']]]);
+    assert.deepEqual(accessorySlots({ gear: [ring] }).map(i => i && i.item_id), [null, 'Accessory_Heat', null, null]);
+    assert.equal(gearRows({ gear: [] }).length, 5);
+    const cols = weaponColumns({ weapons: [{ item_id: 'rifle', slot_index: 0 }, { item_id: 'axe', slot_index: 3 }], weapon_slots: 6 });
+    assert.deepEqual(cols.left.map(i => i && i.item_id), ['rifle', null, null, 'axe']);
+    assert.deepEqual(cols.right, [null, null]);
+    const grid = bagGrid({ bag: [{ item_id: 'a', slot_index: 5 }, { item_id: 'b' }, { item_id: 'c', slot_index: 99 }], bag_slots: 8 });
+    assert.deepEqual(grid.map(i => i && i.item_id), ['b', 'c', null, null, null, 'a', null, null]);
+    assert.equal(bagGrid({ bag: [helm, ring, module], bag_slots: 2 }).length, 3);     // never drops an item
+    assert.deepEqual(slotGrid([{ item_id: 'salad', slot_index: 2 }], 5).map(i => i && i.item_id), [null, null, 'salad', null, null]);
+    assert.equal(stackWeight({ weight: 0.1, count: 56 }), '5.6');
+    assert.equal(stackWeight({ count: 3 }), '');
+    assert.equal(showCount({ slot: 'ArmorHead', count: 1 }), false);
+    assert.equal(showCount({ slot: 'Consume', count: 1 }), true);
+    assert.equal(rarityBarClass(4), 'bg-amber-300');
+    assert.equal(rarityBarClass(undefined), 'bg-gray-500/60');
+    assert.deepEqual(weightLine({ carried_weight: 1650, calculated_weight: 1500 }), { carried: 1650, max: 1500, pct: 100, over: true });
+    assert.deepEqual(weightLine({}), { carried: 0, max: 0, pct: 0, over: false });
+    const rows2 = statusRows({ calculated_max_hp: 1900, calculated_stamina: 490, calculated_attack: 132, calculated_work_speed: 1450, calculated_weight: 1650,
+                               stat_points_hp: 14, ex_stat_points_stamina: 29, stat_points_capture: 3 });
+    assert.deepEqual(rows2.map(r => r.label), ['Health', 'Stamina', 'Attack', 'Work speed', 'Weight', 'Capture power']);   // no defense without the breakdown
+    assert.equal(rows2[0].value, 1900);
+    assert.equal(statusPoints(rows2[0]), '14 pts');
+    assert.equal(statusPoints(rows2[1]), '');                       // elixir points only on hover
+    assert.equal(statusPoints(rows2[2]), '');
+});
+
+test('player modal: enhanced stats read from the breakdown, with the game\'s hover text and the food buff line', async () => {
+    const { statusRows, statusTip, weightLine } = await import('../js/utils.js');
+    const envy = {
+        calculated_max_hp: 1900, calculated_weight: 1650, stat_points_hp: 14, ex_stat_points_stamina: 29,
+        stats: { hp: { base: 1900, gear: 1650, food: 0, total: 3550 }, stamina: { base: 490, gear: 0, food: 0, total: 490 },
+                 attack: { base: 132, gear: 0, food: 0, total: 132 }, defense: { base: 100, gear: 550, food: 0, total: 650 },
+                 work_speed: { base: 1450, gear: 0, food: 435, total: 1885 }, weight: { base: 1650, gear: 200, food: 0, total: 1850 } },
+        food_buff: { item_id: 'Pizza', item_name: 'Pizza', seconds_left: 135, effects: [{ type: 'WorkSpeed', value: 30 }, { type: 'HungerResist', value: 25 }] },
+    };
+    const rows = statusRows(envy);
+    assert.deepEqual(rows.map(r => [r.label, r.value, r.enhanced]),
+        [['Health', 3550, true], ['Stamina', 490, false], ['Attack', 132, false], ['Defense', 650, true], ['Work speed', 1885, true], ['Weight', 1850, true], ['Capture power', null, false]]);
+    assert.equal(statusTip(rows[0], envy), 'Base 1,900 · Gear +1,650 · 14 pts spent');
+    assert.equal(statusTip(rows[4], envy), 'Base 1,450 · Food +435 (Pizza)');
+    assert.equal(statusTip(rows[1], envy), 'Base 490 · 29 from elixirs');
+    assert.equal(statusTip(rows[6], envy), '');
+    assert.equal(weightLine(envy).max, 1850);
+});
+
+
+test('player modal: the mini-map crops the tile pyramid around the player and keeps the box on the map', async () => {
+    const { miniMap, MAP_LAYERS } = await import('../js/utils.js');
+    const m = MAP_LAYERS.MainMap;
+    const centre = { x: (m.minX + m.maxX) / 2, y: (m.minY + m.maxY) / 2 };
+    const mm = miniMap(centre, 288, 192, 4);
+    assert.equal(mm.layer, 'MainMap');
+    assert.deepEqual(mm.pin, { left: 144, top: 96 });                       // the player sits at the centre of the box
+    assert.ok(mm.tiles.length >= 4 && mm.tiles.every(t => t.src.startsWith('/img/tiles/4/')));
+    const corner = miniMap({ x: m.maxX, y: m.minY }, 288, 192, 4);          // top-left of the image: box clamps, pin moves
+    assert.deepEqual(corner.pin, { left: 0, top: 0 });
+    assert.ok(corner.tiles.every(t => t.left >= 0 && t.top >= 0));
+    assert.equal(miniMap(null), null);
+    assert.equal(miniMap({ x: 500000, y: -600000 }).layer, 'Tree');
 });

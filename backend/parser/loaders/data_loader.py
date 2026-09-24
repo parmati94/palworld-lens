@@ -157,6 +157,10 @@ class DataLoader:
         # recipe ids that are not the product's id. Optional -- without it ids show raw and timers hide.
         act = self.tables.get('activity') or {}
         self.activity: Dict[str, Dict] = {k: (act.get(k) or {}) for k in ('lab', 'expeditions', 'recipe_products', 'generators')}
+        # Loadout tables (data/json/loadout.json): what gear and food add to a player's stats, the player's
+        # base row. Optional -- without it the status screen shows the un-enhanced values only.
+        lo = self.tables.get('loadout') or {}
+        self.loadout: Dict[str, Dict] = {k: (lo.get(k) or {}) for k in ('gear', 'food', 'player_base')}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '

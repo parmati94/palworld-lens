@@ -408,6 +408,169 @@ export function farmEggsModalDetail(job) {
     return { title: job.display_name, subtitle: `${n} egg${n === 1 ? '' : 's'} on the ground`, items: job.outputs || [] };
 }
 
+// ---- player card + modal ----
+
+/** The gear container's fixed slots (1.0, nine slots; verified on five players): 0 head, 1 body,
+ *  2/3/6/7 accessories (a 2x2 in the game), 4 shield, 5 glider, 8 sphere module. */
+export const GEAR_SLOT_ROWS = [
+    { label: 'Head', slots: [0] },
+    { label: 'Body', slots: [1] },
+    { label: 'Shield', slots: [4] },
+    { label: 'Glider', slots: [5] },
+    { label: 'Sphere Module', short: 'Module', slots: [8] },
+];
+export const ACCESSORY_SLOTS = [2, 3, 6, 7];
+const GEAR_SLOTS_BY_TYPE = { ArmorHead: [0], ArmorBody: [1], Accessory: ACCESSORY_SLOTS, Shield: [4], Glider: [5], SphereModule: [8] };
+const EQUIP_TYPES = new Set(['ArmorHead', 'ArmorBody', 'Accessory', 'Shield', 'Glider', 'SphereModule']);
+
+/** {slot index: item} for the gear container. An item without a slot index goes to the first free
+ *  slot of its type; anything left over lands on `other`. */
+export function gearBySlot(player) {
+    const at = {};
+    const other = [];
+    for (const item of (player && player.gear) || []) {
+        let i = item.slot_index;
+        if (!(Number.isInteger(i) && i >= 0 && i <= 8 && !at[i])) {
+            i = (GEAR_SLOTS_BY_TYPE[item.slot] || []).find(s => !at[s]);
+        }
+        if (i === undefined) other.push(item); else at[i] = item;
+    }
+    return { at, other };
+}
+
+/** [{label, items: [item | null, ...]}] for the single-slot gear rows, plus an 'Other' row for gear
+ *  that fits nowhere (a slot we don't know). */
+export function gearRows(player) {
+    const { at, other } = gearBySlot(player);
+    const rows = GEAR_SLOT_ROWS.map(r => ({ label: r.label, short: r.short, items: r.slots.map(s => at[s] || null) }));
+    if (other.length) rows.push({ label: 'Other', items: other });
+    return rows;
+}
+
+/** The four accessory slots in the game's 2x2 order. */
+export function accessorySlots(player) {
+    const { at } = gearBySlot(player);
+    return ACCESSORY_SLOTS.map(s => at[s] || null);
+}
+
+/** The weapon slots as the game lays them out: four down the left, the rest (two) on the right. */
+export function weaponColumns(player) {
+    const grid = slotGrid(player && player.weapons, Math.max(player && player.weapon_slots || 0, 4));
+    return { left: grid.slice(0, 4), right: grid.slice(4) };
+}
+
+/** The stack's weight as the game prints it on the tile ("5.6"); '' when the item's weight is unknown. */
+export function stackWeight(item) {
+    if (!item || typeof item.weight !== 'number') return '';
+    return (item.weight * (item.count || 1)).toFixed(1);
+}
+
+/** Equipment shows no count; everything else does, the way the game's tiles do. */
+export function showCount(item) {
+    return !!item && !EQUIP_TYPES.has(item.slot) && (item.count || 0) >= 1;
+}
+
+const RARITY_BAR_CLASSES = { 0: 'bg-gray-500/60', 1: 'bg-green-400/80', 2: 'bg-blue-400/90', 3: 'bg-purple-400/90', 4: 'bg-amber-300' };
+export function rarityBarClass(rarity) {
+    return RARITY_BAR_CLASSES[rarity] ?? RARITY_BAR_CLASSES[0];
+}
+
+/** A container as the game draws it: every one of n slots, empty ones included, each item where it
+ *  sits (slot_index). An item without a slot index, past the end, or on a taken slot takes the next
+ *  free one; an item is never dropped, so the grid grows past n if it has to. */
+export function slotGrid(items, n) {
+    const list = items || [];
+    const size = Math.max(n || 0, list.length);
+    const grid = new Array(size).fill(null);
+    const later = [];
+    for (const item of list) {
+        const i = item.slot_index;
+        if (Number.isInteger(i) && i >= 0 && i < size && grid[i] === null) grid[i] = item;
+        else later.push(item);
+    }
+    for (const item of later) grid[grid.indexOf(null)] = item;
+    return grid;
+}
+
+/** The bag grid. */
+export function bagGrid(player) {
+    return slotGrid(player && player.bag, player && player.bag_slots);
+}
+
+/** Carried weight against the player's max (with gear, when the breakdown is there): {carried, max, pct, over}. */
+export function weightLine(player) {
+    const carried = Number(player && player.carried_weight) || 0;
+    const s = player && player.stats && player.stats.weight;
+    const max = Number(s ? s.total : player && player.calculated_weight) || 0;
+    const pct = max ? Math.min(100, Math.round(carried / max * 100)) : 0;
+    return { carried, max, pct, over: max > 0 && carried > max };
+}
+
+/** The game's status page: [{key, label, value, base, gear, food, enhanced, points, ancient}] (`ancient` = the
+ *  save's GotExStatusPointList: extra points from elixirs, DT_GainStatusPointsItem).
+ *  `value` is the enhanced total when the player carries a stats breakdown, else the base value.
+ *  Capture power is points only. */
+export function statusRows(player) {
+    const p = player || {};
+    const st = p.stats || {};
+    const row = (key, label, baseValue, points, ancient) => {
+        const s = st[key];
+        const base = s ? s.base : baseValue;
+        const gear = s ? s.gear : 0, food = s ? s.food : 0;
+        const value = s ? s.total : baseValue;
+        return { key, label, value, base, gear, food, enhanced: (gear || 0) + (food || 0) !== 0, points: points || 0, ancient: ancient || 0 };
+    };
+    return [
+        row('hp', 'Health', p.calculated_max_hp, p.stat_points_hp, p.ex_stat_points_hp),
+        row('stamina', 'Stamina', p.calculated_stamina, p.stat_points_stamina, p.ex_stat_points_stamina),
+        row('attack', 'Attack', p.calculated_attack, p.stat_points_attack, p.ex_stat_points_attack),
+        row('defense', 'Defense', st.defense ? undefined : null, 0, 0),
+        row('work_speed', 'Work speed', p.calculated_work_speed, p.stat_points_work_speed, p.ex_stat_points_work_speed),
+        row('weight', 'Weight', p.calculated_weight, p.stat_points_weight, p.ex_stat_points_weight),
+        { key: 'capture', label: 'Capture power', value: null, base: null, gear: 0, food: 0, enhanced: false, points: p.stat_points_capture || 0, ancient: 0 },
+    ].filter(r => r.value != null || r.points || r.key === 'capture');
+}
+
+/** The hover text behind a status row: "Base 1,900 · Gear +1,650 · Food +435 (Pizza) · 14 pts spent · 29 from elixirs". */
+export function statusTip(row, player) {
+    if (!row || row.value == null) return '';
+    const parts = [`Base ${row.base.toLocaleString()}`];
+    if (row.gear) parts.push(`Gear ${row.gear > 0 ? '+' : ''}${row.gear.toLocaleString()}`);
+    if (row.food) {
+        const dish = player && player.food_buff && player.food_buff.item_name;
+        parts.push(`Food ${row.food > 0 ? '+' : ''}${row.food.toLocaleString()}${dish ? ` (${dish})` : ''}`);
+    }
+    if (row.points) parts.push(`${row.points} pts spent`);
+    if (row.ancient) parts.push(`${row.ancient} from elixirs`);
+    return parts.join(' · ');
+}
+
+/** The small figure beside a status row: the stat points spent on it ("14 pts"); elixir points show on hover. */
+export function statusPoints(row) {
+    return row && row.points ? `${row.points} pts` : '';
+}
+
+
+/** The records strip on a player card: [{label, value, tip}], tech first. Empty when the save had none. */
+export function playerRecordCells(player) {
+    const r = player && player.records;
+    const t = player && player.tech;
+    if (!r && !t) return [];
+    const cells = [];
+    if (t) {
+        const spend = [t.points ? `${t.points} tech pts` : '', t.ancient_points ? `${t.ancient_points} ancient pts` : ''].filter(Boolean).join(', ');
+        cells.push({ label: 'Tech', value: t.unlocked, tip: spend ? `${spend} to spend` : 'nothing to spend' });
+    }
+    if (r) cells.push(
+        { label: 'Paldeck', value: r.paldeck, tip: `${r.caught.toLocaleString()} pals caught` },
+        { label: 'Towers', value: r.towers, tip: 'tower bosses beaten' },
+        { label: 'Alphas', value: r.alphas, tip: 'field bosses beaten' },
+        { label: 'Dungeons', value: r.dungeons, tip: 'roaming and set dungeons cleared' },
+        { label: 'Fast travel', value: r.fast_travels, tip: 'points unlocked' },
+    );
+    return cells;
+}
+
 /** "Too hot"/"too cold" cannot be told apart yet (the save's sign is unverified), so: comfortable or not. */
 export function eggTemperature(egg) {
     const d = egg && egg.temp_diff;
@@ -454,7 +617,7 @@ export function orderLine(job) {
 export function itemTip(item) {
     if (item && item.note) return item.note;
     const s = item && item.schematic;
-    if (!s) return '';
+    if (!s) return (item && item.item_name) ? (item.count > 1 ? `${item.item_name} ×${formatCount(item.count)}` : item.item_name) : '';
     const tier = s.rarity_name ? ` (${s.rarity_name})` : '';
     return s.kind === 'building'
         ? `Schematic: lets you build ${s.product_name}${tier}`
@@ -616,6 +779,32 @@ export function saveToLngLat(saveX, saveY, layer = 'MainMap') {
     const lng = u * 360 - 180;
     const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * v))) * 180 / Math.PI;
     return [lng, lat];
+}
+
+/**
+ * A static map crop around a world position, for the player modal: the tiles of the layer's pyramid
+ * (cut straight from the square map image, so tile (z, x, y) covers u in [x, x+1] / 2^z and v likewise)
+ * placed so the position sits at the centre of a w x h box. {layer, tiles: [{src, left, top}], size}.
+ */
+export function miniMap(location, w = 288, h = 192, zoom = 4) {
+    if (!location || !isFinite(location.x) || !isFinite(location.y)) return null;
+    const layer = layerForCoords(location.x, location.y);
+    const m = MAP_LAYERS[layer];
+    const size = 256 * Math.pow(2, zoom);
+    const u = (location.y - m.minY) / (m.maxY - m.minY);
+    const v = 1 - (location.x - m.minX) / (m.maxX - m.minX);
+    const px = Math.min(Math.max(u * size, w / 2), size - w / 2);   // keep the box inside the map
+    const py = Math.min(Math.max(v * size, h / 2), size - h / 2);
+    const offX = w / 2 - px, offY = h / 2 - py;
+    const tiles = [];
+    const n = Math.pow(2, zoom);
+    for (let ty = Math.floor((py - h / 2) / 256); ty <= Math.floor((py + h / 2 - 1) / 256); ty++) {
+        for (let tx = Math.floor((px - w / 2) / 256); tx <= Math.floor((px + w / 2 - 1) / 256); tx++) {
+            if (tx < 0 || ty < 0 || tx >= n || ty >= n) continue;
+            tiles.push({ src: `${m.tiles}/${zoom}/${tx}/${ty}.webp`, left: tx * 256 + offX, top: ty * 256 + offY });
+        }
+    }
+    return { layer, label: m.label, tiles, size: 256, pin: { left: u * size + offX, top: v * size + offY } };
 }
 
 /**

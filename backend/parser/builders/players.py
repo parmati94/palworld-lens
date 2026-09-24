@@ -3,7 +3,10 @@ import logging
 from typing import List, Optional, Dict
 import math
 
-from backend.models.models import PlayerInfo
+from backend.common.base_names import nearest_landmark
+from backend.common.loadout import enhance_stats, food_effects, food_effects_line, shield_max
+from backend.models.models import FoodBuff, PlayerInfo, PlayerRecords, PlayerTech, StatLine
+from backend.parser.utils.mappers import item_ref, pal_ref
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
 
@@ -23,13 +26,18 @@ STAT_NAME_MAP = {
 }
 
 
-def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_containers: Dict = None) -> List[PlayerInfo]:
+def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_containers: Dict = None,
+                  item_index: Dict = None, data=None, pals: List = None, container_sizes: Dict = None) -> List[PlayerInfo]:
     """Build list of all players from save data
     
     Args:
         players_data: Extracted player data from get_player_data()
         guilds_data: Extracted guild data from get_guild_data()
         player_uid_to_containers: Mapping of player UID to container and location data
+        item_index: {container_id: [{static_id, count}]} from Level.sav, for what the player carries
+        data: static game data (item names, icons)
+        pals: the built PalInfo list, for the party
+        container_sizes: {container_id: slot count}, for the bag's size
         
     Returns:
         List of PlayerInfo objects
@@ -51,21 +59,39 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             ex_stat_points=ex_stat_points
         )
         
-        # HP - extract current HP with fallback to calculated max
-        current_hp = player_schema.extract_field(char_info, "Hp")
-        max_hp = calculated_stats["hp"]
-        
-        # Fallback to max HP if extraction failed or value is invalid (greater than max)
-        if not current_hp or current_hp > max_hp:
-            current_hp = max_hp
-        
         # Get location from player_uid_to_containers (from Players/*.sav LastTransform)
         location = None
+        save_info = {}
         if player_uid_to_containers:
             for player_uid, player_data in player_uid_to_containers.items():
                 if player_data.get("instance_id") == instance_id:
                     location = player_data.get("location")
+                    save_info = player_data
                     break
+        details = save_info.get("details") or {}
+        loadout = getattr(data, "loadout", None) or {}
+        kit = _kit(details.get("containers") or {}, item_index or {}, data, container_sizes or {}, loadout)
+
+        # The status screen: base from level + points, then what the worn gear and the running dish add
+        food_id = player_schema.extract_field(char_info, "FoodWithStatusEffect")
+        food_id = str(food_id) if food_id and str(food_id) != "None" else None
+        gear_ids = [i.item_id for i in kit["gear"]]
+        stats = {k: StatLine(**v) for k, v in enhance_stats(
+            {**calculated_stats, "defense": (loadout.get("player_base") or {}).get("defense", 100)},
+            gear_ids, food_id, loadout, getattr(data, "passive_skills", None) or {}).items()}
+
+        # HP - the save's current HP against the enhanced max (gear adds HP, so the base alone would clamp it)
+        current_hp = player_schema.extract_field(char_info, "Hp")
+        max_hp = stats["hp"].total
+        if not current_hp or current_hp > max_hp:
+            current_hp = max_hp
+        food_buff = None
+        if food_id:
+            dish = data.item(food_id) if data is not None else {}
+            secs = player_schema.extract_field(char_info, "FoodEffectSecondsLeft")
+            food_buff = FoodBuff(item_id=food_id, item_name=dish.get("localized_name") or food_id, icon=dish.get("icon"),
+                                 seconds_left=int(secs) if isinstance(secs, int) else None,
+                                 effects=food_effects(food_id, loadout))
         
         player = PlayerInfo(
             uid=instance_id,
@@ -80,6 +106,27 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             sanity=player_schema.extract_field(char_info, "SanityValue"),
             guild_id=_get_player_guild(guilds_data, instance_id),
             location=location,
+            place=nearest_landmark(location.get("x"), location.get("y"), getattr(data, "map_layers", None) or {},
+                                   getattr(data, "map_objects", None) or []) if location and data is not None else None,
+            last_online=details.get("last_online"),
+            party=_party(save_info.get("party_container_id"), pals or []),
+            gear=kit["gear"],
+            weapons=kit["weapons"],
+            food=kit["food"],
+            bag=kit["bag"],
+            bag_slots=kit["bag_slots"],
+            weapon_slots=kit["weapon_slots"],
+            food_slots=kit["food_slots"],
+            key_items=kit["key_items"],
+            gold=kit["gold"],
+            carried_weight=kit["carried_weight"],
+            tech=PlayerTech(**details["tech"]) if details.get("tech") else None,
+            records=PlayerRecords(**details["records"]) if details.get("records") else None,
+            stats=stats,
+            shield_hp=int(player_schema.extract_field(char_info, "ShieldHP") or 0),
+            shield_max=shield_max(gear_ids, loadout),
+            food_buff=food_buff,
+            unspent_points=int(player_schema.extract_field(char_info, "UnusedStatusPoint") or 0),
             stat_points_hp=stat_points["hp"],
             stat_points_stamina=stat_points["stamina"],
             stat_points_attack=stat_points["attack"],
@@ -100,6 +147,46 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
         players.append(player)
     
     return players
+
+
+def _party(container_id: Optional[str], pals: List) -> List:
+    """The pals riding in this party container, in slot order."""
+    if not container_id:
+        return []
+    riders = [p for p in pals if getattr(p, "container_id", None) == container_id]
+    riders.sort(key=lambda p: (p.slot_index is None, p.slot_index or 0))
+    return [pal_ref(p) for p in riders]
+
+
+GOLD = "Money"
+
+
+def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container_sizes: Dict = None,
+         loadout: Dict = None) -> Dict:
+    """What the player carries, as item tiles per container, plus the bag's size, the gold (also
+    totalled on its own, the way the game prints it under the grid) and the weight of all of it."""
+    out: Dict = {"gear": [], "weapons": [], "food": [], "bag": [], "key_items": [], "bag_slots": 0, "weapon_slots": 0,
+                 "food_slots": 0, "gold": 0, "carried_weight": 0.0}
+    if data is None:
+        return out
+    weight = 0.0
+    for role in ("gear", "weapons", "food", "bag", "key_items"):
+        for entry in item_index.get(containers.get(role) or "", []):
+            item_id, count = entry["static_id"], entry["count"]
+            weight += float(data.item(item_id).get("weight") or 0) * count
+            if role == "bag" and item_id == GOLD:
+                out["gold"] += count          # totalled here; the coin tile stays in the grid, as in the game
+            ref = item_ref(item_id, data, count)
+            ref.slot_index = entry.get("slot")
+            if role == "food":
+                fx = food_effects_line(item_id, loadout)
+                if fx:
+                    ref.note = f"{ref.item_name} ×{count} · {fx}"     # the tile's hover: what eating it does
+            out[role].append(ref)
+    for role, key in (("bag", "bag_slots"), ("weapons", "weapon_slots"), ("food", "food_slots")):
+        out[key] = int((container_sizes or {}).get(containers.get(role) or "", 0) or 0)
+    out["carried_weight"] = round(weight, 1)
+    return out
 
 
 def _extract_stat_points(char_info: Dict, field_name: str) -> Dict[str, int]:
@@ -152,7 +239,7 @@ def _calculate_player_stats(level: int, stat_points: Dict[str, int],
     Args:
         level: Player level (not used in calculation, kept for future compatibility)
         stat_points: Regular stat points from GotStatusPointList
-        ex_stat_points: Extra stat points from GotExStatusPointList (statues/tech)
+        ex_stat_points: Extra stat points from elixirs (GotExStatusPointList)
         
     Returns:
         Dict with calculated stat values

@@ -11,6 +11,7 @@
 #   3d. generate_pal_parameters.py pal_parameters.json <- the pak's species table (same inputs)
 #   3e. generate_schematics.py  schematics.json <- the pak's recipe + build-object tables (same inputs)
 #   3f. generate_activity_tables.py activity.json <- lab research, expedition and recipe tables (same inputs)
+#   3g. generate_loadout.py     loadout.json <- item stats, food buffs and player base tables (same inputs)
 #   4. slice_map.py            map tiles <- the committed map images
 #   5. validate.py             coverage checks
 #
@@ -113,6 +114,13 @@ if [ $SKIP_ICONS -eq 0 ]; then
     echo "  pak or usmap missing -- skipping (the committed activity.json stays as is)"
   else
     "$PY" "$HERE/generate_activity_tables.py" $DRY
+  fi
+
+  step "3g/5 regenerate loadout.json from the pak's item, food-effect and player-parameter tables"
+  if [ ! -d "$PALWORLD_PAK_DIR" ] || [ ! -f "$PALWORLD_USMAP" ]; then
+    echo "  pak or usmap missing -- skipping (the committed loadout.json stays as is)"
+  else
+    "$PY" "$HERE/generate_loadout.py" $DRY
   fi
 fi
 

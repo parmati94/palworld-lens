@@ -51,7 +51,9 @@ def build_player_mapping(players_data: Dict, guild_data: Dict, base_meta: Dict[s
             "name": player_name,
             "containers": save_info["containers"],
             "instance_id": individual_id,
-            "location": save_info["location"]
+            "location": save_info["location"],
+            "party_container_id": save_info.get("party_container_id"),
+            "details": save_info.get("details") or {},
         }
         player_names[player_uid] = player_name
         logger.debug(f"  -> {player_name}: PlayerUId={player_uid[:16]}..., {len(save_info['containers'])} containers, location={save_info['location'] is not None}")

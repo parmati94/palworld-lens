@@ -1,5 +1,5 @@
 """Pal building from save data"""
-from typing import Dict, List
+from typing import Dict, List, Optional, Set
 
 from backend.models.models import PalInfo
 from backend.parser.utils.mappers import map_active_skills, map_passive_skills
@@ -16,7 +16,8 @@ pal_schema = SchemaManager.get("pals.yaml")
 DEFAULT_MAX_STOMACH = 150
 
 
-def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to_owner: Dict[str, str]) -> List[PalInfo]:
+def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to_owner: Dict[str, str],
+               party_containers: Optional[Set[str]] = None) -> List[PalInfo]:
     """Build every non-player character into a PalInfo.
 
     Args:
@@ -24,6 +25,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
         base_assignments: {instance_id: {base_id, guild_id, base_name, base_place}} for pals at bases
         data: static game data
         pal_to_owner: {instance_id: owner player name}
+        party_containers: the players' party container ids; a pal in one is in_party
     """
     pals: List[PalInfo] = []
     unknown_species: set = set()
@@ -99,6 +101,9 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
         )
 
         assignment = base_assignments.get(str(instance_id), {})
+        container_id = pal_schema.extract_field(char_info, "SlotContainerId")
+        container_id = str(container_id) if container_id else None
+        slot_index = pal_schema.extract_field(char_info, "SlotIndex")
 
         pals.append(PalInfo(
             instance_id=str(instance_id),
@@ -109,6 +114,9 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             level=level,
             exp=pal_schema.extract_field(char_info, "Exp"),
             owner_uid=pal_to_owner.get(str(instance_id)),
+            in_party=bool(container_id and container_id in (party_containers or ())),
+            container_id=container_id,
+            slot_index=int(slot_index) if isinstance(slot_index, int) else None,
             gender=pal_schema.extract_field(char_info, "Gender"),
             hp=pal_schema.extract_field(char_info, "Hp"),
             max_hp=calculated_stats["hp"],

@@ -13,6 +13,18 @@ fields:
     root_key: "IsPlayer"
     path: ["value"]
     default: false
+
+  SlotContainerId:
+    description: "Container the pal sits in: a player's party or box, a base's worker pool"
+    root_key: "SlotId"
+    path: ["value", "ContainerId", "value", "ID", "value"]
+    default: null
+
+  SlotIndex:
+    description: "Slot in that container (party order, box position)"
+    root_key: "SlotId"
+    path: ["value", "SlotIndex", "value"]
+    default: null
   
   NickName:
     description: "Custom nickname given to the pal by the player"

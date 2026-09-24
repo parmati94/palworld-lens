@@ -26,6 +26,10 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   names + durations (`DT_CharacterTeamMissionDataTable` + text), the few recipe ids that are not
   the product's item id, and each power building's capacity (MaxEnergyStorage on its blueprint, found
   through `DT_MapObjectMasterDataTable`) (`generate_activity_tables.py`; read by `backend/common/activity.py`).
+- **`data/json/loadout.json`** -- what gear and food do to a player's stats, so the player modal can
+  show the status screen's enhanced values (Health 1900 >> 3550): armour HP / defense / shield and
+  equip passives from `DT_ItemDataTable_Common`, dish buffs from `DT_StatusEffectFood`, the player's
+  base row from `DT_PalPlayerParameter` (`generate_loadout.py`; applied by `backend/common/loadout.py`).
 
 Output is committed to the repo, so end users never run this.
 

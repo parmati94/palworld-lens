@@ -49,6 +49,14 @@ def test_work_suitability_bonuses():
     assert calculate_work_suitabilities(base, manual_upgrades={'Mining': 1, 'EmitFlame': 1}) == {'EmitFlame': 3, 'Mining': 1}
 
 
+def test_work_level_never_passes_ten():
+    # 4-star Frostallion: Cooling 7 is its only job, so every star lands on it (+4); the game shows 10
+    assert calculate_work_suitabilities({'Cool': 7}, condensor_rank=5, best_work_suitability='Cool') == {'Cool': 10}
+    assert calculate_work_suitabilities({'Cool': 7}, condensor_rank=4, best_work_suitability='Cool') == {'Cool': 10}
+    assert calculate_work_suitabilities({'Cool': 7}, condensor_rank=3, best_work_suitability='Cool') == {'Cool': 9}
+    assert calculate_work_suitabilities({'Mining': 8}, manual_upgrades={'Mining': 3}) == {'Mining': 10}
+
+
 def test_condensing_best_job_first_then_by_level_then_all_at_four():
     # Wumpo: Handiwork 3, Lumbering 5, Cooling 5, Transporting 6; designated best Transporting
     base = {'Handcraft': 3, 'Deforest': 5, 'Cool': 5, 'Transport': 6}
