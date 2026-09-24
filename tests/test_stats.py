@@ -19,7 +19,7 @@ LEGEND = _Skill([{'type': 'ShotAttack', 'value': 20.0, 'target': 'ToSelf'}, {'ty
 
 def test_level_1_no_talents():
     s = calculate_pal_stats(ALPACA, level=1, talent_hp=0, talent_melee=0, talent_shot=0, talent_defense=0)
-    assert (s['hp'], s['attack'], s['defense'], s['work_speed']) == (550, 105, 56, 100)
+    assert (s['hp'], s['attack'], s['defense'], s['work_speed']) == (550, 105, 56, 70)
 
 
 def test_frosty_wosty_status_screen():
@@ -28,12 +28,15 @@ def test_frosty_wosty_status_screen():
     # at trust 2: Defense tooltip 897 >> 1502 (trust +24), HP 10170 (= the saved Hp)
     kw = dict(rank=5, passive_skills=[LEGEND], soul_hp=8, soul_attack=12, soul_defense=12)
     t1 = calculate_pal_stats(FROSTALLION_BOSS, 60, 63, 0, 58, 98, trust_level=1, **kw)
-    assert t1['breakdown']['attack'] == {'base': 1006, 'trust': 6, 'souls_pct': 36, 'passives_pct': 20, 'total': 1651}
+    assert t1['breakdown']['attack'] == {'base': 1006, 'trust': 6, 'souls_pct': 36, 'passives_pct': 20, 'food_pct': 0, 'total': 1651}
     assert (t1['attack'], t1['defense'], t1['hp']) == (1651, 1483, 10137)
     t2 = calculate_pal_stats(FROSTALLION_BOSS, 60, 63, 0, 58, 98, trust_level=2, **kw)
-    assert t2['breakdown']['defense'] == {'base': 897, 'trust': 24, 'souls_pct': 36, 'passives_pct': 20, 'total': 1502}
+    assert t2['breakdown']['defense'] == {'base': 897, 'trust': 24, 'souls_pct': 36, 'passives_pct': 20, 'food_pct': 0, 'total': 1502}
     assert t2['hp'] == 10170
-    assert t2['work_speed'] == 100        # the row's craft scale; the game showed 98 with hunger at 610/620
+    assert t2['work_speed'] == 98         # 70 x 1.4 at four stars (Eidrolon Ignis, also 4 stars, reads 98 too)
+    fed = calculate_pal_stats(FROSTALLION_BOSS, 60, 63, 0, 58, 98, trust_level=2, food_effects=[{'type': 'WorkSpeed', 'value': 30.0}, {'type': 'HungerResist', 'value': 25.0}], **kw)
+    assert fed['work_speed'] == 127 and fed['breakdown']['work_speed'] == {'base': 98, 'trust': 0, 'souls_pct': 0, 'passives_pct': 0, 'food_pct': 30, 'total': 127}
+    assert fed['attack'] == t2['attack']  # pizza does not touch attack
 
 
 def test_trust_raises_hp_as_extra_scale_per_rank():
@@ -64,6 +67,7 @@ def test_passive_and_soul_multipliers():
     assert boosted['attack'] == int(base['attack'] * 1.2)
     assert boosted['hp'] == int(base['hp'] * 1.3)
     assert boosted['breakdown']['attack']['passives_pct'] == 20 and boosted['breakdown']['hp']['souls_pct'] == 30
+    assert calculate_pal_stats(ALPACA, 30, 0, 0, 0, 0, rank=3)['work_speed'] == 84       # two stars: 70 x 1.2
 
 
 def test_trust_level():

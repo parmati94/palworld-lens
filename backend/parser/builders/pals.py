@@ -5,6 +5,7 @@ from backend.models.models import PalInfo
 from backend.parser.utils.mappers import map_active_skills, map_passive_skills
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.parser.loaders.data_loader import DataLoader
+from backend.common.loadout import food_effects
 from backend.parser.utils.stats import calculate_pal_stats, calculate_work_suitabilities, calculate_trust_level
 from backend.common.pal_ids import is_boss_id
 from backend.common.logging_config import get_logger
@@ -77,6 +78,9 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
         soul_defense = pal_schema.extract_field(char_info, "Rank_Defense") or 0
         soul_work_speed = pal_schema.extract_field(char_info, "Rank_CraftSpeed") or 0
 
+        food_id = pal_schema.extract_field(char_info, "FoodWithStatusEffect")
+        food_id = str(food_id) if food_id and str(food_id) != "None" else None
+        food_fx = food_effects(food_id, getattr(data, "loadout", None) or {}) if food_id else []
         calculated_stats = calculate_pal_stats(
             row=data.stat_row(char_id, species_id),
             level=level,
@@ -91,6 +95,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             soul_attack=soul_attack,
             soul_defense=soul_defense,
             soul_work_speed=soul_work_speed,
+            food_effects=food_fx,
         )
 
         assignment = base_assignments.get(str(instance_id), {})
@@ -143,6 +148,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             calculated_hp=calculated_stats["hp"],
             calculated_work_speed=calculated_stats["work_speed"],
             stat_breakdown=calculated_stats.get("breakdown") or {},
+            food_buff=(data.item(food_id).get("localized_name") or food_id) if food_id else None,
             friendship_points=friendship_points,
             trust_level=trust_level,
         ))

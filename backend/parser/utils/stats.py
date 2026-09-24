@@ -35,7 +35,9 @@ SOUL_STEP = 0.03          # each Pal Soul point: +3% to its stat
 TALENT_STEP = 0.003       # each talent (IV) point: +0.3% of the level growth
 HP_PER_LEVEL, ATTACK_PER_LEVEL = 0.5, 0.075
 BASE_HP, BASE_ATTACK, BASE_DEFENSE = 500, 100, 50
-DEFAULT_WORK_SPEED = 70
+DEFAULT_WORK_SPEED = 70   # every species' work speed at 0 stars (the craft scale is 100 for all 753 rows and unused here)
+WORK_STAR_STEP = 0.10     # condensing: +10% work speed per star (4 stars = 98 on two live pals), vs +5% on the fighting stats
+FOOD_STAT = {'WorkSpeed': 'work_speed', 'Attack': 'attack', 'Defense': 'defense'}   # a dish's percent buffs that are stats
 
 
 def calculate_pal_stats(
@@ -52,6 +54,7 @@ def calculate_pal_stats(
     soul_attack: int = 0,
     soul_defense: int = 0,
     soul_work_speed: int = 0,
+    food_effects: Optional[List[Dict]] = None,
 ) -> Dict:
     """A pal's stats the way the status screen shows them, with the breakdown behind the hover.
 
@@ -67,8 +70,10 @@ def calculate_pal_stats(
       shown = floor( floor( floor(pre * stars) * souls ) * passives )            stars 1 + 0.05/star, souls 1 + 0.03/point
 
     Trust is the friendship value added to the scale once per rank; the tooltip's "base" is the
-    same without trust and "Bonus from Trust" the difference after the stars. Work speed is the
-    row's craft scale with souls and passives (the game also nudges it by hunger; not modelled).
+    same without trust and "Bonus from Trust" the difference after the stars. Work speed starts at
+    70 for every species and condensing gives it +10% per star (98 at four stars, confirmed on two
+    pals), then souls and passives. A dish the pal ate (`food_effects`, [{type, value}] from the
+    loadout food table) multiplies last: Frosty's 98 >> 127 with Pizza's +30%.
     """
     if not row or not row.get('hp'):
         return {"attack": 0, "defense": 0, "hp": 0, "work_speed": DEFAULT_WORK_SPEED, "breakdown": {}}
@@ -93,22 +98,31 @@ def calculate_pal_stats(
             elif t in ('CraftSpeed', 'WorkSpeed'):
                 passives['work_speed'] += v
 
+    food = {'hp': 0.0, 'attack': 0.0, 'defense': 0.0, 'work_speed': 0.0}
+    for e in food_effects or []:
+        name = FOOD_STAT.get(str(e.get('type') or ''))
+        if name:
+            food[name] += float(e.get('value') or 0)
+
+    def finish(name: str, with_trust: int, without: int, souls: int) -> Dict[str, int]:
+        soul_pct, pass_pct, food_pct = SOUL_STEP * souls * 100, passives[name], food[name]
+        total = math.floor(math.floor(math.floor(with_trust * (1 + soul_pct / 100)) * (1 + pass_pct / 100)) * (1 + food_pct / 100))
+        return {'base': int(without), 'trust': int(with_trust - without), 'souls_pct': int(round(soul_pct)),
+                'passives_pct': int(round(pass_pct)), 'food_pct': int(round(food_pct)), 'total': int(total)}
+
     def stat(name: str, base: float, k: float, talent: int, scale: float, f: float, souls: int) -> Dict[str, int]:
         iv = 1 + TALENT_STEP * talent
         with_trust = math.floor(math.floor(base + k * L * iv * (scale + f * trust)) * star_mult)
         without = math.floor(math.floor(base + k * L * iv * scale) * star_mult)
-        soul_pct, pass_pct = SOUL_STEP * souls * 100, passives[name]
-        total = math.floor(math.floor(with_trust * (1 + soul_pct / 100)) * (1 + pass_pct / 100))
-        return {'base': int(without), 'trust': int(with_trust - without), 'souls_pct': int(round(soul_pct)),
-                'passives_pct': int(round(pass_pct)), 'total': int(total)}
+        return finish(name, with_trust, without, souls)
 
     hp = stat('hp', BASE_HP + 5 * L, HP_PER_LEVEL, talent_hp, row['hp'], row.get('f_hp', 0), soul_hp)
     atk = stat('attack', BASE_ATTACK, ATTACK_PER_LEVEL, max(talent_melee, talent_shot), row.get('shot', 0), row.get('f_shot', 0), soul_attack)
     dfn = stat('defense', BASE_DEFENSE, ATTACK_PER_LEVEL, talent_defense, row.get('defense', 0), row.get('f_defense', 0), soul_defense)
-    craft = row.get('craft') or DEFAULT_WORK_SPEED
-    work = math.floor(math.floor(craft * (1 + SOUL_STEP * soul_work_speed)) * (1 + passives['work_speed'] / 100))
-    return {"attack": atk['total'], "defense": dfn['total'], "hp": hp['total'], "work_speed": int(work),
-            "breakdown": {'hp': hp, 'attack': atk, 'defense': dfn}}
+    work_base = math.floor(DEFAULT_WORK_SPEED * (1 + WORK_STAR_STEP * stars))
+    work = finish('work_speed', work_base, work_base, soul_work_speed)
+    return {"attack": atk['total'], "defense": dfn['total'], "hp": hp['total'], "work_speed": work['total'],
+            "breakdown": {'hp': hp, 'attack': atk, 'defense': dfn, 'work_speed': work}}
 
 
 WORK_RANK_EFFECT = 'WorkSuitabilityAddRank_'

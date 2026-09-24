@@ -141,6 +141,19 @@ fields:
     path: ["value"]
     default: 0
   
+  # The dish whose buff is running on the pal (its effects come from loadout.json food), and its timer
+  FoodWithStatusEffect:
+    description: "Item id of the dish buffing the pal ('None' when none)"
+    root_key: "FoodWithStatusEffect"
+    path: ["value"]
+    default: null
+
+  FoodEffectSecondsLeft:
+    description: "Seconds left on that buff (the save spells the field Tiemr_)"
+    root_key: "Tiemr_FoodWithStatusEffect"
+    path: ["value"]
+    default: null
+
   # Flags
   IsRarePal:
     description: "Whether this is a Lucky pal (sparkles, better IVs)"

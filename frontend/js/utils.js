@@ -419,13 +419,14 @@ export function palStatTip(pal, stat) {
     if (b.trust) parts.push(`Trust +${b.trust.toLocaleString()}`);
     if (b.souls_pct) parts.push(`Souls +${b.souls_pct}%`);
     if (b.passives_pct) parts.push(`Passives ${b.passives_pct > 0 ? '+' : ''}${b.passives_pct}%`);
+    if (b.food_pct) parts.push(`Food ${b.food_pct > 0 ? '+' : ''}${b.food_pct}%${pal.food_buff ? ` (${pal.food_buff})` : ''}`);
     return parts.join(' · ');
 }
 
 /** True when anything beyond level, talents and stars lifts the stat (the game's little arrow). */
 export function palStatEnhanced(pal, stat) {
     const b = pal && pal.stat_breakdown && pal.stat_breakdown[stat];
-    return !!b && (b.trust !== 0 || b.souls_pct !== 0 || b.passives_pct !== 0);
+    return !!b && (b.trust !== 0 || b.souls_pct !== 0 || b.passives_pct !== 0 || (b.food_pct || 0) !== 0);
 }
 
 // ---- player card + modal ----
