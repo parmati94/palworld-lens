@@ -900,7 +900,7 @@
 
                             <!-- Bag -->
                             <div class="min-w-0 lg:!flex flex-col" :class="playerTab === 'inventory' || playerTab === 'bag' ? 'flex' : 'hidden'">
-                              <div class="w-fit mx-auto lg:mx-0">
+                              <div class="w-full sm:w-fit mx-auto lg:mx-0">
                                 <div class="flex items-center gap-1 mb-3 rounded-md bg-gray-900/60 border border-gray-700/60 p-0.5 w-fit">
                                     <template x-for="t in [['bag', 'Inventory'], ['key', 'Key Items']]" :key="t[0]">
                                         <button type="button" @click="bagTab = t[0]"
@@ -910,16 +910,16 @@
                                     <span class="px-2 text-[11px] text-gray-500 tabular-nums" x-show="bagTab === 'bag'"><span x-text="selectedPlayer.bag.length"></span> / <span x-text="selectedPlayer.bag_slots || selectedPlayer.bag.length"></span></span>
                                     <span class="px-2 text-[11px] text-gray-500 tabular-nums" x-show="bagTab === 'key'" x-text="selectedPlayer.key_items.length"></span>
                                 </div>
-                                <div x-show="bagTab === 'bag'" class="grid grid-cols-6 gap-1.5 w-fit">
+                                <div x-show="bagTab === 'bag'" class="grid grid-cols-6 gap-1.5 w-full sm:w-fit">
                                     <template x-for="(item, i) in bagGrid(selectedPlayer)" :key="'b' + i">
-                                        {{> inv-slot size="w-11 h-11 sm:w-12 sm:h-12" }}
+                                        {{> inv-slot size="w-full aspect-square sm:w-12 sm:h-12 sm:aspect-auto" }}
                                     </template>
                                 </div>
-                                <div x-show="bagTab === 'key'" class="w-fit">
+                                <div x-show="bagTab === 'key'" class="w-full sm:w-fit">
                                     <div x-show="!selectedPlayer.key_items.length" class="text-xs text-gray-500">No key items.</div>
                                     <div class="grid grid-cols-6 gap-1.5">
                                         <template x-for="(item, i) in selectedPlayer.key_items" :key="'k' + i">
-                                            {{> inv-slot size="w-11 h-11 sm:w-12 sm:h-12" }}
+                                            {{> inv-slot size="w-full aspect-square sm:w-12 sm:h-12 sm:aspect-auto" }}
                                         </template>
                                     </div>
                                 </div>
