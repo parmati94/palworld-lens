@@ -124,6 +124,34 @@ html.reduce-motion *::after {
     .card {
         @apply bg-gray-800 border border-gray-700/60 rounded-xl;
     }
+    /* Modal chrome, the game's panel: translucent navy with a faint diagonal hatch, cut corners,
+       accent brackets at two corners. Goes on the panel's outer wrapper (the scrolling box is inside,
+       so the brackets stay put); one class so every modal changes together. */
+    .modal-panel {
+        position: relative;
+        background:
+            repeating-linear-gradient(135deg, rgb(255 255 255 / .022) 0 2px, transparent 2px 9px),
+            linear-gradient(180deg, rgb(31 41 55 / .90), rgb(17 24 39 / .95));
+        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgb(255 255 255 / .10);
+        clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    }
+    .modal-panel::before, .modal-panel::after {
+        content: '';
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        pointer-events: none;
+        z-index: 30;
+        border: 0 solid rgb(var(--accent-400) / .85);
+    }
+    .modal-panel::before { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+    .modal-panel::after { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+    /* A modal's sticky header band over the translucent panel. */
+    .modal-band {
+        @apply bg-gray-900/70 backdrop-blur-md border-b border-accent-500/25;
+    }
     /* Quiet icon button in the header and toolbars. */
     .btn-quiet {
         @apply inline-flex items-center gap-1.5 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-gray-700/60 transition-colors;

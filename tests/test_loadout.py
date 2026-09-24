@@ -13,6 +13,8 @@ ITEM_ROWS = {
 FOOD_ROWS = {
     "Pizza": {"EffectTime": 600, "EffectType1": "EPalFoodStatusEffectType::WorkSpeed", "EffectValue1": 30,
               "EffectType2": "EPalFoodStatusEffectType::HungerResist", "EffectValue2": 25},
+    "Skutlass": {"EffectTime": 600, "EffectType1": "EPalFoodStatusEffectType::LeanBackAndKnockbackInvalid", "EffectValue1": 1,
+                 "EffectType2": "EPalFoodStatusEffectType::None", "EffectValue2": 0},
     "JamBun": {"EffectTime": 0, "EffectType1": "EPalFoodStatusEffectType::None", "EffectValue1": 0,
                "EffectType2": "EPalFoodStatusEffectType::None", "EffectValue2": 0},
 }
@@ -35,7 +37,8 @@ def test_loadout_tables_keep_only_what_changes_a_stat():
         "Shield_04": {"shield": 1045},
         "Accessory_Otomo": {"passives": ["Attack_ACC_up1_Otomo_Only_Equip"]},
     }
-    assert doc["food"] == {"Pizza": {"seconds": 600, "effects": [{"type": "WorkSpeed", "value": 30.0}, {"type": "HungerResist", "value": 25.0}]}}
+    assert doc["food"] == {"Pizza": {"seconds": 600, "effects": [{"type": "WorkSpeed", "value": 30.0}, {"type": "HungerResist", "value": 25.0}]},
+                           "Skutlass": {"seconds": 600, "effects": [{"type": "LeanBackAndKnockbackInvalid", "value": 1.0}]}}
     assert doc["player_base"] == {"hp": 500, "stamina": 100, "attack": 100, "defense": 100, "work_speed": 100}
 
 
@@ -54,6 +57,7 @@ def test_envys_status_screen():
     assert food_effects("Pizza", tables) == [{"type": "WorkSpeed", "value": 30.0}, {"type": "HungerResist", "value": 25.0}]
     assert food_effects_line("Pizza", tables) == "+30% work speed · +25% slower hunger"
     assert food_effects_line("JamBun", tables) == "" and food_effects_line(None, {}) == ""
+    assert food_effects_line("Skutlass", tables) == "no knockback"
 
 
 def test_no_tables_means_no_enhancements():

@@ -146,10 +146,15 @@ FOOD_EFFECT_NAMES = {
 }
 
 
+FOOD_FLAG_EFFECTS = {'FullStomachKeep', 'LeanBackAndKnockbackInvalid'}     # on/off, the value is 1
+
+
 def food_effects_line(food_id: Optional[str], tables: Dict[str, Dict]) -> str:
     """"+30% work speed · +25% slower hunger" for a dish; '' when it has no buff."""
     parts = []
     for e in food_effects(food_id, tables):
+        t = str(e.get('type'))
+        name = FOOD_EFFECT_NAMES.get(t, t)
         v = _num(e.get('value'))
-        parts.append(f"{'+' if v > 0 else ''}{int(round(v))}% {FOOD_EFFECT_NAMES.get(str(e.get('type')), str(e.get('type')))}")
+        parts.append(name if t in FOOD_FLAG_EFFECTS else f"{'+' if v > 0 else ''}{int(round(v))}% {name}")
     return ' · '.join(parts)
