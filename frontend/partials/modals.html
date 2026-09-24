@@ -910,12 +910,12 @@
                                     <span class="px-2 text-[11px] text-gray-500 tabular-nums" x-show="bagTab === 'bag'"><span x-text="selectedPlayer.bag.length"></span> / <span x-text="selectedPlayer.bag_slots || selectedPlayer.bag.length"></span></span>
                                     <span class="px-2 text-[11px] text-gray-500 tabular-nums" x-show="bagTab === 'key'" x-text="selectedPlayer.key_items.length"></span>
                                 </div>
-                                <div x-show="bagTab === 'bag'" class="grid grid-cols-6 gap-1.5 w-full sm:w-fit">
+                                <div x-show="bagTab === 'bag'" class="grid grid-cols-6 gap-1.5 w-full sm:w-fit max-h-[46vh] sm:max-h-none overflow-y-auto sm:overflow-visible overscroll-contain scrollbar-hide">
                                     <template x-for="(item, i) in bagGrid(selectedPlayer)" :key="'b' + i">
                                         {{> inv-slot size="w-full aspect-square sm:w-12 sm:h-12 sm:aspect-auto" }}
                                     </template>
                                 </div>
-                                <div x-show="bagTab === 'key'" class="w-full sm:w-fit">
+                                <div x-show="bagTab === 'key'" class="w-full sm:w-fit max-h-[46vh] sm:max-h-none overflow-y-auto sm:overflow-visible overscroll-contain scrollbar-hide">
                                     <div x-show="!selectedPlayer.key_items.length" class="text-xs text-gray-500">No key items.</div>
                                     <div class="grid grid-cols-6 gap-1.5">
                                         <template x-for="(item, i) in selectedPlayer.key_items" :key="'k' + i">
