@@ -25,7 +25,7 @@ STAT_NAME_MAP = {
 
 
 def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_containers: Dict = None,
-                  item_index: Dict = None, data=None, pals: List = None) -> List[PlayerInfo]:
+                  item_index: Dict = None, data=None, pals: List = None, container_sizes: Dict = None) -> List[PlayerInfo]:
     """Build list of all players from save data
     
     Args:
@@ -35,6 +35,7 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
         item_index: {container_id: [{static_id, count}]} from Level.sav, for what the player carries
         data: static game data (item names, icons)
         pals: the built PalInfo list, for the party
+        container_sizes: {container_id: slot count}, for the bag's size
         
     Returns:
         List of PlayerInfo objects
@@ -74,7 +75,7 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
                     save_info = player_data
                     break
         details = save_info.get("details") or {}
-        kit = _kit(details.get("containers") or {}, item_index or {}, data)
+        kit = _kit(details.get("containers") or {}, item_index or {}, data, container_sizes or {})
         
         player = PlayerInfo(
             uid=instance_id,
@@ -95,6 +96,10 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             weapons=kit["weapons"],
             food=kit["food"],
             bag=kit["bag"],
+            bag_slots=kit["bag_slots"],
+            key_items=kit["key_items"],
+            gold=kit["gold"],
+            carried_weight=kit["carried_weight"],
             tech=PlayerTech(**details["tech"]) if details.get("tech") else None,
             records=PlayerRecords(**details["records"]) if details.get("records") else None,
             stat_points_hp=stat_points["hp"],
@@ -128,14 +133,29 @@ def _party(container_id: Optional[str], pals: List) -> List:
     return [pal_ref(p) for p in riders]
 
 
-def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data) -> Dict[str, List]:
-    """What sits in the player's gear, weapon, food and bag containers, as item tiles."""
-    out = {"gear": [], "weapons": [], "food": [], "bag": []}
+GOLD = "Money"
+
+
+def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container_sizes: Dict = None) -> Dict:
+    """What the player carries, as item tiles per container, plus the bag's size, the gold (kept out
+    of the bag list, the way the game shows it) and the weight of all of it."""
+    out: Dict = {"gear": [], "weapons": [], "food": [], "bag": [], "key_items": [], "bag_slots": 0, "gold": 0,
+                 "carried_weight": 0.0}
     if data is None:
         return out
-    for role in out:
+    weight = 0.0
+    for role in ("gear", "weapons", "food", "bag", "key_items"):
         for entry in item_index.get(containers.get(role) or "", []):
-            out[role].append(item_ref(entry["static_id"], data, entry["count"]))
+            item_id, count = entry["static_id"], entry["count"]
+            weight += float(data.item(item_id).get("weight") or 0) * count
+            if role == "bag" and item_id == GOLD:
+                out["gold"] += count
+                continue
+            ref = item_ref(item_id, data, count)
+            ref.slot_index = entry.get("slot")
+            out[role].append(ref)
+    out["bag_slots"] = int((container_sizes or {}).get(containers.get("bag") or "", 0) or 0)
+    out["carried_weight"] = round(weight, 1)
     return out
 
 

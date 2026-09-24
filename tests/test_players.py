@@ -70,9 +70,11 @@ def test_net_ticks_convert_to_utc_iso_and_zero_means_never():
 
 
 class _Data:
-    _items = {"CopperHelmet": {"localized_name": "Copper Helmet", "icon": "i_helm", "rarity": 0},
-              "Salad": {"localized_name": "Salad", "icon": "i_salad", "rarity": 1},
-              "BowGun_4": {"localized_name": "Crossbow", "icon": "i_xbow", "rarity": 2}}
+    _items = {"CopperHelmet": {"localized_name": "Copper Helmet", "icon": "i_helm", "rarity": 0, "type_b": "ArmorHead", "weight": 10.0},
+              "Salad": {"localized_name": "Salad", "icon": "i_salad", "rarity": 1, "type_b": "FoodDishVegetable", "weight": 0.5},
+              "BowGun_4": {"localized_name": "Crossbow", "icon": "i_xbow", "rarity": 2, "type_b": "WeaponCrossbow", "weight": 13.0},
+              "Money": {"localized_name": "Gold Coin", "icon": "i_gold", "rarity": 0, "type_b": "Money", "weight": 0.0},
+              "KeySphere_01": {"localized_name": "Key", "icon": "i_key", "rarity": 0, "type_b": "Essential"}}
 
     def item(self, item_id):
         return self._items.get(item_id) or {}
@@ -82,13 +84,19 @@ def test_kit_resolves_each_container_in_the_item_index():
     index = {"arm-1": [{"static_id": "CopperHelmet", "count": 1}],
              "wpn-1": [{"static_id": "BowGun_4", "count": 1}],
              "food-1": [{"static_id": "Salad", "count": 75}],
-             "bag-1": [{"static_id": "Salad", "count": 3}, {"static_id": "Unknown_Thing", "count": 2}]}
-    kit = _kit({"gear": "arm-1", "weapons": "wpn-1", "food": "food-1", "bag": "bag-1"}, index, _Data())
-    assert [(i.item_name, i.count, i.rarity) for i in kit["gear"]] == [("Copper Helmet", 1, 0)]
+             "bag-1": [{"static_id": "Money", "count": 23453, "slot": 0}, {"static_id": "Salad", "count": 3, "slot": 4}, {"static_id": "Unknown_Thing", "count": 2, "slot": 9}],
+             "key-1": [{"static_id": "KeySphere_01", "count": 1}]}
+    kit = _kit({"gear": "arm-1", "weapons": "wpn-1", "food": "food-1", "bag": "bag-1", "key_items": "key-1"}, index, _Data(),
+               {"bag-1": 45})
+    assert [(i.item_name, i.count, i.rarity, i.slot) for i in kit["gear"]] == [("Copper Helmet", 1, 0, "ArmorHead")]
     assert [i.item_name for i in kit["weapons"]] == ["Crossbow"]
     assert [(i.item_name, i.count) for i in kit["food"]] == [("Salad", 75)]
-    assert [(i.item_name, i.count) for i in kit["bag"]] == [("Salad", 3), ("Unknown_Thing", 2)]   # unknown ids keep their id
-    assert _kit({"gear": None}, index, _Data()) == {"gear": [], "weapons": [], "food": [], "bag": []}
+    assert [(i.item_name, i.count, i.slot_index) for i in kit["bag"]] == [("Salad", 3, 4), ("Unknown_Thing", 2, 9)]   # unknown ids keep their id; gold pulled out
+    assert kit["gold"] == 23453 and kit["bag_slots"] == 45
+    assert [i.item_name for i in kit["key_items"]] == ["Key"]
+    assert kit["carried_weight"] == 10.0 + 13.0 + 75 * 0.5 + 3 * 0.5   # 62.0; unknown items and gold weigh nothing
+    empty = _kit({"gear": None}, index, _Data())
+    assert empty["gear"] == [] and empty["bag_slots"] == 0 and empty["gold"] == 0
     assert _kit({"gear": "arm-1"}, index, None)["gear"] == []
 
 

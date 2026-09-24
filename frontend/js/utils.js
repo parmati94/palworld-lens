@@ -408,13 +408,98 @@ export function farmEggsModalDetail(job) {
     return { title: job.display_name, subtitle: `${n} egg${n === 1 ? '' : 's'} on the ground`, items: job.outputs || [] };
 }
 
-// ---- player card ----
+// ---- player card + modal ----
 
-/** The bag as an items modal: one row per stack. */
-export function bagModalDetail(player) {
-    const bag = (player && player.bag) || [];
-    return { title: player.player_name, subtitle: `${bag.length} stack${bag.length === 1 ? '' : 's'} in the bag`, items: bag };
+/** The character pane's slots, in the game's order. Accessories show two slots even when empty;
+ *  the sphere module slot only shows when something is in it. */
+export const GEAR_SLOTS = [
+    { label: 'Head', type: 'ArmorHead', min: 1 },
+    { label: 'Body', type: 'ArmorBody', min: 1 },
+    { label: 'Accessory', type: 'Accessory', min: 2 },
+    { label: 'Shield', type: 'Shield', min: 1 },
+    { label: 'Glider', type: 'Glider', min: 1 },
+    { label: 'Module', type: 'SphereModule', min: 0 },
+];
+
+/** [{label, items: [item | null, ...]}] for the gear column; gear of a type we don't know goes on an 'Other' row. */
+export function gearSlots(player) {
+    const gear = (player && player.gear) || [];
+    const rows = [];
+    for (const s of GEAR_SLOTS) {
+        const items = gear.filter(i => i.slot === s.type);
+        while (items.length < s.min) items.push(null);
+        if (items.length) rows.push({ label: s.label, items });
+    }
+    const known = new Set(GEAR_SLOTS.map(s => s.type));
+    const other = gear.filter(i => !known.has(i.slot));
+    if (other.length) rows.push({ label: 'Other', items: other });
+    return rows;
 }
+
+/** The items padded with nulls to n slots (never truncated), for drawing fixed slot rows and the bag grid. */
+export function padSlots(items, n) {
+    const out = (items || []).slice();
+    while (out.length < (n || 0)) out.push(null);
+    return out;
+}
+
+/** A container as the game draws it: every one of n slots, empty ones included, each item where it
+ *  sits (slot_index). An item without a slot index, past the end, or on a taken slot takes the next
+ *  free one; an item is never dropped, so the grid grows past n if it has to. */
+export function slotGrid(items, n) {
+    const list = items || [];
+    const size = Math.max(n || 0, list.length);
+    const grid = new Array(size).fill(null);
+    const later = [];
+    for (const item of list) {
+        const i = item.slot_index;
+        if (Number.isInteger(i) && i >= 0 && i < size && grid[i] === null) grid[i] = item;
+        else later.push(item);
+    }
+    for (const item of later) grid[grid.indexOf(null)] = item;
+    return grid;
+}
+
+/** The bag grid. */
+export function bagGrid(player) {
+    return slotGrid(player && player.bag, player && player.bag_slots);
+}
+
+/** Carried weight against the player's max: {carried, max, pct, over}. */
+export function weightLine(player) {
+    const carried = Number(player && player.carried_weight) || 0;
+    const max = Number(player && player.calculated_weight) || 0;
+    const pct = max ? Math.min(100, Math.round(carried / max * 100)) : 0;
+    return { carried, max, pct, over: max > 0 && carried > max };
+}
+
+/** The game's status page: [{label, value, points, ancient}]; capture power is points only. */
+export function statusRows(player) {
+    const p = player || {};
+    return [
+        { label: 'Health', value: p.calculated_max_hp, points: p.stat_points_hp || 0, ancient: p.ex_stat_points_hp || 0 },
+        { label: 'Stamina', value: p.calculated_stamina, points: p.stat_points_stamina || 0, ancient: p.ex_stat_points_stamina || 0 },
+        { label: 'Attack', value: p.calculated_attack, points: p.stat_points_attack || 0, ancient: p.ex_stat_points_attack || 0 },
+        { label: 'Work speed', value: p.calculated_work_speed, points: p.stat_points_work_speed || 0, ancient: p.ex_stat_points_work_speed || 0 },
+        { label: 'Weight', value: p.calculated_weight, points: p.stat_points_weight || 0, ancient: p.ex_stat_points_weight || 0 },
+        { label: 'Capture power', value: null, points: p.stat_points_capture || 0, ancient: 0 },
+    ];
+}
+
+/** "14 pts" / "14 pts +3 ancient" / "" for a status row. */
+export function statusPoints(row) {
+    const parts = [];
+    if (row.points) parts.push(`${row.points} pts`);
+    if (row.ancient) parts.push(`+${row.ancient} ancient`);
+    return parts.join(' ');
+}
+
+/** Key items as an items modal. */
+export function keyItemsModalDetail(player) {
+    const items = (player && player.key_items) || [];
+    return { title: player.player_name, subtitle: `${items.length} key item${items.length === 1 ? '' : 's'}`, items };
+}
+
 
 /** The records strip on a player card: [{label, value, tip}], tech first. Empty when the save had none. */
 export function playerRecordCells(player) {

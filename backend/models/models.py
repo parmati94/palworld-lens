@@ -38,6 +38,8 @@ class ItemRef(BaseModel):
     rarity: Optional[int] = None
     count: int = 0
     note: Optional[str] = None
+    slot: Optional[str] = None     # items.json type_b (ArmorHead, Accessory, Shield, Glider, SphereModule, WeaponMelee, ...)
+    slot_index: Optional[int] = None  # position in its container's grid (a player's bag), when it matters
 
 
 class ActivityPal(BaseModel):
@@ -220,7 +222,11 @@ class PlayerInfo(BaseModel):
     gear: List[ItemRef] = []      # head, body, accessories, shield, glider
     weapons: List[ItemRef] = []
     food: List[ItemRef] = []
-    bag: List[ItemRef] = []
+    bag: List[ItemRef] = []       # without the gold, which is `gold`
+    bag_slots: int = 0            # the bag's size (42 + pouches), for drawing it as the game's grid
+    key_items: List[ItemRef] = []
+    gold: int = 0
+    carried_weight: float = 0     # bag + kit, from items.json weights
     tech: Optional[PlayerTech] = None
     records: Optional[PlayerRecords] = None
     # Stat points allocation

@@ -179,7 +179,11 @@ def get_storage_containers(world_data: Dict) -> List[Dict]:
 
 
 def index_container_sizes(world_data: Dict) -> Dict[str, int]:
-    """{container_id: slot count} for every item container (a quarry has one slot, a chest many)."""
+    """{container_id: capacity} for every item container (a quarry has one slot, a chest many, a bag 42+).
+
+    The save's SlotNum is the capacity; its Slots list holds only the occupied slots (each with its
+    slot_index), so the list length is the fallback for a container without SlotNum.
+    """
     sizes: Dict[str, int] = {}
     for entry in (world_data.get("ItemContainerSaveData") or {}).get("value", []):
         if not isinstance(entry, dict):
@@ -187,8 +191,10 @@ def index_container_sizes(world_data: Dict) -> Dict[str, int]:
         container_id = (entry.get("key") or {}).get("ID", {}).get("value")
         if not container_id:
             continue
-        slots = (((entry.get("value") or {}).get("Slots") or {}).get("value") or {}).get("values", [])
-        sizes[str(container_id)] = len(slots)
+        value = entry.get("value") or {}
+        slots = (((value.get("Slots") or {}).get("value") or {}).get("values", []))
+        slot_num = (value.get("SlotNum") or {}).get("value")
+        sizes[str(container_id)] = int(slot_num) if isinstance(slot_num, int) and slot_num > 0 else len(slots)
     return sizes
 
 
@@ -215,6 +221,8 @@ def index_item_containers(world_data: Dict) -> Dict[str, List[Dict]]:
             static_id = (slot_data.get("item") or {}).get("static_id")
             count = slot_data.get("count", 0)
             if static_id and count > 0:
-                items.append({"static_id": static_id, "count": count, "slot": i})
+                # the save keeps only occupied slots; slot_index is the position in the grid
+                idx = slot_data.get("slot_index")
+                items.append({"static_id": static_id, "count": count, "slot": int(idx) if isinstance(idx, int) else i})
         index[str(container_id)] = items
     return index

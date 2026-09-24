@@ -83,7 +83,8 @@ def item_ref(item_id: str, data: DataLoader, count: int = 0) -> ItemRef:
     row = data.item(item_id)
     rarity = row.get("rarity")
     return ItemRef(item_id=item_id, item_name=row.get("localized_name") or item_id, icon=row.get("icon"),
-                   rarity=rarity if isinstance(rarity, int) and 0 <= rarity <= 4 else None, count=count)
+                   rarity=rarity if isinstance(rarity, int) and 0 <= rarity <= 4 else None, count=count,
+                   slot=row.get("type_b") or None)
 
 
 def pal_ref(p) -> ActivityPal:

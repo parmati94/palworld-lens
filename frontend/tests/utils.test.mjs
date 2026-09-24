@@ -257,16 +257,12 @@ test('activity: a breeding farm keeps its own picture, stacks its eggs into a bu
     assert.equal(breedingLine({ kind: 'breeding', held: 0, inputs: [], outputs: [] }, 0), 'nobody on it');
 });
 
-test('player card: the bag opens as an items modal and the records strip reads tech first', async () => {
-    const { bagModalDetail, playerRecordCells } = await import('../js/utils.js');
-    const salad = { item_id: 'Salad', item_name: 'Salad', count: 75 };
+test('player modal: the records strip reads tech first, then the tallies', async () => {
+    const { playerRecordCells } = await import('../js/utils.js');
     const player = {
-        player_name: 'Ricky', bag: [salad],
         tech: { unlocked: 201, points: 19, ancient_points: 43 },
         records: { towers: 5, alphas: 62, paldeck: 161, caught: 614, fast_travels: 100, dungeons: 13 },
     };
-    assert.deepEqual(bagModalDetail(player), { title: 'Ricky', subtitle: '1 stack in the bag', items: [salad] });
-    assert.equal(bagModalDetail({ player_name: 'bagel' }).subtitle, '0 stacks in the bag');
     const cells = playerRecordCells(player);
     assert.deepEqual(cells.map(c => [c.label, c.value]),
         [['Tech', 201], ['Paldeck', 161], ['Towers', 5], ['Alphas', 62], ['Dungeons', 13], ['Fast travel', 100]]);
@@ -274,4 +270,31 @@ test('player card: the bag opens as an items modal and the records strip reads t
     assert.equal(cells[1].tip, '614 pals caught');
     assert.equal(playerRecordCells({ tech: { unlocked: 3, points: 0, ancient_points: 0 } })[0].tip, 'nothing to spend');
     assert.deepEqual(playerRecordCells({}), []);
+});
+
+test('player modal: gear falls into the game\'s slots, the bag pads to its size, weight and status read from the player', async () => {
+    const { gearSlots, padSlots, slotGrid, bagGrid, weightLine, statusRows, statusPoints, keyItemsModalDetail } = await import('../js/utils.js');
+    const helm = { item_id: 'StealHelmet', slot: 'ArmorHead' }, ring = { item_id: 'Accessory_Heat', slot: 'Accessory' };
+    const module = { item_id: 'SphereModule_Sniper', slot: 'SphereModule' }, odd = { item_id: 'Mystery', slot: 'Whatever' };
+    const rows = gearSlots({ gear: [helm, ring, module, odd] });
+    assert.deepEqual(rows.map(r => [r.label, r.items.length]), [['Head', 1], ['Body', 1], ['Accessory', 2], ['Shield', 1], ['Glider', 1], ['Module', 1], ['Other', 1]]);
+    assert.equal(rows[0].items[0], helm);
+    assert.deepEqual(rows[1].items, [null]);
+    assert.deepEqual(rows[2].items, [ring, null]);
+    assert.equal(gearSlots({ gear: [] }).length, 5);                       // no module row when empty
+    assert.deepEqual(padSlots([1, 2], 4), [1, 2, null, null]);
+    assert.deepEqual(padSlots([1, 2, 3], 2), [1, 2, 3]);                    // never truncated
+    const grid = bagGrid({ bag: [{ item_id: 'a', slot_index: 5 }, { item_id: 'b' }, { item_id: 'c', slot_index: 99 }], bag_slots: 8 });
+    assert.equal(grid.length, 8);
+    assert.deepEqual(grid.map(i => i && i.item_id), ['b', 'c', null, null, null, 'a', null, null]);
+    assert.equal(bagGrid({ bag: [helm, ring, module], bag_slots: 2 }).length, 3);     // never drops an item
+    assert.deepEqual(slotGrid([{ item_id: 'salad', slot_index: 2 }], 5).map(i => i && i.item_id), [null, null, 'salad', null, null]);   // food slot 3 stays slot 3
+    assert.deepEqual(weightLine({ carried_weight: 1650, calculated_weight: 1500 }), { carried: 1650, max: 1500, pct: 100, over: true });
+    assert.deepEqual(weightLine({}), { carried: 0, max: 0, pct: 0, over: false });
+    const rows2 = statusRows({ calculated_max_hp: 1900, stat_points_hp: 14, ex_stat_points_stamina: 29, stat_points_capture: 3 });
+    assert.deepEqual(rows2.map(r => r.label), ['Health', 'Stamina', 'Attack', 'Work speed', 'Weight', 'Capture power']);
+    assert.equal(statusPoints(rows2[0]), '14 pts');
+    assert.equal(statusPoints(rows2[1]), '+29 ancient');
+    assert.equal(statusPoints(rows2[2]), '');
+    assert.deepEqual(keyItemsModalDetail({ player_name: 'Envy', key_items: [helm] }), { title: 'Envy', subtitle: '1 key item', items: [helm] });
 });
