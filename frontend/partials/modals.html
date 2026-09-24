@@ -5,7 +5,7 @@
              @click.self="closeContainerModal()"
              @keydown.escape.window="showContainerModal && closeContainerModal()"
              @open-container-modal.window="openContainerModal($event.detail.container)"
-             class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[60] p-4"
              style="display: none;">
             <div @click.stop 
                  x-show="showContainerModal"
@@ -15,12 +15,14 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-95"
-                 class="bg-gray-800 rounded-xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto border border-gray-700/60">
+                 class="modal-panel shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+              <span class="modal-corners" aria-hidden="true"></span>
+              <div class="min-h-0 overflow-y-auto">
                 
                 <template x-if="selectedContainer">
                     <div>
                         <!-- Header (Sticky) -->
-                        <div class="sticky top-0 z-10 px-5 py-4 border-b border-gray-700/60 flex items-center justify-between bg-gray-800">
+                        <div class="sticky top-0 z-10 px-5 py-4 flex items-center justify-between modal-band">
                             <div class="flex items-center gap-3">
                                 <div class="p-2 rounded-lg" :class="selectedContainer.container_type === 'food_bowl' ? 'bg-orange-600/20' : 'bg-blue-600/20'">
                                     <template x-if="selectedContainer.building_icon">
@@ -71,6 +73,7 @@
                         </div>
                     </div>
                 </template>
+              </div>
             </div>
         </div>
 
@@ -80,7 +83,7 @@
              x-cloak
              @click.self="closePalModal()"
              @keydown.escape.window="showPalModal && closePalModal()"
-             class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[60] p-4"
              style="display: none;">
             <div @click.stop 
                  x-show="showPalModal"
@@ -90,7 +93,9 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-95"
-                 class="bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-700/60">
+                 class="modal-panel shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+              <span class="modal-corners" aria-hidden="true"></span>
+              <div class="min-h-0 overflow-y-auto">
                 
                 <template x-if="selectedPal">
                     <div>
@@ -443,6 +448,7 @@
                         </div>
                     </div>
                 </template>
+              </div>
             </div>
             
             <!-- Floating Base Navigation (shown when base is selected) -->
@@ -1142,7 +1148,7 @@
         x-cloak
         @click.self="hide()"
         @keydown.escape.window="showServerInfo && hide()"
-        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
         <div 
             @click.stop
             x-transition:enter="transition ease-out duration-200"
@@ -1151,10 +1157,11 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700/60">
+            class="modal-panel shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <span class="modal-corners" aria-hidden="true"></span>
             
             <!-- Header -->
-            <div class="border-b border-gray-700/60 p-5">
+            <div class="modal-band p-5">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <span class="flex items-center justify-center w-9 h-9 rounded-lg bg-accent-500/10 text-accent-400 shrink-0">
@@ -1348,7 +1355,7 @@
              @click.self="closeCrewModal()"
              @keydown.escape.window="showCrewModal && closeCrewModal()"
              @open-crew-modal.window="openCrewModal($event.detail)"
-             class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[55] p-4"
+             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[55] p-4"
              style="display: none;">
             <div @click.stop
                  x-show="showCrewModal"
@@ -1358,10 +1365,12 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-95"
-                 class="bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-gray-700/60">
+                 class="modal-panel shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+              <span class="modal-corners" aria-hidden="true"></span>
+              <div class="min-h-0 overflow-y-auto">
                 <template x-if="crew">
                     <div>
-                        <div class="sticky top-0 z-10 px-5 py-4 border-b border-gray-700/60 flex items-center justify-between bg-gray-800">
+                        <div class="sticky top-0 z-10 px-5 py-4 flex items-center justify-between modal-band">
                             <div class="min-w-0">
                                 <h3 class="text-lg font-semibold text-white leading-tight truncate" x-text="crew.title"></h3>
                                 <p class="text-sm text-gray-400 truncate" x-text="crew.subtitle"></p>
@@ -1437,5 +1446,6 @@
                         </div>
                     </div>
                 </template>
+              </div>
             </div>
         </div>
