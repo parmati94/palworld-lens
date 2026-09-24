@@ -3,6 +3,7 @@ import logging
 from typing import List, Optional, Dict
 import math
 
+from backend.common.base_names import nearest_landmark
 from backend.common.loadout import enhance_stats, food_effects, shield_max
 from backend.models.models import FoodBuff, PlayerInfo, PlayerRecords, PlayerTech, StatLine
 from backend.parser.utils.mappers import item_ref, pal_ref
@@ -105,6 +106,8 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             sanity=player_schema.extract_field(char_info, "SanityValue"),
             guild_id=_get_player_guild(guilds_data, instance_id),
             location=location,
+            place=nearest_landmark(location.get("x"), location.get("y"), getattr(data, "map_layers", None) or {},
+                                   getattr(data, "map_objects", None) or []) if location and data is not None else None,
             last_online=details.get("last_online"),
             party=_party(save_info.get("party_container_id"), pals or []),
             gear=kit["gear"],

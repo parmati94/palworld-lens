@@ -235,6 +235,7 @@ class PlayerInfo(BaseModel):
     guild_id: Optional[str] = None
     last_online: Optional[str] = None   # last LOGIN (the save's LastOnlineDateTime is set on join), ISO UTC
     location: Optional[Dict[str, float]] = None
+    place: Optional[str] = None         # nearest landmark to that position (same rule as base places)
     # From the player's own Players/*.sav: who rides along and what they carry
     party: List[ActivityPal] = []
     gear: List[ItemRef] = []      # head, body, accessories, shield, glider
