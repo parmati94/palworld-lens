@@ -6,9 +6,11 @@ export function playerModal() {
         playerTab: 'inventory',
         bagTab: 'bag',          // the bag panel's own sub-tabs: bag | key items
 
-        openPlayerModal(player, tab = 'inventory') {
+        openPlayerModal(player, tab) {
             this.selectedPlayer = player;
-            this.playerTab = tab;
+            // Desktop opens on the inventory screen; a phone opens on Status, who this is first.
+            const phone = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 1023px)').matches;
+            this.playerTab = tab || (phone ? 'status' : 'inventory');
             this.bagTab = 'bag';
             this.showPlayerModal = true;
         },

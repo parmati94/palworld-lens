@@ -885,7 +885,7 @@
                                 </template>
                             </div>
                             <div class="px-4 flex lg:hidden items-center gap-0.5 overflow-x-auto scrollbar-hide" role="tablist" aria-label="Player">
-                                <template x-for="t in [['bag', 'Bag'], ['gear', 'Gear'], ['status', 'Status'], ['party', 'Party'], ['records', 'Records']]" :key="t[0]">
+                                <template x-for="t in [['status', 'Status'], ['bag', 'Bag'], ['gear', 'Gear'], ['party', 'Party'], ['records', 'Records']]" :key="t[0]">
                                     <button type="button" role="tab" :aria-selected="playerTabIs(t[0])" @click="playerTab = t[0]"
                                             :class="playerTabIs(t[0]) ? 'border-accent-400 text-accent-400' : 'border-transparent text-gray-400 hover:text-gray-200'"
                                             class="px-2.5 py-2 border-b-2 -mb-px font-medium text-sm transition-colors whitespace-nowrap shrink-0" x-text="t[1]"></button>
