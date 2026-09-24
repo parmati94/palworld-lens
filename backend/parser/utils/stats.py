@@ -228,6 +228,7 @@ def calculate_pal_stats(
 
 WORK_RANK_EFFECT = 'WorkSuitabilityAddRank_'
 MAX_CONDENSE_STARS = 4
+MAX_WORK_LEVEL = 10       # the game shows at most Lv 10 per job (a 4-star Frostallion is Cooling 7 + 4 = 10, not 11)
 
 
 def passive_work_bonuses(passive_skills: Optional[list]) -> Dict[str, int]:
@@ -295,7 +296,8 @@ def calculate_work_suitabilities(
     can grant a type the species lacks. Work passives such as Farmhand add
     on top too, but only to a type the species already has: a Farmhand
     Direhowl gets no Ranch (confirmed in game). Before 1.0 the condenser
-    gave +1 to everything only at 4 stars.
+    gave +1 to everything only at 4 stars. Nothing goes past MAX_WORK_LEVEL:
+    a 4-star Frostallion (Cooling 7, its only job) shows 10 in game, not 11.
 
     Args:
         base_work_suitability: species levels from pals.json
@@ -322,4 +324,4 @@ def calculate_work_suitabilities(
         if base_work_suitability.get(work_type, 0) > 0:
             calculated_suitabilities[work_type] += bonus
 
-    return calculated_suitabilities
+    return {t: min(lv, MAX_WORK_LEVEL) for t, lv in calculated_suitabilities.items()}
