@@ -1,0 +1,17 @@
+{{!-- One inventory slot drawn the way the game draws it: a dark tile, the stack's weight top-left,
+     the count bottom-right, a rarity-coloured bar along the bottom. `item` in scope may be null (an
+     empty slot, dashed). Params: size (w-12 h-12 ...). --}}
+<div class="relative {{size}} rounded-md overflow-hidden flex-shrink-0"
+     :class="item ? 'bg-gray-900/80 ring-1 ring-inset ring-gray-600/60' : 'bg-gray-900/30 border border-dashed border-gray-700/60'"
+     :data-tip="item ? itemTip(item) : ''">
+    <template x-if="item">
+        <div class="absolute inset-0">
+            <img :src="item.icon ? `/img/${item.icon}.webp` : '/img/unknown.webp'" :alt="item.item_name"
+                 onerror="this.onerror=null; this.src='/img/unknown.webp'"
+                 class="w-full h-full object-contain p-1.5">
+            <span class="absolute top-0.5 left-1 text-[9px] leading-3 text-gray-300/90 tabular-nums" x-text="stackWeight(item)"></span>
+            <span x-show="showCount(item)" class="absolute bottom-1 right-1 text-[11px] font-semibold leading-3 text-white tabular-nums [text-shadow:0_1px_2px_rgba(0,0,0,.9)]" x-text="formatCount(item.count)"></span>
+            <span class="absolute bottom-0 inset-x-0 h-0.5" :class="rarityBarClass(item.rarity)"></span>
+        </div>
+    </template>
+</div>

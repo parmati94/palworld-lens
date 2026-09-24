@@ -272,23 +272,29 @@ test('player modal: the records strip reads tech first, then the tallies', async
     assert.deepEqual(playerRecordCells({}), []);
 });
 
-test('player modal: gear falls into the game\'s slots, the bag pads to its size, weight and status read from the player', async () => {
-    const { gearSlots, padSlots, slotGrid, bagGrid, weightLine, statusRows, statusPoints, keyItemsModalDetail } = await import('../js/utils.js');
-    const helm = { item_id: 'StealHelmet', slot: 'ArmorHead' }, ring = { item_id: 'Accessory_Heat', slot: 'Accessory' };
-    const module = { item_id: 'SphereModule_Sniper', slot: 'SphereModule' }, odd = { item_id: 'Mystery', slot: 'Whatever' };
-    const rows = gearSlots({ gear: [helm, ring, module, odd] });
-    assert.deepEqual(rows.map(r => [r.label, r.items.length]), [['Head', 1], ['Body', 1], ['Accessory', 2], ['Shield', 1], ['Glider', 1], ['Module', 1], ['Other', 1]]);
-    assert.equal(rows[0].items[0], helm);
-    assert.deepEqual(rows[1].items, [null]);
-    assert.deepEqual(rows[2].items, [ring, null]);
-    assert.equal(gearSlots({ gear: [] }).length, 5);                       // no module row when empty
-    assert.deepEqual(padSlots([1, 2], 4), [1, 2, null, null]);
-    assert.deepEqual(padSlots([1, 2, 3], 2), [1, 2, 3]);                    // never truncated
+test('player modal: gear sits in the game\'s fixed slots, the bag pads to its size, weight and status read from the player', async () => {
+    const { gearRows, accessorySlots, weaponColumns, slotGrid, bagGrid, stackWeight, showCount, rarityBarClass, weightLine, statusRows, statusPoints } = await import('../js/utils.js');
+    const helm = { item_id: 'StealHelmet', slot: 'ArmorHead', slot_index: 0 }, ring = { item_id: 'Accessory_Heat', slot: 'Accessory', slot_index: 3 };
+    const module = { item_id: 'SphereModule_Sniper', slot: 'SphereModule', slot_index: 8 }, odd = { item_id: 'Mystery', slot: 'Whatever' };
+    const body = { item_id: 'PlasticArmor', slot: 'ArmorBody' };                     // no slot index: placed by type
+    const rows = gearRows({ gear: [helm, ring, module, odd, body] });
+    assert.deepEqual(rows.map(r => [r.label, r.items.map(i => i && i.item_id)]),
+        [['Head', ['StealHelmet']], ['Body', ['PlasticArmor']], ['Shield', [null]], ['Glider', [null]], ['Sphere Module', ['SphereModule_Sniper']], ['Other', ['Mystery']]]);
+    assert.deepEqual(accessorySlots({ gear: [ring] }).map(i => i && i.item_id), [null, 'Accessory_Heat', null, null]);
+    assert.equal(gearRows({ gear: [] }).length, 5);
+    const cols = weaponColumns({ weapons: [{ item_id: 'rifle', slot_index: 0 }, { item_id: 'axe', slot_index: 3 }], weapon_slots: 6 });
+    assert.deepEqual(cols.left.map(i => i && i.item_id), ['rifle', null, null, 'axe']);
+    assert.deepEqual(cols.right, [null, null]);
     const grid = bagGrid({ bag: [{ item_id: 'a', slot_index: 5 }, { item_id: 'b' }, { item_id: 'c', slot_index: 99 }], bag_slots: 8 });
-    assert.equal(grid.length, 8);
     assert.deepEqual(grid.map(i => i && i.item_id), ['b', 'c', null, null, null, 'a', null, null]);
     assert.equal(bagGrid({ bag: [helm, ring, module], bag_slots: 2 }).length, 3);     // never drops an item
-    assert.deepEqual(slotGrid([{ item_id: 'salad', slot_index: 2 }], 5).map(i => i && i.item_id), [null, null, 'salad', null, null]);   // food slot 3 stays slot 3
+    assert.deepEqual(slotGrid([{ item_id: 'salad', slot_index: 2 }], 5).map(i => i && i.item_id), [null, null, 'salad', null, null]);
+    assert.equal(stackWeight({ weight: 0.1, count: 56 }), '5.6');
+    assert.equal(stackWeight({ count: 3 }), '');
+    assert.equal(showCount({ slot: 'ArmorHead', count: 1 }), false);
+    assert.equal(showCount({ slot: 'Consume', count: 1 }), true);
+    assert.equal(rarityBarClass(4), 'bg-amber-300');
+    assert.equal(rarityBarClass(undefined), 'bg-gray-500/60');
     assert.deepEqual(weightLine({ carried_weight: 1650, calculated_weight: 1500 }), { carried: 1650, max: 1500, pct: 100, over: true });
     assert.deepEqual(weightLine({}), { carried: 0, max: 0, pct: 0, over: false });
     const rows2 = statusRows({ calculated_max_hp: 1900, stat_points_hp: 14, ex_stat_points_stamina: 29, stat_points_capture: 3 });
@@ -296,5 +302,4 @@ test('player modal: gear falls into the game\'s slots, the bag pads to its size,
     assert.equal(statusPoints(rows2[0]), '14 pts');
     assert.equal(statusPoints(rows2[1]), '+29 ancient');
     assert.equal(statusPoints(rows2[2]), '');
-    assert.deepEqual(keyItemsModalDetail({ player_name: 'Envy', key_items: [helm] }), { title: 'Envy', subtitle: '1 key item', items: [helm] });
 });

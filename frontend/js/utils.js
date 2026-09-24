@@ -410,37 +410,69 @@ export function farmEggsModalDetail(job) {
 
 // ---- player card + modal ----
 
-/** The character pane's slots, in the game's order. Accessories show two slots even when empty;
- *  the sphere module slot only shows when something is in it. */
-export const GEAR_SLOTS = [
-    { label: 'Head', type: 'ArmorHead', min: 1 },
-    { label: 'Body', type: 'ArmorBody', min: 1 },
-    { label: 'Accessory', type: 'Accessory', min: 2 },
-    { label: 'Shield', type: 'Shield', min: 1 },
-    { label: 'Glider', type: 'Glider', min: 1 },
-    { label: 'Module', type: 'SphereModule', min: 0 },
+/** The gear container's fixed slots (1.0, nine slots; verified on five players): 0 head, 1 body,
+ *  2/3/6/7 accessories (a 2x2 in the game), 4 shield, 5 glider, 8 sphere module. */
+export const GEAR_SLOT_ROWS = [
+    { label: 'Head', slots: [0] },
+    { label: 'Body', slots: [1] },
+    { label: 'Shield', slots: [4] },
+    { label: 'Glider', slots: [5] },
+    { label: 'Sphere Module', slots: [8] },
 ];
+export const ACCESSORY_SLOTS = [2, 3, 6, 7];
+const GEAR_SLOTS_BY_TYPE = { ArmorHead: [0], ArmorBody: [1], Accessory: ACCESSORY_SLOTS, Shield: [4], Glider: [5], SphereModule: [8] };
+const EQUIP_TYPES = new Set(['ArmorHead', 'ArmorBody', 'Accessory', 'Shield', 'Glider', 'SphereModule']);
 
-/** [{label, items: [item | null, ...]}] for the gear column; gear of a type we don't know goes on an 'Other' row. */
-export function gearSlots(player) {
-    const gear = (player && player.gear) || [];
-    const rows = [];
-    for (const s of GEAR_SLOTS) {
-        const items = gear.filter(i => i.slot === s.type);
-        while (items.length < s.min) items.push(null);
-        if (items.length) rows.push({ label: s.label, items });
+/** {slot index: item} for the gear container. An item without a slot index goes to the first free
+ *  slot of its type; anything left over lands on `other`. */
+export function gearBySlot(player) {
+    const at = {};
+    const other = [];
+    for (const item of (player && player.gear) || []) {
+        let i = item.slot_index;
+        if (!(Number.isInteger(i) && i >= 0 && i <= 8 && !at[i])) {
+            i = (GEAR_SLOTS_BY_TYPE[item.slot] || []).find(s => !at[s]);
+        }
+        if (i === undefined) other.push(item); else at[i] = item;
     }
-    const known = new Set(GEAR_SLOTS.map(s => s.type));
-    const other = gear.filter(i => !known.has(i.slot));
+    return { at, other };
+}
+
+/** [{label, items: [item | null, ...]}] for the single-slot gear rows, plus an 'Other' row for gear
+ *  that fits nowhere (a slot we don't know). */
+export function gearRows(player) {
+    const { at, other } = gearBySlot(player);
+    const rows = GEAR_SLOT_ROWS.map(r => ({ label: r.label, items: r.slots.map(s => at[s] || null) }));
     if (other.length) rows.push({ label: 'Other', items: other });
     return rows;
 }
 
-/** The items padded with nulls to n slots (never truncated), for drawing fixed slot rows and the bag grid. */
-export function padSlots(items, n) {
-    const out = (items || []).slice();
-    while (out.length < (n || 0)) out.push(null);
-    return out;
+/** The four accessory slots in the game's 2x2 order. */
+export function accessorySlots(player) {
+    const { at } = gearBySlot(player);
+    return ACCESSORY_SLOTS.map(s => at[s] || null);
+}
+
+/** The weapon slots as the game lays them out: four down the left, the rest (two) on the right. */
+export function weaponColumns(player) {
+    const grid = slotGrid(player && player.weapons, Math.max(player && player.weapon_slots || 0, 4));
+    return { left: grid.slice(0, 4), right: grid.slice(4) };
+}
+
+/** The stack's weight as the game prints it on the tile ("5.6"); '' when the item's weight is unknown. */
+export function stackWeight(item) {
+    if (!item || typeof item.weight !== 'number') return '';
+    return (item.weight * (item.count || 1)).toFixed(1);
+}
+
+/** Equipment shows no count; everything else does, the way the game's tiles do. */
+export function showCount(item) {
+    return !!item && !EQUIP_TYPES.has(item.slot) && (item.count || 0) >= 1;
+}
+
+const RARITY_BAR_CLASSES = { 0: 'bg-gray-500/60', 1: 'bg-green-400/80', 2: 'bg-blue-400/90', 3: 'bg-purple-400/90', 4: 'bg-amber-300' };
+export function rarityBarClass(rarity) {
+    return RARITY_BAR_CLASSES[rarity] ?? RARITY_BAR_CLASSES[0];
 }
 
 /** A container as the game draws it: every one of n slots, empty ones included, each item where it
@@ -492,12 +524,6 @@ export function statusPoints(row) {
     if (row.points) parts.push(`${row.points} pts`);
     if (row.ancient) parts.push(`+${row.ancient} ancient`);
     return parts.join(' ');
-}
-
-/** Key items as an items modal. */
-export function keyItemsModalDetail(player) {
-    const items = (player && player.key_items) || [];
-    return { title: player.player_name, subtitle: `${items.length} key item${items.length === 1 ? '' : 's'}`, items };
 }
 
 

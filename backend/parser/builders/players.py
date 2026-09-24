@@ -97,6 +97,8 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             food=kit["food"],
             bag=kit["bag"],
             bag_slots=kit["bag_slots"],
+            weapon_slots=kit["weapon_slots"],
+            food_slots=kit["food_slots"],
             key_items=kit["key_items"],
             gold=kit["gold"],
             carried_weight=kit["carried_weight"],
@@ -137,10 +139,10 @@ GOLD = "Money"
 
 
 def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container_sizes: Dict = None) -> Dict:
-    """What the player carries, as item tiles per container, plus the bag's size, the gold (kept out
-    of the bag list, the way the game shows it) and the weight of all of it."""
-    out: Dict = {"gear": [], "weapons": [], "food": [], "bag": [], "key_items": [], "bag_slots": 0, "gold": 0,
-                 "carried_weight": 0.0}
+    """What the player carries, as item tiles per container, plus the bag's size, the gold (also
+    totalled on its own, the way the game prints it under the grid) and the weight of all of it."""
+    out: Dict = {"gear": [], "weapons": [], "food": [], "bag": [], "key_items": [], "bag_slots": 0, "weapon_slots": 0,
+                 "food_slots": 0, "gold": 0, "carried_weight": 0.0}
     if data is None:
         return out
     weight = 0.0
@@ -149,12 +151,12 @@ def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container
             item_id, count = entry["static_id"], entry["count"]
             weight += float(data.item(item_id).get("weight") or 0) * count
             if role == "bag" and item_id == GOLD:
-                out["gold"] += count
-                continue
+                out["gold"] += count          # totalled here; the coin tile stays in the grid, as in the game
             ref = item_ref(item_id, data, count)
             ref.slot_index = entry.get("slot")
             out[role].append(ref)
-    out["bag_slots"] = int((container_sizes or {}).get(containers.get("bag") or "", 0) or 0)
+    for role, key in (("bag", "bag_slots"), ("weapons", "weapon_slots"), ("food", "food_slots")):
+        out[key] = int((container_sizes or {}).get(containers.get(role) or "", 0) or 0)
     out["carried_weight"] = round(weight, 1)
     return out
 

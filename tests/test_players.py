@@ -87,16 +87,17 @@ def test_kit_resolves_each_container_in_the_item_index():
              "bag-1": [{"static_id": "Money", "count": 23453, "slot": 0}, {"static_id": "Salad", "count": 3, "slot": 4}, {"static_id": "Unknown_Thing", "count": 2, "slot": 9}],
              "key-1": [{"static_id": "KeySphere_01", "count": 1}]}
     kit = _kit({"gear": "arm-1", "weapons": "wpn-1", "food": "food-1", "bag": "bag-1", "key_items": "key-1"}, index, _Data(),
-               {"bag-1": 45})
-    assert [(i.item_name, i.count, i.rarity, i.slot) for i in kit["gear"]] == [("Copper Helmet", 1, 0, "ArmorHead")]
+               {"bag-1": 45, "wpn-1": 6, "food-1": 5})
+    assert [(i.item_name, i.count, i.rarity, i.slot, i.weight) for i in kit["gear"]] == [("Copper Helmet", 1, 0, "ArmorHead", 10.0)]
+    assert (kit["weapon_slots"], kit["food_slots"]) == (6, 5)
     assert [i.item_name for i in kit["weapons"]] == ["Crossbow"]
     assert [(i.item_name, i.count) for i in kit["food"]] == [("Salad", 75)]
-    assert [(i.item_name, i.count, i.slot_index) for i in kit["bag"]] == [("Salad", 3, 4), ("Unknown_Thing", 2, 9)]   # unknown ids keep their id; gold pulled out
+    assert [(i.item_name, i.count, i.slot_index) for i in kit["bag"]] == [("Gold Coin", 23453, 0), ("Salad", 3, 4), ("Unknown_Thing", 2, 9)]   # unknown ids keep their id
     assert kit["gold"] == 23453 and kit["bag_slots"] == 45
     assert [i.item_name for i in kit["key_items"]] == ["Key"]
     assert kit["carried_weight"] == 10.0 + 13.0 + 75 * 0.5 + 3 * 0.5   # 62.0; unknown items and gold weigh nothing
     empty = _kit({"gear": None}, index, _Data())
-    assert empty["gear"] == [] and empty["bag_slots"] == 0 and empty["gold"] == 0
+    assert empty["gear"] == [] and empty["bag_slots"] == 0 and empty["weapon_slots"] == 0 and empty["gold"] == 0
     assert _kit({"gear": "arm-1"}, index, None)["gear"] == []
 
 

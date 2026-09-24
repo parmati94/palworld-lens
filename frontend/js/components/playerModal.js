@@ -4,10 +4,12 @@ export function playerModal() {
         showPlayerModal: false,
         selectedPlayer: null,
         playerTab: 'inventory',
+        bagTab: 'bag',          // the bag panel's own sub-tabs: bag | key items
 
         openPlayerModal(player, tab = 'inventory') {
             this.selectedPlayer = player;
             this.playerTab = tab;
+            this.bagTab = 'bag';
             this.showPlayerModal = true;
         },
 

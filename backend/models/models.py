@@ -40,6 +40,7 @@ class ItemRef(BaseModel):
     note: Optional[str] = None
     slot: Optional[str] = None     # items.json type_b (ArmorHead, Accessory, Shield, Glider, SphereModule, WeaponMelee, ...)
     slot_index: Optional[int] = None  # position in its container's grid (a player's bag), when it matters
+    weight: Optional[float] = None    # one unit's weight from items.json (the game prints the stack's on the tile)
 
 
 class ActivityPal(BaseModel):
@@ -222,8 +223,10 @@ class PlayerInfo(BaseModel):
     gear: List[ItemRef] = []      # head, body, accessories, shield, glider
     weapons: List[ItemRef] = []
     food: List[ItemRef] = []
-    bag: List[ItemRef] = []       # without the gold, which is `gold`
+    bag: List[ItemRef] = []       # the gold coin tile included; `gold` is its total
     bag_slots: int = 0            # the bag's size (42 + pouches), for drawing it as the game's grid
+    weapon_slots: int = 0         # 6 in 1.0: four down the left, two on the right
+    food_slots: int = 0           # 5
     key_items: List[ItemRef] = []
     gold: int = 0
     carried_weight: float = 0     # bag + kit, from items.json weights
