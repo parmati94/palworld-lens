@@ -408,6 +408,27 @@ export function farmEggsModalDetail(job) {
     return { title: job.display_name, subtitle: `${n} egg${n === 1 ? '' : 's'} on the ground`, items: job.outputs || [] };
 }
 
+// ---- pal stats ----
+
+/** The hover behind a pal's Attack / Defense / Max HP tile, like the game's: "Base 1,006 · Trust +6 · Souls +36% · Passives +20%";
+ *  '' when the pal has no breakdown. */
+export function palStatTip(pal, stat) {
+    const b = pal && pal.stat_breakdown && pal.stat_breakdown[stat];
+    if (!b) return '';
+    const parts = [`Base ${b.base.toLocaleString()}`];
+    if (b.trust) parts.push(`Trust +${b.trust.toLocaleString()}`);
+    if (b.souls_pct) parts.push(`Souls +${b.souls_pct}%`);
+    if (b.passives_pct) parts.push(`Passives ${b.passives_pct > 0 ? '+' : ''}${b.passives_pct}%`);
+    if (b.food_pct) parts.push(`Food ${b.food_pct > 0 ? '+' : ''}${b.food_pct}%${pal.food_buff ? ` (${pal.food_buff})` : ''}`);
+    return parts.join(' · ');
+}
+
+/** True when anything beyond level, talents and stars lifts the stat (the game's little arrow). */
+export function palStatEnhanced(pal, stat) {
+    const b = pal && pal.stat_breakdown && pal.stat_breakdown[stat];
+    return !!b && (b.trust !== 0 || b.souls_pct !== 0 || b.passives_pct !== 0 || (b.food_pct || 0) !== 0);
+}
+
 // ---- player card + modal ----
 
 /** The gear container's fixed slots (1.0, nine slots; verified on five players): 0 head, 1 body,

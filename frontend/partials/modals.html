@@ -268,36 +268,48 @@
                                 <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Calculated Stats</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     <!-- Attack Stat -->
-                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
+                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200" :data-tip="palStatTip(selectedPal, 'attack')">
                                         <div class="text-xs text-gray-400 mb-1">⚔️ Attack</div>
-                                        <div class="text-xl font-bold text-orange-400 tabular-nums" x-text="selectedPal.calculated_attack || 'N/A'"></div>
+                                        <div class="text-xl font-bold text-orange-400 tabular-nums flex items-baseline gap-1.5">
+                                            <span x-text="selectedPal.calculated_attack || 'N/A'"></span>
+                                            <span x-show="palStatEnhanced(selectedPal, 'attack')" class="text-accent-300 text-[10px] leading-none" aria-label="enhanced">&#9650;</span>
+                                        </div>
                                         <div class="text-xs text-gray-500 mt-1">
                                             <span>Shot IV: </span><span x-text="selectedPal.talent_shot"></span>
                                         </div>
                                     </div>
                                     
                                     <!-- Defense Stat -->
-                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
+                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200" :data-tip="palStatTip(selectedPal, 'defense')">
                                         <div class="text-xs text-gray-400 mb-1">🛡️ Defense</div>
-                                        <div class="text-xl font-bold text-blue-400 tabular-nums" x-text="selectedPal.calculated_defense || 'N/A'"></div>
+                                        <div class="text-xl font-bold text-blue-400 tabular-nums flex items-baseline gap-1.5">
+                                            <span x-text="selectedPal.calculated_defense || 'N/A'"></span>
+                                            <span x-show="palStatEnhanced(selectedPal, 'defense')" class="text-accent-300 text-[10px] leading-none" aria-label="enhanced">&#9650;</span>
+                                        </div>
                                         <div class="text-xs text-gray-500 mt-1">
                                             <span>Defense IV: </span><span x-text="selectedPal.talent_defense"></span>
                                         </div>
                                     </div>
                                     
                                     <!-- HP Stat -->
-                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
+                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200" :data-tip="palStatTip(selectedPal, 'hp')">
                                         <div class="text-xs text-gray-400 mb-1">❤️ Max HP</div>
-                                        <div class="text-xl font-bold text-red-400 tabular-nums" x-text="selectedPal.calculated_hp || 'N/A'"></div>
+                                        <div class="text-xl font-bold text-red-400 tabular-nums flex items-baseline gap-1.5">
+                                            <span x-text="selectedPal.calculated_hp || 'N/A'"></span>
+                                            <span x-show="palStatEnhanced(selectedPal, 'hp')" class="text-accent-300 text-[10px] leading-none" aria-label="enhanced">&#9650;</span>
+                                        </div>
                                         <div class="text-xs text-gray-500 mt-1">
                                             <span>HP IV: </span><span x-text="selectedPal.talent_hp"></span>
                                         </div>
                                     </div>
                                     
                                     <!-- Work Speed -->
-                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200">
+                                    <div class="bg-gray-700/50 rounded-lg p-3 hover:bg-gray-700/60 transition-colors duration-200" :data-tip="palStatTip(selectedPal, 'work_speed')">
                                         <div class="text-xs text-gray-400 mb-1">🔧 Work Speed</div>
-                                        <div class="text-xl font-bold text-green-400 tabular-nums" x-text="selectedPal.calculated_work_speed || 'N/A'"></div>
+                                        <div class="text-xl font-bold text-green-400 tabular-nums flex items-baseline gap-1.5">
+                                            <span x-text="selectedPal.calculated_work_speed || 'N/A'"></span>
+                                            <span x-show="palStatEnhanced(selectedPal, 'work_speed')" class="text-accent-300 text-[10px] leading-none" aria-label="enhanced">&#9650;</span>
+                                        </div>
                                         <div class="text-xs text-gray-500 mt-1">
                                             <span>Craft Rank: </span><span x-text="selectedPal.rank_craftspeed || 0"></span>
                                         </div>

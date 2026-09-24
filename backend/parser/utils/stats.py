@@ -24,13 +24,24 @@ def calculate_trust_level(friendship_points: int, trust_thresholds: List[Tuple[i
         return 0
     
     for threshold, level in reversed(trust_thresholds):
-        if friendship_points >= threshold:
+        # strictly more than the threshold: a pal at exactly 13000 (rank 2's line) shows Trust 1 in game
+        if friendship_points > threshold or (threshold == 0 and friendship_points >= 0):
             return level
     return 0
 
 
+STAR_STEP = 0.05          # each condensing star: +5% to every stat
+SOUL_STEP = 0.03          # each Pal Soul point: +3% to its stat
+TALENT_STEP = 0.003       # each talent (IV) point: +0.3% of the level growth
+HP_PER_LEVEL, ATTACK_PER_LEVEL = 0.5, 0.075
+BASE_HP, BASE_ATTACK, BASE_DEFENSE = 500, 100, 50
+DEFAULT_WORK_SPEED = 70   # every species' work speed at 0 stars (the craft scale is 100 for all 753 rows and unused here)
+WORK_STAR_STEP = 0.10     # condensing: +10% work speed per star (4 stars = 98 on two live pals), vs +5% on the fighting stats
+FOOD_STAT = {'WorkSpeed': 'work_speed', 'Attack': 'attack', 'Defense': 'defense'}   # a dish's percent buffs that are stats
+
+
 def calculate_pal_stats(
-    species_scaling: Dict[str, int],
+    row: Optional[Dict],
     level: int,
     talent_hp: int,
     talent_melee: int,
@@ -38,192 +49,80 @@ def calculate_pal_stats(
     talent_defense: int,
     rank: int = 1,
     trust_level: int = 0,
-    friendship_multipliers: Optional[Dict[str, float]] = None,
-    is_alpha: bool = False,
     passive_skills: Optional[List] = None,
     soul_hp: int = 0,
     soul_attack: int = 0,
     soul_defense: int = 0,
-    soul_work_speed: int = 0
-) -> Dict[str, int]:
-    """Calculate actual pal stats using the mathematically precise Palworld formulas
-    
-    Based on community research by u/blahable with exact formulas:
-    - HP: floor(500 + (Level × 5) + (Level × SpeciesScaling_HP × 0.5 × (1 + (Talent_HP × 0.3)/100)))
-    - Attack/Defense: floor(Base + (Level × SpeciesScaling × 0.075 × (1 + (Talent × 0.3)/100)))
-    - Alpha/Boss Multiplier: 1.2x HP (as of v0.2.4.0, applied before trust bonuses)
-    - Trust Bonus: BaseStat × (TrustLevel × FriendshipValue / 100)
-    - Soul Bonus: +3% per level (applied multiplicatively at the end)
-    - Final: floor(BaseLevelStat × (1 + TrustBonus + RankBonus) × PassiveMultiplier × SoulMultiplier)
-    
-    Args:
-        species_scaling: Dict with 'hp', 'attack', 'defense' scaling values for the species
-        level: Pal level
-        talent_hp: HP Individual Value (0-100)
-        talent_melee: Melee Individual Value (0-100) 
-        talent_shot: Shot Individual Value (0-100)
-        talent_defense: Defense Individual Value (0-100)
-        rank: Pal rank/stars (1-4, default 1)
-        trust_level: Trust/Friendship Level (0-10, default 0)
-        friendship_multipliers: Dict with friendship_hp, friendship_shotattack, friendship_defense
-        is_alpha: Whether this is an alpha/boss pal (applies 1.2x HP multiplier)
-        soul_hp: Pal Soul stat points allocated to HP (from RankHP field, 0-10+)
-        soul_attack: Pal Soul stat points allocated to Attack (from RankAttack field, 0-10+)
-        soul_defense: Pal Soul stat points allocated to Defense (from RankDefence field, 0-10+)
-        soul_work_speed: Pal Soul stat points allocated to Work Speed (from RankCraftSpeed field, 0-10+)
-        
-    Returns:
-        Dict with calculated 'attack', 'defense', 'hp', 'work_speed' values
+    soul_work_speed: int = 0,
+    food_effects: Optional[List[Dict]] = None,
+) -> Dict:
+    """A pal's stats the way the status screen shows them, with the breakdown behind the hover.
+
+    `row` is the pal's own pak row (DataLoader.stat_row: hp / shot / melee / defense / craft scaling
+    and the friendship values). Boss and lucky pals have their own row (Hp x1.2, a lower
+    Friendship_HP), so there is no alpha multiplier here -- the row carries it.
+
+    One shape for every stat, fitted 2026-09-24 against 1,894 saved pals (HP exact on all but a
+    handful) and two live tooltips (Attack 1006 >> 1651 with trust +6; Defense 897 >> 1502 with
+    trust +24 at rank 2):
+
+      pre   = floor( base + k L (1 + 0.3 IV/100) (scale + f * trust_rank) )     k = 0.5 HP, 0.075 attack/defense
+      shown = floor( floor( floor(pre * stars) * souls ) * passives )            stars 1 + 0.05/star, souls 1 + 0.03/point
+
+    Trust is the friendship value added to the scale once per rank; the tooltip's "base" is the
+    same without trust and "Bonus from Trust" the difference after the stars. Work speed starts at
+    70 for every species and condensing gives it +10% per star (98 at four stars, confirmed on two
+    pals), then souls and passives. A dish the pal ate (`food_effects`, [{type, value}] from the
+    loadout food table) multiplies last: Frosty's 98 >> 127 with Pizza's +30%.
     """
-    try:
-        if not species_scaling:
-            # Unknown species (build_pals logs them once per load)
-            return {"attack": 0, "defense": 0, "hp": 0, "work_speed": 70}
-        
-        # Base values (Level 0)
-        BASE_HP = 500
-        BASE_ATTACK = 100
-        BASE_DEFENSE = 50
-        
-        # IV bonuses (0.3% per IV point) - exactly as the formula states
-        hp_talent_multiplier = 1 + (talent_hp * 0.3) / 100
-        attack_talent_multiplier = 1 + (max(talent_melee, talent_shot) * 0.3) / 100  # Use higher of melee/shot
-        defense_talent_multiplier = 1 + (talent_defense * 0.3) / 100
-        
-        # === HP CALCULATION (CORRECTED) ===
-        # Step 1: Calculate static HP (500 base) - NEVER affected by trust/alpha/IV
-        static_hp = BASE_HP
-        
-        # Step 2: Calculate level-based growth components
-        level_growth = level * 5  # Flat HP per level
-        species_growth = level * species_scaling["hp"] * 0.5  # Species-specific scaling
-        
-        # Step 3: Calculate IV (Talent) bonus - applies to species growth only
-        # Talent bonus is SEPARATE from trust bonus
-        iv_bonus_hp = species_growth * (talent_hp * 0.3 / 100)
-        
-        # Step 4: Calculate Trust bonus - applies to (species_growth + level_growth)
-        # Trust bonus uses the combined growth, NOT including static base or IV
-        trust_bonus_hp = 0
-        if trust_level > 0 and friendship_multipliers and "friendship_hp" in friendship_multipliers:
-            hp_mult = friendship_multipliers["friendship_hp"] / 100
-            # CRITICAL: Trust applies to BOTH species scaling AND level growth
-            trust_bonus_hp = math.floor((species_growth + level_growth) * (trust_level * hp_mult))
-        
-        # Step 5: Apply Alpha/Boss HP Multiplier (v0.2.4.0: 1.2x for all Alpha/Lucky Pals)
-        # Applied to species growth before assembly
-        applied_growth = species_growth
-        if is_alpha:
-            applied_growth = applied_growth * 1.2
-        
-        # Step 6: Assemble final HP base: static + level_growth + (species_growth + IV) + trust
-        # Floor the species_growth+IV together, then add everything
-        hp_effective_base = static_hp + level_growth + math.floor(applied_growth + iv_bonus_hp) + trust_bonus_hp
-        
-        # Step 7: Apply rank multiplier to assembled HP
-        # rank is save file value (1-5): 1=0★, 2=1★, 3=2★, 4=3★, 5=4★
-        rank_multiplier = 1 + ((rank - 1) * 0.05)  # 5% per star: 0★=1.0, 4★=1.20
-        calculated_hp = math.floor(hp_effective_base * rank_multiplier)
-        
-        # === ATTACK CALCULATION ===
-        # Step 1: Static Attack (100) - NEVER affected by trust/IV
-        static_attack = BASE_ATTACK
-        
-        # Step 2: Species Growth
-        attack_growth = level * species_scaling["attack"] * 0.075
-        
-        # Step 3: IV Bonus - applies to species growth
-        attack_iv_bonus = attack_growth * (max(talent_melee, talent_shot) * 0.3 / 100)
-        
-        # Step 4: Trust Bonus - applies to (SPECIES GROWTH + IV)
-        attack_trust_bonus = 0
-        if trust_level > 0 and friendship_multipliers and "friendship_shotattack" in friendship_multipliers:
-            attack_mult = friendship_multipliers["friendship_shotattack"] / 100
-            # Trust applies to the combined growth (species + IV), not just species
-            attack_trust_bonus = math.floor((attack_growth + attack_iv_bonus) * (trust_level * attack_mult))
-            
-        # Step 5: Assemble
-        attack_effective_base = static_attack + math.floor(attack_growth + attack_iv_bonus) + attack_trust_bonus
-        
-        # === DEFENSE CALCULATION ===
-        # Step 1: Static Defense (50) - NEVER affected by trust/IV
-        static_defense = BASE_DEFENSE
-        
-        # Step 2: Species Growth
-        defense_growth = level * species_scaling["defense"] * 0.075
-        
-        # Step 3: IV Bonus - applies to species growth
-        defense_iv_bonus = defense_growth * (talent_defense * 0.3 / 100)
-        
-        # Step 4: Trust Bonus - applies to (SPECIES GROWTH + IV)
-        defense_trust_bonus = 0
-        if trust_level > 0 and friendship_multipliers and "friendship_defense" in friendship_multipliers:
-            defense_mult = friendship_multipliers["friendship_defense"] / 100
-            # Trust applies to the combined growth (species + IV), not just species
-            defense_trust_bonus = math.floor((defense_growth + defense_iv_bonus) * (trust_level * defense_mult))
-            
-        # Step 5: Assemble
-        defense_effective_base = static_defense + math.floor(defense_growth + defense_iv_bonus) + defense_trust_bonus
-        
-        # Apply rank multipliers
-        calculated_attack = math.floor(attack_effective_base * rank_multiplier)
-        calculated_defense = math.floor(defense_effective_base * rank_multiplier)
-        
-        # Work speed (not affected by level scaling in the same way)
-        calculated_work_speed = 70  # Default work speed
-        
-        # Apply passive skill multipliers (effects are now stored in SkillInfo)
-        passive_mult_hp = 1.0
-        passive_mult_attack = 1.0
-        passive_mult_defense = 1.0
-        passive_mult_work = 1.0
-        
-        if passive_skills:
-            for skill in passive_skills:
-                # Access effects directly from SkillInfo object
-                effects = getattr(skill, 'effects', None)
-                if not effects:
-                    continue
-                    
-                for effect in effects:
-                    effect_type = effect.get('type')
-                    value = effect.get('value', 0) / 100  # Convert percentage to decimal
-                    target = effect.get('target')
-                    
-                    # Only apply if target is ToSelf
-                    if target == 'ToSelf':
-                        if effect_type == 'MaxHP':
-                            passive_mult_hp += value
-                        elif effect_type == 'Attack':
-                            passive_mult_attack += value
-                        elif effect_type in ['Defense', 'Defence']:  # Handle both spellings
-                            passive_mult_defense += value
-                        elif effect_type in ['WorkSpeed', 'CraftSpeed']:
-                            passive_mult_work += value
-        
-        # Calculate Soul multipliers (Statue of Power bonuses)
-        # Each soul level adds +3% (0.03) to the respective stat
-        # These are applied multiplicatively as a separate bucket from passives
-        soul_mult_hp = 1 + (soul_hp * 0.03)
-        soul_mult_attack = 1 + (soul_attack * 0.03)
-        soul_mult_defense = 1 + (soul_defense * 0.03)
-        soul_mult_work = 1 + (soul_work_speed * 0.03)
-        
-        # Apply both passive and soul multipliers (multiplicative buckets)
-        calculated_hp = math.floor(calculated_hp * passive_mult_hp * soul_mult_hp)
-        calculated_attack = math.floor(calculated_attack * passive_mult_attack * soul_mult_attack)
-        calculated_defense = math.floor(calculated_defense * passive_mult_defense * soul_mult_defense)
-        calculated_work_speed = math.floor(calculated_work_speed * passive_mult_work * soul_mult_work)
-        
-        return {
-            "attack": calculated_attack,
-            "defense": calculated_defense,
-            "hp": calculated_hp,
-            "work_speed": calculated_work_speed
-        }
-    except Exception as e:
-        logger.warning(f"Error calculating stats: {e}", exc_info=True)
-        return {"attack": 0, "defense": 0, "hp": 0, "work_speed": 70}
+    if not row or not row.get('hp'):
+        return {"attack": 0, "defense": 0, "hp": 0, "work_speed": DEFAULT_WORK_SPEED, "breakdown": {}}
+    stars = max(0, min(MAX_CONDENSE_STARS, int(rank or 1) - 1))
+    star_mult = 1 + STAR_STEP * stars
+    trust = max(0, int(trust_level or 0))
+    L = int(level or 1)
+
+    passives = {'hp': 0.0, 'attack': 0.0, 'defense': 0.0, 'work_speed': 0.0}
+    for skill in passive_skills or []:
+        effects = getattr(skill, 'effects', None) or (skill.get('effects') if isinstance(skill, dict) else None) or []
+        for e in effects:
+            if str(e.get('target') or 'ToSelf') != 'ToSelf':
+                continue
+            t, v = str(e.get('type') or ''), float(e.get('value') or 0)
+            if t == 'MaxHP':
+                passives['hp'] += v
+            elif t in ('Attack', 'ShotAttack'):
+                passives['attack'] += v
+            elif t in ('Defense', 'Defence'):
+                passives['defense'] += v
+            elif t in ('CraftSpeed', 'WorkSpeed'):
+                passives['work_speed'] += v
+
+    food = {'hp': 0.0, 'attack': 0.0, 'defense': 0.0, 'work_speed': 0.0}
+    for e in food_effects or []:
+        name = FOOD_STAT.get(str(e.get('type') or ''))
+        if name:
+            food[name] += float(e.get('value') or 0)
+
+    def finish(name: str, with_trust: int, without: int, souls: int) -> Dict[str, int]:
+        soul_pct, pass_pct, food_pct = SOUL_STEP * souls * 100, passives[name], food[name]
+        total = math.floor(math.floor(math.floor(with_trust * (1 + soul_pct / 100)) * (1 + pass_pct / 100)) * (1 + food_pct / 100))
+        return {'base': int(without), 'trust': int(with_trust - without), 'souls_pct': int(round(soul_pct)),
+                'passives_pct': int(round(pass_pct)), 'food_pct': int(round(food_pct)), 'total': int(total)}
+
+    def stat(name: str, base: float, k: float, talent: int, scale: float, f: float, souls: int) -> Dict[str, int]:
+        iv = 1 + TALENT_STEP * talent
+        with_trust = math.floor(math.floor(base + k * L * iv * (scale + f * trust)) * star_mult)
+        without = math.floor(math.floor(base + k * L * iv * scale) * star_mult)
+        return finish(name, with_trust, without, souls)
+
+    hp = stat('hp', BASE_HP + 5 * L, HP_PER_LEVEL, talent_hp, row['hp'], row.get('f_hp', 0), soul_hp)
+    atk = stat('attack', BASE_ATTACK, ATTACK_PER_LEVEL, max(talent_melee, talent_shot), row.get('shot', 0), row.get('f_shot', 0), soul_attack)
+    dfn = stat('defense', BASE_DEFENSE, ATTACK_PER_LEVEL, talent_defense, row.get('defense', 0), row.get('f_defense', 0), soul_defense)
+    work_base = math.floor(DEFAULT_WORK_SPEED * (1 + WORK_STAR_STEP * stars))
+    work = finish('work_speed', work_base, work_base, soul_work_speed)
+    return {"attack": atk['total'], "defense": dfn['total'], "hp": hp['total'], "work_speed": work['total'],
+            "breakdown": {'hp': hp, 'attack': atk, 'defense': dfn, 'work_speed': work}}
 
 
 WORK_RANK_EFFECT = 'WorkSuitabilityAddRank_'

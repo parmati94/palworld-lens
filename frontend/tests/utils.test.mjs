@@ -340,3 +340,16 @@ test('player modal: the mini-map crops the tile pyramid around the player and ke
     assert.equal(miniMap(null), null);
     assert.equal(miniMap({ x: 500000, y: -600000 }).layer, 'Tree');
 });
+
+test('pal modal: the stat tiles read the breakdown the way the game\'s hover does', async () => {
+    const { palStatTip, palStatEnhanced } = await import('../js/utils.js');
+    const frosty = { stat_breakdown: { attack: { base: 1006, trust: 6, souls_pct: 36, passives_pct: 20, total: 1651 },
+                                       hp: { base: 8150, trust: 20, souls_pct: 24, passives_pct: 0, total: 10137 } } };
+    assert.equal(palStatTip(frosty, 'attack'), 'Base 1,006 · Trust +6 · Souls +36% · Passives +20%');
+    assert.equal(palStatTip(frosty, 'hp'), 'Base 8,150 · Trust +20 · Souls +24%');
+    assert.equal(palStatTip(frosty, 'defense'), '');
+    assert.equal(palStatTip({ food_buff: 'Pizza', stat_breakdown: { work_speed: { base: 98, trust: 0, souls_pct: 0, passives_pct: 0, food_pct: 30, total: 127 } } }, 'work_speed'), 'Base 98 · Food +30% (Pizza)');
+    assert.equal(palStatEnhanced(frosty, 'attack'), true);
+    assert.equal(palStatEnhanced({ stat_breakdown: { hp: { base: 550, trust: 0, souls_pct: 0, passives_pct: 0, total: 550 } } }, 'hp'), false);
+    assert.equal(palStatEnhanced({}, 'hp'), false);
+});
