@@ -124,30 +124,32 @@ html.reduce-motion *::after {
     .card {
         @apply bg-gray-800 border border-gray-700/60 rounded-xl;
     }
-    /* Modal chrome, the game's panel: translucent navy with a faint diagonal hatch, cut corners,
-       accent brackets at two corners. Goes on the panel's outer wrapper (the scrolling box is inside,
-       so the brackets stay put); one class so every modal changes together. */
+    /* Modal chrome: a translucent navy panel over a strong backdrop blur, framed by the game's
+       accent brackets at all four corners. Goes on the panel's outer wrapper (the scrolling box is
+       inside, so the brackets stay put); one class so every modal changes together. */
     .modal-panel {
         position: relative;
-        background:
-            repeating-linear-gradient(135deg, rgb(255 255 255 / .022) 0 2px, transparent 2px 9px),
-            linear-gradient(180deg, rgb(31 41 55 / .90), rgb(17 24 39 / .95));
+        background: linear-gradient(180deg, rgb(31 41 55 / .90), rgb(17 24 39 / .95));
         -webkit-backdrop-filter: blur(18px);
         backdrop-filter: blur(18px);
         border: 1px solid rgb(255 255 255 / .10);
-        clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+        border-radius: 0.5rem;
     }
-    .modal-panel::before, .modal-panel::after {
+    .modal-panel::before, .modal-panel::after,
+    .modal-panel > .modal-corners::before, .modal-panel > .modal-corners::after {
         content: '';
         position: absolute;
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
         pointer-events: none;
         z-index: 30;
         border: 0 solid rgb(var(--accent-400) / .85);
     }
-    .modal-panel::before { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
-    .modal-panel::after { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+    .modal-panel::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 0.5rem; }
+    .modal-panel::after { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 0.5rem; }
+    .modal-panel > .modal-corners::before { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 0.5rem; }
+    .modal-panel > .modal-corners::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 0.5rem; }
+    .modal-corners { position: absolute; inset: 0; pointer-events: none; }
     /* A modal's sticky header band over the translucent panel. */
     .modal-band {
         @apply bg-gray-900/70 backdrop-blur-md border-b border-accent-500/25;

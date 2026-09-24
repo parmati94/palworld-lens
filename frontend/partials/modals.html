@@ -855,7 +855,8 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel max-w-6xl w-full max-h-[92vh] flex flex-col shadow-2xl">
+                 class="modal-panel max-w-6xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+              <span class="modal-corners" aria-hidden="true"></span>
               <div class="min-h-0 overflow-y-auto">
                 <template x-if="selectedPlayer">
                     <div>
