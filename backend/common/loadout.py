@@ -137,3 +137,19 @@ def shield_max(gear_ids: Iterable[str], tables: Dict[str, Dict]) -> int:
 def food_effects(food_id: Optional[str], tables: Dict[str, Dict]) -> List[Dict]:
     """The active dish's effects as [{type, value}], stat or not (HungerResist rides along)."""
     return list((((tables or {}).get('food') or {}).get(food_id or '') or {}).get('effects') or [])
+
+
+FOOD_EFFECT_NAMES = {
+    'WorkSpeed': 'work speed', 'Attack': 'attack', 'Defense': 'defense', 'HungerResist': 'slower hunger',
+    'SANResist': 'slower sanity loss', 'Regene_Hp': 'HP regen', 'Exp_Increase': 'exp', 'FullStomachKeep': 'keeps you full',
+    'ExplosionResist': 'explosion resist', 'LeanBackAndKnockbackInvalid': 'no knockback',
+}
+
+
+def food_effects_line(food_id: Optional[str], tables: Dict[str, Dict]) -> str:
+    """"+30% work speed · +25% slower hunger" for a dish; '' when it has no buff."""
+    parts = []
+    for e in food_effects(food_id, tables):
+        v = _num(e.get('value'))
+        parts.append(f"{'+' if v > 0 else ''}{int(round(v))}% {FOOD_EFFECT_NAMES.get(str(e.get('type')), str(e.get('type')))}")
+    return ' · '.join(parts)

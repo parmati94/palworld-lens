@@ -307,7 +307,7 @@ test('player modal: gear sits in the game\'s fixed slots, the bag pads to its si
 });
 
 test('player modal: enhanced stats read from the breakdown, with the game\'s hover text and the food buff line', async () => {
-    const { statusRows, statusTip, foodBuffEffects, weightLine } = await import('../js/utils.js');
+    const { statusRows, statusTip, weightLine } = await import('../js/utils.js');
     const envy = {
         calculated_max_hp: 1900, calculated_weight: 1650, stat_points_hp: 14, ex_stat_points_stamina: 29,
         stats: { hp: { base: 1900, gear: 1650, food: 0, total: 3550 }, stamina: { base: 490, gear: 0, food: 0, total: 490 },
@@ -322,9 +322,6 @@ test('player modal: enhanced stats read from the breakdown, with the game\'s hov
     assert.equal(statusTip(rows[4], envy), 'Base 1,450 · Food +435 (Pizza)');
     assert.equal(statusTip(rows[1], envy), 'Base 490 · 29 from elixirs');
     assert.equal(statusTip(rows[6], envy), '');
-    assert.equal(foodBuffEffects(envy), '+30% work speed · +25% slower hunger');
-    assert.equal(foodBuffEffects({ food_buff: { item_name: 'Salad', effects: [] } }), '');
-    assert.equal(foodBuffEffects({}), '');
     assert.equal(weightLine(envy).max, 1850);
 });
 

@@ -1,5 +1,5 @@
 """Gear and food enhancements on the status screen, against the numbers a live player showed."""
-from backend.common.loadout import build_loadout_tables, enhance_stats, food_effects, shield_max
+from backend.common.loadout import build_loadout_tables, enhance_stats, food_effects, food_effects_line, shield_max
 
 ITEM_ROWS = {
     "StealHelmet": {"HPValue": 350, "PhysicalDefenseValue": 150, "ShieldValue": 0, "PassiveSkillName": "None"},
@@ -52,6 +52,8 @@ def test_envys_status_screen():
     assert s["stamina"]["total"] == 490 and s["attack"]["total"] == 132      # the ToOtomo passive does not touch the player
     assert shield_max(["StealHelmet", "Shield_04"], tables) == 1045
     assert food_effects("Pizza", tables) == [{"type": "WorkSpeed", "value": 30.0}, {"type": "HungerResist", "value": 25.0}]
+    assert food_effects_line("Pizza", tables) == "+30% work speed · +25% slower hunger"
+    assert food_effects_line("JamBun", tables) == "" and food_effects_line(None, {}) == ""
 
 
 def test_no_tables_means_no_enhancements():

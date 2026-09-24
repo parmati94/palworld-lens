@@ -545,16 +545,6 @@ export function statusTip(row, player) {
     return parts.join(' · ');
 }
 
-/** What the running dish does, for the hover: "+30% work speed · +25% slower hunger"; '' when none. */
-export function foodBuffEffects(player) {
-    const b = player && player.food_buff;
-    if (!b) return '';
-    const names = { WorkSpeed: 'work speed', Attack: 'attack', Defense: 'defense', HungerResist: 'slower hunger', SANResist: 'slower sanity loss',
-                    Regene_Hp: 'HP regen', Exp_Increase: 'exp', FullStomachKeep: 'keeps you full', ExplosionResist: 'explosion resist',
-                    LeanBackAndKnockbackInvalid: 'no knockback' };
-    return (b.effects || []).map(e => `${e.value > 0 ? '+' : ''}${Math.round(e.value)}% ${names[e.type] || e.type}`).join(' · ');
-}
-
 /** The small figure beside a status row: the stat points spent on it ("14 pts"); elixir points show on hover. */
 export function statusPoints(row) {
     return row && row.points ? `${row.points} pts` : '';

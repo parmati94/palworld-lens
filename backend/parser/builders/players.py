@@ -4,7 +4,7 @@ from typing import List, Optional, Dict
 import math
 
 from backend.common.base_names import nearest_landmark
-from backend.common.loadout import enhance_stats, food_effects, shield_max
+from backend.common.loadout import enhance_stats, food_effects, food_effects_line, shield_max
 from backend.models.models import FoodBuff, PlayerInfo, PlayerRecords, PlayerTech, StatLine
 from backend.parser.utils.mappers import item_ref, pal_ref
 from backend.parser.loaders.schema_loader import SchemaManager
@@ -69,13 +69,13 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
                     save_info = player_data
                     break
         details = save_info.get("details") or {}
-        kit = _kit(details.get("containers") or {}, item_index or {}, data, container_sizes or {})
+        loadout = getattr(data, "loadout", None) or {}
+        kit = _kit(details.get("containers") or {}, item_index or {}, data, container_sizes or {}, loadout)
 
         # The status screen: base from level + points, then what the worn gear and the running dish add
         food_id = player_schema.extract_field(char_info, "FoodWithStatusEffect")
         food_id = str(food_id) if food_id and str(food_id) != "None" else None
         gear_ids = [i.item_id for i in kit["gear"]]
-        loadout = getattr(data, "loadout", None) or {}
         stats = {k: StatLine(**v) for k, v in enhance_stats(
             {**calculated_stats, "defense": (loadout.get("player_base") or {}).get("defense", 100)},
             gear_ids, food_id, loadout, getattr(data, "passive_skills", None) or {}).items()}
@@ -161,7 +161,8 @@ def _party(container_id: Optional[str], pals: List) -> List:
 GOLD = "Money"
 
 
-def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container_sizes: Dict = None) -> Dict:
+def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container_sizes: Dict = None,
+         loadout: Dict = None) -> Dict:
     """What the player carries, as item tiles per container, plus the bag's size, the gold (also
     totalled on its own, the way the game prints it under the grid) and the weight of all of it."""
     out: Dict = {"gear": [], "weapons": [], "food": [], "bag": [], "key_items": [], "bag_slots": 0, "weapon_slots": 0,
@@ -177,6 +178,10 @@ def _kit(containers: Dict[str, Optional[str]], item_index: Dict, data, container
                 out["gold"] += count          # totalled here; the coin tile stays in the grid, as in the game
             ref = item_ref(item_id, data, count)
             ref.slot_index = entry.get("slot")
+            if role == "food":
+                fx = food_effects_line(item_id, loadout)
+                if fx:
+                    ref.note = f"{ref.item_name} ×{count} · {fx}"     # the tile's hover: what eating it does
             out[role].append(ref)
     for role, key in (("bag", "bag_slots"), ("weapons", "weapon_slots"), ("food", "food_slots")):
         out[key] = int((container_sizes or {}).get(containers.get(role) or "", 0) or 0)
