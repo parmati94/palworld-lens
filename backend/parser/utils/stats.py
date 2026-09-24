@@ -55,28 +55,26 @@ def calculate_pal_stats(
 ) -> Dict:
     """A pal's stats the way the status screen shows them, with the breakdown behind the hover.
 
-    `row` is the pal's own pak row (DataLoader.stat_row: hp / shot / melee / defense scaling and the
-    friendship values). Boss and lucky pals have their own row (Hp x1.2, a lower Friendship_HP), so
-    there is no alpha multiplier here -- the row carries it.
+    `row` is the pal's own pak row (DataLoader.stat_row: hp / shot / melee / defense / craft scaling
+    and the friendship values). Boss and lucky pals have their own row (Hp x1.2, a lower
+    Friendship_HP), so there is no alpha multiplier here -- the row carries it.
 
-    Fitted 2026-09-24 against 1,894 saved pals (HP, exact to the point) and a live status screen
-    (attack 1006 >> 1651 = (1006 + 6 trust) x 1.36 souls x 1.20 passives):
+    One shape for every stat, fitted 2026-09-24 against 1,894 saved pals (HP exact on all but a
+    handful) and two live tooltips (Attack 1006 >> 1651 with trust +6; Defense 897 >> 1502 with
+    trust +24 at rank 2):
 
-      HP      = floor( floor(500 + 5L + 0.5 L (1 + 0.3 IV/100) (hp_scale + f_hp * trust)) * stars )
-      attack  = floor( floor(100 + 0.075 L (1 + 0.3 IV/100) shot) * stars ) + trust_bonus
-      defense = floor( floor( 50 + 0.075 L (1 + 0.3 IV/100) def ) * stars ) + trust_bonus
-      then    x (1 + 0.03 souls) x (1 + passives%)   [souls and passives multiply, floored at the end]
+      pre   = floor( base + k L (1 + 0.3 IV/100) (scale + f * trust_rank) )     k = 0.5 HP, 0.075 attack/defense
+      shown = floor( floor( floor(pre * stars) * souls ) * passives )            stars 1 + 0.05/star, souls 1 + 0.03/point
 
-    Trust raises HP as if the species' scale were f_hp higher per rank (0.5 L (1+IV) f rank, exact on
-    the save). For attack the screen adds 0.1 L f rank after the stars (+6 for f 1.0 at L60); defense
-    is assumed to follow attack until a defense tooltip says otherwise.
+    Trust is the friendship value added to the scale once per rank; the tooltip's "base" is the
+    same without trust and "Bonus from Trust" the difference after the stars. Work speed is the
+    row's craft scale with souls and passives (the game also nudges it by hunger; not modelled).
     """
     if not row or not row.get('hp'):
         return {"attack": 0, "defense": 0, "hp": 0, "work_speed": DEFAULT_WORK_SPEED, "breakdown": {}}
     stars = max(0, min(MAX_CONDENSE_STARS, int(rank or 1) - 1))
     star_mult = 1 + STAR_STEP * stars
     trust = max(0, int(trust_level or 0))
-    iv_hp, iv_atk, iv_def = 1 + TALENT_STEP * talent_hp, 1 + TALENT_STEP * max(talent_melee, talent_shot), 1 + TALENT_STEP * talent_defense
     L = int(level or 1)
 
     passives = {'hp': 0.0, 'attack': 0.0, 'defense': 0.0, 'work_speed': 0.0}
@@ -95,23 +93,21 @@ def calculate_pal_stats(
             elif t in ('CraftSpeed', 'WorkSpeed'):
                 passives['work_speed'] += v
 
-    def finish(stat: str, pre: float, trust_bonus: float, souls: int) -> Dict[str, int]:
-        soul_pct, pass_pct = SOUL_STEP * souls * 100, passives[stat]
-        total = math.floor((pre + trust_bonus) * (1 + soul_pct / 100) * (1 + pass_pct / 100))
-        return {'base': int(pre), 'trust': int(round(trust_bonus)), 'souls_pct': int(round(soul_pct)),
+    def stat(name: str, base: float, k: float, talent: int, scale: float, f: float, souls: int) -> Dict[str, int]:
+        iv = 1 + TALENT_STEP * talent
+        with_trust = math.floor(math.floor(base + k * L * iv * (scale + f * trust)) * star_mult)
+        without = math.floor(math.floor(base + k * L * iv * scale) * star_mult)
+        soul_pct, pass_pct = SOUL_STEP * souls * 100, passives[name]
+        total = math.floor(math.floor(with_trust * (1 + soul_pct / 100)) * (1 + pass_pct / 100))
+        return {'base': int(without), 'trust': int(with_trust - without), 'souls_pct': int(round(soul_pct)),
                 'passives_pct': int(round(pass_pct)), 'total': int(total)}
 
-    # HP: trust rides inside the growth (extra scale per rank), then stars, then souls / passives
-    hp_pre = math.floor(math.floor(BASE_HP + 5 * L + HP_PER_LEVEL * L * iv_hp * (row['hp'] + row.get('f_hp', 0) * trust)) * star_mult)
-    hp_base_only = math.floor(math.floor(BASE_HP + 5 * L + HP_PER_LEVEL * L * iv_hp * row['hp']) * star_mult)
-    hp = finish('hp', hp_base_only, hp_pre - hp_base_only, soul_hp)
-    # attack / defense: stars on the base, the trust bonus added after (0.1 L f rank), then the multipliers
-    atk_base = math.floor(math.floor(BASE_ATTACK + ATTACK_PER_LEVEL * L * iv_atk * row.get('shot', 0)) * star_mult)
-    atk = finish('attack', atk_base, math.floor(0.1 * L * row.get('f_shot', 0) * trust), soul_attack)
-    def_base = math.floor(math.floor(BASE_DEFENSE + ATTACK_PER_LEVEL * L * iv_def * row.get('defense', 0)) * star_mult)
-    dfn = finish('defense', def_base, math.floor(0.1 * L * row.get('f_defense', 0) * trust), soul_defense)
-    work = finish('work_speed', DEFAULT_WORK_SPEED, 0, soul_work_speed)
-    return {"attack": atk['total'], "defense": dfn['total'], "hp": hp['total'], "work_speed": work['total'],
+    hp = stat('hp', BASE_HP + 5 * L, HP_PER_LEVEL, talent_hp, row['hp'], row.get('f_hp', 0), soul_hp)
+    atk = stat('attack', BASE_ATTACK, ATTACK_PER_LEVEL, max(talent_melee, talent_shot), row.get('shot', 0), row.get('f_shot', 0), soul_attack)
+    dfn = stat('defense', BASE_DEFENSE, ATTACK_PER_LEVEL, talent_defense, row.get('defense', 0), row.get('f_defense', 0), soul_defense)
+    craft = row.get('craft') or DEFAULT_WORK_SPEED
+    work = math.floor(math.floor(craft * (1 + SOUL_STEP * soul_work_speed)) * (1 + passives['work_speed'] / 100))
+    return {"attack": atk['total'], "defense": dfn['total'], "hp": hp['total'], "work_speed": int(work),
             "breakdown": {'hp': hp, 'attack': atk, 'defense': dfn}}
 
 

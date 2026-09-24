@@ -19,18 +19,21 @@ LEGEND = _Skill([{'type': 'ShotAttack', 'value': 20.0, 'target': 'ToSelf'}, {'ty
 
 def test_level_1_no_talents():
     s = calculate_pal_stats(ALPACA, level=1, talent_hp=0, talent_melee=0, talent_shot=0, talent_defense=0)
-    assert (s['hp'], s['attack'], s['defense'], s['work_speed']) == (550, 105, 56, 70)
+    assert (s['hp'], s['attack'], s['defense'], s['work_speed']) == (550, 105, 56, 100)
 
 
 def test_frosty_wosty_status_screen():
-    # Level 60, 4 stars, souls 8/12/12, talents HP 63 / shot 58 / defense 98, Legend, trust 1 (13000 points):
-    # the screen showed Attack 1006 >> 1651 (trust +6, souls +36%, passives +20%).
-    s = calculate_pal_stats(FROSTALLION_BOSS, 60, 63, 0, 58, 98, rank=5, trust_level=1, passive_skills=[LEGEND],
-                            soul_hp=8, soul_attack=12, soul_defense=12)
-    assert s['breakdown']['attack'] == {'base': 1006, 'trust': 6, 'souls_pct': 36, 'passives_pct': 20, 'total': 1651}
-    assert s['attack'] == 1651
-    assert s['hp'] == 10137           # 1900-ish base x stars, trust as extra scale, x 1.24 souls: the screen's 10137
-    assert s['breakdown']['hp']['souls_pct'] == 24 and s['breakdown']['hp']['passives_pct'] == 0
+    # Level 60, 4 stars, souls 8/12/12, talents HP 63 / shot 58 / defense 98, Legend. Two live screens:
+    # at trust 1: Attack 1006 >> 1651 (trust +6, souls +36%, passives +20%), Defense 1483, HP 10137
+    # at trust 2: Defense tooltip 897 >> 1502 (trust +24), HP 10170 (= the saved Hp)
+    kw = dict(rank=5, passive_skills=[LEGEND], soul_hp=8, soul_attack=12, soul_defense=12)
+    t1 = calculate_pal_stats(FROSTALLION_BOSS, 60, 63, 0, 58, 98, trust_level=1, **kw)
+    assert t1['breakdown']['attack'] == {'base': 1006, 'trust': 6, 'souls_pct': 36, 'passives_pct': 20, 'total': 1651}
+    assert (t1['attack'], t1['defense'], t1['hp']) == (1651, 1483, 10137)
+    t2 = calculate_pal_stats(FROSTALLION_BOSS, 60, 63, 0, 58, 98, trust_level=2, **kw)
+    assert t2['breakdown']['defense'] == {'base': 897, 'trust': 24, 'souls_pct': 36, 'passives_pct': 20, 'total': 1502}
+    assert t2['hp'] == 10170
+    assert t2['work_speed'] == 100        # the row's craft scale; the game showed 98 with hunger at 610/620
 
 
 def test_trust_raises_hp_as_extra_scale_per_rank():
@@ -51,7 +54,7 @@ def test_talents_stars_and_the_row_scale_up():
 
 
 def test_unknown_row_returns_zeros():
-    assert calculate_pal_stats(None, 10, 0, 0, 0, 0)['hp'] == 0
+    assert calculate_pal_stats(None, 10, 0, 0, 0, 0)['hp'] == 0 and calculate_pal_stats(None, 10, 0, 0, 0, 0)['work_speed'] == 70
     assert calculate_pal_stats({}, 10, 0, 0, 0, 0)['attack'] == 0
 
 
