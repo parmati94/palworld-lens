@@ -960,27 +960,31 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- where the character stands in the game: for now, where they last were -->
-                                <div class="hidden sm:flex flex-col items-center justify-center min-w-0 px-2">
-                                    <template x-for="mm in [miniMap(selectedPlayer.location, 288, 192, 4)]" :key="'mm'">
-                                        <div class="w-full max-w-[18rem]">
+                                <!-- where the character stands in the game: for now, where they last were. The crop is
+                                     cut for a box larger than the slot and centred, so it fills whatever height the
+                                     equipment columns give it and the pin stays in the middle. -->
+                                <div class="hidden sm:block relative min-w-0 min-h-[14rem]">
+                                    <template x-for="mm in [miniMap(selectedPlayer.location, 640, 800, 4)]" :key="'mm'">
+                                        <div class="absolute inset-0">
                                             <button type="button" x-show="mm"
                                                     @click="closePlayerModal(); currentTab = 'map'; $nextTick(() => { const mapEl = document.querySelector('#worldMap'); if (mapEl) { const mc = Alpine.$data(mapEl.parentElement); if (mc && mc.centerOnLocation) mc.centerOnLocation(selectedPlayer.location.x, selectedPlayer.location.y); } })"
-                                                    class="relative block w-full aspect-[3/2] overflow-hidden rounded-lg border border-gray-700/60 bg-gray-900/70 hover:border-accent-500/60 transition-colors group/map"
+                                                    class="absolute inset-0 overflow-hidden rounded-lg border border-gray-700/60 bg-gray-900/70 hover:border-accent-500/60 transition-colors group/map"
                                                     data-tip="Last seen here -- open the map">
-                                                <template x-for="(t, i) in (mm ? mm.tiles : [])" :key="'t' + i">
-                                                    <img :src="t.src" alt="" class="absolute max-w-none w-64 h-64 select-none pointer-events-none" :style="`left:${t.left}px; top:${t.top}px`" loading="lazy">
-                                                </template>
-                                                <span class="absolute inset-0 bg-gradient-to-t from-gray-900/70 to-transparent pointer-events-none"></span>
-                                                <span class="absolute" :style="mm ? `left:${mm.pin.left}px; top:${mm.pin.top}px` : ''">
-                                                    <span class="block w-3.5 h-3.5 -ml-[7px] -mt-[7px] rounded-full bg-accent-400 ring-4 ring-accent-400/30 shadow-lg group-hover/map:ring-accent-400/50 transition-all"></span>
+                                                <span class="absolute left-1/2 top-1/2 w-[640px] h-[800px] -ml-[320px] -mt-[400px] pointer-events-none">
+                                                    <template x-for="(t, i) in (mm ? mm.tiles : [])" :key="'t' + i">
+                                                        <img :src="t.src" alt="" class="absolute max-w-none w-64 h-64 select-none" :style="`left:${t.left}px; top:${t.top}px`" loading="lazy">
+                                                    </template>
+                                                    <span class="absolute" :style="mm ? `left:${mm.pin.left}px; top:${mm.pin.top}px` : ''">
+                                                        <span class="block w-3.5 h-3.5 -ml-[7px] -mt-[7px] rounded-full bg-accent-400 ring-4 ring-accent-400/30 shadow-lg group-hover/map:ring-accent-400/50 transition-all"></span>
+                                                    </span>
                                                 </span>
-                                                <span class="absolute bottom-1.5 left-2 right-2 flex items-center justify-between text-[11px] text-gray-200 pointer-events-none">
+                                                <span class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-900/80 to-transparent pointer-events-none"></span>
+                                                <span class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[11px] text-gray-200 pointer-events-none">
                                                     <span class="font-medium">Last seen</span>
                                                     <span class="tabular-nums text-gray-400" x-text="mm ? `${mm.label} · ${Math.round(selectedPlayer.location.x)}, ${Math.round(selectedPlayer.location.y)}` : ''"></span>
                                                 </span>
                                             </button>
-                                            <div x-show="!mm" class="text-3xl font-bold text-white/10 text-center leading-none truncate" x-text="selectedPlayer.player_name"></div>
+                                            <div x-show="!mm" class="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white/10 leading-none truncate px-2" x-text="selectedPlayer.player_name"></div>
                                         </div>
                                     </template>
                                 </div>
