@@ -3,7 +3,8 @@ import logging
 from typing import List, Optional, Dict
 import math
 
-from backend.models.models import PlayerInfo, PlayerRecords, PlayerTech
+from backend.common.loadout import enhance_stats, food_effects, shield_max
+from backend.models.models import FoodBuff, PlayerInfo, PlayerRecords, PlayerTech, StatLine
 from backend.parser.utils.mappers import item_ref, pal_ref
 from backend.parser.loaders.schema_loader import SchemaManager
 from backend.common.logging_config import get_logger
@@ -57,14 +58,6 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             ex_stat_points=ex_stat_points
         )
         
-        # HP - extract current HP with fallback to calculated max
-        current_hp = player_schema.extract_field(char_info, "Hp")
-        max_hp = calculated_stats["hp"]
-        
-        # Fallback to max HP if extraction failed or value is invalid (greater than max)
-        if not current_hp or current_hp > max_hp:
-            current_hp = max_hp
-        
         # Get location from player_uid_to_containers (from Players/*.sav LastTransform)
         location = None
         save_info = {}
@@ -76,6 +69,28 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
                     break
         details = save_info.get("details") or {}
         kit = _kit(details.get("containers") or {}, item_index or {}, data, container_sizes or {})
+
+        # The status screen: base from level + points, then what the worn gear and the running dish add
+        food_id = player_schema.extract_field(char_info, "FoodWithStatusEffect")
+        food_id = str(food_id) if food_id and str(food_id) != "None" else None
+        gear_ids = [i.item_id for i in kit["gear"]]
+        loadout = getattr(data, "loadout", None) or {}
+        stats = {k: StatLine(**v) for k, v in enhance_stats(
+            {**calculated_stats, "defense": (loadout.get("player_base") or {}).get("defense", 100)},
+            gear_ids, food_id, loadout, getattr(data, "passive_skills", None) or {}).items()}
+
+        # HP - the save's current HP against the enhanced max (gear adds HP, so the base alone would clamp it)
+        current_hp = player_schema.extract_field(char_info, "Hp")
+        max_hp = stats["hp"].total
+        if not current_hp or current_hp > max_hp:
+            current_hp = max_hp
+        food_buff = None
+        if food_id:
+            dish = data.item(food_id) if data is not None else {}
+            secs = player_schema.extract_field(char_info, "FoodEffectSecondsLeft")
+            food_buff = FoodBuff(item_id=food_id, item_name=dish.get("localized_name") or food_id, icon=dish.get("icon"),
+                                 seconds_left=int(secs) if isinstance(secs, int) else None,
+                                 effects=food_effects(food_id, loadout))
         
         player = PlayerInfo(
             uid=instance_id,
@@ -104,6 +119,11 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             carried_weight=kit["carried_weight"],
             tech=PlayerTech(**details["tech"]) if details.get("tech") else None,
             records=PlayerRecords(**details["records"]) if details.get("records") else None,
+            stats=stats,
+            shield_hp=int(player_schema.extract_field(char_info, "ShieldHP") or 0),
+            shield_max=shield_max(gear_ids, loadout),
+            food_buff=food_buff,
+            unspent_points=int(player_schema.extract_field(char_info, "UnusedStatusPoint") or 0),
             stat_points_hp=stat_points["hp"],
             stat_points_stamina=stat_points["stamina"],
             stat_points_attack=stat_points["attack"],

@@ -1,0 +1,4569 @@
+{
+ "food": {
+  "BLT": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 15.0
+    }
+   ],
+   "seconds": 600
+  },
+  "BaconEggs": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Carbonara": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 20.0
+    }
+   ],
+   "seconds": 600
+  },
+  "CheeseBurger": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 30.0
+    },
+    {
+     "type": "Defense",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Cheeseburger_2": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 20.0
+    },
+    {
+     "type": "HungerResist",
+     "value": 50.0
+    }
+   ],
+   "seconds": 600
+  },
+  "ChickenSaute": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 30.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Chowder": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 50.0
+    },
+    {
+     "type": "HungerResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Curry": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "DeerLocoMoco": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 20.0
+    }
+   ],
+   "seconds": 600
+  },
+  "DeerStew": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 20.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Eaglestew": {
+   "effects": [
+    {
+     "type": "SANResist",
+     "value": 20.0
+    }
+   ],
+   "seconds": 600
+  },
+  "FriedChicken": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 30.0
+    },
+    {
+     "type": "SANResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "FriedKelpie": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 10.0
+    },
+    {
+     "type": "SANResist",
+     "value": 50.0
+    }
+   ],
+   "seconds": 600
+  },
+  "FriedVegetables": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "GenghisKhan": {
+   "effects": [
+    {
+     "type": "SANResist",
+     "value": 20.0
+    },
+    {
+     "type": "WorkSpeed",
+     "value": 30.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Gratin": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 50.0
+    },
+    {
+     "type": "Defense",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "GrilledSheepHerbs": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "GrilledSwordCutlassFish": {
+   "effects": [
+    {
+     "type": "LeanBackAndKnockbackInvalid",
+     "value": 1.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Gyoza": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 25.0
+    },
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Hamburger": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 30.0
+    },
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Hamburger_2": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 50.0
+    },
+    {
+     "type": "SANResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "HotDog": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 30.0
+    }
+   ],
+   "seconds": 600
+  },
+  "HotDog_2": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 20.0
+    }
+   ],
+   "seconds": 600
+  },
+  "JellyfishFairy_jelly": {
+   "effects": [
+    {
+     "type": "Exp_Increase",
+     "value": 10.0
+    },
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "JellyfishGhost_jelly": {
+   "effects": [
+    {
+     "type": "Exp_Increase",
+     "value": 10.0
+    },
+    {
+     "type": "Defense",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "MarinatedMushrooms": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "MeatAndPotatoes": {
+   "effects": [
+    {
+     "type": "Defense",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "MeatSauce": {
+   "effects": [
+    {
+     "type": "SANResist",
+     "value": 20.0
+    },
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Minestrone": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 40.0
+    }
+   ],
+   "seconds": 600
+  },
+  "MushroomJuice": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 600.0
+    },
+    {
+     "type": "SANResist",
+     "value": -100000.0
+    }
+   ],
+   "seconds": 10
+  },
+  "MushroomSoup": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "MushroomStew": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 10.0
+    },
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Narcotic": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 400.0
+    },
+    {
+     "type": "SANResist",
+     "value": -50000.0
+    }
+   ],
+   "seconds": 10
+  },
+  "OctopusGirl_Takoyaki": {
+   "effects": [
+    {
+     "type": "Exp_Increase",
+     "value": 10.0
+    }
+   ],
+   "seconds": 1800
+  },
+  "OctopusGirl_Takoyaki2": {
+   "effects": [
+    {
+     "type": "ExplosionResist",
+     "value": 100.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Omelet": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Opium": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 200.0
+    },
+    {
+     "type": "SANResist",
+     "value": -25000.0
+    }
+   ],
+   "seconds": 10
+  },
+  "Pancake": {
+   "effects": [
+    {
+     "type": "SANResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Pizza": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 30.0
+    },
+    {
+     "type": "HungerResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "PoisonMushroom": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": -25.0
+    }
+   ],
+   "seconds": 60
+  },
+  "PotatoChips": {
+   "effects": [
+    {
+     "type": "SANResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Potion": {
+   "effects": [
+    {
+     "type": "Regene_Hp",
+     "value": 5.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Potion_Extreme": {
+   "effects": [
+    {
+     "type": "Regene_Hp",
+     "value": 15.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Potion_High": {
+   "effects": [
+    {
+     "type": "Regene_Hp",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Potion_Low": {
+   "effects": [
+    {
+     "type": "Regene_Hp",
+     "value": 3.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Quiche": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 50.0
+    },
+    {
+     "type": "SANResist",
+     "value": 50.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Salad": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 30.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Seafood_Salada": {
+   "effects": [
+    {
+     "type": "Exp_Increase",
+     "value": 20.0
+    }
+   ],
+   "seconds": 1800
+  },
+  "SpringRolls": {
+   "effects": [
+    {
+     "type": "SANResist",
+     "value": 50.0
+    },
+    {
+     "type": "Attack",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "StewedIceDeer": {
+   "effects": [
+    {
+     "type": "HungerResist",
+     "value": 25.0
+    }
+   ],
+   "seconds": 600
+  },
+  "StirFriedVegetables": {
+   "effects": [
+    {
+     "type": "WorkSpeed",
+     "value": 10.0
+    },
+    {
+     "type": "Defense",
+     "value": 10.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Supplement": {
+   "effects": [
+    {
+     "type": "FullStomachKeep",
+     "value": 100.0
+    }
+   ],
+   "seconds": 600
+  },
+  "Yakisoba": {
+   "effects": [
+    {
+     "type": "Attack",
+     "value": 20.0
+    }
+   ],
+   "seconds": 600
+  }
+ },
+ "gear": {
+  "Accessory_AT_1": {
+   "passives": [
+    "Attack_ACC_up3"
+   ]
+  },
+  "Accessory_AT_2": {
+   "passives": [
+    "Attack_ACC_up3"
+   ]
+  },
+  "Accessory_AT_3": {
+   "passives": [
+    "Attack_ACC_up3"
+   ]
+  },
+  "Accessory_AirDash1": {
+   "passives": [
+    "AirDash_1"
+   ]
+  },
+  "Accessory_AirDash2": {
+   "passives": [
+    "AirDash_2"
+   ]
+  },
+  "Accessory_AirDash3": {
+   "passives": [
+    "AirDash_3"
+   ]
+  },
+  "Accessory_AirDash4": {
+   "passives": [
+    "AirDash_4"
+   ]
+  },
+  "Accessory_AquaResist_1": {
+   "passives": [
+    "ElementResist_Aqua_3"
+   ]
+  },
+  "Accessory_AquaResist_2": {
+   "passives": [
+    "ElementResist_Aqua_3"
+   ]
+  },
+  "Accessory_AquaResist_3": {
+   "passives": [
+    "ElementResist_Aqua_3"
+   ]
+  },
+  "Accessory_Avoid_1": {
+   "passives": [
+    "AvoidDurationUp_EquipSkill_2"
+   ]
+  },
+  "Accessory_ColdIce_1": {
+   "passives": [
+    "TemperatureResist_Cold3",
+    "ElementResist_Ice_4"
+   ]
+  },
+  "Accessory_CoolResist_1": {
+   "passives": [
+    "TemperatureResist_Cold3"
+   ]
+  },
+  "Accessory_CoolResist_2": {
+   "passives": [
+    "TemperatureResist_Cold3"
+   ]
+  },
+  "Accessory_CoolResist_3": {
+   "passives": [
+    "TemperatureResist_Cold3"
+   ]
+  },
+  "Accessory_DFHP_1": {
+   "passives": [
+    "defense_ACC_up4",
+    "HP_ACC_up4"
+   ]
+  },
+  "Accessory_DarkResist_1": {
+   "passives": [
+    "ElementResist_Dark_3"
+   ]
+  },
+  "Accessory_DarkResist_2": {
+   "passives": [
+    "ElementResist_Dark_3"
+   ]
+  },
+  "Accessory_DarkResist_3": {
+   "passives": [
+    "ElementResist_Dark_3"
+   ]
+  },
+  "Accessory_DragonResist_1": {
+   "passives": [
+    "ElementResist_Dragon_3"
+   ]
+  },
+  "Accessory_DragonResist_2": {
+   "passives": [
+    "ElementResist_Dragon_3"
+   ]
+  },
+  "Accessory_DragonResist_3": {
+   "passives": [
+    "ElementResist_Dragon_3"
+   ]
+  },
+  "Accessory_EarthResist_1": {
+   "passives": [
+    "ElementResist_Earth_3"
+   ]
+  },
+  "Accessory_EarthResist_2": {
+   "passives": [
+    "ElementResist_Earth_3"
+   ]
+  },
+  "Accessory_EarthResist_3": {
+   "passives": [
+    "ElementResist_Earth_3"
+   ]
+  },
+  "Accessory_ExplosionResist": {
+   "passives": [
+    "Defuser_ExplosiveSpore_EquipSkill"
+   ]
+  },
+  "Accessory_FireResist_1": {
+   "passives": [
+    "ElementResist_Fire_3"
+   ]
+  },
+  "Accessory_FireResist_2": {
+   "passives": [
+    "ElementResist_Fire_3"
+   ]
+  },
+  "Accessory_FireResist_3": {
+   "passives": [
+    "ElementResist_Fire_3"
+   ]
+  },
+  "Accessory_HCHP_1": {
+   "passives": [
+    "TemperatureResist_Heat3Cold3",
+    "HP_ACC_up4"
+   ]
+  },
+  "Accessory_HCMW_1": {
+   "passives": [
+    "TemperatureResist_Heat3Cold3",
+    "MaxInventoryWeight_up_Equip_4"
+   ]
+  },
+  "Accessory_HP_1": {
+   "passives": [
+    "HP_ACC_up3"
+   ]
+  },
+  "Accessory_HP_2": {
+   "passives": [
+    "HP_ACC_up3"
+   ]
+  },
+  "Accessory_HP_3": {
+   "passives": [
+    "HP_ACC_up3"
+   ]
+  },
+  "Accessory_HeatColdResist_1": {
+   "passives": [
+    "TemperatureResist_Heat3Cold3"
+   ]
+  },
+  "Accessory_HeatColdResist_2": {
+   "passives": [
+    "TemperatureResist_Heat3Cold3"
+   ]
+  },
+  "Accessory_HeatColdResist_3": {
+   "passives": [
+    "TemperatureResist_Heat3Cold3"
+   ]
+  },
+  "Accessory_HeatFire_1": {
+   "passives": [
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_4"
+   ]
+  },
+  "Accessory_HeatResist_1": {
+   "passives": [
+    "TemperatureResist_Heat3"
+   ]
+  },
+  "Accessory_HeatResist_2": {
+   "passives": [
+    "TemperatureResist_Heat3"
+   ]
+  },
+  "Accessory_HeatResist_3": {
+   "passives": [
+    "TemperatureResist_Heat3"
+   ]
+  },
+  "Accessory_IceResist_1": {
+   "passives": [
+    "ElementResist_Ice_3"
+   ]
+  },
+  "Accessory_IceResist_2": {
+   "passives": [
+    "ElementResist_Ice_3"
+   ]
+  },
+  "Accessory_IceResist_3": {
+   "passives": [
+    "ElementResist_Ice_3"
+   ]
+  },
+  "Accessory_JumpAir_1": {
+   "passives": [
+    "JumpCount_Increase1",
+    "AirDash_1"
+   ]
+  },
+  "Accessory_JumpAir_2": {
+   "passives": [
+    "JumpCount_Increase1",
+    "AirDash_2"
+   ]
+  },
+  "Accessory_JumpCount_Increase1": {
+   "passives": [
+    "JumpCount_Increase1"
+   ]
+  },
+  "Accessory_JumpCount_Increase2": {
+   "passives": [
+    "JumpCount_Increase2"
+   ]
+  },
+  "Accessory_JumpCount_Increase3": {
+   "passives": [
+    "JumpCount_Increase3"
+   ]
+  },
+  "Accessory_JumpPower_Increase": {
+   "passives": [
+    "JumpPower_Increase"
+   ]
+  },
+  "Accessory_LeafResist_1": {
+   "passives": [
+    "ElementResist_Leaf_3"
+   ]
+  },
+  "Accessory_LeafResist_2": {
+   "passives": [
+    "ElementResist_Leaf_3"
+   ]
+  },
+  "Accessory_LeafResist_3": {
+   "passives": [
+    "ElementResist_Leaf_3"
+   ]
+  },
+  "Accessory_MaxWeightUp_01": {
+   "passives": [
+    "MaxInventoryWeight_up_Equip_3"
+   ]
+  },
+  "Accessory_MaxWeightUp_02": {
+   "passives": [
+    "MaxInventoryWeight_up_Equip_2"
+   ]
+  },
+  "Accessory_MaxWeightUp_03": {
+   "passives": [
+    "MaxInventoryWeight_up_Equip_3"
+   ]
+  },
+  "Accessory_NonkChecker_1": {
+   "passives": [
+    "NonKilling"
+   ]
+  },
+  "Accessory_Nonkilling": {
+   "passives": [
+    "NonKilling"
+   ]
+  },
+  "Accessory_NormalResist_1": {
+   "passives": [
+    "ElementResist_Normal_3"
+   ]
+  },
+  "Accessory_NormalResist_2": {
+   "passives": [
+    "ElementResist_Normal_3"
+   ]
+  },
+  "Accessory_NormalResist_3": {
+   "passives": [
+    "ElementResist_Normal_3"
+   ]
+  },
+  "Accessory_Otomo_Dargon_1": {
+   "passives": [
+    "ElementResist_Dark_4",
+    "ElementBoost_Dragon_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Dark_1": {
+   "passives": [
+    "ElementResist_Normal_4",
+    "ElementBoost_Dark_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Earth_1": {
+   "passives": [
+    "ElementResist_Thunder_4",
+    "ElementBoost_Earth_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Electricity_1": {
+   "passives": [
+    "ElementResist_Aqua_4",
+    "ElementBoost_Electricity_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Fire_1": {
+   "passives": [
+    "ElementResist_Leaf_4",
+    "ElementBoost_Fire_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Fire_2": {
+   "passives": [
+    "ElementResist_Ice_4",
+    "ElementBoost_Fire_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Ice_1": {
+   "passives": [
+    "ElementResist_Dragon_4",
+    "ElementBoost_Ice_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Leaf_1": {
+   "passives": [
+    "ElementResist_Earth_4",
+    "ElementBoost_Leaf_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_Otomo_Water_1": {
+   "passives": [
+    "ElementResist_Fire_4",
+    "ElementBoost_Water_4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_PPAT_1": {
+   "passives": [
+    "Attack_ACC_up4",
+    "Attack_ACC_up4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_PPDF_1": {
+   "passives": [
+    "defense_ACC_up4",
+    "Defense_ACC_up4_Otomo_Only_Equip"
+   ]
+  },
+  "Accessory_SuperJumpAir_1": {
+   "passives": [
+    "JumpCount_Increase2",
+    "AirDash_1"
+   ]
+  },
+  "Accessory_SuperJumpAir_2": {
+   "passives": [
+    "JumpCount_Increase2",
+    "AirDash_2"
+   ]
+  },
+  "Accessory_ThunderResist_1": {
+   "passives": [
+    "ElementResist_Thunder_3"
+   ]
+  },
+  "Accessory_ThunderResist_2": {
+   "passives": [
+    "ElementResist_Thunder_3"
+   ]
+  },
+  "Accessory_ThunderResist_3": {
+   "passives": [
+    "ElementResist_Thunder_3"
+   ]
+  },
+  "Accessory_WKMC_1": {
+   "passives": [
+    "MaxInventoryWeight_up_Equip_4",
+    "WorkSpeed_ACC_up4"
+   ]
+  },
+  "Accessory_WorkSpeed_1": {
+   "passives": [
+    "WorkSpeed_ACC_up3"
+   ]
+  },
+  "Accessory_WorkSpeed_2": {
+   "passives": [
+    "WorkSpeed_ACC_up3"
+   ]
+  },
+  "Accessory_WorkSpeed_3": {
+   "passives": [
+    "WorkSpeed_ACC_up3"
+   ]
+  },
+  "Accessory_defense_1": {
+   "passives": [
+    "defense_ACC_up3"
+   ]
+  },
+  "Accessory_defense_2": {
+   "passives": [
+    "defense_ACC_up3"
+   ]
+  },
+  "Accessory_defense_3": {
+   "passives": [
+    "defense_ACC_up3"
+   ]
+  },
+  "AncientArmor": {
+   "defense": 800,
+   "hp": 2400,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2"
+   ]
+  },
+  "AncientArmorCold": {
+   "defense": 840,
+   "hp": 2400,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "AncientArmorCold_2": {
+   "defense": 924,
+   "hp": 2640,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "AncientArmorCold_3": {
+   "defense": 966,
+   "hp": 2760,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "AncientArmorCold_4": {
+   "defense": 1008,
+   "hp": 2880,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "AncientArmorCold_5": {
+   "defense": 1092,
+   "hp": 3120,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "AncientArmorHeat": {
+   "defense": 840,
+   "hp": 2400,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "AncientArmorHeat_2": {
+   "defense": 924,
+   "hp": 2640,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "AncientArmorHeat_3": {
+   "defense": 966,
+   "hp": 2760,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "AncientArmorHeat_4": {
+   "defense": 1008,
+   "hp": 2880,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "AncientArmorHeat_5": {
+   "defense": 1092,
+   "hp": 3120,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "AncientArmorWeight": {
+   "defense": 840,
+   "hp": 2400,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_4"
+   ]
+  },
+  "AncientArmorWeight_2": {
+   "defense": 924,
+   "hp": 2640,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_4",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "AncientArmorWeight_3": {
+   "defense": 966,
+   "hp": 2760,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_4",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "AncientArmorWeight_4": {
+   "defense": 1008,
+   "hp": 2880,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_4",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "AncientArmorWeight_5": {
+   "defense": 1092,
+   "hp": 3120,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_4",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "AncientArmor_2": {
+   "defense": 880,
+   "hp": 2640,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "AncientArmor_3": {
+   "defense": 920,
+   "hp": 2760,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "AncientArmor_4": {
+   "defense": 960,
+   "hp": 2880,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "AncientArmor_5": {
+   "defense": 1040,
+   "hp": 3120,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "AncientHelmet": {
+   "defense": 500,
+   "hp": 1200,
+   "passives": [
+    "ElementResist_Normal_1",
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "AncientHelmet_2": {
+   "defense": 550,
+   "hp": 1320,
+   "passives": [
+    "ElementResist_Normal_1",
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "AncientHelmet_3": {
+   "defense": 575,
+   "hp": 1380,
+   "passives": [
+    "ElementResist_Normal_1",
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "AncientHelmet_4": {
+   "defense": 600,
+   "hp": 1440,
+   "passives": [
+    "ElementResist_Normal_1",
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "AncientHelmet_5": {
+   "defense": 650,
+   "hp": 1560,
+   "passives": [
+    "ElementResist_Normal_1",
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "Axe_Steal": {
+   "passives": [
+    "WoodDrop_Boost_4"
+   ]
+  },
+  "Axe_Tier_01": {
+   "passives": [
+    "WoodDrop_Boost_1"
+   ]
+  },
+  "Axe_Tier_02": {
+   "passives": [
+    "WoodDrop_Boost_2"
+   ]
+  },
+  "Axe_Tier_03": {
+   "passives": [
+    "WoodDrop_Boost_3"
+   ]
+  },
+  "BossDefeatReward_AmaterasuWolf_Dark": {
+   "passives": [
+    "BossDefeatReward_AmaterasuWolf_Dark"
+   ]
+  },
+  "BossDefeatReward_Anubis": {
+   "passives": [
+    "BossDefeatReward_Anubis"
+   ]
+  },
+  "BossDefeatReward_BadCatgirl": {
+   "passives": [
+    "BossDefeatReward_BadCatgirl"
+   ]
+  },
+  "BossDefeatReward_BerryGoat_Dark": {
+   "passives": [
+    "BossDefeatReward_BerryGoat_Dark"
+   ]
+  },
+  "BossDefeatReward_BlackMetalDragon": {
+   "passives": [
+    "BossDefeatReward_BlackMetalDragon"
+   ]
+  },
+  "BossDefeatReward_BlackPuppy": {
+   "passives": [
+    "BossDefeatReward_BlackPuppy"
+   ]
+  },
+  "BossDefeatReward_BlueDragon": {
+   "passives": [
+    "BossDefeatReward_BlueDragon"
+   ]
+  },
+  "BossDefeatReward_BlueThunderHorse": {
+   "passives": [
+    "BossDefeatReward_BlueThunderHorse"
+   ]
+  },
+  "BossDefeatReward_BlueberryFairy": {
+   "passives": [
+    "BossDefeatReward_BlueberryFairy"
+   ]
+  },
+  "BossDefeatReward_CactusDoll": {
+   "passives": [
+    "BossDefeatReward_CactusDoll"
+   ]
+  },
+  "BossDefeatReward_CaptainPenguin": {
+   "passives": [
+    "BossDefeatReward_CaptainPenguin"
+   ]
+  },
+  "BossDefeatReward_CatMage": {
+   "passives": [
+    "BossDefeatReward_CatMage"
+   ]
+  },
+  "BossDefeatReward_CatVampire": {
+   "passives": [
+    "BossDefeatReward_CatVampire"
+   ]
+  },
+  "BossDefeatReward_CubeTurtle": {
+   "passives": [
+    "BossDefeatReward_CubeTurtle"
+   ]
+  },
+  "BossDefeatReward_CubeTurtle_Neutral": {
+   "passives": [
+    "BossDefeatReward_CubeTurtle_Neutral"
+   ]
+  },
+  "BossDefeatReward_DarkScorpion": {
+   "passives": [
+    "BossDefeatReward_DarkScorpion"
+   ]
+  },
+  "BossDefeatReward_DarkScorpion_Ground": {
+   "passives": [
+    "BossDefeatReward_DarkScorpion_Ground"
+   ]
+  },
+  "BossDefeatReward_DomeArmorDragon": {
+   "passives": [
+    "BossDefeatReward_DomeArmorDragon"
+   ]
+  },
+  "BossDefeatReward_ElecLizard": {
+   "passives": [
+    "BossDefeatReward_ElecLizard"
+   ]
+  },
+  "BossDefeatReward_ElecPanda": {
+   "passives": [
+    "BossDefeatReward_ElecPanda"
+   ]
+  },
+  "BossDefeatReward_ElecSnail": {
+   "passives": [
+    "BossDefeatReward_ElecSnail"
+   ]
+  },
+  "BossDefeatReward_FairyDragon": {
+   "passives": [
+    "BossDefeatReward_FairyDragon"
+   ]
+  },
+  "BossDefeatReward_FengyunDeeper": {
+   "passives": [
+    "BossDefeatReward_FengyunDeeper"
+   ]
+  },
+  "BossDefeatReward_FengyunDeeper_Electric": {
+   "passives": [
+    "BossDefeatReward_FengyunDeeper_Electric"
+   ]
+  },
+  "BossDefeatReward_FireKirin": {
+   "passives": [
+    "BossDefeatReward_FireKirin"
+   ]
+  },
+  "BossDefeatReward_FlameBuffalo": {
+   "passives": [
+    "BossDefeatReward_FlameBuffalo"
+   ]
+  },
+  "BossDefeatReward_FlowerDinosaur_Electric": {
+   "passives": [
+    "BossDefeatReward_FlowerDinosaur_Electric"
+   ]
+  },
+  "BossDefeatReward_FlowerDoll": {
+   "passives": [
+    "BossDefeatReward_FlowerDoll"
+   ]
+  },
+  "BossDefeatReward_FoxExorcist": {
+   "passives": [
+    "BossDefeatReward_FoxExorcist"
+   ]
+  },
+  "BossDefeatReward_FoxMage": {
+   "passives": [
+    "BossDefeatReward_FoxMage"
+   ]
+  },
+  "BossDefeatReward_GhostDragon": {
+   "passives": [
+    "BossDefeatReward_GhostDragon"
+   ]
+  },
+  "BossDefeatReward_GhostRabbit": {
+   "passives": [
+    "BossDefeatReward_GhostRabbit"
+   ]
+  },
+  "BossDefeatReward_GoldenHorse": {
+   "passives": [
+    "BossDefeatReward_GoldenHorse"
+   ]
+  },
+  "BossDefeatReward_GrassGolem": {
+   "passives": [
+    "BossDefeatReward_GrassGolem"
+   ]
+  },
+  "BossDefeatReward_GrassGolem_Dark": {
+   "passives": [
+    "BossDefeatReward_GrassGolem_Dark"
+   ]
+  },
+  "BossDefeatReward_GrassMammoth": {
+   "passives": [
+    "BossDefeatReward_GrassMammoth"
+   ]
+  },
+  "BossDefeatReward_GrassPanda_Electric": {
+   "passives": [
+    "BossDefeatReward_GrassPanda_Electric"
+   ]
+  },
+  "BossDefeatReward_GrassRabbitMan": {
+   "passives": [
+    "BossDefeatReward_GrassRabbitMan"
+   ]
+  },
+  "BossDefeatReward_GrimGirl": {
+   "passives": [
+    "BossDefeatReward_GrimGirl"
+   ]
+  },
+  "BossDefeatReward_HawkBird": {
+   "passives": [
+    "BossDefeatReward_HawkBird"
+   ]
+  },
+  "BossDefeatReward_HerculesBeetle": {
+   "passives": [
+    "BossDefeatReward_HerculesBeetle"
+   ]
+  },
+  "BossDefeatReward_HerculesBeetle_Ground": {
+   "passives": [
+    "BossDefeatReward_HerculesBeetle_Ground"
+   ]
+  },
+  "BossDefeatReward_Horus_Water": {
+   "passives": [
+    "BossDefeatReward_Horus_Water"
+   ]
+  },
+  "BossDefeatReward_IceFox": {
+   "passives": [
+    "BossDefeatReward_IceFox"
+   ]
+  },
+  "BossDefeatReward_IceHorse": {
+   "passives": [
+    "BossDefeatReward_IceHorse"
+   ]
+  },
+  "BossDefeatReward_IceHorse_Dark": {
+   "passives": [
+    "BossDefeatReward_IceHorse_Dark"
+   ]
+  },
+  "BossDefeatReward_IceNarwhal": {
+   "passives": [
+    "BossDefeatReward_IceNarwhal"
+   ]
+  },
+  "BossDefeatReward_IceNarwhal_Fire": {
+   "passives": [
+    "BossDefeatReward_IceNarwhal_Fire"
+   ]
+  },
+  "BossDefeatReward_JetDragon": {
+   "passives": [
+    "BossDefeatReward_JetDragon"
+   ]
+  },
+  "BossDefeatReward_KabukiMan": {
+   "passives": [
+    "BossDefeatReward_KabukiMan"
+   ]
+  },
+  "BossDefeatReward_KingAlpaca": {
+   "passives": [
+    "BossDefeatReward_KingAlpaca"
+   ]
+  },
+  "BossDefeatReward_KingAlpaca_Ice": {
+   "passives": [
+    "BossDefeatReward_KingAlpaca_Ice"
+   ]
+  },
+  "BossDefeatReward_KingBahamut": {
+   "passives": [
+    "BossDefeatReward_KingBahamut"
+   ]
+  },
+  "BossDefeatReward_Kirin": {
+   "passives": [
+    "BossDefeatReward_Kirin"
+   ]
+  },
+  "BossDefeatReward_Kitsunebi_Ice": {
+   "passives": [
+    "BossDefeatReward_Kitsunebi_Ice"
+   ]
+  },
+  "BossDefeatReward_LazyCatfish": {
+   "passives": [
+    "BossDefeatReward_LazyCatfish"
+   ]
+  },
+  "BossDefeatReward_LazyDragon_Electric": {
+   "passives": [
+    "BossDefeatReward_LazyDragon_Electric"
+   ]
+  },
+  "BossDefeatReward_LilyQueen": {
+   "passives": [
+    "BossDefeatReward_LilyQueen"
+   ]
+  },
+  "BossDefeatReward_LilyQueen_Dark": {
+   "passives": [
+    "BossDefeatReward_LilyQueen_Dark"
+   ]
+  },
+  "BossDefeatReward_LotusDragon": {
+   "passives": [
+    "BossDefeatReward_LotusDragon"
+   ]
+  },
+  "BossDefeatReward_Manticore": {
+   "passives": [
+    "BossDefeatReward_Manticore"
+   ]
+  },
+  "BossDefeatReward_MoonChild": {
+   "passives": [
+    "BossDefeatReward_MoonChild"
+   ]
+  },
+  "BossDefeatReward_MopKing": {
+   "passives": [
+    "BossDefeatReward_MopKing"
+   ]
+  },
+  "BossDefeatReward_MushroomLady": {
+   "passives": [
+    "BossDefeatReward_MushroomLady"
+   ]
+  },
+  "BossDefeatReward_Mutant": {
+   "passives": [
+    "BossDefeatReward_Mutant"
+   ]
+  },
+  "BossDefeatReward_MysteryMask": {
+   "passives": [
+    "BossDefeatReward_MysteryMask"
+   ]
+  },
+  "BossDefeatReward_NaughtyCat": {
+   "passives": [
+    "BossDefeatReward_NaughtyCat"
+   ]
+  },
+  "BossDefeatReward_NightBlueHorse": {
+   "passives": [
+    "BossDefeatReward_NightBlueHorse"
+   ]
+  },
+  "BossDefeatReward_PinkRabbit_Grass": {
+   "passives": [
+    "BossDefeatReward_PinkRabbit_Grass"
+   ]
+  },
+  "BossDefeatReward_PlantSlime": {
+   "passives": [
+    "BossDefeatReward_PlantSlime"
+   ]
+  },
+  "BossDefeatReward_PoseidonOrca": {
+   "passives": [
+    "BossDefeatReward_PoseidonOrca"
+   ]
+  },
+  "BossDefeatReward_PurpleSpider": {
+   "passives": [
+    "BossDefeatReward_PurpleSpider"
+   ]
+  },
+  "BossDefeatReward_QueenBee": {
+   "passives": [
+    "BossDefeatReward_QueenBee"
+   ]
+  },
+  "BossDefeatReward_RaijinDaughter_Water": {
+   "passives": [
+    "BossDefeatReward_RaijinDaughter_Water"
+   ]
+  },
+  "BossDefeatReward_RockBeast": {
+   "passives": [
+    "BossDefeatReward_RockBeast"
+   ]
+  },
+  "BossDefeatReward_RockBeast_Ice": {
+   "passives": [
+    "BossDefeatReward_RockBeast_Ice"
+   ]
+  },
+  "BossDefeatReward_Ronin": {
+   "passives": [
+    "BossDefeatReward_Ronin"
+   ]
+  },
+  "BossDefeatReward_SaintCentaur": {
+   "passives": [
+    "BossDefeatReward_SaintCentaur_1",
+    "BossDefeatReward_SaintCentaur_2"
+   ]
+  },
+  "BossDefeatReward_SakuraSaurus": {
+   "passives": [
+    "BossDefeatReward_SakuraSaurus"
+   ]
+  },
+  "BossDefeatReward_SakuraSaurus_Water": {
+   "passives": [
+    "BossDefeatReward_SakuraSaurus_Water"
+   ]
+  },
+  "BossDefeatReward_ScorpionMan_Electric": {
+   "passives": [
+    "BossDefeatReward_ScorpionMan_Electric"
+   ]
+  },
+  "BossDefeatReward_SkyDragon": {
+   "passives": [
+    "BossDefeatReward_SkyDragon"
+   ]
+  },
+  "BossDefeatReward_Suzaku": {
+   "passives": [
+    "BossDefeatReward_Suzaku"
+   ]
+  },
+  "BossDefeatReward_ThunderBird": {
+   "passives": [
+    "BossDefeatReward_ThunderBird"
+   ]
+  },
+  "BossDefeatReward_ThunderFluffyBird": {
+   "passives": [
+    "BossDefeatReward_ThunderFluffyBird"
+   ]
+  },
+  "BossDefeatReward_Umihebi": {
+   "passives": [
+    "BossDefeatReward_Umihebi"
+   ]
+  },
+  "BossDefeatReward_VioletFairy": {
+   "passives": [
+    "BossDefeatReward_VioletFairy"
+   ]
+  },
+  "BossDefeatReward_VolcanicMonster": {
+   "passives": [
+    "BossDefeatReward_VolcanicMonster"
+   ]
+  },
+  "BossDefeatReward_VolcanoDragon": {
+   "passives": [
+    "BossDefeatReward_VolcanoDragon"
+   ]
+  },
+  "BossDefeatReward_VolcanoDragon_Ice": {
+   "passives": [
+    "BossDefeatReward_VolcanoDragon_Ice"
+   ]
+  },
+  "BossDefeatReward_WeaselDragon": {
+   "passives": [
+    "BossDefeatReward_WeaselDragon"
+   ]
+  },
+  "BossDefeatReward_Werewolf_Ice": {
+   "passives": [
+    "BossDefeatReward_Werewolf_Ice"
+   ]
+  },
+  "BossDefeatReward_WhiteDeer": {
+   "passives": [
+    "BossDefeatReward_WhiteDeer"
+   ]
+  },
+  "BossDefeatReward_WhiteDeer_Dark": {
+   "passives": [
+    "BossDefeatReward_WhiteDeer_Dark"
+   ]
+  },
+  "BossDefeatReward_WhiteMoth": {
+   "passives": [
+    "BossDefeatReward_WhiteMoth"
+   ]
+  },
+  "BossDefeatReward_WhiteShieldDragon": {
+   "passives": [
+    "BossDefeatReward_WhiteShieldDragon"
+   ]
+  },
+  "BossDefeatReward_WhiteTiger_Ground": {
+   "passives": [
+    "BossDefeatReward_WhiteTiger_Ground"
+   ]
+  },
+  "BossDefeatReward_WingGolem": {
+   "passives": [
+    "BossDefeatReward_WingGolem"
+   ]
+  },
+  "BossDefeatReward_Yeti_Grass": {
+   "passives": [
+    "BossDefeatReward_Yeti_Grass"
+   ]
+  },
+  "ClawsPendant": {
+   "defense": 5,
+   "hp": 10
+  },
+  "ClothArmor": {
+   "defense": 15,
+   "hp": 70,
+   "passives": [
+    "TemperatureResist_Cold1"
+   ]
+  },
+  "ClothArmorCold": {
+   "defense": 25,
+   "hp": 70,
+   "passives": [
+    "TemperatureResist_Cold2"
+   ]
+  },
+  "ClothArmorCold_2": {
+   "defense": 32,
+   "hp": 91,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "ClothArmorCold_3": {
+   "defense": 35,
+   "hp": 98,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "ClothArmorCold_4": {
+   "defense": 37,
+   "hp": 105,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "ClothArmorCold_5": {
+   "defense": 40,
+   "hp": 112,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "ClothArmorHeat": {
+   "defense": 25,
+   "hp": 70,
+   "passives": [
+    "TemperatureResist_Heat2"
+   ]
+  },
+  "ClothArmorHeat_2": {
+   "defense": 32,
+   "hp": 91,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "ClothArmorHeat_3": {
+   "defense": 35,
+   "hp": 98,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "ClothArmorHeat_4": {
+   "defense": 37,
+   "hp": 105,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "ClothArmorHeat_5": {
+   "defense": 40,
+   "hp": 112,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "ClothArmor_2": {
+   "defense": 19,
+   "hp": 91,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "ClothArmor_3": {
+   "defense": 21,
+   "hp": 98,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "ClothArmor_4": {
+   "defense": 22,
+   "hp": 105,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "ClothArmor_5": {
+   "defense": 24,
+   "hp": 112,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "ClothHat": {
+   "defense": 5,
+   "hp": 30
+  },
+  "CopperArmor": {
+   "defense": 70,
+   "hp": 250,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "CopperArmorCold": {
+   "defense": 105,
+   "hp": 250,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "CopperArmorCold_2": {
+   "defense": 136,
+   "hp": 325,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "CopperArmorCold_3": {
+   "defense": 147,
+   "hp": 350,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "CopperArmorCold_4": {
+   "defense": 157,
+   "hp": 375,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "CopperArmorCold_5": {
+   "defense": 168,
+   "hp": 400,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "CopperArmorHeat": {
+   "defense": 105,
+   "hp": 250,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "CopperArmorHeat_2": {
+   "defense": 136,
+   "hp": 325,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "CopperArmorHeat_3": {
+   "defense": 147,
+   "hp": 350,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "CopperArmorHeat_4": {
+   "defense": 157,
+   "hp": 375,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "CopperArmorHeat_5": {
+   "defense": 168,
+   "hp": 400,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "CopperArmor_2": {
+   "defense": 91,
+   "hp": 325,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "CopperArmor_3": {
+   "defense": 98,
+   "hp": 350,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "CopperArmor_4": {
+   "defense": 105,
+   "hp": 375,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "CopperArmor_5": {
+   "defense": 112,
+   "hp": 400,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "CopperHelmet": {
+   "defense": 50,
+   "hp": 100
+  },
+  "CopperHelmet_2": {
+   "defense": 65,
+   "hp": 130
+  },
+  "CopperHelmet_3": {
+   "defense": 70,
+   "hp": 140
+  },
+  "CopperHelmet_4": {
+   "defense": 75,
+   "hp": 150
+  },
+  "CopperHelmet_5": {
+   "defense": 80,
+   "hp": 160
+  },
+  "FurArmor": {
+   "defense": 35,
+   "hp": 140,
+   "passives": [
+    "TemperatureResist_Cold1"
+   ]
+  },
+  "FurArmorCold": {
+   "defense": 45,
+   "hp": 140,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "FurArmorCold_2": {
+   "defense": 58,
+   "hp": 182,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "FurArmorCold_3": {
+   "defense": 63,
+   "hp": 196,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "FurArmorCold_4": {
+   "defense": 67,
+   "hp": 210,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "FurArmorCold_5": {
+   "defense": 72,
+   "hp": 224,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "FurArmorHeat": {
+   "defense": 45,
+   "hp": 140,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "FurArmorHeat_2": {
+   "defense": 58,
+   "hp": 182,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "FurArmorHeat_3": {
+   "defense": 63,
+   "hp": 196,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "FurArmorHeat_4": {
+   "defense": 67,
+   "hp": 210,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "FurArmorHeat_5": {
+   "defense": 72,
+   "hp": 224,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "FurArmor_2": {
+   "defense": 45,
+   "hp": 182,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "FurArmor_3": {
+   "defense": 49,
+   "hp": 196,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "FurArmor_4": {
+   "defense": 52,
+   "hp": 210,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "FurArmor_5": {
+   "defense": 56,
+   "hp": 224,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "FurHelmet": {
+   "defense": 15,
+   "hp": 60,
+   "passives": [
+    "MaxInventoryWeight_up_Equip_1"
+   ]
+  },
+  "FurHelmet_2": {
+   "defense": 19,
+   "hp": 78,
+   "passives": [
+    "MaxInventoryWeight_up_Equip_1"
+   ]
+  },
+  "FurHelmet_3": {
+   "defense": 21,
+   "hp": 84,
+   "passives": [
+    "MaxInventoryWeight_up_Equip_1"
+   ]
+  },
+  "FurHelmet_4": {
+   "defense": 22,
+   "hp": 90,
+   "passives": [
+    "MaxInventoryWeight_up_Equip_1"
+   ]
+  },
+  "FurHelmet_5": {
+   "defense": 24,
+   "hp": 96,
+   "passives": [
+    "MaxInventoryWeight_up_Equip_1"
+   ]
+  },
+  "GYM_Head_Desert": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GYM_Head_Electric": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GYM_Head_Forest": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GYM_Head_Grass": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GYM_Head_Sakurajima": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GYM_Head_Snow": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GYM_Head_Viking": {
+   "defense": 20,
+   "hp": 60
+  },
+  "GasMask": {
+   "passives": [
+    "Invalid_ToxicGas_EquipSkill"
+   ]
+  },
+  "Head001": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "Head001_2": {
+   "defense": 45,
+   "hp": 120,
+   "passives": [
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "Head001_3": {
+   "defense": 67,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "Head001_4": {
+   "defense": 90,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "Head001_5": {
+   "defense": 120,
+   "hp": 320,
+   "passives": [
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "Head002": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head002_2": {
+   "defense": 45,
+   "hp": 120,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head002_3": {
+   "defense": 67,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head002_4": {
+   "defense": 90,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head002_5": {
+   "defense": 120,
+   "hp": 320,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head003": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head003_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head003_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head003_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head003_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head004": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head004_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head004_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head004_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head004_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head005": {
+   "defense": 25,
+   "hp": 70,
+   "passives": [
+    "ElementResist_Earth_1"
+   ]
+  },
+  "Head005_2": {
+   "defense": 37,
+   "hp": 105,
+   "passives": [
+    "ElementResist_Earth_1"
+   ]
+  },
+  "Head005_3": {
+   "defense": 56,
+   "hp": 157,
+   "passives": [
+    "ElementResist_Earth_1"
+   ]
+  },
+  "Head005_4": {
+   "defense": 75,
+   "hp": 210,
+   "passives": [
+    "ElementResist_Earth_1"
+   ]
+  },
+  "Head005_5": {
+   "defense": 100,
+   "hp": 280,
+   "passives": [
+    "ElementResist_Earth_1"
+   ]
+  },
+  "Head006": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "Head006_2": {
+   "defense": 45,
+   "hp": 120,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "Head006_3": {
+   "defense": 67,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "Head006_4": {
+   "defense": 90,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "Head006_5": {
+   "defense": 120,
+   "hp": 320,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "Head007": {
+   "defense": 25,
+   "hp": 70,
+   "passives": [
+    "ElementResist_Fire_1"
+   ]
+  },
+  "Head007_2": {
+   "defense": 37,
+   "hp": 105,
+   "passives": [
+    "ElementResist_Fire_1"
+   ]
+  },
+  "Head007_3": {
+   "defense": 56,
+   "hp": 157,
+   "passives": [
+    "ElementResist_Fire_1"
+   ]
+  },
+  "Head007_4": {
+   "defense": 75,
+   "hp": 210,
+   "passives": [
+    "ElementResist_Fire_1"
+   ]
+  },
+  "Head007_5": {
+   "defense": 100,
+   "hp": 280,
+   "passives": [
+    "ElementResist_Fire_1"
+   ]
+  },
+  "Head008": {
+   "defense": 25,
+   "hp": 70,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "Head008_2": {
+   "defense": 37,
+   "hp": 105,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "Head008_3": {
+   "defense": 56,
+   "hp": 157,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "Head008_4": {
+   "defense": 75,
+   "hp": 210,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "Head008_5": {
+   "defense": 100,
+   "hp": 280,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "Head009": {
+   "defense": 25,
+   "hp": 70,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head009_2": {
+   "defense": 37,
+   "hp": 105,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head009_3": {
+   "defense": 56,
+   "hp": 157,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head009_4": {
+   "defense": 75,
+   "hp": 210,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head009_5": {
+   "defense": 100,
+   "hp": 280,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head010": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "WorkSpeed_ACC_up1"
+   ]
+  },
+  "Head010_2": {
+   "defense": 45,
+   "hp": 120,
+   "passives": [
+    "WorkSpeed_ACC_up1"
+   ]
+  },
+  "Head010_3": {
+   "defense": 67,
+   "hp": 180,
+   "passives": [
+    "WorkSpeed_ACC_up1"
+   ]
+  },
+  "Head010_4": {
+   "defense": 90,
+   "hp": 240,
+   "passives": [
+    "WorkSpeed_ACC_up1"
+   ]
+  },
+  "Head010_5": {
+   "defense": 120,
+   "hp": 320,
+   "passives": [
+    "WorkSpeed_ACC_up1"
+   ]
+  },
+  "Head011": {
+   "defense": 10,
+   "hp": 30,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head011_2": {
+   "defense": 15,
+   "hp": 45,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head011_3": {
+   "defense": 22,
+   "hp": 67,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head011_4": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head011_5": {
+   "defense": 40,
+   "hp": 120,
+   "passives": [
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "Head012": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head012_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head012_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head012_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head012_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head013": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head013_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head013_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head013_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head013_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head014": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head014_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head014_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head014_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head014_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "Head015": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head015_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head015_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head015_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head015_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "Head016": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head016_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head016_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head016_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head016_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "Head017": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head017_2": {
+   "defense": 30,
+   "hp": 90,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head017_3": {
+   "defense": 45,
+   "hp": 135,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head017_4": {
+   "defense": 60,
+   "hp": 180,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "Head017_5": {
+   "defense": 80,
+   "hp": 240,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip001_purple": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Dragon_1"
+   ]
+  },
+  "HeadEquip023": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "HeadEquip024": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "HeadEquip025": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip025_2": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip025_3": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip025_4": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip025_5": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip026": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip026_2": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip026_3": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip026_4": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip026_5": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip027": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip028": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "HeadEquip028_2": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip028_3": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip028_4": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip028_5": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip029": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "HeadEquip030": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Earth_1"
+   ]
+  },
+  "HeadEquip031": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "HeadEquip031_2": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip031_3": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip031_4": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip031_5": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip032": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "HeadEquip032_2": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip032_3": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip032_4": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip032_5": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip033": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "HeadEquip041": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "HeadEquip044": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "HeadEquip045": {
+   "defense": 70,
+   "hp": 250,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip046": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Thunder_1"
+   ]
+  },
+  "HeadEquip048": {
+   "defense": 20,
+   "hp": 60
+  },
+  "HeadEquip049": {
+   "defense": 20,
+   "hp": 60
+  },
+  "HeadEquip050": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "HeadEquip051": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "HeadEquip052": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "HeadEquip053": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "HeadEquip054": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "HeadEquip055": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "HeadEquip056": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Normal_1"
+   ]
+  },
+  "HeadEquip057": {
+   "defense": 30,
+   "hp": 80,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip058": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Leaf_1"
+   ]
+  },
+  "HeadEquip059": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Aqua_1"
+   ]
+  },
+  "HeadEquip060": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Ice_1"
+   ]
+  },
+  "HeadEquip061": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "HeadEquip062": {
+   "defense": 20,
+   "hp": 60,
+   "passives": [
+    "ElementResist_Dark_1"
+   ]
+  },
+  "IronArmor": {
+   "defense": 150,
+   "hp": 500,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "IronArmorCold": {
+   "defense": 180,
+   "hp": 500,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "IronArmorCold_2": {
+   "defense": 234,
+   "hp": 650,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "IronArmorCold_3": {
+   "defense": 252,
+   "hp": 700,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "IronArmorCold_4": {
+   "defense": 270,
+   "hp": 750,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "IronArmorCold_5": {
+   "defense": 288,
+   "hp": 800,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "IronArmorHeat": {
+   "defense": 180,
+   "hp": 500,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "IronArmorHeat_2": {
+   "defense": 234,
+   "hp": 650,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "IronArmorHeat_3": {
+   "defense": 252,
+   "hp": 700,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "IronArmorHeat_4": {
+   "defense": 270,
+   "hp": 750,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "IronArmorHeat_5": {
+   "defense": 288,
+   "hp": 800,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "IronArmor_2": {
+   "defense": 195,
+   "hp": 650,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "IronArmor_3": {
+   "defense": 210,
+   "hp": 700,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "IronArmor_4": {
+   "defense": 225,
+   "hp": 750,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "IronArmor_5": {
+   "defense": 240,
+   "hp": 800,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "IronHelmet": {
+   "defense": 100,
+   "hp": 250
+  },
+  "IronHelmet_2": {
+   "defense": 130,
+   "hp": 325
+  },
+  "IronHelmet_3": {
+   "defense": 140,
+   "hp": 350
+  },
+  "IronHelmet_4": {
+   "defense": 150,
+   "hp": 375
+  },
+  "IronHelmet_5": {
+   "defense": 160,
+   "hp": 400
+  },
+  "LaserMiningTool": {
+   "passives": [
+    "StonWoodDrop_Boost"
+   ]
+  },
+  "LightzHelmet": {
+   "defense": 125,
+   "hp": 300
+  },
+  "Octavia001_Armor": {
+   "defense": 51,
+   "hp": 806,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "OctaviaArmorVampire"
+   ]
+  },
+  "Octavia001_Armor_5": {
+   "defense": 608,
+   "hp": 2112,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "OctaviaArmorVampire",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "Octavia002_Armor": {
+   "defense": 600,
+   "hp": 215,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2"
+   ]
+  },
+  "Octavia002_Armor_5": {
+   "defense": 750,
+   "hp": 1900,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "Otomo_ATDark_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Dark_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATDragon_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Dragon_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATEarth_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Earth_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATElectricity_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Electricity_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATFire_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Fire_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATIce_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Ice_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATLeaf_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Leaf_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATNormal_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Normal_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ATWater_ElementBoost_1": {
+   "passives": [
+    "Attack_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Water_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_Attack_up1": {
+   "passives": [
+    "Attack_ACC_up3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_Attack_up2": {
+   "passives": [
+    "Attack_ACC_up3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_Attack_up3": {
+   "passives": [
+    "Attack_ACC_up3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFDark_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Dark_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFDragon_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Dragon_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFEarth_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Earth_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFElectricity_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Electricity_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFFire_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Fire_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFIce_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Ice_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFLeaf_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Leaf_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFNormal_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Normal_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_DFWater_ElementBoost_1": {
+   "passives": [
+    "Defense_ACC_up4_Otomo_Only_Equip",
+    "ElementBoost_Water_4_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_Defense_up1": {
+   "passives": [
+    "Defense_ACC_up3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_Defense_up2": {
+   "passives": [
+    "Defense_ACC_up3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_Defense_up3": {
+   "passives": [
+    "Defense_ACC_up3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Dark_1": {
+   "passives": [
+    "ElementBoost_Dark_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Dark_2": {
+   "passives": [
+    "ElementBoost_Dark_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Dark_3": {
+   "passives": [
+    "ElementBoost_Dark_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Dragon_1": {
+   "passives": [
+    "ElementBoost_Dragon_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Dragon_2": {
+   "passives": [
+    "ElementBoost_Dragon_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Dragon_3": {
+   "passives": [
+    "ElementBoost_Dragon_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Earth_1": {
+   "passives": [
+    "ElementBoost_Earth_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Earth_2": {
+   "passives": [
+    "ElementBoost_Earth_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Earth_3": {
+   "passives": [
+    "ElementBoost_Earth_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Electricity_1": {
+   "passives": [
+    "ElementBoost_Electricity_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Electricity_2": {
+   "passives": [
+    "ElementBoost_Electricity_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Electricity_3": {
+   "passives": [
+    "ElementBoost_Electricity_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Fire_1": {
+   "passives": [
+    "ElementBoost_Fire_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Fire_2": {
+   "passives": [
+    "ElementBoost_Fire_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Fire_3": {
+   "passives": [
+    "ElementBoost_Fire_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Ice_1": {
+   "passives": [
+    "ElementBoost_Ice_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Ice_2": {
+   "passives": [
+    "ElementBoost_Ice_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Ice_3": {
+   "passives": [
+    "ElementBoost_Ice_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Leaf_1": {
+   "passives": [
+    "ElementBoost_Leaf_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Leaf_2": {
+   "passives": [
+    "ElementBoost_Leaf_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Leaf_3": {
+   "passives": [
+    "ElementBoost_Leaf_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Normal_1": {
+   "passives": [
+    "ElementBoost_Normal_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Normal_2": {
+   "passives": [
+    "ElementBoost_Normal_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Normal_3": {
+   "passives": [
+    "ElementBoost_Normal_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Water_1": {
+   "passives": [
+    "ElementBoost_Water_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Water_2": {
+   "passives": [
+    "ElementBoost_Water_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_ElementBoost_Water_3": {
+   "passives": [
+    "ElementBoost_Water_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_MoveSpeed_up_1": {
+   "passives": [
+    "MoveSpeed_up_1_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_PalConfidence_Increase_1": {
+   "passives": [
+    "FriendshipPoint_Increase_EquipSkill"
+   ]
+  },
+  "Otomo_PalExp_Increase_1": {
+   "passives": [
+    "PalExp_Increase_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_PalExp_Increase_2": {
+   "passives": [
+    "PalExp_Increase_3_Otomo_Only_Equip"
+   ]
+  },
+  "Otomo_PalExp_Increase_3": {
+   "passives": [
+    "PalExp_Increase_3_Otomo_Only_Equip"
+   ]
+  },
+  "Pickaxe_Steal": {
+   "passives": [
+    "StonDrop_Boost_4"
+   ]
+  },
+  "Pickaxe_Tier_01": {
+   "passives": [
+    "StonDrop_Boost_1"
+   ]
+  },
+  "Pickaxe_Tier_02": {
+   "passives": [
+    "StonDrop_Boost_2"
+   ]
+  },
+  "Pickaxe_Tier_03": {
+   "passives": [
+    "StonDrop_Boost_3"
+   ]
+  },
+  "PlasticArmor": {
+   "defense": 385,
+   "hp": 1300,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "PlasticArmorCold": {
+   "defense": 400,
+   "hp": 1300,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "PlasticArmorCold_2": {
+   "defense": 520,
+   "hp": 1560,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "PlasticArmorCold_3": {
+   "defense": 560,
+   "hp": 1690,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "PlasticArmorCold_4": {
+   "defense": 600,
+   "hp": 1820,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "PlasticArmorCold_5": {
+   "defense": 640,
+   "hp": 1950,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "PlasticArmorHeat": {
+   "defense": 400,
+   "hp": 1300,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "PlasticArmorHeat_2": {
+   "defense": 520,
+   "hp": 1560,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "PlasticArmorHeat_3": {
+   "defense": 560,
+   "hp": 1690,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "PlasticArmorHeat_4": {
+   "defense": 600,
+   "hp": 1820,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "PlasticArmorHeat_5": {
+   "defense": 640,
+   "hp": 1950,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat2",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "PlasticArmorWeight": {
+   "defense": 400,
+   "hp": 1300,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "MaxInventoryWeight_up_Equip_3"
+   ]
+  },
+  "PlasticArmorWeight_2": {
+   "defense": 520,
+   "hp": 1560,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "PlasticArmorWeight_3": {
+   "defense": 560,
+   "hp": 1690,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "PlasticArmorWeight_4": {
+   "defense": 600,
+   "hp": 1820,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "PlasticArmorWeight_5": {
+   "defense": 640,
+   "hp": 1950,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "PlasticArmor_2": {
+   "defense": 500,
+   "hp": 1560,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "PlasticArmor_3": {
+   "defense": 539,
+   "hp": 1690,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "PlasticArmor_4": {
+   "defense": 577,
+   "hp": 1820,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "PlasticArmor_5": {
+   "defense": 616,
+   "hp": 1950,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "PlasticHelmet": {
+   "defense": 260,
+   "hp": 600
+  },
+  "PlasticHelmet_2": {
+   "defense": 312,
+   "hp": 720
+  },
+  "PlasticHelmet_3": {
+   "defense": 338,
+   "hp": 780
+  },
+  "PlasticHelmet_4": {
+   "defense": 364,
+   "hp": 840
+  },
+  "PlasticHelmet_5": {
+   "defense": 390,
+   "hp": 900
+  },
+  "Player_Outfit_Kigurumi001": {
+   "defense": 50,
+   "hp": 100,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "SFArmor": {
+   "defense": 580,
+   "hp": 1750,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2"
+   ]
+  },
+  "SFArmorCold": {
+   "defense": 600,
+   "hp": 1750,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "SFArmorCold_2": {
+   "defense": 660,
+   "hp": 1925,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "SFArmorCold_3": {
+   "defense": 690,
+   "hp": 2012,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "SFArmorCold_4": {
+   "defense": 720,
+   "hp": 2100,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "SFArmorCold_5": {
+   "defense": 780,
+   "hp": 2275,
+   "passives": [
+    "TemperatureResist_Cold3",
+    "TemperatureResist_Heat2",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "SFArmorHeat": {
+   "defense": 600,
+   "hp": 1750,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "SFArmorHeat_2": {
+   "defense": 660,
+   "hp": 1925,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "SFArmorHeat_3": {
+   "defense": 690,
+   "hp": 2012,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "SFArmorHeat_4": {
+   "defense": 720,
+   "hp": 2100,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "SFArmorHeat_5": {
+   "defense": 780,
+   "hp": 2275,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat3",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "SFArmorWeight": {
+   "defense": 600,
+   "hp": 1750,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_3"
+   ]
+  },
+  "SFArmorWeight_2": {
+   "defense": 660,
+   "hp": 1925,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "SFArmorWeight_3": {
+   "defense": 690,
+   "hp": 2012,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "SFArmorWeight_4": {
+   "defense": 720,
+   "hp": 2100,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "SFArmorWeight_5": {
+   "defense": 780,
+   "hp": 2275,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "MaxInventoryWeight_up_Equip_3",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "SFArmor_2": {
+   "defense": 638,
+   "hp": 1925,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "SFArmor_3": {
+   "defense": 667,
+   "hp": 2012,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "SFArmor_4": {
+   "defense": 696,
+   "hp": 2100,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "SFArmor_5": {
+   "defense": 754,
+   "hp": 2275,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat2",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "SFHelmet": {
+   "defense": 350,
+   "hp": 800
+  },
+  "SFHelmet_2": {
+   "defense": 385,
+   "hp": 880
+  },
+  "SFHelmet_3": {
+   "defense": 402,
+   "hp": 920
+  },
+  "SFHelmet_4": {
+   "defense": 420,
+   "hp": 960
+  },
+  "SFHelmet_5": {
+   "defense": 455,
+   "hp": 1040
+  },
+  "Shield_01": {
+   "shield": 100
+  },
+  "Shield_02": {
+   "shield": 260
+  },
+  "Shield_03": {
+   "shield": 540
+  },
+  "Shield_04": {
+   "shield": 1045
+  },
+  "Shield_05": {
+   "shield": 1520
+  },
+  "Shield_07": {
+   "shield": 2200
+  },
+  "Shield_SF": {
+   "shield": 1800
+  },
+  "Shield_Ultra": {
+   "shield": 1520
+  },
+  "SphereModule_Curve": {
+   "passives": [
+    "SphereModule_Curve",
+    "CaptureLevel_Up_2"
+   ]
+  },
+  "SphereModule_Curve2": {
+   "passives": [
+    "SphereModule_Curve2",
+    "CaptureLevel_Up_3"
+   ]
+  },
+  "SphereModule_Heavy": {
+   "passives": [
+    "SphereModule_Heavy",
+    "CaptureLevel_Up_1"
+   ]
+  },
+  "SphereModule_Homing": {
+   "passives": [
+    "SphereModule_Homing",
+    "CaptureLevel_Up_3"
+   ]
+  },
+  "SphereModule_Sniper": {
+   "passives": [
+    "SphereModule_Sniper",
+    "CaptureLevel_Up_2"
+   ]
+  },
+  "SphereModule_Sniper2": {
+   "passives": [
+    "SphereModule_Sniper2",
+    "CaptureLevel_Up_3"
+   ]
+  },
+  "StealArmor": {
+   "defense": 220,
+   "hp": 750,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1"
+   ]
+  },
+  "StealArmorCold": {
+   "defense": 250,
+   "hp": 750,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1"
+   ]
+  },
+  "StealArmorCold_2": {
+   "defense": 325,
+   "hp": 975,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "StealArmorCold_3": {
+   "defense": 350,
+   "hp": 1050,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "StealArmorCold_4": {
+   "defense": 375,
+   "hp": 1125,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "StealArmorCold_5": {
+   "defense": 400,
+   "hp": 1200,
+   "passives": [
+    "TemperatureResist_Cold2",
+    "TemperatureResist_Heat1",
+    "ElementResist_Ice_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "StealArmorHeat": {
+   "defense": 250,
+   "hp": 750,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1"
+   ]
+  },
+  "StealArmorHeat_2": {
+   "defense": 325,
+   "hp": 975,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "StealArmorHeat_3": {
+   "defense": 350,
+   "hp": 1050,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "StealArmorHeat_4": {
+   "defense": 375,
+   "hp": 1125,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "StealArmorHeat_5": {
+   "defense": 400,
+   "hp": 1200,
+   "passives": [
+    "TemperatureResist_Heat2",
+    "TemperatureResist_Cold1",
+    "ElementResist_Fire_1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "StealArmor_2": {
+   "defense": 286,
+   "hp": 975,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "StealArmor_3": {
+   "defense": 308,
+   "hp": 1050,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "StealArmor_4": {
+   "defense": 330,
+   "hp": 1125,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "StealArmor_5": {
+   "defense": 352,
+   "hp": 1200,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "StealHelmet": {
+   "defense": 150,
+   "hp": 350
+  },
+  "StealHelmet_2": {
+   "defense": 195,
+   "hp": 455
+  },
+  "StealHelmet_3": {
+   "defense": 210,
+   "hp": 490
+  },
+  "StealHelmet_4": {
+   "defense": 225,
+   "hp": 525
+  },
+  "StealHelmet_5": {
+   "defense": 240,
+   "hp": 560
+  },
+  "TEST_BossDefeatReward": {
+   "passives": [
+    "HP_ACC_up3"
+   ]
+  },
+  "YakushimaArmor001": {
+   "defense": 200,
+   "hp": 650,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "YakushimaProtection_Equip"
+   ]
+  },
+  "YakushimaArmor001_2": {
+   "defense": 260,
+   "hp": 845,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "YakushimaProtection_Equip",
+    "Attack_ACC_up1_Armor"
+   ]
+  },
+  "YakushimaArmor001_3": {
+   "defense": 280,
+   "hp": 910,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "YakushimaProtection_Equip",
+    "Attack_ACC_up2_Armor"
+   ]
+  },
+  "YakushimaArmor001_4": {
+   "defense": 300,
+   "hp": 975,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "YakushimaProtection_Equip",
+    "Attack_ACC_up3_Armor"
+   ]
+  },
+  "YakushimaArmor001_5": {
+   "defense": 320,
+   "hp": 1040,
+   "passives": [
+    "TemperatureResist_Cold1",
+    "TemperatureResist_Heat1",
+    "YakushimaProtection_Equip",
+    "Attack_ACC_up4_Armor"
+   ]
+  },
+  "YakushimaHeadEquip001": {
+   "defense": 140,
+   "hp": 320,
+   "passives": [
+    "YakushimaDagameBoost_Melee_Equip"
+   ]
+  },
+  "YakushimaHeadEquip001_2": {
+   "defense": 154,
+   "hp": 352,
+   "passives": [
+    "YakushimaDagameBoost_Melee_Equip"
+   ]
+  },
+  "YakushimaHeadEquip001_3": {
+   "defense": 161,
+   "hp": 368,
+   "passives": [
+    "YakushimaDagameBoost_Melee_Equip"
+   ]
+  },
+  "YakushimaHeadEquip001_4": {
+   "defense": 168,
+   "hp": 384,
+   "passives": [
+    "YakushimaDagameBoost_Melee_Equip"
+   ]
+  },
+  "YakushimaHeadEquip001_5": {
+   "defense": 182,
+   "hp": 416,
+   "passives": [
+    "YakushimaDagameBoost_Melee_Equip"
+   ]
+  },
+  "YakushimaHeadEquip002": {
+   "defense": 140,
+   "hp": 320,
+   "passives": [
+    "YakushimaDagameBoost_Magic_Equip"
+   ]
+  },
+  "YakushimaHeadEquip002_2": {
+   "defense": 154,
+   "hp": 352,
+   "passives": [
+    "YakushimaDagameBoost_Magic_Equip"
+   ]
+  },
+  "YakushimaHeadEquip002_3": {
+   "defense": 161,
+   "hp": 368,
+   "passives": [
+    "YakushimaDagameBoost_Magic_Equip"
+   ]
+  },
+  "YakushimaHeadEquip002_4": {
+   "defense": 168,
+   "hp": 384,
+   "passives": [
+    "YakushimaDagameBoost_Magic_Equip"
+   ]
+  },
+  "YakushimaHeadEquip002_5": {
+   "defense": 182,
+   "hp": 416,
+   "passives": [
+    "YakushimaDagameBoost_Magic_Equip"
+   ]
+  },
+  "YakushimaHeadEquip003": {
+   "defense": 140,
+   "hp": 320,
+   "passives": [
+    "YakushimaDagameBoost_Ranged_Equip"
+   ]
+  },
+  "YakushimaHeadEquip003_2": {
+   "defense": 154,
+   "hp": 352,
+   "passives": [
+    "YakushimaDagameBoost_Ranged_Equip"
+   ]
+  },
+  "YakushimaHeadEquip003_3": {
+   "defense": 161,
+   "hp": 368,
+   "passives": [
+    "YakushimaDagameBoost_Ranged_Equip"
+   ]
+  },
+  "YakushimaHeadEquip003_4": {
+   "defense": 168,
+   "hp": 384,
+   "passives": [
+    "YakushimaDagameBoost_Ranged_Equip"
+   ]
+  },
+  "YakushimaHeadEquip003_5": {
+   "defense": 182,
+   "hp": 416,
+   "passives": [
+    "YakushimaDagameBoost_Ranged_Equip"
+   ]
+  },
+  "YakushimaHeadEquip004": {
+   "defense": 140,
+   "hp": 320,
+   "passives": [
+    "YakushimaDagameBoost_Summon_Equip"
+   ]
+  },
+  "YakushimaHeadEquip004_2": {
+   "defense": 154,
+   "hp": 352,
+   "passives": [
+    "YakushimaDagameBoost_Summon_Equip"
+   ]
+  },
+  "YakushimaHeadEquip004_3": {
+   "defense": 161,
+   "hp": 368,
+   "passives": [
+    "YakushimaDagameBoost_Summon_Equip"
+   ]
+  },
+  "YakushimaHeadEquip004_4": {
+   "defense": 168,
+   "hp": 384,
+   "passives": [
+    "YakushimaDagameBoost_Summon_Equip"
+   ]
+  },
+  "YakushimaHeadEquip004_5": {
+   "defense": 182,
+   "hp": 416,
+   "passives": [
+    "YakushimaDagameBoost_Summon_Equip"
+   ]
+  },
+  "YakushimaHeadEquip005": {
+   "defense": 350,
+   "hp": 800
+  },
+  "YakushimaHeadEquip006": {
+   "defense": 350,
+   "hp": 800
+  }
+ },
+ "player_base": {
+  "attack": 100,
+  "defense": 100,
+  "hp": 500,
+  "stamina": 100,
+  "work_speed": 100
+ }
+}

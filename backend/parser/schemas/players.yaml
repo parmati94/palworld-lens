@@ -51,6 +51,34 @@ fields:
     path: ["value"]
     default: 100.0
   
+  # Shield: current shield HP (milli, like Hp); the capacity is the worn shield's ShieldValue (loadout.json)
+  ShieldHP:
+    description: "Current shield HP, stored as milli-HP"
+    root_key: "ShieldHP"
+    path: ["value", "Value", "value"]
+    transform: divide_by_1000
+    default: 0
+
+  # The dish whose buff is running (its stat effects come from loadout.json) and the seconds it has left.
+  # The save really spells the timer field "Tiemr_".
+  FoodWithStatusEffect:
+    description: "Item id of the dish whose buff is active ('None' when none)"
+    root_key: "FoodWithStatusEffect"
+    path: ["value"]
+    default: null
+
+  FoodEffectSecondsLeft:
+    description: "Seconds left on that buff"
+    root_key: "Tiemr_FoodWithStatusEffect"
+    path: ["value"]
+    default: null
+
+  UnusedStatusPoint:
+    description: "Stat points not yet spent (the status screen's 'Stat Points')"
+    root_key: "UnusedStatusPoint"
+    path: ["value"]
+    default: 0
+
   # ===== From Players/*.sav account files =====
   # Note: These paths assume data is already at SaveData.value level
   

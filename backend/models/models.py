@@ -185,6 +185,23 @@ class PalInfo(BaseModel):
         rarely have their own texture; the frontend walks this list on <img> error."""
         return pal_icons.icon_candidates(self.character_id)
 
+class StatLine(BaseModel):
+    """One status-screen stat: what level and points give, what gear and food add, the total shown."""
+    base: int
+    gear: int = 0
+    food: int = 0
+    total: int
+
+
+class FoodBuff(BaseModel):
+    """The dish whose buff is running on the player."""
+    item_id: str
+    item_name: str
+    icon: Optional[str] = None
+    seconds_left: Optional[int] = None
+    effects: List[Dict[str, Any]] = []   # [{type, value}] as the food table has them (WorkSpeed 30 = +30%)
+
+
 class PlayerTech(BaseModel):
     """What the player has unlocked on the tech tree and what they still have to spend."""
     unlocked: int = 0
@@ -232,6 +249,12 @@ class PlayerInfo(BaseModel):
     carried_weight: float = 0     # bag + kit, from items.json weights
     tech: Optional[PlayerTech] = None
     records: Optional[PlayerRecords] = None
+    # The status screen: each stat with its enhancements (hp, stamina, attack, defense, work_speed, weight)
+    stats: Dict[str, StatLine] = {}
+    shield_hp: int = 0
+    shield_max: int = 0
+    food_buff: Optional[FoodBuff] = None
+    unspent_points: int = 0
     # Stat points allocation
     stat_points_hp: int = 0
     stat_points_stamina: int = 0

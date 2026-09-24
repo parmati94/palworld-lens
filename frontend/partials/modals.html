@@ -978,7 +978,10 @@
                                     </template>
                                 </div>
                                 <div class="col-span-3 mt-4">
-                                    <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Food</div>
+                                    <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5 flex-wrap">
+                                        <span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Food
+                                        <span x-show="selectedPlayer.food_buff" class="ml-1 px-1.5 rounded-full border border-orange-500/40 bg-orange-500/15 text-orange-200 text-[11px] font-normal" x-text="foodBuffLine(selectedPlayer)"></span>
+                                    </div>
                                     <div class="flex gap-1.5 flex-wrap">
                                         <template x-for="(item, i) in slotGrid(selectedPlayer.food, selectedPlayer.food_slots || 5)" :key="'f' + i">
                                             {{> inv-slot size="w-12 h-12" }}
@@ -998,6 +1001,7 @@
                                 </div>
                                 <div class="flex flex-col gap-1.5">
                                     <template x-for="n in [
+                                            ...(selectedPlayer.shield_max ? [['/img/t_itemicon_armor_shield_01.webp', 'Shield', selectedPlayer.shield_hp / selectedPlayer.shield_max * 100, `${selectedPlayer.shield_hp} / ${selectedPlayer.shield_max}`, 'bg-sky-500']] : []),
                                             ['/img/health.webp', 'Health', selectedPlayer.hp / selectedPlayer.max_hp * 100, `${selectedPlayer.hp} / ${selectedPlayer.max_hp}`, 'bg-green-500'],
                                             ['/img/food.webp', 'Hunger', selectedPlayer.hunger, `${Math.round(selectedPlayer.hunger)} / 100`, 'bg-orange-500'],
                                             ['/img/heart.webp', 'Sanity', selectedPlayer.sanity, `${Math.round(selectedPlayer.sanity)} / 100`, 'bg-purple-500']]" :key="n[1]">
@@ -1013,15 +1017,20 @@
                                 <div>
                                     <div class="flex items-center justify-between gap-2 text-xs font-medium text-gray-200 mb-1.5">
                                         <span class="flex items-center gap-2"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Stats</span>
-                                        <span class="text-[10px] text-gray-500 font-normal" data-tip="From level and stat points; gear adds on top of these in game">before gear</span>
+                                        <span class="text-[10px] text-gray-500 font-normal">hover for base + gear + food</span>
                                     </div>
                                     <div class="flex flex-col divide-y divide-gray-700/50 rounded-md border border-gray-700/60 bg-gray-900/50">
+                                        <div x-show="selectedPlayer.unspent_points" class="flex items-center justify-between gap-3 px-3 py-1.5 text-xs border-l-2 border-accent-400">
+                                            <span class="text-accent-300 font-medium">Stat points</span>
+                                            <span class="text-accent-300 font-semibold tabular-nums" x-text="selectedPlayer.unspent_points"></span>
+                                        </div>
                                         <template x-for="row in statusRows(selectedPlayer)" :key="row.label">
-                                            <div class="flex items-center justify-between gap-3 px-3 py-1.5 text-sm" :data-tip="statusPoints(row) ? statusPoints(row) + ' spent' : ''">
+                                            <div class="flex items-center justify-between gap-3 px-3 py-1.5 text-sm" :data-tip="statusTip(row, selectedPlayer) || (statusPoints(row) ? statusPoints(row) + ' spent' : '')">
                                                 <span class="text-gray-300" x-text="row.label"></span>
                                                 <span class="flex items-baseline gap-2">
                                                     <span class="text-[10px] text-gray-500 tabular-nums" x-text="statusPoints(row)"></span>
                                                     <span class="text-white font-semibold tabular-nums" x-text="row.value != null ? row.value.toLocaleString() : ''"></span>
+                                                    <span x-show="row.enhanced" class="text-accent-300 text-[10px] leading-none" aria-label="enhanced">&#9650;</span>
                                                 </span>
                                             </div>
                                         </template>

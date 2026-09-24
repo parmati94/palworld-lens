@@ -497,25 +497,62 @@ export function bagGrid(player) {
     return slotGrid(player && player.bag, player && player.bag_slots);
 }
 
-/** Carried weight against the player's max: {carried, max, pct, over}. */
+/** Carried weight against the player's max (with gear, when the breakdown is there): {carried, max, pct, over}. */
 export function weightLine(player) {
     const carried = Number(player && player.carried_weight) || 0;
-    const max = Number(player && player.calculated_weight) || 0;
+    const s = player && player.stats && player.stats.weight;
+    const max = Number(s ? s.total : player && player.calculated_weight) || 0;
     const pct = max ? Math.min(100, Math.round(carried / max * 100)) : 0;
     return { carried, max, pct, over: max > 0 && carried > max };
 }
 
-/** The game's status page: [{label, value, points, ancient}]; capture power is points only. */
+/** The game's status page: [{key, label, value, base, gear, food, enhanced, points, ancient}].
+ *  `value` is the enhanced total when the player carries a stats breakdown, else the base value.
+ *  Capture power is points only. */
 export function statusRows(player) {
     const p = player || {};
+    const st = p.stats || {};
+    const row = (key, label, baseValue, points, ancient) => {
+        const s = st[key];
+        const base = s ? s.base : baseValue;
+        const gear = s ? s.gear : 0, food = s ? s.food : 0;
+        const value = s ? s.total : baseValue;
+        return { key, label, value, base, gear, food, enhanced: (gear || 0) + (food || 0) !== 0, points: points || 0, ancient: ancient || 0 };
+    };
     return [
-        { label: 'Health', value: p.calculated_max_hp, points: p.stat_points_hp || 0, ancient: p.ex_stat_points_hp || 0 },
-        { label: 'Stamina', value: p.calculated_stamina, points: p.stat_points_stamina || 0, ancient: p.ex_stat_points_stamina || 0 },
-        { label: 'Attack', value: p.calculated_attack, points: p.stat_points_attack || 0, ancient: p.ex_stat_points_attack || 0 },
-        { label: 'Work speed', value: p.calculated_work_speed, points: p.stat_points_work_speed || 0, ancient: p.ex_stat_points_work_speed || 0 },
-        { label: 'Weight', value: p.calculated_weight, points: p.stat_points_weight || 0, ancient: p.ex_stat_points_weight || 0 },
-        { label: 'Capture power', value: null, points: p.stat_points_capture || 0, ancient: 0 },
-    ];
+        row('hp', 'Health', p.calculated_max_hp, p.stat_points_hp, p.ex_stat_points_hp),
+        row('stamina', 'Stamina', p.calculated_stamina, p.stat_points_stamina, p.ex_stat_points_stamina),
+        row('attack', 'Attack', p.calculated_attack, p.stat_points_attack, p.ex_stat_points_attack),
+        row('defense', 'Defense', st.defense ? undefined : null, 0, 0),
+        row('work_speed', 'Work speed', p.calculated_work_speed, p.stat_points_work_speed, p.ex_stat_points_work_speed),
+        row('weight', 'Weight', p.calculated_weight, p.stat_points_weight, p.ex_stat_points_weight),
+        { key: 'capture', label: 'Capture power', value: null, base: null, gear: 0, food: 0, enhanced: false, points: p.stat_points_capture || 0, ancient: 0 },
+    ].filter(r => r.value != null || r.points || r.key === 'capture');
+}
+
+/** The hover text behind a status row, like the game's: "1,900 base · +1,650 gear · +435 food (Pizza)". */
+export function statusTip(row, player) {
+    if (!row || row.value == null) return '';
+    const parts = [`${row.base.toLocaleString()} base`];
+    if (row.gear) parts.push(`${row.gear > 0 ? '+' : ''}${row.gear.toLocaleString()} gear`);
+    if (row.food) {
+        const dish = player && player.food_buff && player.food_buff.item_name;
+        parts.push(`${row.food > 0 ? '+' : ''}${row.food.toLocaleString()} food${dish ? ` (${dish})` : ''}`);
+    }
+    const pts = statusPoints(row);
+    return parts.join(' · ') + (pts ? ` · ${pts} spent` : '');
+}
+
+/** "Pizza · +30% work speed · 2 min left" for the running dish; '' when none. */
+export function foodBuffLine(player) {
+    const b = player && player.food_buff;
+    if (!b) return '';
+    const names = { WorkSpeed: 'work speed', Attack: 'attack', Defense: 'defense', HungerResist: 'slower hunger', SANResist: 'slower sanity loss',
+                    Regene_Hp: 'HP regen', Exp_Increase: 'exp', FullStomachKeep: 'keeps you full', ExplosionResist: 'explosion resist',
+                    LeanBackAndKnockbackInvalid: 'no knockback' };
+    const fx = (b.effects || []).map(e => `${e.value > 0 ? '+' : ''}${Math.round(e.value)}% ${names[e.type] || e.type}`);
+    const left = b.seconds_left != null ? (b.seconds_left >= 60 ? `${Math.round(b.seconds_left / 60)} min left` : `${b.seconds_left} s left`) : '';
+    return [b.item_name, ...fx, left].filter(Boolean).join(' · ');
 }
 
 /** "14 pts" / "14 pts +3 ancient" / "" for a status row. */
