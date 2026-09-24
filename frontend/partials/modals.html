@@ -940,7 +940,7 @@
 
                             <!-- Equipment: weapons, accessories and food on the left of where the character stands,
                                  head / body / shield / glider / module on the right -->
-                            <div class="min-w-0 lg:!grid grid-cols-[auto_auto] justify-between sm:grid-cols-[auto_1fr_auto] gap-x-4 sm:gap-x-6" :class="playerTab === 'gear' ? 'grid' : 'hidden'">
+                            <div class="min-w-0 lg:!grid grid-cols-[auto_1fr_auto] gap-x-3 sm:gap-x-6" :class="playerTab === 'gear' ? 'grid' : 'hidden'">
                                 <div class="flex flex-col gap-4">
                                     <div>
                                         <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Weapon</div>
@@ -968,9 +968,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- where the character stands in the game: for now, where they last were (desktop
-                                     only here; phones get it on the Status page) -->
-                                <div class="hidden sm:flex flex-col min-w-0 min-h-[14rem]">
+                                <!-- where the character stands in the game: for now, where they last were -->
+                                <div class="flex flex-col min-w-0 min-h-[14rem]">
                                     <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Last seen</div>
                                     <div class="relative flex-1">
                                         {{> player-map }}
@@ -988,7 +987,7 @@
                                         </div>
                                     </template>
                                 </div>
-                                <div class="col-span-2 sm:col-span-3 mt-4">
+                                <div class="col-span-3 mt-4">
                                     <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Food</div>
                                     <div class="flex gap-1.5 flex-wrap">
                                         <template x-for="(item, i) in slotGrid(selectedPlayer.food, selectedPlayer.food_slots || 5)" :key="'f' + i">
@@ -998,14 +997,8 @@
                                 </div>
                             </div>
 
-                            <!-- Level, condition, stats, gold (phones: the last-seen map first) -->
+                            <!-- Level, condition, stats, gold -->
                             <div class="min-w-0 lg:!flex flex-col gap-4" :class="playerTab === 'status' ? 'flex' : 'hidden'">
-                                <div class="sm:hidden">
-                                    <div class="flex items-center gap-2 text-xs font-medium text-gray-200 mb-1.5"><span class="w-0.5 h-3.5 rounded-full bg-accent-400"></span>Last seen</div>
-                                    <div class="relative h-44">
-                                        {{> player-map }}
-                                    </div>
-                                </div>
                                 <div class="flex items-center gap-3">
                                     <div class="w-14 h-14 rounded-md bg-accent-500 text-gray-950 flex items-center justify-center text-2xl font-bold tabular-nums flex-shrink-0" x-text="selectedPlayer.level"></div>
                                     <div class="min-w-0">
