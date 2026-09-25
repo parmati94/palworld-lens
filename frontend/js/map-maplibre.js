@@ -251,6 +251,8 @@ export function mapComponent() {
                     this.loadPlayers();
                     this.loadStaticMapObjects();
                     this.loadSpawns();
+                    const pending = this._pendingCenter; this._pendingCenter = null;
+                    if (pending) this.centerOnLocation(pending.x, pending.y, pending.zoom);
                 });
 
                 this.map.on('error', (e) => {
@@ -275,7 +277,7 @@ export function mapComponent() {
          * than a hard cut. Markers come off at the start and go on once the new
          * texture is fully in.
          */
-        switchMapLayer(layer) {
+        switchMapLayer(layer, camera = null) {
             if (!this.map || layer === this.mapLayer || !MAP_LAYERS[layer] || this._switching) return;
             this._switching = true;
 
@@ -297,8 +299,9 @@ export function mapComponent() {
             this.map.setPaintProperty(outId, 'raster-opacity', 0);
 
             // Both textures share the same Mercator square; pull back to the
-            // whole-map view of the new one.
-            this.map.easeTo({ center: [0, 0], zoom: this.fitZoom(), duration: FADE + 80,
+            // whole-map view of the new one, or straight to `camera` when the
+            // switch is on the way to a place (a player, a base).
+            this.map.easeTo({ ...(camera || { center: [0, 0], zoom: this.fitZoom() }), duration: FADE + 80,
                               easing: t => 1 - Math.pow(1 - t, 3) });
 
             setTimeout(() => {
@@ -307,7 +310,8 @@ export function mapComponent() {
                 this.loadPlayers();
                 this.renderStaticMapObjects();
                 this.renderSpawns();
-                if (this._fitSpawnsAfterSwitch) { this._fitSpawnsAfterSwitch = false; this.fitSpawns(); }
+                const after = this._afterSwitch; this._afterSwitch = null;
+                if (after) after();
             }, FADE + 20);
         },
 
@@ -1049,7 +1053,7 @@ export function mapComponent() {
             const s = this.spawnSummary;
             if (s && !s.onThisLayer) {
                 const other = MAP_LAYER_ORDER.find(l => l !== this.mapLayer && s.perLayer[l]);
-                if (other) { this._fitSpawnsAfterSwitch = true; this.switchMapLayer(other); }
+                if (other) { this._afterSwitch = () => this.fitSpawns(); this.switchMapLayer(other); }
                 return;
             }
             const feats = this._spawnFeatures || [];
@@ -1081,11 +1085,30 @@ export function mapComponent() {
         zoomIn()  { if (this.map) this.map.zoomIn({ duration: 200 }); },
         zoomOut() { if (this.map) this.map.zoomOut({ duration: 200 }); },
 
-        /** Centre on a world coordinate. `zoom` is in the old Leaflet scale (z5 = native). */
+        /**
+         * Centre on a world coordinate. `zoom` is in the old Leaflet scale (z5 = native).
+         *
+         * The coordinate decides the map: a player standing on the World Tree
+         * while Palpagos is showing (or the other way round) switches the layer
+         * first, with the camera travelling straight to them. Before the map
+         * exists (first visit to the tab: it's built on the first non-zero size)
+         * the jump is queued and runs from the 'load' handler.
+         */
         centerOnLocation(x, y, zoom = 5) {
-            if (this.map && x !== undefined && y !== undefined) {
-                this.map.easeTo({ center: saveToLngLat(x, y, this.mapLayer), zoom: zoom - 1, duration: 500 });
+            if (x === undefined || y === undefined) return;
+            const layer = layerForCoords(x, y);
+            if (!this.map || !this.mapReady) {
+                if (!this.map) this.mapLayer = layer;    // build it on the right texture, no fade
+                this._pendingCenter = { x, y, zoom };
+                return;
             }
+            const camera = { center: saveToLngLat(x, y, layer), zoom: zoom - 1 };
+            if (layer !== this.mapLayer) {
+                if (this._switching) { this._afterSwitch = () => this.centerOnLocation(x, y, zoom); return; }
+                this.switchMapLayer(layer, camera);
+                return;
+            }
+            this.map.easeTo({ ...camera, duration: 500 });
         }
     };
 }
