@@ -879,9 +879,7 @@
                                         <span>Level <span class="text-gray-200 font-medium tabular-nums" x-text="selectedPlayer.level"></span></span>
                                         <span class="text-gray-600">·</span>
                                         <span class="text-cyan-400 font-medium truncate" x-text="getGuildName(selectedPlayer.guild_id)"></span>
-                                        <template x-if="selectedPlayer.last_online">
-                                            <span><span class="text-gray-600">· </span>last login <span x-text="formatRelativeTime(selectedPlayer.last_online, now)" :data-tip="formatDate(selectedPlayer.last_online)"></span></span>
-                                        </template>
+                                        {{> player-presence who="selectedPlayer" }}
                                     </div>
                                 </div>
                                 <button @click="closePlayerModal()" aria-label="Close" class="btn-quiet p-1.5 flex-shrink-0">

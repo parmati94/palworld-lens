@@ -7,6 +7,7 @@ from backend.common.logging_config import get_logger
 from backend.common.auth import require_auth
 from backend.common.config import config
 from backend.common import pal_icons
+from backend.common import online
 from backend.parser import parser
 
 logger = get_logger(__name__)
@@ -26,7 +27,7 @@ async def get_players():
         raise HTTPException(status_code=400, detail="No save file loaded")
     
     try:
-        players = parser.get_players()
+        players = await online.with_online(parser.get_players())
         return {"players": players, "count": len(players)}
     except Exception as e:
         logger.error(f"Error getting players: {e}")

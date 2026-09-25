@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
     MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
     workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor, partnerSkillHtml, mountLabel, baseLabel,
+    sessionLength,
 } from '../js/utils.js';
 
 const gameData = {
@@ -352,4 +353,15 @@ test('pal modal: the stat tiles read the breakdown the way the game\'s hover doe
     assert.equal(palStatEnhanced(frosty, 'attack'), true);
     assert.equal(palStatEnhanced({ stat_breakdown: { hp: { base: 550, trust: 0, souls_pct: 0, passives_pct: 0, total: 550 } } }, 'hp'), false);
     assert.equal(palStatEnhanced({}, 'hp'), false);
+});
+
+test('sessionLength: a session length in days/hours/minutes, never seconds', () => {
+    const M = 60000;
+    assert.equal(sessionLength(0), '1m');
+    assert.equal(sessionLength(59 * 1000), '1m');
+    assert.equal(sessionLength(7 * M), '7m');
+    assert.equal(sessionLength(60 * M), '1h');
+    assert.equal(sessionLength(133 * M), '2h 13m');
+    assert.equal(sessionLength(28 * 60 * M), '1d 4h');
+    assert.equal(sessionLength(-5 * M), '1m');
 });

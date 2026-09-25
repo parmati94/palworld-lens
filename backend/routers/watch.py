@@ -9,6 +9,7 @@ from backend.common.auth import require_auth
 from backend.common.config import config
 from backend.parser import parser
 from backend import startup
+from backend.common import online
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api", tags=["watch"])
@@ -31,7 +32,7 @@ async def watch_save_changes(request: Request):
         try:
             # Send initial data
             try:
-                players = parser.get_players()
+                players = await online.with_online(parser.get_players())
                 pals = parser.get_pals()
                 guilds = parser.get_guilds()
                 save_info = parser.get_save_info()
@@ -68,7 +69,7 @@ async def watch_save_changes(request: Request):
                     update = await asyncio.wait_for(client_queue.get(), timeout=30.0)
                     
                     # Send updated data
-                    players = parser.get_players()
+                    players = await online.with_online(parser.get_players())
                     pals = parser.get_pals()
                     guilds = parser.get_guilds()
                     save_info = parser.get_save_info()

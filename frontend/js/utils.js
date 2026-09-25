@@ -905,6 +905,15 @@ export function buildPageList(total, current) {
  * Human relative time: "just now", "4m ago", "3h ago", "2d ago". `now` is passed
  * in (rather than read) so Alpine re-renders when the caller's clock ticks.
  */
+/** A session length from milliseconds: '2h 13m', '3d 4h', '1m' (never seconds; the clock ticks once a minute). */
+export function sessionLength(ms) {
+    const m = Math.max(0, Math.floor((Number(ms) || 0) / 60000));
+    const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+    if (d > 0) return h > 0 ? `${d}d ${h}h` : `${d}d`;
+    if (h > 0) return mm > 0 ? `${h}h ${mm}m` : `${h}h`;
+    return `${Math.max(1, mm)}m`;
+}
+
 export function formatRelativeTime(dateStr, now = Date.now()) {
     if (!dateStr) return 'N/A';
     const t = new Date(dateStr).getTime();

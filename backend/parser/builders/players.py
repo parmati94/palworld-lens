@@ -62,11 +62,13 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
         # Get location from player_uid_to_containers (from Players/*.sav LastTransform)
         location = None
         save_info = {}
+        save_uid = None
         if player_uid_to_containers:
             for player_uid, player_data in player_uid_to_containers.items():
                 if player_data.get("instance_id") == instance_id:
                     location = player_data.get("location")
                     save_info = player_data
+                    save_uid = player_uid
                     break
         details = save_info.get("details") or {}
         loadout = getattr(data, "loadout", None) or {}
@@ -109,6 +111,7 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             place=nearest_landmark(location.get("x"), location.get("y"), getattr(data, "map_layers", None) or {},
                                    getattr(data, "map_objects", None) or []) if location and data is not None else None,
             last_online=details.get("last_online"),
+            player_uid=save_uid,
             party=_party(save_info.get("party_container_id"), pals or []),
             gear=kit["gear"],
             weapons=kit["weapons"],

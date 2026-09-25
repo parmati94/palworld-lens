@@ -236,6 +236,8 @@ class PlayerInfo(BaseModel):
     sanity: float
     guild_id: Optional[str] = None
     last_online: Optional[str] = None   # last LOGIN (the save's LastOnlineDateTime is set on join), ISO UTC
+    player_uid: Optional[str] = None    # the Players/<id>.sav id (also the REST API's playerId), not the character instance
+    online: Optional[bool] = None       # on the server right now (REST /v1/api/players); None = not configured / no answer
     location: Optional[Dict[str, float]] = None
     place: Optional[str] = None         # nearest landmark to that position (same rule as base places)
     # From the player's own Players/*.sav: who rides along and what they carry
