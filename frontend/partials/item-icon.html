@@ -5,8 +5,10 @@
      schematic's own blueprint-paper icon fills the tile and the product it unlocks sits on top at
      80% scale, centred. Two <img>s in one box, nothing precomputed. --}}
 {{#if countBeside}}<div class="inline-flex items-center gap-1 flex-shrink-0" :data-tip="itemTip(item)">{{/if}}
-<div class="relative flex-shrink-0 rounded-md bg-gray-900/70 ring-1 ring-inset {{size}}"
-     :class="rarityRingClass(item.rarity)" {{#unless countBeside}}:data-tip="itemTip(item)"{{/unless}}>
+<div class="relative flex-shrink-0 rounded-md bg-gray-900/70 ring-1 ring-inset {{size}} cursor-pointer hover:ring-white/70 transition-shadow"
+     :class="rarityRingClass(item.rarity)" {{#unless countBeside}}:data-tip="itemTip(item)"{{/unless}}
+     @click.stop="$dispatch('open-item-modal', { item })" role="button" tabindex="0"
+     @keydown.enter.stop="$dispatch('open-item-modal', { item })">
     <img :src="item.icon ? `/img/${item.icon}.webp` : '/img/{{fallback}}.webp'"
          :alt="item.item_name"
          onerror="this.onerror=null; this.src='/img/{{fallback}}.webp'"

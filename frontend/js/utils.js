@@ -183,6 +183,11 @@ export const RARITY_RING_CLASSES = {
     4: 'ring-amber-400/90',
 };
 
+const RARITY_TEXT_CLASSES = { 0: 'text-gray-300', 1: 'text-green-300', 2: 'text-blue-300', 3: 'text-purple-300', 4: 'text-amber-300' };
+export function rarityTextClass(rarity) {
+    return RARITY_TEXT_CLASSES[rarity] ?? RARITY_TEXT_CLASSES[0];
+}
+
 export function rarityRingClass(rarity) {
     return RARITY_RING_CLASSES[rarity] ?? RARITY_RING_CLASSES[0];
 }
