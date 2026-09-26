@@ -68,3 +68,14 @@ def test_get_guild_storage_reads_the_1_0_extra_block():
     ]}}
     assert get_guild_storage(world) == {"g1": "c1"}
     assert get_guild_storage({}) == {}
+
+
+def test_capacity_comes_from_the_container_size_index():
+    storage = [_chest("b3", iid="a"), _chest("b5", "ItemChest", "PalMapObjectItemChestModel", "own-1", iid="d")]
+    sizes = {"shared-g1": 40, "own-1": 20}
+    by_base = build_base_containers(META, [], storage, ITEMS, _Data(), guild_storage={"g1": "shared-g1"}, container_sizes=sizes)
+    shared = next(c for c in by_base["b3"] if c.shared)
+    own = next(c for c in by_base["b5"] if not c.shared)
+    assert shared.slots == 40 and own.slots == 20
+    assert build_base_containers(META, [], storage, ITEMS, _Data(), guild_storage={"g1": "shared-g1"})["b5"][0].slots is None
+

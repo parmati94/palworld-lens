@@ -100,7 +100,7 @@ class SaveFileParser:
                                 item_index=item_index, data=self.data, pals=pals, container_sizes=container_sizes)
         guilds = build_guilds(guild_data, base_meta, player_names)
         containers = build_base_containers(base_meta, food_bowls, storage, item_index, self.data,
-                                           guild_storage=get_guild_storage(world))
+                                           guild_storage=get_guild_storage(world), container_sizes=container_sizes)
         guild_storage = build_guild_storage(containers)
         activity = build_activity(get_activity_objects(world), index_works(world), get_guild_labs(world), base_meta,
                                   item_index, pals, self.data, get_real_time_ticks(world),

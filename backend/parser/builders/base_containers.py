@@ -47,8 +47,9 @@ def _items(container_id, item_index: Dict[str, List[Dict]], data: DataLoader) ->
 
 
 def _container(kind: str, building_type: str, display_name: str, raw: Dict,
-               meta: BaseMeta, item_index, data: DataLoader) -> BaseContainerInfo:
+               meta: BaseMeta, item_index, data: DataLoader, sizes: Optional[Dict[str, int]] = None) -> BaseContainerInfo:
     hp_max = raw.get("hp_max")
+    slots = (sizes or {}).get(str(raw.get("container_id")))
     return BaseContainerInfo(
         container_type=kind,
         building_type=building_type,
@@ -61,12 +62,14 @@ def _container(kind: str, building_type: str, display_name: str, raw: Dict,
         hp_current=raw.get("hp_current"),
         hp_max=hp_max,
         is_damaged=bool(hp_max) and (raw.get("hp_current") or 0) < hp_max,
+        slots=slots if isinstance(slots, int) and slots > 0 else None,
     )
 
 
 def build_base_containers(base_meta: Dict[str, BaseMeta], food_bowls: List[Dict], storage_containers: List[Dict],
                           item_index: Dict[str, List[Dict]], data: DataLoader,
-                          guild_storage: Optional[Dict[str, str]] = None) -> Dict[str, List[BaseContainerInfo]]:
+                          guild_storage: Optional[Dict[str, str]] = None,
+                          container_sizes: Optional[Dict[str, int]] = None) -> Dict[str, List[BaseContainerInfo]]:
     """{base_id: [containers]} for food bowls and storage at every known base.
 
     guild_storage is {guild_id: container_id} for the shared Guild Chest. A base
@@ -88,7 +91,7 @@ def build_base_containers(base_meta: Dict[str, BaseMeta], food_bowls: List[Dict]
             building_type, name = "PalFoodBox", "Feed Box"
         else:
             building_type, name = concrete, concrete
-        by_base[meta.base_id].append(_container("food_bowl", building_type, name, bowl, meta, item_index, data))
+        by_base[meta.base_id].append(_container("food_bowl", building_type, name, bowl, meta, item_index, data, container_sizes))
 
     for container in storage_containers:
         meta = base_meta.get(container.get("base_camp_id") or "")
@@ -101,14 +104,14 @@ def build_base_containers(base_meta: Dict[str, BaseMeta], food_bowls: List[Dict]
             if not meta.guild_id or any(c.base_id == meta.base_id for c in guild_cards[meta.guild_id]):
                 continue
             raw = dict(container, container_id=guild_storage.get(meta.guild_id))
-            card = _container("guild", GUILD_CHEST, map_building_name(GUILD_CHEST, data), raw, meta, item_index, data)
+            card = _container("guild", GUILD_CHEST, map_building_name(GUILD_CHEST, data), raw, meta, item_index, data, container_sizes)
             card.shared, card.guild_id = True, meta.guild_id
             guild_cards[meta.guild_id].append(card)
             by_base[meta.base_id].append(card)
             continue
         kind = "cooler" if ("Cooler" in building_type or "Refrigerator" in building_type) else "storage"
         by_base[meta.base_id].append(_container(kind, building_type, map_building_name(building_type, data),
-                                                container, meta, item_index, data))
+                                                container, meta, item_index, data, container_sizes))
 
     for cards in guild_cards.values():
         # The game's own base number keeps the order stable whatever a base is called

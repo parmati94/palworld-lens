@@ -5,7 +5,7 @@ import {
     MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
     workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor, partnerSkillHtml, mountLabel, baseLabel,
     sessionLength,
-} from '../js/utils.js';
+ slotFill, slotFillClass } from '../js/utils.js';
 
 const gameData = {
     elements: { Leaf: { name: 'Grass', color: '#2e8b57', icon: 'grass', icon_white: 'grass_white' } },
@@ -365,3 +365,14 @@ test('sessionLength: a session length in days/hours/minutes, never seconds', () 
     assert.equal(sessionLength(28 * 60 * M), '1d 4h');
     assert.equal(sessionLength(-5 * M), '1m');
 });
+
+test('slotFill and slotFillClass', () => {
+    assert.equal(slotFill(17, 40), '17 / 40');
+    assert.equal(slotFill(1, null), '1 item');
+    assert.equal(slotFill(0, undefined), '0 items');
+    assert.equal(slotFillClass(17, 40), 'bg-gray-700/70 text-gray-400');
+    assert.equal(slotFillClass(36, 40), 'bg-amber-500/15 text-amber-200');
+    assert.equal(slotFillClass(40, 40), 'bg-red-500/15 text-red-300');
+    assert.equal(slotFillClass(3, null), 'bg-gray-700/70 text-gray-400');
+});
+

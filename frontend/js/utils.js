@@ -183,6 +183,21 @@ export const RARITY_RING_CLASSES = {
     4: 'ring-amber-400/90',
 };
 
+/** "17 / 40" for a container with a known capacity, else "17 items"; `used` is the occupied-slot count. */
+export function slotFill(used, slots) {
+    const n = used || 0;
+    return slots ? `${n} / ${slots}` : `${n} ${n === 1 ? 'item' : 'items'}`;
+}
+
+/** Chip colour for how full a container is: full is red, nearly full (>= 90%) amber, else quiet. */
+export function slotFillClass(used, slots) {
+    if (!slots) return 'bg-gray-700/70 text-gray-400';
+    const r = (used || 0) / slots;
+    if (r >= 1) return 'bg-red-500/15 text-red-300';
+    if (r >= 0.9) return 'bg-amber-500/15 text-amber-200';
+    return 'bg-gray-700/70 text-gray-400';
+}
+
 /** Is this modal backdrop (partials/modal-shell.html) the top-most one open? Highest z wins, later in
  *  the DOM on a tie. Escape closes only that one, so a popup over a modal closes alone. */
 export function isTopModal(el) {
