@@ -1030,7 +1030,7 @@
                                                         </div>
                                                         <span class="font-medium text-white" x-text="container.display_name || 'Food Box'"></span>
                                                     </div>
-                                                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="`${container.unique_item_count || 0} items`"></span>
+                                                    <span class="text-[11px] px-2 py-0.5 rounded-full tabular-nums" :class="slotFillClass(container.unique_item_count, container.slots)" x-text="slotFill(container.unique_item_count, container.slots)" :data-tip="container.slots ? `${container.unique_item_count || 0} of ${container.slots} slots used` : ''"></span>
                                                 </div>
                                                 
                                                 <!-- Items List -->
@@ -1195,7 +1195,7 @@
                                                                 <span class="font-medium text-white" x-text="container.display_name || 'Storage'"></span>
                                                                 <span x-show="container.shared" class="px-1.5 py-px rounded text-[10px] font-medium bg-amber-500/15 text-amber-200 border border-amber-500/40 whitespace-nowrap" data-tip="One chest for the whole guild: the same contents wherever it stands">Shared</span>
                                                             </div>
-                                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-gray-700/70 text-gray-400 tabular-nums" x-text="`${container.unique_item_count || 0} items`"></span>
+                                                            <span class="text-[11px] px-2 py-0.5 rounded-full tabular-nums" :class="slotFillClass(container.unique_item_count, container.slots)" x-text="slotFill(container.unique_item_count, container.slots)" :data-tip="container.slots ? `${container.unique_item_count || 0} of ${container.slots} slots used` : ''"></span>
                                                         </div>
                                                         <template x-if="container.shared && container.shared_at && container.shared_at.length > 1">
                                                             <p class="-mt-1 mb-3 text-xs text-gray-400">Same chest at <span class="text-gray-300" x-text="baseNamesSentence(container.shared_at)"></span></p>

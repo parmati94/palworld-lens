@@ -164,7 +164,7 @@
                                             <span class="block text-xs text-gray-400 truncate">At <span x-text="baseNamesSentence(baseContainers.guild_storage[guild.guild_id].bases)"></span></span>
                                         </span>
                                         <span class="flex items-center gap-2 text-xs flex-shrink-0">
-                                            <span class="text-gray-400 tabular-nums"><span x-text="baseContainers.guild_storage[guild.guild_id].container.unique_item_count"></span> stacks</span>
+                                            <span class="tabular-nums" :class="slotFillClass(baseContainers.guild_storage[guild.guild_id].container.unique_item_count, baseContainers.guild_storage[guild.guild_id].container.slots)" x-text="slotFill(baseContainers.guild_storage[guild.guild_id].container.unique_item_count, baseContainers.guild_storage[guild.guild_id].container.slots)"></span>
                                             <svg class="w-4 h-4 text-gray-600 group-hover:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                             </svg>

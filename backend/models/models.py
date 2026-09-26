@@ -450,6 +450,7 @@ class BaseContainerInfo(BaseModel):
     shared: bool = False
     guild_id: Optional[str] = None
     shared_at: List[BaseLocation] = []  # every base where this shared chest stands
+    slots: Optional[int] = None   # capacity (the save's SlotNum); `items` are the occupied slots
 
     @computed_field
     def total_item_count(self) -> int:

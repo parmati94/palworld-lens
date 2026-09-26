@@ -183,6 +183,32 @@ export const RARITY_RING_CLASSES = {
     4: 'ring-amber-400/90',
 };
 
+/** "17 / 40" for a container with a known capacity, else "17 items"; `used` is the occupied-slot count. */
+export function slotFill(used, slots) {
+    const n = used || 0;
+    return slots ? `${n} / ${slots}` : `${n} ${n === 1 ? 'item' : 'items'}`;
+}
+
+/** Chip colour for how full a container is: full is red, nearly full (>= 90%) amber, else quiet. */
+export function slotFillClass(used, slots) {
+    if (!slots) return 'bg-gray-700/70 text-gray-400';
+    const r = (used || 0) / slots;
+    if (r >= 1) return 'bg-red-500/15 text-red-300';
+    if (r >= 0.9) return 'bg-amber-500/15 text-amber-200';
+    return 'bg-gray-700/70 text-gray-400';
+}
+
+/** Is this modal backdrop (partials/modal-shell.html) the top-most one open? Highest z wins, later in
+ *  the DOM on a tie. Escape closes only that one, so a popup over a modal closes alone. */
+export function isTopModal(el) {
+    let top = null;
+    for (const m of document.querySelectorAll('[data-modal-shell]')) {
+        if (m.style.display === 'none') continue;
+        if (!top || +m.dataset.modalShell >= +top.dataset.modalShell) top = m;
+    }
+    return top === el;
+}
+
 const RARITY_TEXT_CLASSES = { 0: 'text-gray-300', 1: 'text-green-300', 2: 'text-blue-300', 3: 'text-purple-300', 4: 'text-amber-300' };
 export function rarityTextClass(rarity) {
     return RARITY_TEXT_CLASSES[rarity] ?? RARITY_TEXT_CLASSES[0];

@@ -4,12 +4,7 @@
      pals at the left, each pair merging into its child one column to the
      right, the goal at the far right. Under it, the same plan as sentences
      in breeding order. -->
-<div x-show="breedRouteOpen" x-cloak
-     @keydown.escape.window="breedRouteOpen = false"
-     class="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md">
-    <div @click.away="breedRouteOpen = false"
-         class="modal-panel shadow-2xl w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden">
-        <span class="modal-corners" aria-hidden="true"></span>
+{{#> modal-shell show="breedRouteOpen" close="breedRouteOpen = false" z=60 width="max-w-6xl" height="max-h-[92vh]" pad="p-3 sm:p-6" noscroll=true}}
 
         <!-- Header -->
         <div class="px-4 sm:px-5 py-3 modal-band flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -185,5 +180,4 @@
                 </div>
             </template>
         </div>
-    </div>
-</div>
+{{/modal-shell}}

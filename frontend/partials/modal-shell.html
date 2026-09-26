@@ -1,0 +1,42 @@
+{{!-- The chrome every modal shares: the blurred backdrop, the translucent panel with its accent
+     brackets (.modal-panel / .modal-corners), the open/close transition, click-outside and Escape.
+     Escape closes only the top-most open modal (isTopModal, by z then DOM order), so a popup over
+     the player modal closes alone. Wrap a modal's body in a partial block:
+
+       {{#> modal-shell data="crewModal()" show="showCrewModal" close="closeCrewModal()" z=55 width="max-w-2xl"
+                        on='@open-crew-modal.window="openCrewModal($event.detail)"'}}
+           ...header band + body...
+       {{/modal-shell}}
+
+     Params: show (state expression), close (statement), z (stack order), width (max-w-*);
+     optional data (x-data component), height (max-h-*, default 85vh), pad (backdrop padding,
+     default p-4), on (extra attributes for the backdrop element, e.g. the open-event listener),
+     noscroll=true to skip the scrolling body wrapper when the body manages its own scrolling. --}}
+<div {{#if data}}x-data="{{data}}"{{/if}}
+     x-show="{{show}}"
+     x-cloak
+     data-modal-shell="{{z}}"
+     @click.self="{{{close}}}"
+     @keydown.escape.window="{{show}} && isTopModal($el) && ({{{close}}})"
+     {{{on}}}
+     class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center {{#if pad}}{{pad}}{{else}}p-4{{/if}}"
+     style="display: none; z-index: {{z}};">
+    <div @click.stop
+         x-show="{{show}}"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 transform scale-95"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-95"
+         class="modal-panel shadow-2xl w-full {{width}} {{#if height}}{{height}}{{else}}max-h-[85vh]{{/if}} flex flex-col overflow-hidden">
+      <span class="modal-corners" aria-hidden="true"></span>
+      {{#if noscroll}}
+      {{> @partial-block }}
+      {{else}}
+      <div class="min-h-0 overflow-y-auto">
+      {{> @partial-block }}
+      </div>
+      {{/if}}
+    </div>
+</div>
