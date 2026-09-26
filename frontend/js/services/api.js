@@ -22,6 +22,14 @@ export const api = {
     },
 
     /**
+     * One item described for the item popup (name, description, category, gear stats, schematic)
+     */
+    async getItem(itemId) {
+        const res = await fetchWithRetry(`/api/items/${encodeURIComponent(itemId)}`);
+        return await res.json();
+    },
+
+    /**
      * Get all pals
      */
     async getPals() {

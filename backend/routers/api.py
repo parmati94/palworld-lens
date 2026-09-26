@@ -8,6 +8,7 @@ from backend.common.auth import require_auth
 from backend.common.config import config
 from backend.common import pal_icons
 from backend.common import online
+from backend.common import item_detail
 from backend.parser import parser
 
 logger = get_logger(__name__)
@@ -91,6 +92,15 @@ async def get_pals():
 async def get_game_data():
     """Static reference data the UI keys ids on: elements, work types, conditions, map layers."""
     return parser.data.reference()
+
+
+@router.get("/items/{item_id}", dependencies=[Depends(require_auth)])
+async def get_item(item_id: str):
+    """One item described for the popup: name, description, category, weight, gear stats, schematic."""
+    info = item_detail.describe_item(item_id, parser.data)
+    if info is None:
+        raise HTTPException(status_code=404, detail="Unknown item")
+    return info
 
 
 @router.get("/map-objects", dependencies=[Depends(require_auth)])
