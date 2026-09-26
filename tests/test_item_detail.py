@@ -1,7 +1,7 @@
 """The item popup's payload (backend/common/item_detail.py) against the shipped tables."""
 import pytest
 
-from backend.common.item_detail import category_label, describe_item
+from backend.common.item_detail import category_label, clean_description, describe_item
 from backend.parser.loaders.data_loader import DataLoader
 
 
@@ -40,6 +40,17 @@ def test_food_and_schematic(data):
 def test_save_casing_and_unknown(data):
     assert describe_item('pizza', data)['food'] == describe_item('Pizza', data)['food']
     assert describe_item('NoSuchItem', data) is None
+
+
+def test_crafted_at_uses_the_workbench_name(data):
+    assert describe_item('AIcore', data)['description'].endswith('Can be crafted at Advanced Workshop.')
+    assert describe_item('Cement', data)['description'].endswith('Can be produced in a High-Quality Workbench.')
+    assert clean_description('Made of stuff. Can be crafted at Nowhere Special 09.', {}) == 'Made of stuff. Can be crafted at Nowhere Special 09.'
+    assert clean_description('Raises COMMON_STATUS_RANGE_Attack by 20%.', {}) == 'Raises Attack by 20%.'
+    # every crafted-at tail in the shipped text resolves to a building name
+    for k in data.items:
+        d = describe_item(k, data)['description'] or ''
+        assert not any(w in d for w in ('Factory Hard', 'WeaponFactory', 'Dirty 0')), (k, d)
 
 
 def test_category_label():

@@ -3,6 +3,7 @@
 Everything comes from tables the loader already holds (items.json + its l10n row, loadout.json for
 gear stats, passive_skills.json for the equip passives' names) -- nothing is read from the save.
 """
+import re
 from typing import Any, Dict, Optional
 
 from backend.common.loadout import food_effects_line
@@ -25,6 +26,36 @@ SUBTYPE_NAMES = {
     'WeaponHandgun': 'Handgun', 'WeaponAssaultRifle': 'Assault Rifle', 'WeaponShotgun': 'Shotgun',
     'WeaponRocketLauncher': 'Rocket Launcher', 'WeaponGatlingGun': 'Gatling Gun', 'WeaponThrowObject': 'Thrown',
 }
+
+
+# The upstream item text names the workbench by its id with the underscores swapped for spaces
+# ("Can be crafted at Factory Hard 04.", "Can be produced in a WeaponFactory Dirty 03.") where the
+# game shows its name ("Advanced Workshop"). Swap the name back in wherever such an id appears.
+_PLACEHOLDERS = {'COMMON_STATUS_RANGE_Attack': 'Attack', 'COMMON_STATUS_RANGE_Defense': 'Defense'}
+_building_names_cache: Dict[int, Any] = {}
+
+
+def _spaced_building_ids(buildings: Dict[str, Dict]):
+    """(regex, {spaced id: name}) for every building id with an underscore, longest first; cached per table."""
+    hit = _building_names_cache.get(id(buildings))
+    if hit:
+        return hit
+    names = {k.replace('_', ' '): (v or {}).get('localized_name') for k, v in buildings.items() if '_' in k and (v or {}).get('localized_name')}
+    rx = re.compile(r'\b(' + '|'.join(re.escape(k) for k in sorted(names, key=len, reverse=True)) + r')\b') if names else None
+    _building_names_cache[id(buildings)] = (rx, names)
+    return rx, names
+
+
+def clean_description(text, buildings: Dict[str, Dict]) -> Optional[str]:
+    t = str(text or '').strip()
+    if not t:
+        return None
+    for raw, word in _PLACEHOLDERS.items():
+        t = t.replace(raw, word)
+    rx, names = _spaced_building_ids(buildings)
+    if rx:
+        t = rx.sub(lambda m: names[m.group(1)], t)
+    return t
 
 
 def _plain(text) -> Optional[str]:
@@ -58,7 +89,7 @@ def describe_item(item_id: str, data: Any) -> Optional[Dict]:
     out: Dict[str, Any] = {
         'item_id': item_id,
         'name': row.get('localized_name') or item_id,
-        'description': row.get('description') or None,
+        'description': clean_description(row.get('description'), getattr(data, 'buildings', None) or {}),
         'icon': row.get('icon'),
         'rarity': rarity,
         'rarity_name': RARITY_NAMES[rarity] if rarity is not None else None,
