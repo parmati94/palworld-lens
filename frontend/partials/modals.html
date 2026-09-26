@@ -1,23 +1,6 @@
         <!-- Container Detail Modal -->
-        <div x-data="containerModal()"
-             x-show="showContainerModal" 
-             x-cloak
-             @click.self="closeContainerModal()"
-             @keydown.escape.window="showContainerModal && closeContainerModal()"
-             @open-container-modal.window="openContainerModal($event.detail.container)"
-             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[60] p-4"
-             style="display: none;">
-            <div @click.stop 
-                 x-show="showContainerModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 transform scale-100"
-                 x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden">
-              <span class="modal-corners" aria-hidden="true"></span>
-              <div class="min-h-0 overflow-y-auto">
+        {{#> modal-shell data="containerModal()" show="showContainerModal" close="closeContainerModal()" z=60 width="max-w-3xl"
+                         on='@open-container-modal.window="openContainerModal($event.detail.container)"'}}
                 
                 <template x-if="selectedContainer">
                     <div>
@@ -73,29 +56,10 @@
                         </div>
                     </div>
                 </template>
-              </div>
-            </div>
-        </div>
+        {{/modal-shell}}
 
         <!-- Pal Detail Modal -->
-        <div x-data="palModal()"
-             x-show="showPalModal" 
-             x-cloak
-             @click.self="closePalModal()"
-             @keydown.escape.window="showPalModal && closePalModal()"
-             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[60] p-4"
-             style="display: none;">
-            <div @click.stop 
-                 x-show="showPalModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 transform scale-100"
-                 x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-              <span class="modal-corners" aria-hidden="true"></span>
-              <div class="min-h-0 overflow-y-auto">
+        {{#> modal-shell data="palModal()" show="showPalModal" close="closePalModal()" z=60 width="max-w-4xl" height="max-h-[90vh]"}}
                 
                 <template x-if="selectedPal">
                     <div>
@@ -842,32 +806,14 @@
                             </svg>
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>
+        {{/modal-shell}}
 
     </main>
 
         <!-- Player Detail Modal: the game's inventory screen for one player.
              Three pills like the game's tabs: Inventory (character pane + bag grid), Party, Status. -->
-        <div x-data="playerModal()"
-             x-show="showPlayerModal"
-             x-cloak
-             @click.self="closePlayerModal()"
-             @keydown.escape.window="showPlayerModal && closePlayerModal()"
-             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[58] p-2 sm:p-4"
-             style="display: none;">
-            <div @click.stop
-                 x-show="showPlayerModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 transform scale-100"
-                 x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel max-w-6xl w-full max-h-[94vh] sm:max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-              <span class="modal-corners" aria-hidden="true"></span>
-              <div class="min-h-0 overflow-y-auto">
+        {{#> modal-shell data="playerModal()" show="showPlayerModal" close="closePlayerModal()" z=58 width="max-w-6xl"
+                         height="max-h-[94vh] sm:max-h-[92vh]" pad="p-2 sm:p-4"}}
                 <template x-if="selectedPlayer">
                     <div>
                         <!-- Header -->
@@ -1121,28 +1067,10 @@
                         </div>
                     </div>
                 </template>
-              </div>
-            </div>
-        </div>
+        {{/modal-shell}}
 
     <!-- Server Info Modal -->
-    <div 
-        x-data="serverInfoModal()"
-        x-show="showServerInfo" 
-        x-cloak
-        @click.self="hide()"
-        @keydown.escape.window="showServerInfo && hide()"
-        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
-        <div 
-            @click.stop
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-95"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            class="modal-panel shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            <span class="modal-corners" aria-hidden="true"></span>
+    {{#> modal-shell data="serverInfoModal()" show="showServerInfo" close="hide()" z=60 width="max-w-4xl" height="max-h-[90vh]" noscroll=true}}
             
             <!-- Header -->
             <div class="modal-band p-5">
@@ -1329,29 +1257,11 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+    {{/modal-shell}}
 
         <!-- Crew modal: every pal on one Activity card (expeditions send a hundred) -->
-        <div x-data="crewModal()"
-             x-show="showCrewModal"
-             x-cloak
-             @click.self="closeCrewModal()"
-             @keydown.escape.window="showCrewModal && closeCrewModal()"
-             @open-crew-modal.window="openCrewModal($event.detail)"
-             class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center z-[55] p-4"
-             style="display: none;">
-            <div @click.stop
-                 x-show="showCrewModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 transform scale-100"
-                 x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden">
-              <span class="modal-corners" aria-hidden="true"></span>
-              <div class="min-h-0 overflow-y-auto">
+        {{#> modal-shell data="crewModal()" show="showCrewModal" close="closeCrewModal()" z=55 width="max-w-2xl"
+                         on='@open-crew-modal.window="openCrewModal($event.detail)"'}}
                 <template x-if="crew">
                     <div>
                         <div class="sticky top-0 z-10 px-5 py-4 flex items-center justify-between modal-band">
@@ -1430,31 +1340,12 @@
                         </div>
                     </div>
                 </template>
-              </div>
-            </div>
-        </div>
+        {{/modal-shell}}
 
         <!-- Item popup: any item tile clicked, anywhere (partials/item-icon.html, partials/inv-slot.html).
              z-70 so it opens on top of the player, chest and pal modals. -->
-        <div x-data="itemModal()"
-             x-show="showItemModal"
-             x-cloak
-             @click.self="closeItemModal()"
-             @keydown.escape.window.capture="if (showItemModal) { $event.stopPropagation(); closeItemModal() }"
-             @open-item-modal.window="openItemModal($event.detail)"
-             class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[70] p-4"
-             style="display: none;">
-            <div @click.stop
-                 x-show="showItemModal"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 transform scale-95"
-                 x-transition:enter-end="opacity-100 transform scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 transform scale-100"
-                 x-transition:leave-end="opacity-0 transform scale-95"
-                 class="modal-panel shadow-2xl max-w-sm w-full max-h-[85vh] flex flex-col overflow-hidden">
-              <span class="modal-corners" aria-hidden="true"></span>
-              <div class="min-h-0 overflow-y-auto">
+        {{#> modal-shell data="itemModal()" show="showItemModal" close="closeItemModal()" z=70 width="max-w-sm"
+                         on='@open-item-modal.window="openItemModal($event.detail)"'}}
                 <template x-if="item">
                     <div>
                         <div class="px-5 py-4 flex items-start gap-4 modal-band">
@@ -1531,6 +1422,4 @@
                         </div>
                     </div>
                 </template>
-              </div>
-            </div>
-        </div>
+        {{/modal-shell}}

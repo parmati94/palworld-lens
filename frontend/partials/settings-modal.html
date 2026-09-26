@@ -1,14 +1,7 @@
     <!-- Settings: device-local preferences plus the save watcher. Opened from the
          header gear; state lives in app.js (showSettings, theme, reduceMotion,
          autoWatch*). -->
-    <div x-show="showSettings" x-cloak
-         x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         @click.self="showSettings = false"
-         @keydown.escape.window="showSettings = false"
-         class="fixed inset-0 bg-black/75 backdrop-blur-md z-[70] flex items-center justify-center p-4">
-        <div class="modal-panel w-full max-w-md shadow-2xl overflow-hidden">
-            <span class="modal-corners" aria-hidden="true"></span>
+    {{#> modal-shell show="showSettings" close="showSettings = false" z=70 width="max-w-md" noscroll=true}}
             <div class="flex items-center justify-between px-5 py-4 modal-band">
                 <div class="flex items-center gap-2.5">
                     <svg class="w-5 h-5 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,5 +94,4 @@
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
+    {{/modal-shell}}

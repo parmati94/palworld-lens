@@ -183,6 +183,17 @@ export const RARITY_RING_CLASSES = {
     4: 'ring-amber-400/90',
 };
 
+/** Is this modal backdrop (partials/modal-shell.html) the top-most one open? Highest z wins, later in
+ *  the DOM on a tie. Escape closes only that one, so a popup over a modal closes alone. */
+export function isTopModal(el) {
+    let top = null;
+    for (const m of document.querySelectorAll('[data-modal-shell]')) {
+        if (m.style.display === 'none') continue;
+        if (!top || +m.dataset.modalShell >= +top.dataset.modalShell) top = m;
+    }
+    return top === el;
+}
+
 const RARITY_TEXT_CLASSES = { 0: 'text-gray-300', 1: 'text-green-300', 2: 'text-blue-300', 3: 'text-purple-300', 4: 'text-amber-300' };
 export function rarityTextClass(rarity) {
     return RARITY_TEXT_CLASSES[rarity] ?? RARITY_TEXT_CLASSES[0];
