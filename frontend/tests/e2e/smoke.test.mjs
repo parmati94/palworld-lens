@@ -139,3 +139,25 @@ test('"Show on map" leaves the World Tree for the map the player is on', { skip 
     assert.equal(s.tab, 'map');
     assert.equal(s.layer, 'MainMap');
 });
+
+test('clicking a base on the map opens that base, not the first one', { skip }, async () => {
+    const target = await page.evaluate(`(() => { const a = ${APP};
+        const guilds = a.guilds.filter(g => (g.base_locations || []).length > 0);
+        const g = guilds[guilds.length - 1]; const b = g.base_locations[g.base_locations.length - 1];
+        return { guildId: g.guild_id, baseId: b.base_id, x: b.x, y: b.y }; })()`);
+    await page.evaluate(`${APP}.currentTab = 'map'`);
+    await page.waitForFunction(`(${MAP})?.mapReady === true`, null, { timeout: 30000 });
+    await page.evaluate(`(${MAP}).centerOnLocation(${target.x}, ${target.y}, 7)`);
+    await sleep(1500);
+    const clicked = await page.evaluate(`(() => { const a = ${APP};
+        const g = a.guilds.find(g => g.guild_id === '${target.guildId}'); const name = g.base_locations.find(b => b.base_id === '${target.baseId}').base_name;
+        // base names repeat across guilds ("Base 1"); the marker shows both
+        const el = [...document.querySelectorAll('.maplibregl-marker')].find(m => m.innerText.includes(name) && m.innerText.includes(g.guild_name));
+        if (el) el.click(); return !!el; })()`);
+    assert.ok(clicked, 'base marker not found on the map');
+    await sleep(500);
+    const s = await page.evaluate(`({ tab: ${APP}.currentTab, guild: ${APP}.selectedGuildId, base: ${APP}.selectedBaseId })`);
+    assert.equal(s.tab, 'bases');
+    assert.equal(s.guild, target.guildId);
+    assert.equal(s.base, target.baseId);
+});
