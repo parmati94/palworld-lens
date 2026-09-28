@@ -268,7 +268,7 @@ test('player modal: the records strip reads tech first, then the tallies', async
     assert.deepEqual(cells.map(c => [c.label, c.value]),
         [['Tech', 201], ['Paldeck', 161], ['Towers', 5], ['Alphas', 62], ['Dungeons', 13], ['Fast travel', 100]]);
     assert.equal(cells[0].tip, '19 tech pts, 43 ancient pts to spend');
-    assert.equal(cells[1].tip, '614 pals caught');
+    assert.equal(cells[1].tip, 'species seen · 614 pals caught in all');
     assert.equal(playerRecordCells({ tech: { unlocked: 3, points: 0, ancient_points: 0 } })[0].tip, 'nothing to spend');
     assert.deepEqual(playerRecordCells({}), []);
 });

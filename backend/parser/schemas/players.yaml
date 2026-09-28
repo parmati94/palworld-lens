@@ -200,6 +200,18 @@ fields:
     path: ["value", "PalCaptureCount", "value"]
     default: []
 
+  PalCaptureBonusCount:
+    description: "Catches per species that paid the capture bonus ({species: n}, capped at 5 in 1.0)"
+    root_key: "RecordData"
+    path: ["value", "PalCaptureBonusCount", "value"]
+    default: []
+
+  PalCaptureBonusExpTableIndex:
+    description: "Bonus catches so far across every species: the player's row in DT_PalCaptureBonusExpTable"
+    root_key: "RecordData"
+    path: ["value", "PalCaptureBonusExpTableIndex", "value"]
+    default: 0
+
   FastTravelPointUnlockFlag:
     description: "Fast travel points unlocked ({point: true})"
     root_key: "RecordData"

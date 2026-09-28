@@ -24,9 +24,10 @@ import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
 import { breedingState, BREED_MODES } from './breeding-state.js';
+import { paldeckState, DECK_SORT_IDS, DECK_HOW_IDS } from './paldeck-state.js';
 
 const prefs = loadPrefs();
-const TABS = ['overview', 'players', 'pals', 'bases', 'tools', 'map'];
+const TABS = ['overview', 'players', 'pals', 'paldeck', 'bases', 'tools', 'map'];
 // Tools: helpers over the save, grouped under one tab (frontend/partials/tabs/tools-tab.html)
 export const TOOLS = [
     { id: 'breeding', label: 'Breeding', title: 'What two pals make, which of yours can make a pal, and the route to one you cannot',
@@ -115,6 +116,8 @@ export function app() {
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
         // Breeding tab (js/breeding-state.js): species list, pickers, results
         ...breedingState(),
+        // Paldeck tab (js/paldeck-state.js): the species deck + a player's capture bonus overlay
+        ...paldeckState(),
         
         async init() {
             // Initialize watch service
@@ -200,6 +203,10 @@ export function app() {
             this.$watch('currentTab', () => this.onToolShown());
             this.$watch('tool', () => this.onToolShown());
             this.onToolShown();
+            this.$watch('pals', () => this.paldeckInvalidate());
+            ['deckSearch', 'deckElement', 'deckWork', 'deckHow', 'deckPlayer', 'deckMissing', 'deckSort'].forEach(key => {
+                this.$watch(key, () => { this.deckLimit = 120; this.writeHash(); });
+            });
             // The species table gates the pal modal's Breed button, so it must not wait for the Breeding tab.
             this.ensureBreedingSpecies();
             this.$watch('pals', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); });
@@ -221,6 +228,8 @@ export function app() {
                   icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
                 { id: 'pals', label: 'Pals', count: this.pals.length,
                   icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+                { id: 'paldeck', label: 'Paldeck', count: null, title: 'Every species: where it spawns, what it does, and each player\'s capture bonus',
+                  icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
                 { id: 'bases', label: 'Bases', count: this.basePals.reduce((n, g) => n + g.bases.length, 0),
                   icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
                 { id: 'map', label: 'Map', count: null,
@@ -248,6 +257,7 @@ export function app() {
             this.$nextTick(() => window.scrollTo({ top: 0 }));
         },
         onToolShown() {
+            if (this.currentTab === 'paldeck') this.ensurePaldeck();
             if (this.currentTab !== 'tools') return;
             if (this.tool === 'breeding') this.ensureBreedingSpecies();
             if (this.tool === 'workers') {
@@ -277,6 +287,16 @@ export function app() {
                     this.filterWorkType = params.get('work') || '';
                     this.filterPassiveSkill = params.get('passive') || '';
                     this.filterOwner = params.get('owner') || '';
+                }
+                if (tab === 'paldeck') {
+                    this.deckSearch = params.get('q') || '';
+                    this.deckElement = params.get('element') || '';
+                    this.deckWork = params.get('work') || '';
+                    this.deckHow = DECK_HOW_IDS.includes(params.get('how')) ? params.get('how') : '';
+                    this.deckPlayer = params.get('player') || '';
+                    this.deckMissing = params.get('missing') === '1';
+                    if (DECK_SORT_IDS.includes(params.get('sort'))) this.deckSort = params.get('sort');
+                    if (params.has('species')) this.$nextTick(() => this.openSpecies(params.get('species')));
                 }
                 if (tab === 'tools' && this.tool === 'breeding') {
                     const mode = params.get('mode');
@@ -310,6 +330,15 @@ export function app() {
                 if (this.filterWorkType) params.set('work', this.filterWorkType);
                 if (this.filterPassiveSkill) params.set('passive', this.filterPassiveSkill);
                 if (this.filterOwner) params.set('owner', this.filterOwner);
+            }
+            if (this.currentTab === 'paldeck') {
+                if (this.deckSearch) params.set('q', this.deckSearch);
+                if (this.deckElement) params.set('element', this.deckElement);
+                if (this.deckWork) params.set('work', this.deckWork);
+                if (this.deckHow) params.set('how', this.deckHow);
+                if (this.deckPlayer) params.set('player', this.deckPlayer);
+                if (this.deckMissing) params.set('missing', '1');
+                if (this.deckSort !== 'number') params.set('sort', this.deckSort);
             }
             if (this.currentTab === 'tools' && this.tool === 'breeding') {
                 params.set('mode', this.breedMode);

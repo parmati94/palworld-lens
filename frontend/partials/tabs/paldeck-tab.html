@@ -1,0 +1,164 @@
+        <!-- Paldeck tab: every species the game numbers, as reference (js/paldeck-state.js, /api/paldeck).
+             A species list, never the owned list -- the Pals tab is for those. The one owned figure on a
+             card is a server-wide count. Pick a player and their capture bonus progress overlays the deck:
+             pips per card, a summary strip, and a "Missing" filter that is the fast-EXP list. -->
+        <div x-show="currentTab === 'paldeck' && saveInfo.loaded" class="tab-content">
+            <!-- Search + filters (same fold-away pattern as the Pals tab) -->
+            <div class="mb-4 card p-3 sm:p-4" x-data="{ filtersOpen: false }">
+                <div class="flex items-center gap-2" :class="filtersOpen ? 'mb-4' : 'md:mb-4'">
+                    <div class="relative flex-1 min-w-0">
+                        <svg class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <input type="text" x-model="deckSearch" placeholder="Search the Paldeck by name, id or number..."
+                               class="w-full pl-9 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-lg text-gray-100 text-sm placeholder-gray-500 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 search-input">
+                    </div>
+                    <button @click="filtersOpen = !filtersOpen" type="button" :aria-expanded="filtersOpen"
+                            class="md:hidden btn-quiet px-3 py-2.5 border text-sm font-medium flex-shrink-0"
+                            :class="filtersOpen || deckFilterCount() ? 'border-accent-500/50 text-accent-300' : 'border-gray-700/60 text-gray-300'">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                        Filters
+                        <span x-show="deckFilterCount() > 0" class="px-1.5 rounded-full bg-accent-500/20 text-accent-200 text-[11px] tabular-nums" x-text="deckFilterCount()"></span>
+                    </button>
+                </div>
+                <div class="flex-col md:flex-row gap-4 items-start md:items-end" :class="filtersOpen ? 'flex' : 'hidden md:flex'">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 flex-1 w-full">
+                        <div>
+                            <label class="eyebrow mb-2 block">Player</label>
+                            <div x-data="selectMenu({ options: () => deckPlayers().map(p => ({ value: p.name, label: `${p.name} · Lv ${p.level}` })), placeholder: 'Nobody' })"
+                                 x-modelable="value" x-model="deckPlayer" data-tip="Overlay this player's capture bonus progress">
+                                {{> select-menu }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="eyebrow mb-2 block">Element</label>
+                            <div x-data="selectMenu({ options: () => deckElements(), placeholder: 'All elements' })" x-modelable="value" x-model="deckElement">
+                                {{> select-menu }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="eyebrow mb-2 block">Work</label>
+                            <div x-data="selectMenu({ options: () => deckWorkTypes(), placeholder: 'Any work' })" x-modelable="value" x-model="deckWork">
+                                {{> select-menu }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="eyebrow mb-2 block">Spawns</label>
+                            <div x-data="selectMenu({ options: () => deckHows, placeholder: 'Anywhere' })" x-modelable="value" x-model="deckHow">
+                                {{> select-menu }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="eyebrow mb-2 block">Sort</label>
+                            <div x-data="selectMenu({ options: () => deckSorts, required: true })" x-modelable="value" x-model="deckSort">
+                                {{> select-menu }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <label x-show="deckProgress()" class="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm cursor-pointer select-none transition-colors"
+                               :class="deckMissing ? 'border-accent-500/60 bg-accent-500/15 text-accent-200' : 'border-gray-700/60 text-gray-300 hover:border-gray-600'"
+                               :data-tip="'Only species ' + (deckPlayer || 'they') + ' can still earn bonus EXP from'">
+                            <input type="checkbox" x-model="deckMissing" class="rounded border-gray-500 bg-gray-800 text-accent-600 focus:ring-accent-500">
+                            Missing
+                        </label>
+                        <button x-show="deckFilterCount() > 0 || deckSearch" @click="deckClearFilters()" class="btn-quiet px-3 py-2 text-sm border border-gray-700/60">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The player's chain: what the next catch pays and how far the next level is -->
+            <template x-if="deckSummary()">
+                <div class="mb-4 card p-3 sm:p-4">
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                        <div class="min-w-0">
+                            <div class="eyebrow">Capture bonus · <span x-text="deckPlayer"></span></div>
+                            <div class="text-sm text-gray-300 mt-1">
+                                <span class="text-white font-semibold tabular-nums" x-text="deckSummary().done"></span> of
+                                <span class="tabular-nums" x-text="deckSummary().total"></span> species maxed
+                                · <span class="tabular-nums text-gray-200" x-text="deckSummary().left.toLocaleString()"></span> bonus catches left
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 sm:ml-auto">
+                            <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Every bonus catch pays the next row of one chain, whatever the species; it only goes up">
+                                <div class="text-[11px] uppercase tracking-wide text-gray-500">Next catch</div>
+                                <div class="text-lg font-semibold text-white tabular-nums leading-tight">+<span x-text="deckSummary().nextExp.toLocaleString()"></span> <span class="text-xs font-normal text-gray-400">EXP</span></div>
+                            </div>
+                            <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60"
+                                 :data-tip="deckSummary().expToLevel == null ? 'At the level cap' : deckSummary().expToLevel.toLocaleString() + ' EXP to the next level, from bonus catches alone'">
+                                <div class="text-[11px] uppercase tracking-wide text-gray-500">To Lv <span x-text="deckSummary().level + 1"></span></div>
+                                <div class="text-lg font-semibold text-white tabular-nums leading-tight">
+                                    <template x-if="deckSummary().toLevel != null"><span><span x-text="deckSummary().toLevel.toLocaleString()"></span> <span class="text-xs font-normal text-gray-400">catches</span></span></template>
+                                    <template x-if="deckSummary().toLevel == null"><span class="text-sm text-gray-400">max level</span></template>
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Bonus catches so far, all species together">
+                                <div class="text-[11px] uppercase tracking-wide text-gray-500">Chain</div>
+                                <div class="text-lg font-semibold text-white tabular-nums leading-tight" x-text="deckSummary().index.toLocaleString()"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div x-show="paldeck && paldeck.exp_rate && paldeck.exp_rate !== 1" class="mt-2 text-[11px] text-gray-500">Figures at this server's EXP rate (×<span x-text="paldeck && paldeck.exp_rate"></span>).</div>
+                </div>
+            </template>
+
+            <!-- States -->
+            <div x-show="paldeckLoading && !paldeck" class="card p-8 text-center text-sm text-gray-400">Opening the Paldeck…</div>
+            <div x-show="paldeckError" class="card p-6 text-sm text-red-300" x-text="paldeckError"></div>
+
+            <!-- The deck -->
+            <template x-if="paldeck">
+                <div>
+                    <div class="flex items-center justify-between gap-3 mb-3 text-xs text-gray-400">
+                        <span><span class="tabular-nums text-gray-200" x-text="deckRows().length"></span> of <span class="tabular-nums" x-text="deckSpecies().length"></span> species</span>
+                        <span x-show="deckProgress() && deckMissing" class="text-gray-500">Fewest bonus catches first, then the lowest spawn level</span>
+                    </div>
+                    <div x-show="deckRows().length === 0" class="card p-8 text-center text-sm text-gray-400">
+                        <span x-show="deckMissing && deckProgress()">Nothing left to catch with these filters. <span x-text="deckPlayer"></span> has the bonus from every one of them.</span>
+                        <span x-show="!(deckMissing && deckProgress())">No species match.</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+                        <template x-for="s in deckRowsShown()" :key="s.id">
+                            <div @click="openSpecies(s.id)" role="button" tabindex="0"
+                                 @keydown.enter.prevent="openSpecies(s.id)" @keydown.space.prevent="openSpecies(s.id)"
+                                 class="card p-2.5 sm:p-3 cursor-pointer hover:border-accent-500/50 transition-colors group relative"
+                                 :class="deckProgress() && deckBonus(s.id) >= deckCap() ? 'opacity-70 hover:opacity-100' : ''">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="relative flex-shrink-0">
+                                        <img :src="palIconSrc(s)" @error="palIconError($el, s)" :alt="s.name" loading="lazy"
+                                             class="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-gray-900/70 object-cover border border-white/5">
+                                        <span x-show="s.owned" class="absolute -top-1.5 -right-1.5 px-1.5 rounded-full bg-gray-900 border border-gray-600 text-[10px] font-semibold text-gray-200 tabular-nums leading-4"
+                                              :data-tip="s.owned + ' on this server, ' + s.owners + ' owner' + (s.owners === 1 ? '' : 's')">×<span x-text="s.owned"></span></span>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[10px] font-mono text-gray-500 leading-none">#<span x-text="s.number"></span></div>
+                                        <div class="font-medium text-sm text-gray-100 truncate group-hover:text-accent-200 transition-colors mt-0.5" x-text="s.name"></div>
+                                        <div class="flex items-center gap-1 mt-1">
+                                            <template x-for="element in s.element_types" :key="element">
+                                                <img :src="elementIcon(element)" :alt="elementName(element)" :data-tip="elementName(element)" class="w-4 h-4"
+                                                     :onerror="`this.onerror=null; this.src='/img/neutral.webp'`">
+                                            </template>
+                                            <span x-show="s.nocturnal" class="text-[10px] text-indigo-300" data-tip="Nocturnal: works through the night">☾</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 flex items-center justify-between gap-2">
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-medium border truncate"
+                                          :class="!s.spawn ? 'border-gray-700 text-gray-500' : s.spawn.how === 'wild' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : s.spawn.how === 'alpha' ? 'border-amber-500/30 bg-amber-500/10 text-amber-200' : 'border-violet-500/30 bg-violet-500/10 text-violet-200'"
+                                          :data-tip="spawnTip(s.spawn)" x-text="spawnLabel(s.spawn)"></span>
+                                    <template x-if="deckProgress()">
+                                        <span class="flex items-center gap-0.5 flex-shrink-0" :data-tip="deckPipsTip(s.id)">
+                                            <template x-for="(pip, i) in bonusPips(deckBonus(s.id), deckCap())" :key="i">
+                                                <span class="w-2 h-2 rounded-full border"
+                                                      :class="pip.full ? (deckBonus(s.id) >= deckCap() ? 'bg-emerald-400 border-emerald-300' : 'bg-accent-400 border-accent-300') : 'bg-transparent border-gray-600'"></span>
+                                            </template>
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="deckRows().length > deckLimit" class="mt-4 text-center">
+                        <button @click="deckLimit += 120" class="btn-quiet px-4 py-2 text-sm border border-gray-700/60">Show more (<span x-text="deckRows().length - deckLimit"></span> left)</button>
+                    </div>
+                </div>
+            </template>
+        </div>

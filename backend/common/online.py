@@ -24,6 +24,8 @@ CACHE_TTL = 10.0     # seconds; autosaves are ~30 s apart, tabs reload together
 
 _cache: dict = {"at": 0.0, "ids": None}
 _lock = asyncio.Lock()
+SETTINGS_TTL = 300.0   # seconds; server settings only change with a restart
+_settings: dict = {"at": 0.0, "rate": None}
 
 
 def presence_key(player_id) -> str:
@@ -75,3 +77,29 @@ def stamp_online(players: Iterable, online_ids: Optional[Set[str]]) -> List:
 
 async def with_online(players: Iterable) -> List:
     return stamp_online(players, await fetch_online_ids())
+
+
+async def fetch_exp_rate() -> Optional[float]:
+    """The server's ExpRate from REST `/v1/api/settings`; None when not configured or no answer.
+
+    The capture bonus table is at rate 1; the Paldeck scales its "next catch is worth" by this.
+    Cached for SETTINGS_TTL -- the value only changes with a server restart.
+    """
+    if not configured():
+        return None
+    now = time.monotonic()
+    if _settings["rate"] is not None and now - _settings["at"] < SETTINGS_TTL:
+        return _settings["rate"]
+    try:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+            r = await client.get(f"http://{config.RCON_HOST}:{config.RCON_PORT}/v1/api/settings",
+                                 auth=("admin", config.RCON_PASSWORD))
+        if r.status_code != 200:
+            return None
+        rate = float((r.json() or {}).get("ExpRate") or 0) or None
+    except Exception as e:
+        logger.warning(f"settings check: {type(e).__name__}: {e}")
+        return None
+    if rate is not None:
+        _settings.update(at=now, rate=rate)
+    return rate

@@ -25,7 +25,7 @@ from backend.parser import parser
 from backend import startup
 
 # Import routers
-from backend.routers import api, breeding, watch, workers, base_names
+from backend.routers import api, breeding, watch, workers, base_names, paldeck
 
 app = FastAPI(
     title="Palworld Lens",
@@ -49,6 +49,7 @@ app.include_router(breeding.router)
 app.include_router(workers.router)
 app.include_router(watch.router)
 app.include_router(base_names.router)
+app.include_router(paldeck.router)
 
 @app.get("/")
 async def root():

@@ -24,6 +24,8 @@ def _save_data(with_ancient=True):
         "NormalBossDefeatFlag": _map([("Alpha_A", True), ("Alpha_B", True), ("Alpha_C", False)]),
         "PaldeckUnlockFlag": _map([("SheepBall", True), ("PinkCat", True), ("Carbunclo", True), ("Kitsunebi", True)]),
         "PalCaptureCount": _map([("SheepBall", 10), ("PinkCat", 5), ("Carbunclo", 1)]),
+        "PalCaptureBonusCount": _map([("SheepBall", 5), ("PinkCat", 5), ("Carbunclo", 1)]),
+        "PalCaptureBonusExpTableIndex": _prop(11),
         "FastTravelPointUnlockFlag": _map([(f"FT_{i}", True) for i in range(14)]),
         "NormalDungeonClearCount": _prop(1),
         "FixedDungeonClearCount": _prop(3),
@@ -51,7 +53,9 @@ def test_player_details_come_from_the_players_sav():
     d = extract_player_details(_save_data())
     assert d["containers"] == {"bag": "bag-1", "key_items": "key-1", "weapons": "wpn-1", "gear": "arm-1", "food": "food-1"}
     assert d["tech"] == {"unlocked": 3, "points": 11, "ancient_points": 10}
-    assert d["records"] == {"towers": 2, "alphas": 2, "paldeck": 4, "caught": 16, "fast_travels": 14, "dungeons": 4}
+    assert d["records"] == {"towers": 2, "alphas": 2, "paldeck": 4, "caught": 16, "fast_travels": 14, "dungeons": 4,
+                            "capture_counts": {"SheepBall": 10, "PinkCat": 5, "Carbunclo": 1},
+                            "capture_bonus": {"SheepBall": 5, "PinkCat": 5, "Carbunclo": 1}, "bonus_index": 11}
     assert d["last_online"] == "2026-09-23T14:11:47.173000+00:00"
 
 
@@ -60,7 +64,8 @@ def test_a_player_without_ancient_points_or_records_still_extracts():
     del sd["RecordData"]
     d = extract_player_details(sd)
     assert d["tech"]["ancient_points"] == 0
-    assert d["records"] == {"towers": 0, "alphas": 0, "paldeck": 0, "caught": 0, "fast_travels": 0, "dungeons": 0}
+    assert d["records"] == {"towers": 0, "alphas": 0, "paldeck": 0, "caught": 0, "fast_travels": 0, "dungeons": 0,
+                            "capture_counts": {}, "capture_bonus": {}, "bonus_index": 0}
 
 
 def test_net_ticks_convert_to_utc_iso_and_zero_means_never():

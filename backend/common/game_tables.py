@@ -66,6 +66,7 @@ TABLES: Dict[str, Table] = {t.name: t for t in (
     Table('schematics', l10n=False, generated=True, required=False),  # blueprint id -> the item/building it unlocks (generate_schematics.py, from the pak)
     Table('activity', l10n=False, generated=True, required=False),    # lab research, expeditions, recipe products for the base Activity view (generate_activity_tables.py)
     Table('loadout', l10n=False, generated=True, required=False),     # gear stats, food buffs, player base for the status screen (generate_loadout.py)
+    Table('exp', l10n=False, generated=True, required=False),         # capture bonus chain + level ladder for the Paldeck (generate_exp.py)
 )}
 
 
