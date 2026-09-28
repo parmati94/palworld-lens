@@ -12,6 +12,7 @@
  */
 export const PICKER_SEARCH_FROM = 12;  // options at or above this get a search box
 export const PICKER_LIMIT = 80;        // rows drawn at once; the search narrows the rest
+const EMPTY_DEF = { key: '', label: '', always: true, get: () => '', set: () => {}, options: () => [] };
 
 export function filterChips(opts = {}) {
     return {
@@ -23,6 +24,8 @@ export function filterChips(opts = {}) {
         get inactive() { return this.defs().filter(d => !d.always && !d.get()); },
         get pinned() { return this.defs().filter(d => d.always); },
         get openDef() { return this.open && this.open !== '+' ? this.defs().find(d => d.key === this.open) || null : null; },
+        /** The open def for the picker's own expressions: an empty stand-in while the panel is being torn down. */
+        get pd() { return this.openDef || EMPTY_DEF; },
 
         /** The chip text for a def: the option's label, else the raw value. */
         label(d) {
