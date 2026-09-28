@@ -25,7 +25,8 @@ CACHE_TTL = 10.0     # seconds; autosaves are ~30 s apart, tabs reload together
 _cache: dict = {"at": 0.0, "ids": None}
 _lock = asyncio.Lock()
 SETTINGS_TTL = 300.0   # seconds; server settings only change with a restart
-_settings: dict = {"at": 0.0, "rate": None}
+SETTINGS_RETRY = 60.0  # seconds before asking again after no answer, so a dead REST port costs one timeout a minute
+_settings: dict = {"at": 0.0, "rate": None, "failed_at": 0.0}
 
 
 def presence_key(player_id) -> str:
@@ -90,16 +91,18 @@ async def fetch_exp_rate() -> Optional[float]:
     now = time.monotonic()
     if _settings["rate"] is not None and now - _settings["at"] < SETTINGS_TTL:
         return _settings["rate"]
+    if now - _settings["failed_at"] < SETTINGS_RETRY:
+        return None
     try:
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
             r = await client.get(f"http://{config.RCON_HOST}:{config.RCON_PORT}/v1/api/settings",
                                  auth=("admin", config.RCON_PASSWORD))
-        if r.status_code != 200:
-            return None
-        rate = float((r.json() or {}).get("ExpRate") or 0) or None
+        rate = float((r.json() or {}).get("ExpRate") or 0) or None if r.status_code == 200 else None
     except Exception as e:
         logger.warning(f"settings check: {type(e).__name__}: {e}")
+        rate = None
+    if rate is None:
+        _settings["failed_at"] = now
         return None
-    if rate is not None:
-        _settings.update(at=now, rate=rate)
+    _settings.update(at=now, rate=rate)
     return rate
