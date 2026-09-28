@@ -56,7 +56,7 @@ before(async () => {
 });
 after(async () => { if (browser) await browser.close(); });
 
-const pressEscape = async () => { await page.keyboard.press('Escape'); await sleep(350); };
+const pressEscape = async () => { await page.keyboard.press('Escape'); await sleep(500); };
 const isOpen = (name, flag) => page.evaluate(`${modal(name)}.${flag}`);
 
 test('the app loads with players and pals', { skip }, async () => {

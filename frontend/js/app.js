@@ -27,7 +27,7 @@ import { breedingState, BREED_MODES } from './breeding-state.js';
 import { paldeckState, DECK_SORT_IDS, DECK_HOW_IDS } from './paldeck-state.js';
 
 const prefs = loadPrefs();
-const TABS = ['overview', 'players', 'pals', 'paldeck', 'bases', 'tools', 'map'];
+const TABS = ['overview', 'players', 'pals', 'bases', 'paldeck', 'map', 'tools'];
 // Tools: helpers over the save, grouped under one tab (frontend/partials/tabs/tools-tab.html)
 export const TOOLS = [
     { id: 'breeding', label: 'Breeding', title: 'What two pals make, which of yours can make a pal, and the route to one you cannot',
@@ -228,10 +228,10 @@ export function app() {
                   icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
                 { id: 'pals', label: 'Pals', count: this.pals.length,
                   icon: 'M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-                { id: 'paldeck', label: 'Paldeck', count: null, title: 'Every species: where it spawns, what it does, and each player\'s capture bonus',
-                  icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
                 { id: 'bases', label: 'Bases', count: this.basePals.reduce((n, g) => n + g.bases.length, 0),
                   icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                { id: 'paldeck', label: 'Paldeck', count: null, title: 'Every species: where it spawns, what it does, and each player\'s capture bonus',
+                  icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
                 { id: 'map', label: 'Map', count: null,
                   icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
                 // Tools (tool: true) render after a divider: helpers over the save, not views of it

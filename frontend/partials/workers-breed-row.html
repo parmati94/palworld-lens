@@ -1,6 +1,7 @@
 <!-- One breedable species row inside the Best workers tool (x-for scope: `b`). Click -> the breeding route to it. -->
+<div class="flex items-center gap-1">
 <button @click="workersBreedRoute(b.species_id)"
-        class="w-full flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-gray-700/50 transition-colors text-left group"
+        class="flex-1 min-w-0 flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-gray-700/50 transition-colors text-left group"
         :data-tip="'How would ' + (workersOwner || 'we') + ' breed ' + b.species_name + '?'">
     <div class="relative flex-shrink-0">
         <img :src="palIconSrc(b)" @error="palIconError($el, b)" loading="lazy" alt=""
@@ -21,3 +22,8 @@
         </div>
     </div>
 </button>
+    <button @click="openSpecies(b.species_id)" class="btn-quiet p-1.5 flex-shrink-0 text-gray-500 hover:text-accent-200"
+            :data-tip="b.species_name + ' in the Paldeck'" :aria-label="b.species_name + ' in the Paldeck'">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+    </button>
+</div>
