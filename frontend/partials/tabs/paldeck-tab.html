@@ -31,21 +31,18 @@
                     <!-- The chain figures: only in player mode -->
                     <template x-if="deckSummary()">
                         <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                            <div class="px-3 py-1.5 rounded-md bg-gray-900/50 border border-accent-500/30" data-tip="Every bonus catch pays the next row of one shared discovery chain, whatever the species; it only goes up">
+                            <div class="px-3 py-1.5 rounded-md bg-gray-900/50 border border-accent-500/30" data-tip="What the next bonus catch pays, whatever the species. It comes from a table every discovery advances (catches, new areas, bosses, relics, fast travel points), so it only goes up">
                                 <div class="text-[10px] uppercase tracking-wide text-gray-500">Next catch</div>
                                 <div class="text-base font-semibold text-white tabular-nums leading-tight">+<span x-text="deckSummary().nextExp.toLocaleString()"></span> <span class="text-[11px] font-normal text-gray-400">EXP</span></div>
                             </div>
                             <div class="px-3 py-1.5 rounded-md bg-gray-900/50 border border-accent-500/30"
-                                 :data-tip="deckSummary().expToLevel == null ? 'At the level cap' : deckSummary().expToLevel.toLocaleString() + ' EXP to the next level, from bonus catches alone'">
+                                 :data-tip="deckSummary().expToLevel == null ? 'At the level cap' : deckSummary().expToLevel.toLocaleString() + ' EXP to the next level from bonus catches alone; any other discovery on the way counts the same'">
                                 <div class="text-[10px] uppercase tracking-wide text-gray-500">To Lv <span x-text="deckSummary().level + 1"></span></div>
                                 <div class="text-base font-semibold text-white tabular-nums leading-tight">
                                     <template x-if="deckSummary().toLevel != null"><span><span x-text="deckSummary().toLevel.toLocaleString()"></span> <span class="text-[11px] font-normal text-gray-400">catches</span></span></template>
                                     <template x-if="deckSummary().toLevel == null"><span class="text-sm text-gray-400">max level</span></template>
                                 </div>
                             </div>
-                            <div class="px-3 py-1.5 rounded-md bg-gray-900/50 border border-accent-500/30" :data-tip="'One shared discovery chain sets what any bonus pays: ' + deckSummary().catches.toLocaleString() + ' bonus catches plus every new area, boss, relic, note, pickup and fast travel point'">
-                                <div class="text-[10px] uppercase tracking-wide text-gray-500">Chain</div>
-                                <div class="text-base font-semibold text-white tabular-nums leading-tight" x-text="deckSummary().index.toLocaleString()"></div>
                             </div>
                         </div>
                     </template>
