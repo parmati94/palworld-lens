@@ -34,6 +34,10 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   bonus-catch index, 4999 rows) and the player level ladder (`DT_PalExpTable`: TotalEXP / NextEXP per
   level), behind the Paldeck's "next catch is worth" figures and the players' EXP bars
   (`generate_exp.py`; read by `backend/common/exp_tables.py`).
+- **`data/json/paldeck.json`** -- what each character drops (`DT_PalDropItem`: up to ten items per
+  level threshold; BOSS_ rows are the alpha's own table) and the active skills a species learns by
+  level (`DT_WazaMasterLevel`), for the species modal (`generate_paldeck_tables.py`; read by
+  `backend/common/paldeck.py`).
 
 Output is committed to the repo, so end users never run this.
 

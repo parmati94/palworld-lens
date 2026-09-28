@@ -143,6 +143,67 @@
                                         </template>
                                     </div>
 
+                                    <!-- Drops: what it leaves behind, as item tiles (the popup gives the description) -->
+                                    <div x-show="detail.drops && (detail.drops.base.length || detail.drops.alpha.length)">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Drops</h3>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="item in detail.drops.base" :key="item.item_id">
+                                                <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-gray-700/40 border border-gray-700/60">
+                                                    {{> item-icon size="w-10 h-10" fallback="unknown" }}
+                                                    <div class="min-w-0 leading-tight">
+                                                        <div class="text-xs text-gray-100 truncate max-w-[10rem]" x-text="item.item_name"></div>
+                                                        <div class="text-[11px] text-gray-400 tabular-nums"><span x-text="item.min === item.max ? item.min : item.min + '–' + item.max"></span><span x-show="item.rate < 100"> · <span x-text="item.rate"></span>%</span></div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <template x-for="h in detail.drops.high" :key="h.level">
+                                            <div class="mt-2.5">
+                                                <div class="text-[11px] text-gray-400 mb-1.5">Also from level <span class="text-gray-200 tabular-nums" x-text="h.level"></span></div>
+                                                <div class="flex flex-wrap gap-2">
+                                                    <template x-for="item in h.items" :key="item.item_id">
+                                                        <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-gray-700/40 border border-gray-700/60">
+                                                            {{> item-icon size="w-10 h-10" fallback="unknown" }}
+                                                            <div class="min-w-0 leading-tight">
+                                                                <div class="text-xs text-gray-100 truncate max-w-[10rem]" x-text="item.item_name"></div>
+                                                                <div class="text-[11px] text-gray-400 tabular-nums"><span x-text="item.min === item.max ? item.min : item.min + '–' + item.max"></span><span x-show="item.rate < 100"> · <span x-text="item.rate"></span>%</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div x-show="detail.drops.alpha.length" class="mt-2.5">
+                                            <div class="text-[11px] text-gray-400 mb-1.5 flex items-center gap-1.5"><img src="/img/alpha.webp" alt="" class="w-3.5 h-3.5">As an alpha</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                <template x-for="item in detail.drops.alpha" :key="item.item_id">
+                                                    <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                                                        {{> item-icon size="w-10 h-10" fallback="unknown" }}
+                                                        <div class="min-w-0 leading-tight">
+                                                            <div class="text-xs text-gray-100 truncate max-w-[10rem]" x-text="item.item_name"></div>
+                                                            <div class="text-[11px] text-gray-400 tabular-nums"><span x-text="item.min === item.max ? item.min : item.min + '–' + item.max"></span><span x-show="item.rate < 100"> · <span x-text="item.rate"></span>%</span></div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Learned skills: the level ladder -->
+                                    <div x-show="detail.learnset && detail.learnset.length">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Learns <span class="text-xs font-normal text-gray-500">by level</span></h3>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                            <template x-for="l in detail.learnset" :key="l.skill_id">
+                                                <div class="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 bg-gray-700/40 border border-gray-700/60" :data-tip="l.description">
+                                                    <span class="w-10 flex-shrink-0 text-[11px] text-gray-400 tabular-nums">Lv <span class="text-gray-200" x-text="l.level"></span></span>
+                                                    <img x-show="l.element" :src="elementIcon(l.element)" :alt="elementName(l.element)" class="w-4 h-4 flex-shrink-0" :onerror="`this.onerror=null; this.src='/img/neutral.webp'`">
+                                                    <span class="flex-1 min-w-0 text-sm text-gray-100 truncate" x-text="l.name"></span>
+                                                    <span x-show="l.power" class="text-xs tabular-nums text-gray-300 flex-shrink-0" :data-tip="'Power ' + l.power + (l.cool_time ? ' · ' + l.cool_time + ' s cooldown' : '')"><span x-text="l.power"></span></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
                                     <!-- Stats scaling and the small print -->
                                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                                         <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Species HP scale (100 = average)"><div class="text-gray-500 uppercase tracking-wide text-[10px]">HP</div><div class="text-white tabular-nums text-base font-semibold" x-text="detail.scaling.hp || '–'"></div></div>

@@ -67,6 +67,7 @@ TABLES: Dict[str, Table] = {t.name: t for t in (
     Table('activity', l10n=False, generated=True, required=False),    # lab research, expeditions, recipe products for the base Activity view (generate_activity_tables.py)
     Table('loadout', l10n=False, generated=True, required=False),     # gear stats, food buffs, player base for the status screen (generate_loadout.py)
     Table('exp', l10n=False, generated=True, required=False),         # capture bonus chain + level ladder for the Paldeck (generate_exp.py)
+    Table('paldeck', l10n=False, generated=True, required=False),     # drops + level-up skills per species for the species modal (generate_paldeck_tables.py)
 )}
 
 

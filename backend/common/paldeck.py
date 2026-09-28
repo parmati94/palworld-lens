@@ -23,6 +23,73 @@ from backend.common.spawns import is_variant_id
 CATCH_KINDS = {'field', 'field_boss'}                      # out in the world: go and catch one
 DUNGEON_KINDS = {'dungeon', 'dungeon_boss', 'prison_boss'}  # instanced rooms
 DETAIL_OWNED_LIMIT = 60
+DROP_SLOTS = 10            # ItemId1..10 per DT_PalDropItem row
+MIN_DROP_SPECIES = 600     # 894 character ids on 1.0 (bosses and NPCs included)
+MIN_LEARN_SPECIES = 500    # 712 on 1.0
+
+
+# ---------------------------------------------------------------------------
+# The pak tables behind the species modal (data/json/paldeck.json)
+# ---------------------------------------------------------------------------
+
+def build_paldeck_tables(drop_rows: Dict[str, Dict], waza_rows: Dict[str, Dict]) -> Dict:
+    """{drops: {character id: [{level, items: [{item, rate, min, max}]}]}, learn: {pal id: [{skill, level}]}}.
+
+    DT_PalDropItem has one row per character and level threshold: Level 0 is what it always
+    drops, a Level 70 / 80 row is the *whole* table once the pal is that level (base items plus
+    awakening materials and relics). A BOSS_ row is the alpha's own table; its rate-0 entries are
+    the base drops switched off, so they are dropped here. DT_WazaMasterLevel lists the active
+    skills a species learns by level, ids the same "EPalWazaID::X" form as active_skills.json.
+    """
+    drops: Dict[str, List[Dict]] = defaultdict(list)
+    for row in drop_rows.values():
+        cid = row.get('CharacterID')
+        if not cid:
+            continue
+        items = []
+        for i in range(1, DROP_SLOTS + 1):
+            item = row.get(f'ItemId{i}')
+            rate = float(row.get(f'Rate{i}') or 0)
+            if not item or item == 'None' or rate <= 0:
+                continue
+            items.append({'item': item, 'rate': rate, 'min': int(row.get(f'min{i}') or 0), 'max': int(row.get(f'Max{i}') or 0)})
+        if items:
+            drops[cid].append({'level': int(row.get('Level') or 0), 'items': items})
+    for rows in drops.values():
+        rows.sort(key=lambda r: r['level'])
+
+    learn: Dict[str, List[Dict]] = defaultdict(list)
+    for row in waza_rows.values():
+        pal, skill = row.get('PalId'), row.get('WazaID')
+        if pal and skill:
+            learn[pal].append({'skill': skill, 'level': int(row.get('Level') or 0)})
+    for rows in learn.values():
+        rows.sort(key=lambda r: (r['level'], r['skill']))
+    return {'drops': dict(drops), 'learn': dict(learn)}
+
+
+def drops_for(tables: Dict, sid: str) -> Dict[str, List]:
+    """{base: [items], high: [{level, items}], alpha: [items]} for a species: the Level 0 row, any
+    higher-level rows reduced to what they add, and the BOSS_ form's own table."""
+    table = (tables or {}).get('drops') or {}
+    rows = table.get(sid) or []
+    base = next((r['items'] for r in rows if r['level'] == 0), [])
+    seen = {(i['item']) for i in base}
+    high = []
+    for r in rows:
+        if r['level'] == 0:
+            continue
+        extra = [i for i in r['items'] if i['item'] not in seen]
+        if extra:
+            high.append({'level': r['level'], 'items': extra})
+            seen.update(i['item'] for i in extra)
+    boss = table.get('BOSS_' + sid) or []      # the pak spells the alpha rows BOSS_<id>
+    alpha = next((r['items'] for r in boss if r['level'] == 0), [])
+    return {'base': base, 'high': high, 'alpha': alpha}
+
+
+def learnset_for(tables: Dict, sid: str) -> List[Dict]:
+    return list(((tables or {}).get('learn') or {}).get(sid) or [])
 
 
 # ---------------------------------------------------------------------------
@@ -238,6 +305,26 @@ def species_detail(data, sid: str, pals: Iterable, players: Iterable) -> Optiona
                'parent_a_name': data.pal_name(c.parent_a), 'parent_b_name': data.pal_name(c.parent_b)}
               for c in pairs if c.unique]
 
+    def item_tile(entry: Dict) -> Dict:
+        row = data.item(entry['item']) if hasattr(data, 'item') else {}
+        rarity = row.get('rarity')
+        return {'item_id': entry['item'], 'item_name': row.get('localized_name') or entry['item'], 'icon': row.get('icon'),
+                'rarity': rarity if isinstance(rarity, int) and 0 <= rarity <= 4 else None,
+                'rate': entry['rate'], 'min': entry['min'], 'max': entry['max']}
+
+    tables = getattr(data, 'paldeck_tables', None) or {}
+    d = drops_for(tables, sid)
+    drops = {'base': [item_tile(i) for i in d['base']],
+             'high': [{'level': h['level'], 'items': [item_tile(i) for i in h['items']]} for h in d['high']],
+             'alpha': [item_tile(i) for i in d['alpha']]}
+    learnset = []
+    for e in learnset_for(tables, sid):
+        skill = (getattr(data, 'active_skills', None) or {}).get(e['skill']) or {}
+        learnset.append({'level': e['level'], 'skill_id': e['skill'],
+                         'name': skill.get('localized_name') or e['skill'].split('::')[-1],
+                         'element': skill.get('element'), 'power': skill.get('power'), 'cool_time': skill.get('cool_time'),
+                         'description': skill.get('description') or ''})
+
     deck = set(numbers)
     caught_by = []
     for p in players:
@@ -274,6 +361,8 @@ def species_detail(data, sid: str, pals: Iterable, players: Iterable) -> Optiona
             'unique': unique,
             'self_only': bool(pairs) and all(c.parent_a == sid and c.parent_b == sid for c in pairs),
         },
+        'drops': drops,
+        'learnset': learnset,
         'owned': owned[:DETAIL_OWNED_LIMIT],
         'owned_total': len(owned),
         'caught_by': caught_by,

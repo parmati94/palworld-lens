@@ -4,8 +4,8 @@ from types import SimpleNamespace
 from backend.common.breeding import BreedingIndex
 from backend.common.exp_tables import build_exp_tables
 from backend.common.pal_ids import SpeciesIndex
-from backend.common.paldeck import (deck_ids, deck_numbers, player_progress, resolve_counts, spawn_summary,
-                                    species_detail, species_rows)
+from backend.common.paldeck import (build_paldeck_tables, deck_ids, deck_numbers, drops_for, learnset_for, player_progress,
+                                    resolve_counts, spawn_summary, species_detail, species_rows)
 
 PALS = {
     "SheepBall": {"is_pal": True, "pal_deck_index": 1, "localized_name": "Lamball", "description": "Fluffy.",
@@ -41,6 +41,32 @@ EXP = build_exp_tables({str(i): {"BonusExp": 10 * (i + 1)} for i in range(20)},
                        {"1": {"TotalEXP": 0}, "2": {"TotalEXP": 50}, "3": {"TotalEXP": 200}})
 
 
+def _drop_row(cid, level, *items):
+    row = {"CharacterID": cid, "Level": level}
+    for i in range(1, 11):
+        item = items[i - 1] if i <= len(items) else ("None", 0.0, 0, 0)
+        row[f"ItemId{i}"], row[f"Rate{i}"], row[f"min{i}"], row[f"Max{i}"] = item
+    return row
+
+
+DROP_ROWS = {
+    "IceHorse000": _drop_row("IceHorse", 0, ("IceOrgan", 100.0, 10, 10), ("Diamond", 100.0, 1, 1)),
+    "IceHorse080": _drop_row("IceHorse", 80, ("Relic", 100.0, 30, 50), ("IceOrgan", 100.0, 10, 10), ("Diamond", 100.0, 1, 1)),
+    "BOSS_IceHorse000": _drop_row("BOSS_IceHorse", 0, ("PalCrystal_Ex", 100.0, 6, 8), ("IceOrgan", 0.0, 10, 10), ("Blueprint_X", 3.0, 1, 1)),
+    "SheepBall000": _drop_row("SheepBall", 0, ("Wool", 100.0, 1, 3)),
+}
+WAZA_ROWS = {
+    "IceHorse007": {"PalId": "IceHorse", "WazaID": "EPalWazaID::IceMissile", "Level": 7},
+    "IceHorse001": {"PalId": "IceHorse", "WazaID": "EPalWazaID::AirCanon", "Level": 1},
+    "BOSS_IceHorse001": {"PalId": "BOSS_IceHorse", "WazaID": "EPalWazaID::AirCanon", "Level": 1},
+}
+PALDECK_TABLES = build_paldeck_tables(DROP_ROWS, WAZA_ROWS)
+ITEMS = {"IceOrgan": {"localized_name": "Ice Organ", "icon": "i_ice", "rarity": 0},
+         "Diamond": {"localized_name": "Diamond", "icon": "i_dia", "rarity": 3}}
+ACTIVE = {"EPalWazaID::IceMissile": {"localized_name": "Ice Missile", "element": "Ice", "power": 30, "cool_time": 3.0},
+          "EPalWazaID::AirCanon": {"localized_name": "Air Cannon", "element": "Normal", "power": 25, "cool_time": 2.0}}
+
+
 class _Data:
     def __init__(self):
         self.pals = PALS
@@ -49,9 +75,14 @@ class _Data:
         self.species = SpeciesIndex(PALS.keys())
         self.breeding = BreedingIndex(BREEDING, self.species)
         self.exp = EXP
+        self.paldeck_tables = PALDECK_TABLES
+        self.active_skills = ACTIVE
 
     def pal_name(self, sid):
         return (self.pals.get(sid) or {}).get("localized_name") or sid
+
+    def item(self, item_id):
+        return ITEMS.get(item_id) or {}
 
 
 def _pal(iid, sid, level, owner="Envy", nickname=None, **kw):
@@ -138,3 +169,30 @@ def test_species_detail_joins_spawns_breeding_owned_and_catchers():
     assert frost["breeding"]["self_only"] is True and frost["breeding"]["pairs"] == 1
     assert species_detail(data, "BOSS_IceHorse", pals, players) is None
     assert species_detail(data, "Nope", pals, players) is None
+
+
+def test_paldeck_tables_drop_rate_zero_entries_and_sort_by_level():
+    t = PALDECK_TABLES
+    assert [r["level"] for r in t["drops"]["IceHorse"]] == [0, 80]
+    assert [i["item"] for i in t["drops"]["BOSS_IceHorse"][0]["items"]] == ["PalCrystal_Ex", "Blueprint_X"]   # rate 0 dropped
+    assert t["learn"]["IceHorse"] == [{"skill": "EPalWazaID::AirCanon", "level": 1}, {"skill": "EPalWazaID::IceMissile", "level": 7}]
+
+
+def test_drops_for_splits_base_high_level_extras_and_the_alpha_table():
+    d = drops_for(PALDECK_TABLES, "IceHorse")
+    assert [i["item"] for i in d["base"]] == ["IceOrgan", "Diamond"]
+    assert d["high"] == [{"level": 80, "items": [{"item": "Relic", "rate": 100.0, "min": 30, "max": 50}]}]   # only what the row adds
+    assert [i["item"] for i in d["alpha"]] == ["PalCrystal_Ex", "Blueprint_X"]
+    assert drops_for(PALDECK_TABLES, "SheepBall") == {"base": [{"item": "Wool", "rate": 100.0, "min": 1, "max": 3}], "high": [], "alpha": []}
+    assert drops_for(PALDECK_TABLES, "Nope") == {"base": [], "high": [], "alpha": []}
+    assert drops_for({}, "IceHorse") == {"base": [], "high": [], "alpha": []}
+    assert learnset_for(PALDECK_TABLES, "Nope") == [] and learnset_for({}, "IceHorse") == []
+
+
+def test_species_detail_names_drops_and_learned_skills():
+    d = species_detail(_Data(), "IceHorse", [], [])
+    assert [(i["item_name"], i["rarity"], i["min"], i["max"]) for i in d["drops"]["base"]] == [("Ice Organ", 0, 10, 10), ("Diamond", 3, 1, 1)]
+    assert d["drops"]["high"][0]["items"][0]["item_name"] == "Relic"      # unknown item keeps its id
+    assert [i["item_id"] for i in d["drops"]["alpha"]] == ["PalCrystal_Ex", "Blueprint_X"]
+    assert [(l["level"], l["name"], l["element"], l["power"]) for l in d["learnset"]] == [(1, "Air Cannon", "Normal", 25), (7, "Ice Missile", "Ice", 30)]
+    assert species_detail(_Data(), "SheepBall", [], [])["learnset"] == []
