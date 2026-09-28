@@ -16,78 +16,67 @@
                 <span class="hidden sm:inline">Filter</span>
                 <span x-show="active.length" class="px-1.5 rounded-full bg-accent-500/20 text-accent-200 text-[11px] tabular-nums" x-text="active.length"></span>
             </button>
+            <!-- The menu lists the filters not yet set; choosing one swaps the picker in, in place -->
             <div x-show="open === '+'" x-cloak
                  x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
                  x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-                 class="absolute right-0 z-50 mt-1 w-48 bg-gray-700 border border-gray-600 rounded-lg shadow-xl py-1">
+                 class="absolute right-0 z-50 mt-1.5 w-52 bg-gray-900/85 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl py-1">
+                <div class="px-3 pt-1.5 pb-1 eyebrow">Add a filter</div>
                 <template x-for="d in inactive" :key="d.key">
-                    <button @click="toggle(d.key)" type="button" class="w-full text-left px-3 py-2 text-sm text-gray-100 hover:bg-gray-600 transition-colors flex items-center gap-2">
+                    <button @click="toggle(d.key)" type="button" class="w-full text-left mx-1 px-2 py-1.5 rounded-md text-sm text-gray-100 hover:bg-white/5 transition-colors flex items-center gap-2" style="width: calc(100% - 0.5rem)">
                         <span class="flex-1" x-text="d.label"></span>
-                        <span x-show="d.hint" class="text-[11px] text-gray-400" x-text="d.hint"></span>
+                        <span x-show="d.hint" class="text-[11px] text-gray-500" x-text="d.hint"></span>
+                        <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </template>
                 <div x-show="!inactive.length" class="px-3 py-2 text-xs text-gray-400">Every filter is set</div>
             </div>
+            <template x-if="openDef && !openDef.get() && !openDef.always">
+                <div class="absolute right-0 z-50 mt-1.5">
+                    {{> filter-picker back=true }}
+                </div>
+            </template>
         </div>
     </div>
 
     <!-- The chips: one per filter that is set, plus any pinned (sort) -->
     <div x-show="active.length || pinned.length" class="mt-2.5 flex items-center gap-1.5 flex-wrap">
         <template x-for="d in active" :key="d.key">
-            <span class="inline-flex items-stretch rounded-full border text-xs font-medium overflow-hidden transition-colors"
+            <span class="relative inline-flex items-stretch rounded-full border text-xs font-medium transition-colors"
                   :class="open === d.key ? 'border-accent-400 bg-accent-500/20 text-accent-100' : 'border-accent-500/40 bg-accent-500/10 text-accent-100 hover:border-accent-400/70'">
                 <button @click="toggle(d.key)" type="button" class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1" :data-tip="'Change ' + d.label.toLowerCase()">
                     <span class="text-accent-200/70" x-text="d.label"></span>
                     <img x-show="icon(d)" :src="icon(d)" alt="" class="w-3.5 h-3.5" onerror="this.style.display='none'">
                     <span class="text-white" x-text="label(d)"></span>
                 </button>
-                <button @click="remove(d)" type="button" class="pr-2 pl-1 text-accent-200/70 hover:text-white transition-colors" :aria-label="'Remove ' + d.label.toLowerCase() + ' filter'">
+                <button @click="remove(d)" type="button" class="pr-2 pl-1 rounded-r-full text-accent-200/70 hover:text-white transition-colors" :aria-label="'Remove ' + d.label.toLowerCase() + ' filter'">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
+                <!-- The picker hangs off the chip it changes -->
+                <template x-if="open === d.key">
+                    <div class="absolute left-0 top-full z-50 mt-1.5 font-normal">
+                        {{> filter-picker }}
+                    </div>
+                </template>
             </span>
         </template>
         <template x-for="d in pinned" :key="d.key">
-            <button @click="toggle(d.key)" type="button"
-                    class="inline-flex items-center gap-1.5 pl-2.5 pr-2 py-1 rounded-full border text-xs font-medium transition-colors"
-                    :class="open === d.key ? 'border-gray-500 bg-gray-700 text-gray-100' : 'border-gray-700 text-gray-300 hover:border-gray-500 hover:text-gray-100'">
-                <span class="text-gray-500" x-text="d.label"></span>
-                <span x-text="label(d)"></span>
-                <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </button>
+            <span class="relative inline-flex">
+                <button @click="toggle(d.key)" type="button"
+                        class="inline-flex items-center gap-1.5 pl-2.5 pr-2 py-1 rounded-full border text-xs font-medium transition-colors"
+                        :class="open === d.key ? 'border-gray-500 bg-gray-700 text-gray-100' : 'border-gray-700 text-gray-300 hover:border-gray-500 hover:text-gray-100'">
+                    <span class="text-gray-500" x-text="d.label"></span>
+                    <span x-text="label(d)"></span>
+                    <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <template x-if="open === d.key">
+                    <div class="absolute left-0 top-full z-50 mt-1.5 font-normal">
+                        {{> filter-picker }}
+                    </div>
+                </template>
+            </span>
         </template>
         <button x-show="active.length > 1" @click="clearAll()" type="button" class="text-[11px] text-gray-400 hover:text-gray-200 px-1.5 py-1 transition-colors">Clear all</button>
     </div>
 
-    <!-- One picker panel for whichever chip or menu entry is open -->
-    <template x-if="openDef">
-        <div x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-             class="absolute left-0 z-50 mt-1 w-full sm:w-80 bg-gray-700 border border-gray-600 rounded-lg shadow-xl">
-            <div class="px-3 py-2 border-b border-gray-600 flex items-center gap-2">
-                <span class="text-xs font-semibold text-gray-200 whitespace-nowrap" x-text="openDef.label"></span>
-                <input x-show="searchable(openDef)" type="text" x-model="query" data-picker-query autocomplete="off" spellcheck="false"
-                       :placeholder="'Search ' + openDef.label.toLowerCase() + '…'"
-                       @keydown.enter.prevent="list(openDef).length && pick(openDef, list(openDef)[0].value)"
-                       class="flex-1 min-w-0 px-2.5 py-1.5 bg-gray-800 border border-gray-600 rounded text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-accent-500">
-                <span x-show="!searchable(openDef)" class="flex-1"></span>
-                <button @click="open = null" type="button" class="btn-quiet p-1" aria-label="Close">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-            </div>
-            <div class="max-h-72 overflow-auto custom-scrollbar py-1">
-                <div x-show="openDef.get() && !openDef.always" @click="remove(openDef)"
-                     class="px-3 py-1.5 text-xs text-gray-400 hover:bg-gray-600 hover:text-gray-200 cursor-pointer">Clear</div>
-                <template x-for="o in list(openDef)" :key="o.value">
-                    <div @click="pick(openDef, o.value)"
-                         class="px-3 py-1.5 flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
-                         :class="openDef.get() === o.value ? 'bg-accent-500 text-white' : 'text-gray-100 hover:bg-gray-600'">
-                        <img x-show="o.icon" :src="o.icon" alt="" loading="lazy" class="w-5 h-5 rounded object-contain flex-shrink-0" onerror="this.style.visibility='hidden'">
-                        <span class="flex-1 truncate" x-text="o.label"></span>
-                        <span x-show="o.hint" class="text-[11px] tabular-nums whitespace-nowrap" :class="openDef.get() === o.value ? 'text-white/80' : 'text-gray-400'" x-text="o.hint"></span>
-                    </div>
-                </template>
-                <div x-show="list(openDef).length === 0" class="px-3 py-4 text-center text-xs text-gray-400">No matches</div>
-                <div x-show="more(openDef) > 0" class="px-3 py-1.5 text-[11px] text-gray-500">Type to see the other <span x-text="more(openDef)"></span></div>
-            </div>
-        </div>
-    </template>
 </div>
