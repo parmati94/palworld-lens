@@ -145,7 +145,7 @@
                         </template>
                     </div>
                     <div x-show="deckRows().length > deckLimit" class="mt-4 text-center">
-                        <button @click="deckLimit += 120" class="btn-quiet px-4 py-2 text-sm border border-gray-700/60">Show more (<span x-text="deckRows().length - deckLimit"></span> left)</button>
+                        <button @click="deckLimit += 120" class="btn-quiet px-4 py-2 text-sm border border-gray-700/60"><span>Show more (<span x-text="deckRows().length - deckLimit"></span> left)</span></button>
                     </div>
                 </div>
             </template>
