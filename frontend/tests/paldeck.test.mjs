@@ -13,8 +13,10 @@ const deck = [
     row('Kitsunebi', 'Foxparks', '5', { element_types: ['Fire'], work_suitability: { EmitFlame: 1 }, spawn: wild(2, 6, { night: true }) }),
     row('Kitsunebi_Ice', 'Foxcicle', '5B', { element_types: ['Ice'], spawn: { how: 'dungeon', min_level: 20, max_level: 25, night: false, alpha: false, groups: 1 } }),
     row('IceHorse', 'Frostallion', '200', { element_types: ['Ice'], owned: 19, spawn: { how: 'alpha', min_level: 60, max_level: 60, night: false, alpha: true, groups: 1 } }),
-    row('JetDragon', 'Jetragon', '211', { element_types: ['Dragon'], owned: 1 }),
+    row('JetDragon', 'Jetragon', '211', { element_types: ['Dragon'], owned: 1, drops: ['PalCrystal_Ex'], learns: ['EPalWazaID::BeamComet'] }),
 ];
+deck[0].drops = ['Wool', 'Meat_SheepBall']; deck[0].learns = ['EPalWazaID::WindShot'];
+deck[3].drops = ['IceOrgan', 'Diamond', 'PalCrystal_Ex']; deck[3].learns = ['EPalWazaID::AirCanon', 'EPalWazaID::IceMissile'];
 const progress = { name: 'Envy', level: 72, bonus: { Sheepball: 5, Kitsunebi: 2, IceHorse: 5 }, caught: { Sheepball: 40, Kitsunebi: 2, IceHorse: 108 },
     bonus_index: 697, next_bonus_exp: 7384, exp_to_next_level: 512406, catches_to_next_level: 65, species_done: 2, bonus_left: 13 };
 
@@ -43,6 +45,9 @@ test('filterDeck combines search, element, work, spawn kind and the missing over
     assert.deepEqual(ids({ progress, missingOnly: true }), ['Kitsunebi', 'Kitsunebi_Ice', 'JetDragon']);
     assert.deepEqual(ids({ progress, missingOnly: true, how: 'catchable' }), ['Kitsunebi']);
     assert.deepEqual(ids({ missingOnly: true }), deck.map(r => r.id), 'missing needs a player');
+    assert.deepEqual(ids({ drop: 'PalCrystal_Ex' }), ['IceHorse', 'JetDragon']);
+    assert.deepEqual(ids({ skill: 'EPalWazaID::AirCanon' }), ['IceHorse']);
+    assert.deepEqual(ids({ drop: 'Wool', element: 'Ice' }), []);
 });
 
 test('sortDeck orders by name, spawn level, owned or fewest bonus catches', () => {

@@ -205,7 +205,7 @@ export function app() {
             this.$watch('tool', () => this.onToolShown());
             this.onToolShown();
             this.$watch('pals', () => this.paldeckInvalidate());
-            ['deckSearch', 'deckElement', 'deckWork', 'deckHow', 'deckPlayer', 'deckMissing', 'deckSort'].forEach(key => {
+            ['deckSearch', 'deckElement', 'deckWork', 'deckHow', 'deckDrop', 'deckSkill', 'deckPlayer', 'deckMissing', 'deckSort'].forEach(key => {
                 this.$watch(key, () => { this.deckLimit = 120; this.writeHash(); });
             });
             // The species table gates the pal modal's Breed button, so it must not wait for the Breeding tab.
@@ -294,6 +294,8 @@ export function app() {
                     this.deckElement = params.get('element') || '';
                     this.deckWork = params.get('work') || '';
                     this.deckHow = DECK_HOW_IDS.includes(params.get('how')) ? params.get('how') : '';
+                    this.deckDrop = params.get('drop') || '';
+                    this.deckSkill = params.get('skill') || '';
                     this.deckPlayer = params.get('player') || '';
                     this.deckMissing = params.get('missing') === '1';
                     if (DECK_SORT_IDS.includes(params.get('sort'))) this.deckSort = params.get('sort');
@@ -337,6 +339,8 @@ export function app() {
                 if (this.deckElement) params.set('element', this.deckElement);
                 if (this.deckWork) params.set('work', this.deckWork);
                 if (this.deckHow) params.set('how', this.deckHow);
+                if (this.deckDrop) params.set('drop', this.deckDrop);
+                if (this.deckSkill) params.set('skill', this.deckSkill);
                 if (this.deckPlayer) params.set('player', this.deckPlayer);
                 if (this.deckMissing) params.set('missing', '1');
                 if (this.deckSort !== 'number') params.set('sort', this.deckSort);
@@ -1123,6 +1127,20 @@ export function app() {
         },
         
         // Clear all filters
+        /** The Pals tab's chip bar (js/components/filterChips.js) over the same four filter fields. */
+        palFilterDefs() {
+            return [
+                { key: 'element', label: 'Element', get: () => this.filterElement, set: v => { this.filterElement = v; },
+                  options: () => this.availableElements.map(e => ({ value: e.key, label: e.name, icon: this.elementIcon(e.key) })) },
+                { key: 'work', label: 'Work', get: () => this.filterWorkType, set: v => { this.filterWorkType = v; },
+                  options: () => this.availableWorkTypes.map(w => ({ value: w.key, label: w.name, icon: this.workTypeIcon(w.key) })) },
+                { key: 'passive', label: 'Passive', get: () => this.filterPassiveSkill, set: v => { this.filterPassiveSkill = v; },
+                  options: () => this.availablePassiveSkills.map(p => ({ value: p.skill_id, label: p.name })) },
+                { key: 'owner', label: 'Owner', get: () => this.filterOwner, set: v => { this.filterOwner = v; },
+                  options: () => this.availableOwners.map(o => ({ value: o, label: o })) },
+            ];
+        },
+
         clearFilters() {
             this.palSearch = '';
             this.filterElement = '';

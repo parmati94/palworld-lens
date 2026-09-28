@@ -84,11 +84,13 @@ function howMatches(row, how) {
  * species with bonus catches still to earn (and, when `wildOnly`, only the
  * ones you can go and catch, which is what the fast-EXP list is for).
  */
-export function filterDeck(rows, { query = '', element = '', work = '', how = '', progress = null, missingOnly = false, cap = BONUS_CAP } = {}) {
+export function filterDeck(rows, { query = '', element = '', work = '', how = '', drop = '', skill = '', progress = null, missingOnly = false, cap = BONUS_CAP } = {}) {
     return (rows || []).filter(r =>
         deckMatches(r, query)
         && (!element || (r.element_types || []).includes(element))
         && (!work || (r.work_suitability || {})[work] > 0)
+        && (!drop || (r.drops || []).includes(drop))
+        && (!skill || (r.learns || []).includes(skill))
         && howMatches(r, how)
         && (!missingOnly || !progress || bonusOf(progress, r.id) < cap));
 }

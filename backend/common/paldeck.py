@@ -180,11 +180,17 @@ def species_rows(data, pals: Iterable) -> List[Dict]:
     numbers = deck_numbers(data.pals)
     spawns = spawn_summary(data.spawns)
     owned = owned_by_species(pals)
+    tables = getattr(data, 'paldeck_tables', None) or {}
     rows = []
     for sid in deck_ids(data.pals):
         row = data.pals[sid]
         ps = data.partner_skills.get(sid) or {}
         own = owned.get(sid) or {'count': 0, 'owners': set()}
+        d = drops_for(tables, sid)
+        drop_ids = []
+        for entry in d['base'] + [i for h in d['high'] for i in h['items']] + d['alpha']:
+            if entry['item'] not in drop_ids:
+                drop_ids.append(entry['item'])
         rows.append({
             'id': sid,
             'name': data.pal_name(sid),
@@ -202,8 +208,33 @@ def species_rows(data, pals: Iterable) -> List[Dict]:
             'spawn': spawns.get(sid),
             'owned': own['count'],
             'owners': len(own['owners']),
+            'drops': drop_ids,                                             # item ids, base + high-level + alpha
+            'learns': [e['skill'] for e in learnset_for(tables, sid)],    # active skill ids, in level order
         })
     return rows
+
+
+def filter_options(data, rows: List[Dict]) -> Dict[str, List[Dict]]:
+    """The pickable drops and skills behind the deck's filters: {items: [{id, name, icon, count}], skills: [{id, name, element, count}]}."""
+    items: Dict[str, int] = defaultdict(int)
+    skills: Dict[str, int] = defaultdict(int)
+    for r in rows:
+        for i in r.get('drops') or []:
+            items[i] += 1
+        for k in r.get('learns') or []:
+            skills[k] += 1
+    out_items = []
+    for iid, n in items.items():
+        row = data.item(iid) if hasattr(data, 'item') else {}
+        out_items.append({'id': iid, 'name': row.get('localized_name') or iid, 'icon': row.get('icon'), 'count': n})
+    out_skills = []
+    active = getattr(data, 'active_skills', None) or {}
+    for kid, n in skills.items():
+        row = active.get(kid) or {}
+        out_skills.append({'id': kid, 'name': row.get('localized_name') or kid.split('::')[-1], 'element': row.get('element'), 'count': n})
+    out_items.sort(key=lambda o: o['name'].lower())
+    out_skills.sort(key=lambda o: o['name'].lower())
+    return {'items': out_items, 'skills': out_skills}
 
 
 # ---------------------------------------------------------------------------

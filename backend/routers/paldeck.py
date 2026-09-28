@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from backend.common import online
 from backend.common.auth import require_auth
 from backend.common.exp_tables import BONUS_CAP
-from backend.common.paldeck import deck_ids, player_progress, species_detail, species_rows
+from backend.common.paldeck import deck_ids, filter_options, player_progress, species_detail, species_rows
 from backend.parser import parser
 
 router = APIRouter(prefix="/api/paldeck", tags=["paldeck"], dependencies=[Depends(require_auth)])
@@ -24,8 +24,10 @@ async def get_paldeck():
     """
     data = parser.data
     rate = await online.fetch_exp_rate()
+    rows = species_rows(data, parser.get_pals())
     return {
-        "species": species_rows(data, parser.get_pals()),
+        "species": rows,
+        "filters": filter_options(data, rows),
         "players": player_progress(parser.get_players(), data.species, set(deck_ids(data.pals)), data.exp, rate),
         "bonus_cap": BONUS_CAP,
         "exp_rate": rate,

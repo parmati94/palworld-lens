@@ -159,7 +159,7 @@
                                         </div>
                                         <template x-for="h in detail.drops.high" :key="h.level">
                                             <div class="mt-2.5">
-                                                <div class="text-[11px] text-gray-400 mb-1.5">Also from level <span class="text-gray-200 tabular-nums" x-text="h.level"></span></div>
+                                                <div class="text-[11px] text-gray-400 mb-1.5" data-tip="Pals of that level spawn on the World Tree, where the relic drops come from">Also from level <span class="text-gray-200 tabular-nums" x-text="h.level"></span> <span class="text-gray-500">· World Tree</span></div>
                                                 <div class="flex flex-wrap gap-2">
                                                     <template x-for="item in h.items" :key="item.item_id">
                                                         <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-gray-700/40 border border-gray-700/60">

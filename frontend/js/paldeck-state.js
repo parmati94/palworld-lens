@@ -27,6 +27,8 @@ export function paldeckState() {
         deckElement: '',
         deckWork: '',
         deckHow: '',                // '' | catchable | wild | alpha | dungeon | none
+        deckDrop: '',               // item id: species that drop it
+        deckSkill: '',              // active skill id: species that learn it
         deckPlayer: '',             // player name whose progress overlays the deck ('' = nobody)
         deckMissing: false,         // with a player: only species with bonus catches left
         deckSort: 'number',
@@ -92,6 +94,7 @@ export function paldeckState() {
         deckRows() {
             const rows = filterDeck(this.deckSpecies(), {
                 query: this.deckSearch, element: this.deckElement, work: this.deckWork, how: this.deckHow,
+                drop: this.deckDrop, skill: this.deckSkill,
                 progress: this.deckProgress(), missingOnly: this.deckMissing && !!this.deckProgress(), cap: this.deckCap(),
             });
             return sortDeck(rows, this.deckSort, this.deckProgress(), this.deckCap());
@@ -99,7 +102,26 @@ export function paldeckState() {
         deckRowsShown() { return this.deckRows().slice(0, this.deckLimit); },
 
         deckFilterCount() {
-            return [this.deckElement, this.deckWork, this.deckHow].filter(Boolean).length;
+            return [this.deckElement, this.deckWork, this.deckHow, this.deckDrop, this.deckSkill].filter(Boolean).length;
+        },
+
+        /** The chip bar's filters (js/components/filterChips.js): each reads and writes this state. */
+        deckFilterDefs() {
+            const f = (this.paldeck && this.paldeck.filters) || { items: [], skills: [] };
+            return [
+                { key: 'element', label: 'Element', get: () => this.deckElement, set: v => { this.deckElement = v; },
+                  options: () => this.deckElements().map(o => ({ ...o, icon: this.elementIcon(o.value) })) },
+                { key: 'work', label: 'Work', get: () => this.deckWork, set: v => { this.deckWork = v; },
+                  options: () => this.deckWorkTypes().map(o => ({ ...o, icon: this.workTypeIcon(o.value) })) },
+                { key: 'how', label: 'Spawns', get: () => this.deckHow, set: v => { this.deckHow = v; },
+                  options: () => SPAWN_HOW.map(o => ({ value: o.value, label: o.label })) },
+                { key: 'drop', label: 'Drops', hint: f.items.length ? `${f.items.length} items` : '', get: () => this.deckDrop, set: v => { this.deckDrop = v; },
+                  options: () => f.items.map(i => ({ value: i.id, label: i.name, icon: i.icon ? `/img/${i.icon}.webp` : '', hint: `${i.count} species` })) },
+                { key: 'skill', label: 'Learns', hint: f.skills.length ? `${f.skills.length} skills` : '', get: () => this.deckSkill, set: v => { this.deckSkill = v; },
+                  options: () => f.skills.map(k => ({ value: k.id, label: k.name, icon: k.element ? this.elementIcon(k.element) : '', hint: `${k.count} species` })) },
+                { key: 'sort', label: 'Sort', always: true, get: () => this.deckSort, set: v => { this.deckSort = v || 'number'; },
+                  options: () => DECK_SORTS.map(o => ({ value: o.value, label: o.label })) },
+            ];
         },
 
         /** Species the picked player still earns bonus EXP from, before the other filters. */
@@ -114,6 +136,8 @@ export function paldeckState() {
             this.deckElement = '';
             this.deckWork = '';
             this.deckHow = '';
+            this.deckDrop = '';
+            this.deckSkill = '';
             this.deckMissing = false;
             this.deckLimit = 120;
         },

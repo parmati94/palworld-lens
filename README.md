@@ -200,10 +200,10 @@ Player stats with HP, hunger, SAN levels, and guild membership
 Guild roster, admin info, and base locations with coordinates
 
 ### Pals
-Searchable pal database with stats, skills, work suitabilities, and owner info. Filters for lucky/shiny/boss pals.
+Every pal on the server with stats, skills, work suitabilities and owner. One search box; filters (element, work, passive, owner) are added as chips from a **+ Filter** menu, so the bar stays a single line until you ask for more.
 
 ### Paldeck
-The species list, not the owned list: one card per Paldeck entry (subspecies share the base's number with a letter, like the game). Filter by element, work, and how you get one -- wild herds, alpha only, dungeons only, or no wild spawn at all. A species opens in its own modal: description, base work levels, partner skill, spawn zones with **Show on map**, breeding (special combos, or "only from two of them"), what it drops (and what its alpha drops), the skills it learns by level, and the pals of it on this server.
+The species list, not the owned list: one card per Paldeck entry (subspecies share the base's number with a letter, like the game). Filter chips for element, work, how you get one (wild herds, alpha only, dungeons only, no wild spawn), what it drops and which skill it learns -- the last two are searchable pickers over every item and skill in the deck. A species opens in its own modal: description, base work levels, partner skill, spawn zones with **Show on map**, breeding (special combos, or "only from two of them"), what it drops (and what its alpha drops), the skills it learns by level, and the pals of it on this server.
 
 Pick a player and the deck becomes their capture bonus tracker. The game pays bonus EXP for the first 5 catches of every species (1.0) from one climbing chain, so the strip shows what the **next catch is worth**, how many catches would reach the next level, and how many species are maxed; **Missing** keeps only the species still worth catching, sorted fewest catches first. A player's card in the Players tab has the same bar the game draws (EXP to next level), and the player modal's Records pane opens the Paldeck on their missing list.
 

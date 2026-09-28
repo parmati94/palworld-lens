@@ -25,6 +25,7 @@ import { itemModal } from './components/itemModal.js';
 import { speciesModal } from './components/speciesModal.js';
 import { speciesPicker } from './components/speciesPicker.js';
 import { selectMenu } from './components/selectMenu.js';
+import { filterChips } from './components/filterChips.js';
 import { installTooltips } from './components/tooltip.js';
 
 // Register components with Alpine using proper API
@@ -39,6 +40,7 @@ Alpine.data('itemModal', itemModal);
 Alpine.data('speciesModal', speciesModal);
 Alpine.data('speciesPicker', speciesPicker);
 Alpine.data('selectMenu', selectMenu);
+Alpine.data('filterChips', filterChips);
 
 // Expose utility functions globally (required by Alpine.js inline expressions in x-text, x-bind, etc.)
 Object.assign(window, utils, paldeckUtils);

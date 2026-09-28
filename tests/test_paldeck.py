@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from backend.common.breeding import BreedingIndex
 from backend.common.exp_tables import build_exp_tables
 from backend.common.pal_ids import SpeciesIndex
-from backend.common.paldeck import (build_paldeck_tables, deck_ids, deck_numbers, drops_for, learnset_for, player_progress,
+from backend.common.paldeck import (build_paldeck_tables, deck_ids, deck_numbers, drops_for, filter_options, learnset_for, player_progress,
                                     resolve_counts, spawn_summary, species_detail, species_rows)
 
 PALS = {
@@ -196,3 +196,15 @@ def test_species_detail_names_drops_and_learned_skills():
     assert [i["item_id"] for i in d["drops"]["alpha"]] == ["PalCrystal_Ex", "Blueprint_X"]
     assert [(l["level"], l["name"], l["element"], l["power"]) for l in d["learnset"]] == [(1, "Air Cannon", "Normal", 25), (7, "Ice Missile", "Ice", 30)]
     assert species_detail(_Data(), "SheepBall", [], [])["learnset"] == []
+
+
+def test_species_rows_carry_drop_and_skill_ids_and_filter_options_name_them():
+    rows = species_rows(_Data(), [])
+    frost = next(r for r in rows if r["id"] == "IceHorse")
+    assert frost["drops"] == ["IceOrgan", "Diamond", "Relic", "PalCrystal_Ex", "Blueprint_X"]
+    assert frost["learns"] == ["EPalWazaID::AirCanon", "EPalWazaID::IceMissile"]
+    assert next(r for r in rows if r["id"] == "Kitsunebi")["drops"] == []
+    f = filter_options(_Data(), rows)
+    assert [(i["name"], i["count"]) for i in f["items"]][:3] == [("Blueprint_X", 1), ("Diamond", 1), ("Ice Organ", 1)]
+    assert next(i for i in f["items"] if i["id"] == "Wool")["count"] == 1
+    assert [(k["name"], k["element"], k["count"]) for k in f["skills"]] == [("Air Cannon", "Normal", 1), ("Ice Missile", "Ice", 1)]
