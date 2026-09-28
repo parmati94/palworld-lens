@@ -24,9 +24,10 @@ import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
 import { breedingState, BREED_MODES } from './breeding-state.js';
+import { paldeckState, DECK_SORT_IDS, DECK_HOW_IDS } from './paldeck-state.js';
 
 const prefs = loadPrefs();
-const TABS = ['overview', 'players', 'pals', 'bases', 'tools', 'map'];
+const TABS = ['overview', 'players', 'pals', 'bases', 'map', 'paldeck', 'tools'];
 // Tools: helpers over the save, grouped under one tab (frontend/partials/tabs/tools-tab.html)
 export const TOOLS = [
     { id: 'breeding', label: 'Breeding', title: 'What two pals make, which of yours can make a pal, and the route to one you cannot',
@@ -44,6 +45,7 @@ export const THEMES = [
     { id: 'rose', label: 'Rose', swatch: '#f43f5e' },
 ];
 const SORT_COLUMNS = ['name', 'level', 'hp', 'hunger', 'sanity', 'owner', 'base', 'attack', 'defense'];
+const SORT_LABELS = { name: 'Name', level: 'Level', hp: 'HP', hunger: 'Hunger', sanity: 'Sanity', owner: 'Owner', base: 'Base', attack: 'Attack', defense: 'Defense' };
 
 export function app() {
     return {
@@ -115,6 +117,9 @@ export function app() {
         refreshCooldown: 30000, // Only refresh if page was hidden for 30+ seconds
         // Breeding tab (js/breeding-state.js): species list, pickers, results
         ...breedingState(),
+        // Paldeck tab (js/paldeck-state.js): the species deck + a player's capture bonus overlay
+        ...paldeckState(),
+        deckPlayer: pref(prefs, 'deckPlayer', ''),   // whose Paldeck: a mode, remembered like the tab
         
         async init() {
             // Initialize watch service
@@ -185,7 +190,7 @@ export function app() {
             // Remember the settings people expect to stick between visits.
             [['currentTab', 'lastTab'], ['tool', 'lastTool'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
              ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize'],
-             ['theme', 'theme'], ['reduceMotion', 'reduceMotion']]
+             ['theme', 'theme'], ['reduceMotion', 'reduceMotion'], ['deckPlayer', 'deckPlayer']]
                 .forEach(([key, name]) => this.$watch(key, v => savePref(name, v)));
             this.applyTheme(this.theme);
             this.applyReduceMotion();
@@ -200,6 +205,10 @@ export function app() {
             this.$watch('currentTab', () => this.onToolShown());
             this.$watch('tool', () => this.onToolShown());
             this.onToolShown();
+            this.$watch('pals', () => this.paldeckInvalidate());
+            ['deckSearch', 'deckElement', 'deckWork', 'deckHow', 'deckDrop', 'deckSkill', 'deckPlayer', 'deckMissing', 'deckSort'].forEach(key => {
+                this.$watch(key, () => { this.deckLimit = 120; this.writeHash(); });
+            });
             // The species table gates the pal modal's Breed button, so it must not wait for the Breeding tab.
             this.ensureBreedingSpecies();
             this.$watch('pals', () => { this.breedInvalidateOwned(); this.loadBreedingRoute(); });
@@ -225,6 +234,8 @@ export function app() {
                   icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
                 { id: 'map', label: 'Map', count: null,
                   icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
+                { id: 'paldeck', label: 'Paldeck', count: null, title: 'Every species: where it spawns, what it does, and each player\'s capture bonus',
+                  icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
                 // Tools (tool: true) render after a divider: helpers over the save, not views of it
                 { id: 'tools', label: 'Tools', count: null, tool: true, title: 'Tools: breeding calculator, best workers',
                   icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
@@ -248,6 +259,7 @@ export function app() {
             this.$nextTick(() => window.scrollTo({ top: 0 }));
         },
         onToolShown() {
+            if (this.currentTab === 'paldeck') this.ensurePaldeck();
             if (this.currentTab !== 'tools') return;
             if (this.tool === 'breeding') this.ensureBreedingSpecies();
             if (this.tool === 'workers') {
@@ -277,6 +289,18 @@ export function app() {
                     this.filterWorkType = params.get('work') || '';
                     this.filterPassiveSkill = params.get('passive') || '';
                     this.filterOwner = params.get('owner') || '';
+                }
+                if (tab === 'paldeck') {
+                    this.deckSearch = params.get('q') || '';
+                    this.deckElement = params.get('element') || '';
+                    this.deckWork = params.get('work') || '';
+                    this.deckHow = DECK_HOW_IDS.includes(params.get('how')) ? params.get('how') : '';
+                    this.deckDrop = params.get('drop') || '';
+                    this.deckSkill = params.get('skill') || '';
+                    this.deckPlayer = params.get('player') || '';
+                    this.deckMissing = params.get('missing') === '1';
+                    if (DECK_SORT_IDS.includes(params.get('sort'))) this.deckSort = params.get('sort');
+                    if (params.has('species')) this.$nextTick(() => this.openSpecies(params.get('species')));
                 }
                 if (tab === 'tools' && this.tool === 'breeding') {
                     const mode = params.get('mode');
@@ -310,6 +334,17 @@ export function app() {
                 if (this.filterWorkType) params.set('work', this.filterWorkType);
                 if (this.filterPassiveSkill) params.set('passive', this.filterPassiveSkill);
                 if (this.filterOwner) params.set('owner', this.filterOwner);
+            }
+            if (this.currentTab === 'paldeck') {
+                if (this.deckSearch) params.set('q', this.deckSearch);
+                if (this.deckElement) params.set('element', this.deckElement);
+                if (this.deckWork) params.set('work', this.deckWork);
+                if (this.deckHow) params.set('how', this.deckHow);
+                if (this.deckDrop) params.set('drop', this.deckDrop);
+                if (this.deckSkill) params.set('skill', this.deckSkill);
+                if (this.deckPlayer) params.set('player', this.deckPlayer);
+                if (this.deckMissing) params.set('missing', '1');
+                if (this.deckSort !== 'number') params.set('sort', this.deckSort);
             }
             if (this.currentTab === 'tools' && this.tool === 'breeding') {
                 params.set('mode', this.breedMode);
@@ -360,6 +395,7 @@ export function app() {
             if (r.tool) this.goToTool(r.tool);
             else if (r.tab) { this.currentTab = r.tab; this.jumpToTop(); }
             if (r.pal) this.openPalById(r.pal);
+            if (r.species) this.$nextTick(() => this.openSpecies(r.species));
             if (r.route) this.$nextTick(() => this.breedShowRoute());
         },
 
@@ -1093,6 +1129,28 @@ export function app() {
         },
         
         // Clear all filters
+        /** The Pals tab's chip bar (js/components/filterChips.js) over the same four filter fields. */
+        palFilterDefs() {
+            return [
+                { key: 'element', label: 'Element', get: () => this.filterElement, set: v => { this.filterElement = v; },
+                  options: () => this.availableElements.map(e => ({ value: e.key, label: e.name, icon: this.elementIcon(e.key) })) },
+                { key: 'work', label: 'Work', get: () => this.filterWorkType, set: v => { this.filterWorkType = v; },
+                  options: () => this.availableWorkTypes.map(w => ({ value: w.key, label: w.name, icon: this.workTypeIcon(w.key) })) },
+                { key: 'passive', label: 'Passive', get: () => this.filterPassiveSkill, set: v => { this.filterPassiveSkill = v; },
+                  options: () => this.availablePassiveSkills.map(p => ({ value: p.skill_id, label: p.name })) },
+                { key: 'owner', label: 'Owner', get: () => this.filterOwner, set: v => { this.filterOwner = v; },
+                  options: () => this.availableOwners.map(o => ({ value: o, label: o })) },
+                // Pinned: the table's own sort (the column headers do the same), so phones can sort too.
+                // Picking the current column flips the direction, like clicking its header again.
+                { key: 'sort', label: 'Sort', always: true, get: () => this.sortColumn, set: v => { if (v) this.sortBy(v); },
+                  options: () => SORT_COLUMNS.map(c => ({
+                      value: c,
+                      label: SORT_LABELS[c] + (c === this.sortColumn ? (this.sortDirection === 'asc' ? ' ↑' : ' ↓') : ''),
+                      hint: c === this.sortColumn ? 'again to flip' : '',
+                  })) },
+            ];
+        },
+
         clearFilters() {
             this.palSearch = '';
             this.filterElement = '';

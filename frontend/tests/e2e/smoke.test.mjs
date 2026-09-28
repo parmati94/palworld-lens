@@ -56,7 +56,7 @@ before(async () => {
 });
 after(async () => { if (browser) await browser.close(); });
 
-const pressEscape = async () => { await page.keyboard.press('Escape'); await sleep(350); };
+const pressEscape = async () => { await page.keyboard.press('Escape'); await sleep(500); };
 const isOpen = (name, flag) => page.evaluate(`${modal(name)}.${flag}`);
 
 test('the app loads with players and pals', { skip }, async () => {
@@ -160,4 +160,49 @@ test('clicking a base on the map opens that base, not the first one', { skip }, 
     assert.equal(s.tab, 'bases');
     assert.equal(s.guild, target.guildId);
     assert.equal(s.base, target.baseId);
+});
+
+test('Paldeck tab lists the deck and a card opens the species modal', { skip }, async () => {
+    await page.evaluate(`${APP}.currentTab = 'paldeck'`);
+    await page.waitForFunction(`${APP}.paldeck !== null`, null, { timeout: 15000 });
+    const n = await page.evaluate(`[${APP}.deckSpecies().length, ${APP}.deckRows().length, ${APP}.deckPlayers().length]`);
+    assert.ok(n[0] >= 250, `deck has ${n[0]} species`);
+    assert.equal(n[1], n[0], 'no filter set, every species shows');
+    assert.ok(n[2] > 0, 'no players with progress');
+    await page.locator('[role="button"]:visible:has-text("#1")').first().click();
+    await page.waitForFunction(`${modal('speciesModal')}.detail !== null`, null, { timeout: 5000 });
+    const d = await page.evaluate(`(() => { const m = ${modal('speciesModal')}; return { show: m.showSpeciesModal, name: m.detail.name, number: m.detail.number, desc: m.detail.description }; })()`);
+    assert.equal(d.show, true);
+    assert.equal(d.number, '1');
+    assert.ok(d.name && d.desc, `species ${d.name} has no description`);
+    await pressEscape();
+    assert.equal(await isOpen('speciesModal', 'showSpeciesModal'), false);
+});
+
+test('a player\'s "What\'s missing" lands on the Paldeck with their progress overlaid', { skip }, async () => {
+    const name = await page.evaluate(`(() => { const a = ${APP}; a.currentTab = 'players';
+        const p = [...a.players].sort((x, y) => y.level - x.level)[0];
+        window.dispatchEvent(new CustomEvent('open-player-modal', { detail: { player: p, tab: 'records' } })); return p.nickname || p.player_name; })()`);
+    await sleep(400);
+    await page.locator('[x-data="playerModal()"] button:visible:has-text("missing")').first().click();
+    await sleep(400);
+    const s = await page.evaluate(`(() => { const a = ${APP}; return { tab: a.currentTab, player: a.deckPlayer, missing: a.deckMissing, rows: a.deckRows().length, all: a.deckSpecies().length, summary: a.deckSummary() }; })()`);
+    assert.equal(s.tab, 'paldeck');
+    assert.equal(s.player, name);
+    assert.equal(s.missing, true);
+    assert.ok(s.rows < s.all, 'the missing filter dropped nothing');
+    assert.ok(s.summary && s.summary.nextExp > 0, 'no next-catch figure');
+    assert.equal(await isOpen('playerModal', 'showPlayerModal'), false);
+});
+
+test('the pal modal\'s Paldeck button swaps to the species modal', { skip }, async () => {
+    const sid = await page.evaluate(`(() => { const a = ${APP}; a.deckClearFilters(); a.deckPlayer = ''; a.currentTab = 'pals';
+        const pal = a.pals.find(p => p.species_id); window.dispatchEvent(new CustomEvent('open-pal-modal', { detail: pal })); return pal.species_id; })()`);
+    await sleep(400);
+    await page.locator('[x-data="palModal()"] button:visible:has-text("Paldeck")').first().click();
+    await page.waitForFunction(`${modal('speciesModal')}.detail !== null`, null, { timeout: 5000 });
+    assert.equal(await isOpen('palModal', 'showPalModal'), false, 'the pal modal stayed open under the species modal');
+    assert.equal(await page.evaluate(`${modal('speciesModal')}.detail.id`), sid);
+    await pressEscape();
+    assert.equal(await isOpen('speciesModal', 'showSpeciesModal'), false);
 });

@@ -63,6 +63,16 @@ export const api = {
         return await res.json();
     },
 
+    /** The Paldeck: every species plus each player's capture bonus progress (backend/common/paldeck.py) */
+    async getPaldeck() {
+        const res = await fetchWithRetry('/api/paldeck');
+        return await res.json();
+    },
+    async getSpecies(id) {
+        const res = await fetchWithRetry('/api/paldeck/' + encodeURIComponent(id));
+        return await res.json();
+    },
+
     /**
      * Breeding calculator (data/json/breeding.json via backend/common/breeding.py)
      */

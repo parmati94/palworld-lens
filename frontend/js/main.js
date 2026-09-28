@@ -11,6 +11,7 @@ window.Alpine = Alpine;
 
 // Import utility functions
 import * as utils from './utils.js';
+import * as paldeckUtils from './paldeck.js';
 
 // Import Alpine.js components
 import { app } from './app.js';
@@ -21,8 +22,10 @@ import { palModal } from './components/palModal.js';
 import { crewModal } from './components/crewModal.js';
 import { playerModal } from './components/playerModal.js';
 import { itemModal } from './components/itemModal.js';
+import { speciesModal } from './components/speciesModal.js';
 import { speciesPicker } from './components/speciesPicker.js';
 import { selectMenu } from './components/selectMenu.js';
+import { filterChips } from './components/filterChips.js';
 import { installTooltips } from './components/tooltip.js';
 
 // Register components with Alpine using proper API
@@ -34,11 +37,13 @@ Alpine.data('palModal', palModal);
 Alpine.data('crewModal', crewModal);
 Alpine.data('playerModal', playerModal);
 Alpine.data('itemModal', itemModal);
+Alpine.data('speciesModal', speciesModal);
 Alpine.data('speciesPicker', speciesPicker);
 Alpine.data('selectMenu', selectMenu);
+Alpine.data('filterChips', filterChips);
 
 // Expose utility functions globally (required by Alpine.js inline expressions in x-text, x-bind, etc.)
-Object.assign(window, utils);
+Object.assign(window, utils, paldeckUtils);
 
 // One shared tooltip for every data-tip="..." element (replaces native title=).
 installTooltips();

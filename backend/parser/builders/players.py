@@ -5,6 +5,7 @@ import math
 
 from backend.common.base_names import nearest_landmark
 from backend.common.loadout import enhance_stats, food_effects, food_effects_line, shield_max
+from backend.common.exp_tables import level_progress
 from backend.models.models import FoodBuff, PlayerInfo, PlayerRecords, PlayerTech, StatLine
 from backend.parser.utils.mappers import item_ref, pal_ref
 from backend.parser.loaders.schema_loader import SchemaManager
@@ -100,6 +101,7 @@ def build_players(players_data: Dict, guilds_data: Dict, player_uid_to_container
             player_name=player_schema.extract_field(char_info, "NickName"),
             level=level,
             exp=player_schema.extract_field(char_info, "Exp"),
+            exp_progress=level_progress(getattr(data, "exp", None) or {}, level, player_schema.extract_field(char_info, "Exp")),
             hp=current_hp,
             max_hp=max_hp,
             mp=player_schema.extract_field(char_info, "MP"),

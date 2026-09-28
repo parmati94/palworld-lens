@@ -19,6 +19,7 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 - 🌐 **Remote Save Loading** - Download saves from remote SFTP/FTP servers with automatic polling
 - 👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
 - 🦄 **Pal Viewer** - Browse all pals with detailed stats
+- 📖 **Paldeck** - Every species the game numbers, as reference: elements, work levels, partner skill, where it spawns (and a jump to the map), how to breed it, and who on the server has one. Pick a player and their capture bonus overlays the deck: which species still pay bonus EXP, what the next catch is worth, and how many catches to their next level
 - 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
 - 🏛️ **Guild Information** - View guilds and their members
 - ⚙️ **Base Activity** - What each base is doing as of the last save: machines with their order, materials and progress, crops growing, eggs incubating (or hatched and waiting for pickup), stations and ranches with who is on them, expeditions with time left and the haul waiting, and the guild's lab research
@@ -199,7 +200,12 @@ Player stats with HP, hunger, SAN levels, and guild membership
 Guild roster, admin info, and base locations with coordinates
 
 ### Pals
-Searchable pal database with stats, skills, work suitabilities, and owner info. Filters for lucky/shiny/boss pals.
+Every pal on the server with stats, skills, work suitabilities and owner. One search box; filters (element, work, passive, owner) are added as chips from a **+ Filter** menu, so the bar stays a single line until you ask for more.
+
+### Paldeck
+The species list, not the owned list: one card per Paldeck entry (subspecies share the base's number with a letter, like the game). Filter chips for element, work, how you get one (wild herds, alpha only, dungeons only, no wild spawn), what it drops and which skill it learns -- the last two are searchable pickers over every item and skill in the deck. A species opens in its own modal: description, base work levels, partner skill, spawn zones with **Show on map**, breeding (special combos, or "only from two of them"), what it drops (and what its alpha drops), the skills it learns by level, and the pals of it on this server.
+
+Pick a player and the deck becomes their capture bonus tracker. The game pays bonus EXP for the first 5 catches of every species (1.0) from one climbing table read at a shared discovery chain (catches, new areas, bosses, relics, notes, pickups and fast travel points all advance it), so the strip shows what the **next catch is worth**, how many catches would reach the next level, and how many species are maxed; **Missing** keeps only the species still worth catching, sorted fewest catches first. A player's card in the Players tab has the same bar the game draws (EXP to next level), and the player modal's Records pane opens the Paldeck on their missing list.
 
 ### Bases
 Base assignments showing pals at each guild base with status/hunger/SAN monitoring
@@ -269,6 +275,8 @@ See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command
 - `GET /api/game-data` - Reference data the UI keys ids on: elements, work types, conditions, map layers
 - `GET /api/map-objects` - Static map markers (fast travel, alpha pals, predators, dungeons)
 - `GET /api/spawns` - Wild spawner groups (points, radius, pals with share/level/night) plus the searchable species list
+- `GET /api/paldeck` - Every Paldeck species (number, elements, work levels, partner skill, spawn summary, owned count) plus each player's capture bonus progress: per-species bonus counts, the chain index, what the next catch pays, catches to the next level
+- `GET /api/paldeck/{species_id}` - One species in full: description, spawn groups, breeding, drops (base, high-level extras, alpha), learned skills by level, the pals of it on the server, who has caught it
 - `GET /api/breeding/species` - Breedable species with name, icon, elements and gender odds
 - `GET /api/breeding/child?a=&b=` - What two species produce (two results only for the gender-gated pairs)
 - `GET /api/breeding/parents?child=` - Every pair that produces a species, special combos first

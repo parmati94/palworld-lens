@@ -219,6 +219,13 @@ class PlayerRecords(BaseModel):
     caught: int = 0          # pals caught, all species
     fast_travels: int = 0
     dungeons: int = 0        # dungeons cleared, roaming and set
+    # The capture bonus chain (backend/common/exp_tables.py). The per-species maps stay out of
+    # /api/players (a few hundred keys per player on every reload); /api/paldeck serves them.
+    bonus_index: int = 0     # bonus catches so far, every species together
+    chain_index: int = 0     # the shared discovery chain (catches + areas + bosses + relics + notes + pickups + fast travels ...): the row the next bonus pays
+    capture_counts: Dict[str, int] = Field(default_factory=dict, exclude=True)   # species id -> catches
+    capture_bonus: Dict[str, int] = Field(default_factory=dict, exclude=True)    # species id -> catches that paid (<= 5)
+    bonus_chain: Dict[str, int] = Field(default_factory=dict, exclude=True)      # each *BonusExpTableIndex counter by name
 
 
 class PlayerInfo(BaseModel):
@@ -228,6 +235,9 @@ class PlayerInfo(BaseModel):
     nickname: Optional[str] = None
     level: int
     exp: int
+    # The status screen's EXP bar (data/json/exp.json level ladder): EXP into this level and the
+    # level's span; None at the level cap or without the table. `exp` stays the lifetime total.
+    exp_progress: Optional[Dict[str, int]] = None   # {into, span, to_next}
     hp: int
     max_hp: int
     mp: Optional[int] = None

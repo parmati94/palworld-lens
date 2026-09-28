@@ -1,0 +1,37 @@
+<!-- Filter picker body (scope: filterChips component). Params: back=true shows a "back to the
+     filter list" arrow (the picker replaced the + Filter menu in place). Glass panel like the
+     map's spawn search. -->
+<div x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+     class="w-72 max-w-[calc(100vw-2rem)] bg-gray-900/85 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+    <div class="px-2.5 py-2 border-b border-white/10 flex items-center gap-1.5">
+        {{#if back}}
+        <button @click="toggle('+')" type="button" class="btn-quiet p-1 -ml-0.5" aria-label="Back to the filter list" data-tip="Back">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        {{/if}}
+        <span class="eyebrow whitespace-nowrap" x-text="pd.label"></span>
+        <input x-show="searchable(pd)" type="text" x-model="query" data-picker-query autocomplete="off" spellcheck="false"
+               :placeholder="'Search ' + pd.label.toLowerCase() + '…'"
+               @keydown.enter.prevent="list(pd).length && pick(pd, list(pd)[0].value)"
+               class="flex-1 min-w-0 px-2.5 py-1 bg-gray-950/50 border border-white/10 rounded-md text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-accent-400/60">
+        <span x-show="!searchable(pd)" class="flex-1"></span>
+        <button @click="open = null" type="button" class="btn-quiet p-1" aria-label="Close">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+    </div>
+    <div class="max-h-72 overflow-auto custom-scrollbar py-1">
+        <div x-show="pd.get() && !pd.always" @click="remove(pd)"
+             class="px-3 py-1.5 text-xs text-gray-400 hover:bg-white/5 hover:text-gray-200 cursor-pointer">Clear</div>
+        <template x-for="o in list(pd)" :key="o.value">
+            <div @click="pick(pd, o.value)"
+                 class="mx-1 px-2 py-1.5 rounded-md flex items-center gap-2.5 cursor-pointer text-sm transition-colors duration-100"
+                 :class="pd.get() === o.value ? 'bg-accent-500/90 text-white' : 'text-gray-100 hover:bg-white/5'">
+                <img x-show="o.icon" :src="o.icon" alt="" loading="lazy" class="w-5 h-5 rounded object-contain flex-shrink-0" onerror="this.style.visibility='hidden'">
+                <span class="flex-1 truncate" x-text="o.label"></span>
+                <span x-show="o.hint" class="text-[11px] tabular-nums whitespace-nowrap" :class="pd.get() === o.value ? 'text-white/80' : 'text-gray-500'" x-text="o.hint"></span>
+            </div>
+        </template>
+        <div x-show="list(pd).length === 0" class="px-3 py-4 text-center text-xs text-gray-400">No matches</div>
+        <div x-show="more(pd) > 0" class="px-3 py-1.5 text-[11px] text-gray-500">Type to see the other <span x-text="more(pd)"></span></div>
+    </div>
+</div>

@@ -614,7 +614,7 @@ export function playerRecordCells(player) {
         cells.push({ label: 'Tech', value: t.unlocked, tip: spend ? `${spend} to spend` : 'nothing to spend' });
     }
     if (r) cells.push(
-        { label: 'Paldeck', value: r.paldeck, tip: `${r.caught.toLocaleString()} pals caught` },
+        { label: 'Paldeck', value: r.paldeck, tip: `species seen · ${r.caught.toLocaleString()} pals caught in all` },
         { label: 'Towers', value: r.towers, tip: 'tower bosses beaten' },
         { label: 'Alphas', value: r.alphas, tip: 'field bosses beaten' },
         { label: 'Dungeons', value: r.dungeons, tip: 'roaming and set dungeons cleared' },

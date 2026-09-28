@@ -30,6 +30,14 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   show the status screen's enhanced values (Health 1900 >> 3550): armour HP / defense / shield and
   equip passives from `DT_ItemDataTable_Common`, dish buffs from `DT_StatusEffectFood`, the player's
   base row from `DT_PalPlayerParameter` (`generate_loadout.py`; applied by `backend/common/loadout.py`).
+- **`data/json/exp.json`** -- the capture bonus chain (`DT_PalCaptureBonusExpTable`: EXP per running
+  bonus-catch index, 4999 rows) and the player level ladder (`DT_PalExpTable`: TotalEXP / NextEXP per
+  level), behind the Paldeck's "next catch is worth" figures and the players' EXP bars
+  (`generate_exp.py`; read by `backend/common/exp_tables.py`).
+- **`data/json/paldeck.json`** -- what each character drops (`DT_PalDropItem`: up to ten items per
+  level threshold; BOSS_ rows are the alpha's own table) and the active skills a species learns by
+  level (`DT_WazaMasterLevel`), for the species modal (`generate_paldeck_tables.py`; read by
+  `backend/common/paldeck.py`).
 
 Output is committed to the repo, so end users never run this.
 

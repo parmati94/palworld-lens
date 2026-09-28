@@ -1,0 +1,255 @@
+        <!-- Species modal: one Paldeck entry (js/components/speciesModal.js, /api/paldeck/<id>).
+             The species, not a pal: opened from the deck, the pal modal's Paldeck button, or anything
+             with a species id. Owned pals appear once, at the bottom, as the bridge back to the Pals tab.
+             Same z as the pal modal on purpose: each closes itself before opening the other. -->
+        {{#> modal-shell data="speciesModal()" show="showSpeciesModal" close="closeSpeciesModal()" z=60 width="max-w-3xl" height="max-h-[90vh]"}}
+                <template x-if="sp">
+                    <div>
+                        <!-- Header: element glow like the pal modal -->
+                        <div class="relative p-5 sm:p-6 rounded-t-xl border-b border-gray-700/60 pal-header-drift"
+                             :style="`background: ${palHeaderBackdrop(sp.element_types)}; background-size: 120% 120%;`">
+                            <button @click="closeSpeciesModal()" aria-label="Close" class="absolute top-3 right-3 btn-quiet p-1.5">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                            <div class="flex items-start gap-4 sm:gap-5">
+                                <img :src="palIconSrc(sp)" :alt="sp.name" @error="palIconError($el, sp)"
+                                     :style="`box-shadow: 0 0 48px ${hexAlpha(elementColor((sp.element_types || [])[0]), 0.45)}`"
+                                     class="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-900/80 object-cover border border-white/10 flex-shrink-0 relative z-10">
+                                <div class="flex-1 min-w-0 pr-8">
+                                    <div class="text-xs font-mono text-gray-400" x-show="sp.number">Paldeck #<span x-text="sp.number"></span></div>
+                                    <h2 class="text-2xl sm:text-3xl font-bold text-white truncate leading-tight" x-text="sp.name"></h2>
+                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                                        <template x-for="element in (sp.element_types || [])" :key="element">
+                                            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium text-white border"
+                                                 :style="`background: ${hexAlpha(elementColor(element), 0.2)}; border-color: ${hexAlpha(elementColor(element), 0.5)}`">
+                                                <img :src="elementIcon(element)" :alt="elementName(element)" class="w-3.5 h-3.5">
+                                                <span x-text="elementName(element)"></span>
+                                            </div>
+                                        </template>
+                                        <span x-show="sp.nocturnal" class="px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-500/15 text-indigo-200 border border-indigo-500/40" data-tip="Works through the night">Nocturnal</span>
+                                        <span x-show="sp.size && sp.size !== 'None'" class="px-2 py-0.5 rounded-md text-xs text-gray-300 border border-gray-600/60" data-tip="Size class" x-text="sp.size"></span>
+                                    </div>
+                                    <!-- Links out: the map, the breeding tool, the pals of it -->
+                                    <div class="mt-3 flex items-center gap-2 flex-wrap text-xs">
+                                        <button x-show="sp.spawn" @click="closeSpeciesModal(); findOnMap(sp.id, sp.name, { label: 'Back to ' + sp.name, tab: currentTab, species: sp.id })"
+                                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-200 transition-colors"
+                                                data-tip="Light up every zone this species spawns in">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            <span>Show on map</span>
+                                        </button>
+                                        <button x-show="isBreedable(sp.id)" @click="closeSpeciesModal(); breedHowTo(sp.id)"
+                                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-200 transition-colors"
+                                                data-tip="How to breed this species from the pals you own">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                            <span>Breed</span>
+                                        </button>
+                                        <button x-show="(detail ? detail.owned_total : sp.owned) > 0" @click="closeSpeciesModal(); viewPalsOfSpecies(sp.name)"
+                                                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-200 transition-colors"
+                                                data-tip="The Pals tab, filtered to this species">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            <span><span x-text="detail ? detail.owned_total : sp.owned"></span> on this server</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-5 sm:p-6 space-y-6">
+                            <div x-show="!detail && !detailFailed" class="text-sm text-gray-500">Looking it up…</div>
+                            <div x-show="detailFailed" class="text-sm text-gray-500">Not a Paldeck species.</div>
+
+                            <template x-if="detail">
+                                <div class="space-y-6">
+                                    <p x-show="detail.description" class="text-sm text-gray-300 leading-relaxed" x-text="detail.description"></p>
+
+                                    <!-- Work suitability: the species' base levels -->
+                                    <div x-show="workDisplay(detail).length > 0">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Work Suitability <span class="text-xs font-normal text-gray-500">base levels</span></h3>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                            <template x-for="work in workDisplay(detail)" :key="work.type">
+                                                <div class="flex items-center gap-3 bg-gray-700/50 rounded-lg p-2.5">
+                                                    <img :src="`/img/${work.icon}.webp`" :class="`work-icon-${work.name.toLowerCase().replace(/\s+/g, '_')} w-6 h-6 object-contain`" :alt="work.name" />
+                                                    <span class="flex-1 text-sm text-gray-200 font-medium" x-text="work.name"></span>
+                                                    <span x-show="detail.best_work === work.type" class="text-[10px] text-amber-200/80" data-tip="The job the first condensing star raises">best</span>
+                                                    <span class="text-xs font-bold px-2 py-1 rounded" :class="work.badge" :style="work.badge ? '' : `color: ${work.color}; border: 1px solid ${work.color}`" x-text="`Lv.${work.level}`"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- Partner skill at level 1, with the ladder -->
+                                    <template x-if="speciesPartner">
+                                        <div x-data="{ ladder: false }">
+                                            <div class="flex items-center justify-between gap-3 mb-2.5">
+                                                <h3 class="text-sm font-semibold text-gray-200">Partner Skill</h3>
+                                                <button x-show="speciesPartner.levels.length > 1" @click="ladder = !ladder" class="text-[11px] text-accent-300 hover:text-accent-200 transition-colors"
+                                                        x-text="ladder ? 'Hide levels' : 'All 5 levels'"></button>
+                                            </div>
+                                            <div class="rounded-lg p-3 bg-gradient-to-br from-amber-500/10 to-gray-700/50 border border-amber-400/20">
+                                                <div class="flex items-center gap-2 min-w-0">
+                                                    <span class="text-sm font-semibold text-amber-100 truncate" x-text="speciesPartner.name"></span>
+                                                    <span x-show="speciesPartner.levels[0].mount" class="px-1.5 py-px rounded text-[10px] font-medium bg-sky-500/15 text-sky-200 border border-sky-500/40 whitespace-nowrap" x-text="mountLabel(speciesPartner.levels[0].mount)"></span>
+                                                </div>
+                                                <p x-show="!ladder" class="mt-2 text-sm text-gray-300 leading-relaxed" x-html="partnerSkillHtml(speciesPartner.levels[0].text)"></p>
+                                                <div x-show="ladder" x-cloak class="mt-2 space-y-1.5">
+                                                    <template x-for="(lv, i) in speciesPartner.levels" :key="i">
+                                                        <div class="flex gap-2.5 rounded-md px-2 py-1.5 text-xs leading-relaxed text-gray-300">
+                                                            <span class="flex-shrink-0 tabular-nums font-medium w-8 text-gray-500">Lv <span x-text="i + 1"></span></span>
+                                                            <span class="min-w-0" x-html="partnerSkillHtml(lv.text)"></span>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Where to find one -->
+                                    <div>
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Where to find one</h3>
+                                        <template x-if="!detail.spawn">
+                                            <p class="text-sm text-gray-400">Nothing spawns it in the wild. Breeding, raids, oil rigs or events.</p>
+                                        </template>
+                                        <template x-if="detail.spawn">
+                                            <div>
+                                                <p class="text-sm text-gray-300"><span x-text="spawnLabel(detail.spawn)"></span><span class="text-gray-500"> · <span x-text="spawnTip(detail.spawn)"></span></span></p>
+                                                <div class="mt-2 flex flex-wrap gap-1.5">
+                                                    <template x-for="g in detail.spawn_groups.slice(0, 12)" :key="g.name">
+                                                        <span class="px-2 py-0.5 rounded-md text-[11px] border tabular-nums"
+                                                              :class="g.boss ? 'border-amber-500/30 bg-amber-500/10 text-amber-200' : g.kind === 'field' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-violet-500/30 bg-violet-500/10 text-violet-200'"
+                                                              :data-tip="(g.boss ? 'Alpha' : g.kind === 'field' ? 'Field herd' : 'Dungeon') + ' · ' + g.points + ' point' + (g.points === 1 ? '' : 's') + ' on ' + g.layers.join(', ') + (g.share < 1 ? ' · ' + Math.round(g.share * 100) + '% of the group' : '')">
+                                                            Lv <span x-text="g.level[0] === g.level[1] ? g.level[0] : g.level[0] + '–' + g.level[1]"></span><span x-show="g.night"> ☾</span>
+                                                        </span>
+                                                    </template>
+                                                    <span x-show="detail.spawn_groups.length > 12" class="text-[11px] text-gray-500 self-center">+<span x-text="detail.spawn_groups.length - 12"></span> more zones</span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Breeding -->
+                                    <div x-show="detail.breedable">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Breeding</h3>
+                                        <template x-if="detail.breeding.self_only">
+                                            <p class="text-sm text-gray-400">Only from two <span class="text-gray-200" x-text="detail.name"></span>.</p>
+                                        </template>
+                                        <template x-if="!detail.breeding.self_only">
+                                            <div class="text-sm text-gray-300 space-y-1.5">
+                                                <template x-for="u in detail.breeding.unique" :key="u.parent_a + u.parent_b">
+                                                    <div><span class="text-gray-100" x-text="u.parent_a_name"></span> + <span class="text-gray-100" x-text="u.parent_b_name"></span> <span class="text-[11px] text-amber-200/80">special combo</span></div>
+                                                </template>
+                                                <div class="text-gray-400"><span class="tabular-nums text-gray-200" x-text="detail.breeding.pairs"></span> pair<span x-show="detail.breeding.pairs !== 1">s</span> make it. The Breed button checks them against the pals you own.</div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Drops: what it leaves behind, as item tiles (the popup gives the description) -->
+                                    <div x-show="detail.drops && (detail.drops.base.length || detail.drops.alpha.length)">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Drops</h3>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="item in detail.drops.base" :key="item.item_id">
+                                                <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-gray-700/40 border border-gray-700/60">
+                                                    {{> item-icon size="w-10 h-10" fallback="unknown" }}
+                                                    <div class="min-w-0 leading-tight">
+                                                        <div class="text-xs text-gray-100 truncate max-w-[10rem]" x-text="item.item_name"></div>
+                                                        <div class="text-[11px] text-gray-400 tabular-nums"><span x-text="item.min === item.max ? item.min : item.min + '–' + item.max"></span><span x-show="item.rate < 100"> · <span x-text="item.rate"></span>%</span></div>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <template x-for="h in detail.drops.high" :key="h.level">
+                                            <div class="mt-2.5">
+                                                <div class="text-[11px] text-gray-400 mb-1.5" data-tip="Pals of that level spawn on the World Tree, where the relic drops come from">Also from level <span class="text-gray-200 tabular-nums" x-text="h.level"></span> <span class="text-gray-500">· World Tree</span></div>
+                                                <div class="flex flex-wrap gap-2">
+                                                    <template x-for="item in h.items" :key="item.item_id">
+                                                        <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-gray-700/40 border border-gray-700/60">
+                                                            {{> item-icon size="w-10 h-10" fallback="unknown" }}
+                                                            <div class="min-w-0 leading-tight">
+                                                                <div class="text-xs text-gray-100 truncate max-w-[10rem]" x-text="item.item_name"></div>
+                                                                <div class="text-[11px] text-gray-400 tabular-nums"><span x-text="item.min === item.max ? item.min : item.min + '–' + item.max"></span><span x-show="item.rate < 100"> · <span x-text="item.rate"></span>%</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div x-show="detail.drops.alpha.length" class="mt-2.5">
+                                            <div class="text-[11px] text-gray-400 mb-1.5 flex items-center gap-1.5"><img src="/img/alpha.webp" alt="" class="w-3.5 h-3.5">As an alpha</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                <template x-for="item in detail.drops.alpha" :key="item.item_id">
+                                                    <div class="inline-flex items-center gap-2 pr-2.5 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                                                        {{> item-icon size="w-10 h-10" fallback="unknown" }}
+                                                        <div class="min-w-0 leading-tight">
+                                                            <div class="text-xs text-gray-100 truncate max-w-[10rem]" x-text="item.item_name"></div>
+                                                            <div class="text-[11px] text-gray-400 tabular-nums"><span x-text="item.min === item.max ? item.min : item.min + '–' + item.max"></span><span x-show="item.rate < 100"> · <span x-text="item.rate"></span>%</span></div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Learned skills: the level ladder -->
+                                    <div x-show="detail.learnset && detail.learnset.length">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Learns <span class="text-xs font-normal text-gray-500">by level</span></h3>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                            <template x-for="l in detail.learnset" :key="l.skill_id">
+                                                <div class="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 bg-gray-700/40 border border-gray-700/60" :data-tip="l.description">
+                                                    <span class="w-10 flex-shrink-0 text-[11px] text-gray-400 tabular-nums">Lv <span class="text-gray-200" x-text="l.level"></span></span>
+                                                    <img x-show="l.element" :src="elementIcon(l.element)" :alt="elementName(l.element)" class="w-4 h-4 flex-shrink-0" :onerror="`this.onerror=null; this.src='/img/neutral.webp'`">
+                                                    <span class="flex-1 min-w-0 text-sm text-gray-100 truncate" x-text="l.name"></span>
+                                                    <span x-show="l.power" class="text-xs tabular-nums text-gray-300 flex-shrink-0" :data-tip="'Power ' + l.power + (l.cool_time ? ' · ' + l.cool_time + ' s cooldown' : '')"><span x-text="l.power"></span></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stats scaling and the small print -->
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                        <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Species HP scale (100 = average)"><div class="text-gray-500 uppercase tracking-wide text-[10px]">HP</div><div class="text-white tabular-nums text-base font-semibold" x-text="detail.scaling.hp || '–'"></div></div>
+                                        <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Species Attack scale"><div class="text-gray-500 uppercase tracking-wide text-[10px]">Attack</div><div class="text-white tabular-nums text-base font-semibold" x-text="detail.scaling.attack || '–'"></div></div>
+                                        <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Species Defense scale"><div class="text-gray-500 uppercase tracking-wide text-[10px]">Defense</div><div class="text-white tabular-nums text-base font-semibold" x-text="detail.scaling.defense || '–'"></div></div>
+                                        <div class="px-3 py-2 rounded-md bg-gray-900/50 border border-gray-700/60" data-tip="Odds a bred or caught one is male"><div class="text-gray-500 uppercase tracking-wide text-[10px]">Male</div><div class="text-white tabular-nums text-base font-semibold"><span x-text="detail.male_probability"></span>%</div></div>
+                                    </div>
+
+                                    <!-- Capture bonus per player -->
+                                    <div x-show="detail.caught_by.length">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Capture bonus</h3>
+                                        <div class="space-y-1.5">
+                                            <template x-for="c in detail.caught_by" :key="c.name">
+                                                <div class="flex items-center gap-3 text-sm">
+                                                    <span class="w-32 truncate text-gray-200" x-text="c.name"></span>
+                                                    <span class="flex items-center gap-0.5" :data-tip="c.bonus >= 5 ? 'All 5 bonus catches' : (5 - c.bonus) + ' bonus catch' + (5 - c.bonus === 1 ? '' : 'es') + ' still worth EXP'">
+                                                        <template x-for="(pip, i) in bonusPips(c.bonus)" :key="i">
+                                                            <span class="w-2.5 h-2.5 rounded-full border" :class="pip.full ? (c.bonus >= 5 ? 'bg-emerald-400 border-emerald-300' : 'bg-accent-400 border-accent-300') : 'bg-transparent border-gray-600'"></span>
+                                                        </template>
+                                                    </span>
+                                                    <span class="text-xs text-gray-500 tabular-nums"><span x-text="c.caught"></span> caught</span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- On this server: the bridge to the instances -->
+                                    <div x-show="detail.owned_total">
+                                        <h3 class="text-sm font-semibold text-gray-200 mb-2.5">On this server <span class="text-xs font-normal text-gray-500" x-text="detail.owned_total + (detail.owned_total === 1 ? ' pal' : ' pals')"></span></h3>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <template x-for="o in detail.owned" :key="o.instance_id">
+                                                <button @click="closeSpeciesModal(); openOwnedPal(o.instance_id)"
+                                                        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-xs text-gray-200 transition-colors"
+                                                        :data-tip="(o.owner ? o.owner + '\u2019s' : 'Unowned') + (o.in_party ? ', in the party' : o.base_name ? ', at ' + o.base_name : '') + ' -- open'">
+                                                    <span class="truncate max-w-[9rem]" x-text="o.name"></span>
+                                                    <span class="text-purple-300 font-semibold tabular-nums">Lv <span x-text="o.level"></span></span>
+                                                    <img x-show="o.is_alpha" src="/img/alpha.webp" alt="Alpha" class="w-3.5 h-3.5">
+                                                    <img x-show="o.is_lucky" src="/img/lucky.webp" alt="Lucky" class="w-3.5 h-3.5">
+                                                </button>
+                                            </template>
+                                            <span x-show="detail.owned_total > detail.owned.length" class="text-xs text-gray-500 self-center">+<span x-text="detail.owned_total - detail.owned.length"></span> more in the Pals tab</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+        {{/modal-shell}}

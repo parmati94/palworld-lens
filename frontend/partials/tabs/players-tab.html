@@ -18,6 +18,15 @@
                                     <span>Level <span class="text-gray-200 font-medium tabular-nums" x-text="player.level"></span></span>
                                     {{> player-presence who="player" }}
                                 </div>
+                                <!-- The game's EXP bar: progress through this level, not the lifetime total -->
+                                <template x-if="expBar(player)">
+                                    <div class="mt-1.5 flex items-center gap-2" :data-tip="expBar(player).tip">
+                                        <div class="relative w-24 h-1.5 rounded-full bg-gray-900/70 border border-gray-700/60 overflow-hidden">
+                                            <div class="absolute inset-y-0 left-0 bg-accent-400" :style="`width: ${expBar(player).pct}%`"></div>
+                                        </div>
+                                        <span class="text-[11px] text-gray-500 tabular-nums" x-text="expBar(player).label"></span>
+                                    </div>
+                                </template>
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <span class="text-[11px] font-mono text-gray-500" :data-tip="'UID ' + player.uid" x-text="player.uid.substring(0, 8)"></span>

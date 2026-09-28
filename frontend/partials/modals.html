@@ -159,6 +159,14 @@
                                                 <span>Breed</span>
                                             </button>
                                         </template>
+                                        <template x-if="selectedPal.species_id">
+                                            <button @click="closePalModal(); openSpecies(selectedPal.species_id)"
+                                                    class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-200 transition-colors"
+                                                    data-tip="This species in the Paldeck: where it spawns, what it does, who has one">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                                <span>Paldeck</span>
+                                            </button>
+                                        </template>
                                         <!-- Icon only: opens the map with this species' wild spawn zones lit -->
                                         <button @click="closePalModal(); findOnMap(selectedPal.species_id, selectedPal.display_name, { label: 'Back to ' + (selectedPal.nickname || selectedPal.display_name), tab: currentTab, pal: selectedPal.instance_id })"
                                                 class="inline-flex items-center justify-center w-7 h-[26px] rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-300 hover:text-white transition-colors"
@@ -552,6 +560,11 @@
                                     </button>
                                 </template>
 
+                                <!-- The lit species in the Paldeck (its own modal, over the map) -->
+                                <button x-show="spawnPal && !(spawnPanel && spawnOpen && !spawnPhone)" @click.stop="openSpecies(spawnPal)"
+                                        class="btn-quiet p-1.5 flex-shrink-0 text-accent-300 hover:text-accent-200" data-tip="Open in the Paldeck" aria-label="Open in the Paldeck">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                </button>
                                 <!-- × : on the phone panel (which covers the toggle button) it closes the
                                      search and keeps the pal lit; otherwise it clears the lit pal. -->
                                 <button x-show="spawnPal || (spawnPanel && spawnPhone)" @click="spawnPanel && spawnPhone ? closeSpawnPanel() : clearSpawnPal()"
@@ -961,7 +974,17 @@
                                     <div class="w-14 h-14 rounded-md bg-accent-500 text-gray-950 flex items-center justify-center text-2xl font-bold tabular-nums flex-shrink-0" x-text="selectedPlayer.level"></div>
                                     <div class="min-w-0">
                                         <div class="text-xs font-semibold uppercase tracking-wide text-accent-300">Player level</div>
-                                        <div class="text-xs text-gray-400 mt-0.5">exp <span class="text-gray-200 tabular-nums" x-text="selectedPlayer.exp.toLocaleString()"></span></div>
+                                        <template x-if="expBar(selectedPlayer)">
+                                            <div class="mt-1" :data-tip="expBar(selectedPlayer).tip">
+                                                <div class="relative w-40 h-2 rounded-full bg-gray-900/70 border border-gray-700/60 overflow-hidden">
+                                                    <div class="absolute inset-y-0 left-0 bg-accent-400" :style="`width: ${expBar(selectedPlayer).pct}%`"></div>
+                                                </div>
+                                                <div class="text-[11px] text-gray-400 mt-1 tabular-nums" x-text="expBar(selectedPlayer).label"></div>
+                                            </div>
+                                        </template>
+                                        <template x-if="!expBar(selectedPlayer)">
+                                            <div class="text-xs text-gray-400 mt-0.5">exp <span class="text-gray-200 tabular-nums" x-text="selectedPlayer.exp.toLocaleString()"></span></div>
+                                        </template>
                                     </div>
                                 </div>
                                 <div class="flex flex-col gap-1.5">
@@ -1064,6 +1087,25 @@
                                     </div>
                                 </template>
                             </div>
+                            <!-- Capture bonus: the chain behind fast levelling; the Paldeck shows what is still to catch -->
+                            <template x-if="selectedPlayer.records">
+                                <div class="mt-4 flex flex-wrap items-center gap-3 px-3 py-2.5 rounded-md bg-gray-900/50 border border-gray-700/60">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-[11px] uppercase tracking-wide text-gray-500">Capture bonus</div>
+                                        <div class="text-sm text-gray-300 mt-0.5">
+                                            <span class="text-white font-semibold tabular-nums" x-text="(selectedPlayer.records.bonus_index || 0).toLocaleString()"></span> bonus catches so far
+                                            <span class="text-gray-500">· the first 5 of every species pay extra EXP</span>
+                                            <span x-show="selectedPlayer.records.chain_index" class="text-gray-500">· discovery chain <span class="tabular-nums text-gray-300" x-text="(selectedPlayer.records.chain_index || 0).toLocaleString()"></span></span>
+                                        </div>
+                                    </div>
+                                    <button @click="closePlayerModal(); openPaldeckFor(selectedPlayer.nickname || selectedPlayer.player_name)"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-accent-500/15 hover:bg-accent-500/25 border border-accent-500/40 text-accent-200 text-sm font-medium transition-colors"
+                                            data-tip="The Paldeck with this player's progress: what is still worth catching">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                                        What's missing
+                                    </button>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </template>

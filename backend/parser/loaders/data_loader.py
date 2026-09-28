@@ -165,6 +165,12 @@ class DataLoader:
         # base row. Optional -- without it the status screen shows the un-enhanced values only.
         lo = self.tables.get('loadout') or {}
         self.loadout: Dict[str, Dict] = {k: (lo.get(k) or {}) for k in ('gear', 'food', 'player_base')}
+        # Exp tables (data/json/exp.json): the capture bonus chain and the level ladder behind the
+        # Paldeck's "next catch is worth" figures. Optional -- without it the Paldeck shows counts only.
+        self.exp: Dict[str, Any] = self.tables.get('exp') or {}
+        # Species tables for the Paldeck modal (data/json/paldeck.json): drops per character id and the
+        # active skills learned by level. Optional -- without it the modal hides both sections.
+        self.paldeck_tables: Dict[str, Any] = self.tables.get('paldeck') or {}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '
