@@ -118,6 +118,7 @@ export function app() {
         ...breedingState(),
         // Paldeck tab (js/paldeck-state.js): the species deck + a player's capture bonus overlay
         ...paldeckState(),
+        deckPlayer: pref(prefs, 'deckPlayer', ''),   // whose Paldeck: a mode, remembered like the tab
         
         async init() {
             // Initialize watch service
@@ -188,7 +189,7 @@ export function app() {
             // Remember the settings people expect to stick between visits.
             [['currentTab', 'lastTab'], ['tool', 'lastTool'], ['pageSize', 'pageSize'], ['sortColumn', 'sortColumn'],
              ['sortDirection', 'sortDirection'], ['baseTab', 'baseTab'], ['basePalPageSize', 'basePalPageSize'],
-             ['theme', 'theme'], ['reduceMotion', 'reduceMotion']]
+             ['theme', 'theme'], ['reduceMotion', 'reduceMotion'], ['deckPlayer', 'deckPlayer']]
                 .forEach(([key, name]) => this.$watch(key, v => savePref(name, v)));
             this.applyTheme(this.theme);
             this.applyReduceMotion();

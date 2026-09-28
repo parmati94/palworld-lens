@@ -46,6 +46,8 @@ export function paldeckState() {
                 this.paldeck = data;
                 this.paldeckStale = false;
                 this.paldeckError = null;
+                // a remembered player who is no longer on the save drops back to Everyone
+                if (this.deckPlayer && !(data.players || []).some(p => p.name === this.deckPlayer)) this.deckPlayer = '';
             } catch (err) {
                 if (req === this._paldeckRequest) this.paldeckError = err.message || 'Failed to load the Paldeck';
             } finally {
@@ -97,7 +99,14 @@ export function paldeckState() {
         deckRowsShown() { return this.deckRows().slice(0, this.deckLimit); },
 
         deckFilterCount() {
-            return [this.deckElement, this.deckWork, this.deckHow, this.deckMissing && this.deckProgress()].filter(Boolean).length;
+            return [this.deckElement, this.deckWork, this.deckHow].filter(Boolean).length;
+        },
+
+        /** Species the picked player still earns bonus EXP from, before the other filters. */
+        deckMissingCount() {
+            const p = this.deckProgress();
+            if (!p) return 0;
+            return filterDeck(this.deckSpecies(), { progress: p, missingOnly: true, cap: this.deckCap() }).length;
         },
 
         deckClearFilters() {
