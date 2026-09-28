@@ -18,7 +18,7 @@ const deck = [
 deck[0].drops = ['Wool', 'Meat_SheepBall']; deck[0].learns = ['EPalWazaID::WindShot'];
 deck[3].drops = ['IceOrgan', 'Diamond', 'PalCrystal_Ex']; deck[3].learns = ['EPalWazaID::AirCanon', 'EPalWazaID::IceMissile'];
 const progress = { name: 'Envy', level: 72, bonus: { Sheepball: 5, Kitsunebi: 2, IceHorse: 5 }, caught: { Sheepball: 40, Kitsunebi: 2, IceHorse: 108 },
-    bonus_index: 697, next_bonus_exp: 7384, exp_to_next_level: 512406, catches_to_next_level: 65, species_done: 2, bonus_left: 13 };
+    bonus_index: 697, chain_index: 1389, next_bonus_exp: 25510, exp_to_next_level: 512406, catches_to_next_level: 65, species_done: 2, bonus_left: 13 };
 
 test('spawnLabel and spawnTip say how you get one', () => {
     assert.equal(spawnLabel(wild(1, 3)), 'Wild · Lv 1–3');
@@ -70,7 +70,7 @@ test('bonusOf and bonusPips draw the pips', () => {
 });
 
 test('bonusSummary shapes the strip and expBar the level bar', () => {
-    assert.deepEqual(bonusSummary(progress, 288), { done: 2, total: 288, left: 13, index: 697, nextExp: 7384, toLevel: 65, expToLevel: 512406, level: 72 });
+    assert.deepEqual(bonusSummary(progress, 288), { done: 2, total: 288, left: 13, index: 1389, catches: 697, nextExp: 25510, toLevel: 65, expToLevel: 512406, level: 72 });
     assert.equal(bonusSummary(null, 288), null);
     assert.equal(bonusSummary({ bonus_index: 10 }, 4).left, 10);   // without the API figure: cap * species - index
     const bar = expBar({ level: 72, exp: 22552286, exp_progress: { into: 1637776, span: 2150182, to_next: 512406 } });

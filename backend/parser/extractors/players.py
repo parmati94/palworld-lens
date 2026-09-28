@@ -128,6 +128,23 @@ def _map_counts(entries) -> Dict[str, int]:
     return out
 
 
+def bonus_chain(save_data: Dict) -> Dict[str, int]:
+    """Every `*Bonus*TableIndex` counter in RecordData: {name: value}.
+
+    The game pays "bonus EXP" for discoveries (a catch toward a species' first five, a new
+    area, a boss, a relic, a note, a pickup, a fast travel point, an NPC) from ONE table,
+    DT_PalCaptureBonusExpTable, read at the SUM of these counters -- verified 2026-09-28:
+    Envy's Lifmunk catch paid 25,476 = row 702 + 217 + 270 + 35 + 5 + 28 + 131 exactly.
+    Read generically so a counter the game adds later still counts.
+    """
+    rec = (save_data.get("RecordData") or {}).get("value") or {}
+    out: Dict[str, int] = {}
+    for key, prop in rec.items():
+        if "Bonus" in key and "TableIndex" in key and isinstance(prop, dict) and isinstance(prop.get("value"), int):
+            out[key] = int(prop["value"])
+    return out
+
+
 def extract_player_details(save_data: Dict) -> Dict:
     """The rest of a Players/*.sav worth showing: the player's item containers, tech tree
     standing, records and last login. Container ids resolve in Level.sav's item index."""
@@ -158,6 +175,9 @@ def extract_player_details(save_data: Dict) -> Dict:
             "capture_counts": _map_counts(f(save_data, "PalCaptureCount")),
             "capture_bonus": _map_counts(f(save_data, "PalCaptureBonusCount")),
             "bonus_index": int(f(save_data, "PalCaptureBonusExpTableIndex") or 0),
+            # the shared discovery chain: what the next bonus of any kind pays is table[chain_index]
+            "bonus_chain": bonus_chain(save_data),
+            "chain_index": sum(bonus_chain(save_data).values()),
         },
         "last_online": net_ticks_to_iso(f(save_data, "LastOnlineDateTime")),
     }

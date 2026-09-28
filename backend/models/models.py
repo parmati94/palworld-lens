@@ -222,8 +222,10 @@ class PlayerRecords(BaseModel):
     # The capture bonus chain (backend/common/exp_tables.py). The per-species maps stay out of
     # /api/players (a few hundred keys per player on every reload); /api/paldeck serves them.
     bonus_index: int = 0     # bonus catches so far, every species together
+    chain_index: int = 0     # the shared discovery chain (catches + areas + bosses + relics + notes + pickups + fast travels ...): the row the next bonus pays
     capture_counts: Dict[str, int] = Field(default_factory=dict, exclude=True)   # species id -> catches
     capture_bonus: Dict[str, int] = Field(default_factory=dict, exclude=True)    # species id -> catches that paid (<= 5)
+    bonus_chain: Dict[str, int] = Field(default_factory=dict, exclude=True)      # each *BonusExpTableIndex counter by name
 
 
 class PlayerInfo(BaseModel):

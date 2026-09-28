@@ -26,6 +26,9 @@ def _save_data(with_ancient=True):
         "PalCaptureCount": _map([("SheepBall", 10), ("PinkCat", 5), ("Carbunclo", 1)]),
         "PalCaptureBonusCount": _map([("SheepBall", 5), ("PinkCat", 5), ("Carbunclo", 1)]),
         "PalCaptureBonusExpTableIndex": _prop(11),
+        "AreaBonusExpTableIndex": _prop(7),
+        "BossDefeatExpBonusTableIndex": _prop(2),
+        "FastTravelBonusExpTableIndex": _prop(14),
         "FastTravelPointUnlockFlag": _map([(f"FT_{i}", True) for i in range(14)]),
         "NormalDungeonClearCount": _prop(1),
         "FixedDungeonClearCount": _prop(3),
@@ -55,7 +58,10 @@ def test_player_details_come_from_the_players_sav():
     assert d["tech"] == {"unlocked": 3, "points": 11, "ancient_points": 10}
     assert d["records"] == {"towers": 2, "alphas": 2, "paldeck": 4, "caught": 16, "fast_travels": 14, "dungeons": 4,
                             "capture_counts": {"SheepBall": 10, "PinkCat": 5, "Carbunclo": 1},
-                            "capture_bonus": {"SheepBall": 5, "PinkCat": 5, "Carbunclo": 1}, "bonus_index": 11}
+                            "capture_bonus": {"SheepBall": 5, "PinkCat": 5, "Carbunclo": 1}, "bonus_index": 11,
+                            "bonus_chain": {"PalCaptureBonusExpTableIndex": 11, "AreaBonusExpTableIndex": 7,
+                                            "BossDefeatExpBonusTableIndex": 2, "FastTravelBonusExpTableIndex": 14},
+                            "chain_index": 34}
     assert d["last_online"] == "2026-09-23T14:11:47.173000+00:00"
 
 
@@ -65,7 +71,7 @@ def test_a_player_without_ancient_points_or_records_still_extracts():
     d = extract_player_details(sd)
     assert d["tech"]["ancient_points"] == 0
     assert d["records"] == {"towers": 0, "alphas": 0, "paldeck": 0, "caught": 0, "fast_travels": 0, "dungeons": 0,
-                            "capture_counts": {}, "capture_bonus": {}, "bonus_index": 0}
+                            "capture_counts": {}, "capture_bonus": {}, "bonus_index": 0, "bonus_chain": {}, "chain_index": 0}
 
 
 def test_net_ticks_convert_to_utc_iso_and_zero_means_never():

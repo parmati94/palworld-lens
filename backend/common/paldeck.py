@@ -7,7 +7,8 @@ Two views over the same species table (data/json/pals.json):
     UI shows on a card: elements, work levels, partner skill name, where it spawns;
   * a player's capture-bonus progress -- their RecordData maps (backend/common/
     exp_tables.py explains the chain) resolved onto deck ids, plus what the next bonus
-    catch pays and how many catches would level them up.
+    catch pays (read at the shared discovery chain: catches, areas, bosses, relics, notes,
+    pickups, fast travels all advance it) and how many catches would level them up.
 
 The deck is a species list, never an instance list: owned pals only appear as a count
 per species (and, in the detail view, as the pals themselves). Pure functions over the
@@ -268,14 +269,18 @@ def player_progress(players: Iterable, species, deck: Set[str], exp_table: Dict,
         bonus = resolve_counts(rec.capture_bonus, species, deck, cap=BONUS_CAP)
         caught = resolve_counts(rec.capture_counts, species, deck)
         index = int(rec.bonus_index or 0)
+        # the table is read at the shared discovery chain, not the capture count alone (older
+        # records without the chain fall back to the captures)
+        chain = int(getattr(rec, 'chain_index', 0) or 0) or index
         needed = exp_to_next_level(exp_table, p.level, p.exp)
         out.append({
             'name': player_name(p),
             'level': p.level,
             'bonus_index': index,
-            'next_bonus_exp': int(round(bonus_exp_at(exp_table, index) * r)),
+            'chain_index': chain,
+            'next_bonus_exp': int(round(bonus_exp_at(exp_table, chain) * r)),
             'exp_to_next_level': needed,
-            'catches_to_next_level': catches_to_next_level(exp_table, index, needed, r),
+            'catches_to_next_level': catches_to_next_level(exp_table, chain, needed, r),
             'species_done': sum(1 for v in bonus.values() if v >= BONUS_CAP),
             'species_started': len(bonus),
             'bonus_left': sum(BONUS_CAP - min(bonus.get(sid, 0), BONUS_CAP) for sid in deck),

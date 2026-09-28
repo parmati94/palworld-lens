@@ -1095,6 +1095,7 @@
                                         <div class="text-sm text-gray-300 mt-0.5">
                                             <span class="text-white font-semibold tabular-nums" x-text="(selectedPlayer.records.bonus_index || 0).toLocaleString()"></span> bonus catches so far
                                             <span class="text-gray-500">· the first 5 of every species pay extra EXP</span>
+                                            <span x-show="selectedPlayer.records.chain_index" class="text-gray-500">· discovery chain <span class="tabular-nums text-gray-300" x-text="(selectedPlayer.records.chain_index || 0).toLocaleString()"></span></span>
                                         </div>
                                     </div>
                                     <button @click="closePlayerModal(); openPaldeckFor(selectedPlayer.nickname || selectedPlayer.player_name)"

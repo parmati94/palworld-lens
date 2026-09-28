@@ -90,9 +90,10 @@ def _pal(iid, sid, level, owner="Envy", nickname=None, **kw):
                            base_name=None, in_party=False, is_alpha=False, is_lucky=False, **kw)
 
 
-def _player(name, level, exp, counts, bonus, index):
+def _player(name, level, exp, counts, bonus, index, chain=None):
     return SimpleNamespace(nickname=name, player_name=name, level=level, exp=exp,
-                           records=SimpleNamespace(capture_counts=counts, capture_bonus=bonus, bonus_index=index))
+                           records=SimpleNamespace(capture_counts=counts, capture_bonus=bonus, bonus_index=index,
+                                                   chain_index=index if chain is None else chain))
 
 
 def test_deck_numbers_give_subspecies_the_base_number_with_a_letter():
@@ -138,7 +139,7 @@ def test_player_progress_reads_the_chain_and_the_ladder():
     got = player_progress(players, SpeciesIndex(PALS.keys()), deck, EXP, rate=None)
     assert [p["name"] for p in got] == ["Envy", "bagel"]
     envy = got[0]
-    assert envy["bonus_index"] == 7 and envy["next_bonus_exp"] == 80         # row 7 pays 80
+    assert envy["bonus_index"] == 7 and envy["chain_index"] == 7 and envy["next_bonus_exp"] == 80   # row 7 pays 80
     assert envy["exp_to_next_level"] == 80                                     # level 3 at 200 total
     assert envy["catches_to_next_level"] == 1                                  # 80 covers it
     assert envy["species_done"] == 1 and envy["species_started"] == 2
@@ -148,6 +149,9 @@ def test_player_progress_reads_the_chain_and_the_ladder():
     doubled = player_progress(players[:1], SpeciesIndex(PALS.keys()), deck, EXP, rate=2.0)[0]
     assert doubled["next_bonus_exp"] == 160 and doubled["catches_to_next_level"] == 1
     assert got[1]["bonus_left"] == 20 and got[1]["catches_to_next_level"] == 3   # 10 + 20 + 30 >= 50
+    # the table is read at the shared discovery chain, which runs ahead of the capture counter
+    ahead = player_progress([_player("Envy", 2, 120, {}, {"SheepBall": 2}, 2, chain=9)], SpeciesIndex(PALS.keys()), deck, EXP, rate=None)[0]
+    assert ahead["bonus_index"] == 2 and ahead["chain_index"] == 9 and ahead["next_bonus_exp"] == 100
 
 
 def test_species_detail_joins_spawns_breeding_owned_and_catchers():

@@ -395,6 +395,7 @@ export function app() {
             if (r.tool) this.goToTool(r.tool);
             else if (r.tab) { this.currentTab = r.tab; this.jumpToTop(); }
             if (r.pal) this.openPalById(r.pal);
+            if (r.species) this.$nextTick(() => this.openSpecies(r.species));
             if (r.route) this.$nextTick(() => this.breedShowRoute());
         },
 

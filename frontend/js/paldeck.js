@@ -115,7 +115,9 @@ export function sortDeck(rows, sort, progress = null, cap = BONUS_CAP) {
 /**
  * The strip above a player's deck: what the next catch pays, catches to
  * the next level, species maxed. Figures come from the API (already at the
- * server's EXP rate); this only shapes them.
+ * server's EXP rate); this only shapes them. `index` is the shared discovery
+ * chain (catches, areas, bosses, relics ... all advance it), `catches` the
+ * bonus catches alone.
  */
 export function bonusSummary(progress, totalSpecies, cap = BONUS_CAP) {
     if (!progress) return null;
@@ -124,7 +126,8 @@ export function bonusSummary(progress, totalSpecies, cap = BONUS_CAP) {
         done,
         total: totalSpecies,
         left: progress.bonus_left != null ? progress.bonus_left : Math.max(totalSpecies * cap - (progress.bonus_index || 0), 0),
-        index: progress.bonus_index || 0,
+        index: progress.chain_index || progress.bonus_index || 0,
+        catches: progress.bonus_index || 0,
         nextExp: progress.next_bonus_exp || 0,
         toLevel: progress.catches_to_next_level,
         expToLevel: progress.exp_to_next_level,

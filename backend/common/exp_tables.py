@@ -7,10 +7,13 @@ The save keeps the bookkeeping per player in RecordData:
   PalCaptureBonusCount       catches per species that counted, capped at BONUS_CAP
   PalCaptureBonusExpTableIndex  how many bonus catches so far, all species together
 
-and the pak pays the *next* bonus catch from DT_PalCaptureBonusExpTable[index], whatever
-the species -- one global chain whose payouts climb (22 EXP at index 1, 7,384 at 697,
-294,653 at the end). Verified 2026-09-27 on six live players: the index equals the sum
-of the per-species bonus counts on every one of them. DT_PalExpTable gives the player
+and the pak pays the *next* bonus from DT_PalCaptureBonusExpTable, one climbing table
+(22 EXP at row 1, 7,384 at 697, 294,653 at the end). The row is NOT the capture counter
+alone: it is the sum of every `*Bonus*TableIndex` counter in RecordData -- captures, areas
+found, bosses beaten, relics, notes, item pickups, fast travel points, NPCs -- one shared
+discovery chain (extractors/players.bonus_chain). Verified 2026-09-28: a Lifmunk catch
+paid 25,476 = row 1388 = 702 + 217 + 270 + 35 + 5 + 28 + 131 exactly. The capture counter
+still equals the sum of the per-species bonus counts (checked on six players). DT_PalExpTable gives the player
 level ladder (TotalEXP = cumulative EXP to reach that level; Envy lv 72 with 22.5M sits
 between rows 72 and 73).
 
