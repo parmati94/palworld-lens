@@ -310,6 +310,23 @@ def check_layers(layers, objs, skip_tiles):
             notes.append(f"{name}: {n} tiles, source {m['source']}")
 
 
+def check_deck_disabled(pals):
+    """A deck-numbered pal save-pal marks disabled vanishes from the Paldeck (and its capture counts
+    with it). The one known case, Panthalus, is overridden in backend/common/obtain.py; any other
+    must be decided on -- an override or an upstream fix -- not silently dropped."""
+    from backend.common.obtain import SPECIES_OVERRIDES
+    hidden = [sid for sid, row in pals.items()
+              if row.get('is_pal') and int(row.get('pal_deck_index') or 0) > 0 and row.get('disabled')
+              and not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_'))
+              and SPECIES_OVERRIDES.get(sid, {}).get('disabled', True)]
+    if hidden:
+        problems.append(f'{len(hidden)} deck pal(s) marked disabled upstream with no override (would leave the Paldeck): '
+                        + ', '.join(hidden[:8]))
+    overridden = [sid for sid in SPECIES_OVERRIDES if (pals.get(sid) or {}).get('disabled')]
+    if overridden:
+        notes.append('deck overrides in force: ' + ', '.join(overridden))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--skip-tiles', action='store_true', help='do not require sliced tiles (CI)')
@@ -331,6 +348,7 @@ def main():
     check_spawns(layers, species, pals)
     check_partner_skills(pals)
     check_pal_parameters(pals)
+    check_deck_disabled(pals)
     check_schematics()
     check_activity_tables()
     check_breeding(pals, species)
