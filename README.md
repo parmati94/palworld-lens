@@ -214,7 +214,7 @@ Base assignments showing pals at each guild base with status/hunger/SAN monitori
 Food bowls and storage chests by base with item inventories
 
 ### Map
-Interactive world map with guild bases, fast travel points, and alpha pal spawn locations. Type a pal into the search box on the map (or hit **Where to find** in a pal's details) and every wild spawner that rolls that species lights up, sized to its real spawn radius, with level range, share of the spawner's rolls and night-only zones on hover. Spawn zones come from the game's own spawner tables (`data/json/spawns.json`), not the save, so they show where a species *can* appear rather than where one is right now.
+Interactive world map with guild bases and players live from the save, and the world's landmarks from the game data: syndicate towers (with the boss pair on hover), the 1.0 watchtowers, fast travel statues, dungeon entrances and alpha pal spawns, each its own layer in the panel (towers, watchtowers and alphas on by default; statues and the 170 dungeons off until you ask). Type a pal into the search box on the map (or hit **Where to find** in a pal's details) and every wild spawner that rolls that species lights up, sized to its real spawn radius, with level range, share of the spawner's rolls and night-only zones on hover. Spawn zones come from the game's own spawner tables (`data/json/spawns.json`), not the save, so they show where a species *can* appear rather than where one is right now.
 
 
 
@@ -273,7 +273,7 @@ See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command
 - `GET /api/pals` - List all pals (non-player characters)
 - `GET /api/base-containers` - Food boxes and storage per base, with contents
 - `GET /api/game-data` - Reference data the UI keys ids on: elements, work types, conditions, map layers
-- `GET /api/map-objects` - Static map markers (fast travel, alpha pals, predators, dungeons)
+- `GET /api/map-objects` - Static map markers (fast travel, watchtowers, towers, alpha pals, predators, dungeons)
 - `GET /api/spawns` - Wild spawner groups (points, radius, pals with share/level/night) plus the searchable species list
 - `GET /api/paldeck` - Every Paldeck species (number, elements, work levels, partner skill, spawn summary, owned count) plus each player's capture bonus progress: per-species bonus counts, the chain index, what the next catch pays, catches to the next level
 - `GET /api/paldeck/{species_id}` - One species in full: description, spawn groups, breeding, drops (base, high-level extras, alpha), learned skills by level, the pals of it on the server, who has caught it

@@ -133,7 +133,12 @@ test('"Show on map" leaves the World Tree for the map the player is on', { skip 
     assert.equal(await page.evaluate(`(${MAP}).mapLayer`), 'Tree');
     await page.evaluate(`${APP}.currentTab = 'players'`);
     await sleep(400);
-    await page.locator('button[aria-label="Show on map"]').first().click();
+    // A player who is on Palpagos right now (someone may be inside the World Tree on the live save).
+    const name = await page.evaluate(`(() => { const a = ${APP}; const b = a.gameData.map_layers.MainMap;
+        const p = a.players.find(p => p.location && b.x[0] <= p.location.x && p.location.x <= b.x[1] && b.y[0] <= p.location.y && p.location.y <= b.y[1]);
+        return p && p.player_name; })()`);
+    assert.ok(name, 'no player on the main map');
+    await page.locator(`.card:has(h3:text-is("${name}")) button[aria-label="Show on map"]`).first().click();
     await sleep(1500);
     const s = await page.evaluate(`(() => { const m = ${MAP}; return { tab: ${APP}.currentTab, layer: m.mapLayer }; })()`);
     assert.equal(s.tab, 'map');
@@ -205,4 +210,23 @@ test('the pal modal\'s Paldeck button swaps to the species modal', { skip }, asy
     assert.equal(await page.evaluate(`${modal('speciesModal')}.detail.id`), sid);
     await pressEscape();
     assert.equal(await isOpen('speciesModal', 'showSpeciesModal'), false);
+});
+
+test('the map draws the landmark layers and a toggle hides one', { skip }, async () => {
+    await page.evaluate(`${APP}.currentTab = 'map'`);
+    await page.waitForFunction(`(${MAP})?.mapReady === true && (${MAP})?.mapObjectsLoaded === true`, null, { timeout: 30000 });
+    await page.evaluate(`(() => { const m = ${MAP}; if (m.mapLayer !== 'MainMap') m.switchMapLayer('MainMap'); })()`);
+    await sleep(600);
+    const s = await page.evaluate(`(() => { const m = ${MAP}; if (!m.landmarks.tower.show) m.toggleLandmark('tower');
+        return Object.fromEntries(Object.entries(m.landmarks).map(([k, v]) => [k, { show: v.show, drawn: v.markers.length, on: v.markers.filter(x => x.getElement().isConnected).length }])); })()`);
+    assert.equal(s.tower.drawn, 8, 'eight syndicate towers');
+    assert.equal(s.tower.on, 8);
+    assert.ok(s.watchtower.drawn >= 20, 'the 1.0 watchtowers');
+    assert.ok(s.dungeon.drawn > 100 && s.fast_travel.drawn > 100);
+    await page.evaluate(`(${MAP}).toggleLandmark('tower')`);
+    await sleep(200);
+    const after = await page.evaluate(`(() => { const m = ${MAP}; return { show: m.landmarks.tower.show, on: m.landmarks.tower.markers.filter(x => x.getElement().isConnected).length }; })()`);
+    assert.deepEqual(after, { show: false, on: 0 });
+    await page.evaluate(`(${MAP}).toggleLandmark('tower')`);
+    assert.equal(await page.evaluate(`document.querySelectorAll('.pw-marker img[alt="Towers"]').length`), 8);
 });

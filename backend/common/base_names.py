@@ -29,7 +29,9 @@ from typing import Dict, Iterable, Optional
 from backend.common.map_layers import which_map
 
 MAX_NAME_LENGTH = 40
-LANDMARK_TYPES = ('fast_travel',)
+# Watchtowers are fast travel points too (they split out of that type for the
+# map's own markers), so a base keeps the name of the closest statue either way.
+LANDMARK_TYPES = ('fast_travel', 'watchtower')
 _WHITESPACE = re.compile(r'\s+')
 
 

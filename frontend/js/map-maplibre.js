@@ -26,6 +26,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { saveToLngLat, layerForCoords, MAP_LAYERS, MAP_LAYER_ORDER, palIconSrc, palIconError, shadeHex } from './utils.js';
 import { loadPrefs, savePref, pref } from './prefs.js';
 import { api } from './services/api.js';
+import { LANDMARKS, landmarkTip } from './map-landmarks.js';
 
 const prefs = loadPrefs();
 
@@ -33,8 +34,9 @@ const NATIVE_MAX_ZOOM = 4;   // tiles exist through source z5 == map z4
 const MAX_ZOOM = 7;          // 3 levels of GPU overzoom past native
 const MIN_ZOOM = 0.5;        // ~724px world: lets the whole square fit in a 70vh container
 
-// Stacking: players over alphas over bases over fast travel (was zIndexOffset).
-const Z = { fastTravel: 100, base: 300, alphaPal: 500, player: 1000 };
+// Stacking: players over alphas over towers over bases over the smaller
+// landmarks (each landmark kind carries its own z in map-landmarks.js).
+const Z = { base: 300, player: 1000 };
 
 const OCEAN = '#0b101b';
 const MAX_RECENT = 5;        // spawn search: recent picks shown before you type
@@ -74,16 +76,16 @@ export function mapComponent() {
         mapElement: null,
         markers: [],
         playerMarkers: [],
-        alphaPalMarkers: [],
-        fastTravelMarkers: [],
         mapReady: false,
         resizeObserver: null,
 
         // Filter state
         showBases: pref(prefs, 'mapBases', true),
         showPlayers: pref(prefs, 'mapPlayers', true),
-        showAlphaPals: pref(prefs, 'mapAlphaPals', true),
-        showFastTravel: pref(prefs, 'mapFastTravel', false),
+        // Landmark layers (alphas, towers, watchtowers, statues, dungeons): one
+        // {show, markers} per kind, in panel order. The table is map-landmarks.js.
+        landmarkDefs: LANDMARKS,
+        landmarks: Object.fromEntries(LANDMARKS.map(l => [l.kind, { show: pref(prefs, l.pref, l.on), markers: [] }])),
         // Panel starts collapsed on phones unless the viewer chose otherwise.
         filtersCollapsed: pref(prefs, 'mapFiltersCollapsed', typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches),
         isRefreshing: false,
@@ -288,8 +290,7 @@ export function mapComponent() {
             // Old markers off first so they don't hang over the wrong texture.
             this.setVisible(this.markers, false);
             this.setVisible(this.playerMarkers, false);
-            this.setVisible(this.alphaPalMarkers, false);
-            this.setVisible(this.fastTravelMarkers, false);
+            for (const l of Object.values(this.landmarks)) this.setVisible(l.markers, false);
             this.setSpawnFeatures([]);
 
             const inId = `map-${layer}`, outId = `map-${from}`;
@@ -494,10 +495,23 @@ export function mapComponent() {
             return bases;
         },
 
-        /** Redraw the static markers for the active layer (no refetch). */
+        /** Redraw the landmark markers for the active layer (no refetch). */
         renderStaticMapObjects() {
-            this.loadAlphaPals();
-            this.loadFastTravelPoints();
+            if (!this.map || !this.mapObjects) return;   // map not created yet (tab hidden); 'load' will draw
+            for (const def of this.landmarkDefs) {
+                const layer = this.landmarks[def.kind];
+                layer.markers.forEach(m => m.remove());
+                layer.markers = [];
+                // Only objects belonging to the visible layer. Older data has no
+                // 'map' field, so treat missing as MainMap.
+                const objs = this.mapObjects.filter(
+                    o => o.type === def.kind && (o.map ?? 'MainMap') === this.mapLayer && o.x !== undefined && o.y !== undefined);
+                for (const o of objs) {
+                    const marker = def.kind === 'alpha_pal' ? this.alphaPalMarker(o, def.z) : this.landmarkMarker(o, def);
+                    if (layer.show) marker.addTo(this.map);
+                    layer.markers.push(marker);
+                }
+            }
         },
 
         async loadStaticMapObjects() {
@@ -526,23 +540,7 @@ export function mapComponent() {
             }
         },
 
-        loadAlphaPals() {
-            if (!this.map || !this.mapObjects) return;   // map not created yet (tab hidden); 'load' will draw
-            this.alphaPalMarkers.forEach(m => m.remove());
-            this.alphaPalMarkers = [];
-
-            // Only objects belonging to the visible layer. Older data has no
-            // 'map' field, so treat missing as MainMap.
-            const alphaPals = this.mapObjects.filter(
-                obj => obj.type === 'alpha_pal' && (obj.map ?? 'MainMap') === this.mapLayer);
-            console.log(`🐲 Loading ${alphaPals.length} alpha pal markers...`);
-
-            for (const alphaPal of alphaPals) {
-                if (alphaPal.x !== undefined && alphaPal.y !== undefined) this.addAlphaPalMarker(alphaPal);
-            }
-        },
-
-        addAlphaPalMarker(alphaPal) {
+        alphaPalMarker(alphaPal, z) {
             const palName = alphaPal.pal_name || alphaPal.pal;
             const level = alphaPal.level;
 
@@ -552,7 +550,7 @@ export function mapComponent() {
                     <div class="w-8 h-8 bg-black rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform transform group-hover:scale-110 cursor-pointer overflow-hidden">
                         <img class="w-6 h-6 object-contain" alt="${palName}" />
                     </div>
-                    <div class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
+                    <div class="absolute top-10 left-1/2 transform -translate-x-1/2 w-max max-w-[280px] bg-gray-900/95 text-white text-xs px-2 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg">
                         <div class="font-semibold text-warn-400 break-words">⚔️ ${palName}</div>
                         ${level ? `<div class="text-gray-300 text-[11px]">Level ${level}</div>` : ''}
                         <div class="text-gray-400 text-[10px]">Alpha Pal</div>
@@ -563,43 +561,33 @@ export function mapComponent() {
             img.src = palIconSrc(alphaPal);
             img.onerror = () => palIconError(img, alphaPal);
 
-            const marker = this.makeMarker(root, alphaPal.x, alphaPal.y, Z.alphaPal);
-            if (this.showAlphaPals) marker.addTo(this.map);
-            this.alphaPalMarkers.push(marker);
+            return this.makeMarker(root, alphaPal.x, alphaPal.y, z);
         },
 
-        loadFastTravelPoints() {
-            if (!this.map || !this.mapObjects) return;
-            this.fastTravelMarkers.forEach(m => m.remove());
-            this.fastTravelMarkers = [];
-
-            const points = this.mapObjects.filter(
-                obj => obj.type === 'fast_travel' && (obj.map ?? 'MainMap') === this.mapLayer);
-            console.log(`🚀 Loading ${points.length} fast travel markers...`);
-
-            for (const point of points) {
-                if (point.x !== undefined && point.y !== undefined) this.addFastTravelMarker(point);
-            }
-        },
-
-        addFastTravelMarker(point) {
-            const html = `
-                <div class="relative group">
-                    <!-- Fast-travel emblem: the game's compass eagle in the cyan the
-                         in-game world map draws it. Baked from the white pak sprite by
-                         scripts/datagen/compose_fast_travel_icon.py. -->
-                    <img src="/img/t_icon_compass_fttower_cyan.webp"
-                         class="w-10 h-10 object-contain drop-shadow-[0_0_3px_rgba(0,0,0,0.9)] transition-transform transform group-hover:scale-125 cursor-pointer"
-                         alt="Fast Travel" />
-                    <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg max-w-[280px]">
-                        <div class="font-semibold text-accent-400 break-words">${point.localized_name}</div>
-                        <div class="text-gray-400 text-[10px] mt-1">Fast Travel Point</div>
-                    </div>
-                </div>`;
-
-            const marker = this.makeMarker(html, point.x, point.y, Z.fastTravel);
-            if (this.showFastTravel) marker.addTo(this.map);
-            this.fastTravelMarkers.push(marker);
+        /**
+         * A landmark drawn with the game's own compass sprite (towers,
+         * watchtowers, fast travel statues, dungeon portals), tinted the way the
+         * in-game map draws it (scripts/datagen/compose_map_icons.py).
+         */
+        landmarkMarker(obj, def) {
+            const tip = landmarkTip(obj);
+            const root = document.createElement('div');
+            root.className = 'relative group';
+            root.innerHTML = `
+                    <img class="${def.size || 'w-10 h-10'} object-contain drop-shadow-[0_0_3px_rgba(0,0,0,0.9)] transition-transform transform group-hover:scale-125 cursor-pointer" />
+                    <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 w-max max-w-[280px] bg-gray-900/95 text-white text-xs px-3 py-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-gray-600 z-[9999] shadow-lg">
+                        <div class="font-semibold text-accent-400 break-words"></div>
+                        <div class="text-gray-300 text-[11px] break-words"></div>
+                        <div class="text-gray-400 text-[10px] mt-1"></div>
+                    </div>`;
+            const img = root.querySelector('img');
+            img.src = def.icon;
+            img.alt = def.label;
+            const [title, sub, note] = root.lastElementChild.children;
+            title.textContent = tip.title;
+            if (tip.sub) sub.textContent = tip.sub; else sub.remove();
+            note.textContent = tip.note;
+            return this.makeMarker(root, obj.x, obj.y, def.z);
         },
 
         // ------------------------------------------------------------------
@@ -1070,8 +1058,13 @@ export function mapComponent() {
         },
         toggleBases()      { this.showBases = !this.showBases;           this.setVisible(this.markers, this.showBases);               savePref('mapBases', this.showBases); },
         togglePlayers()    { this.showPlayers = !this.showPlayers;       this.setVisible(this.playerMarkers, this.showPlayers);       savePref('mapPlayers', this.showPlayers); },
-        toggleAlphaPals()  { this.showAlphaPals = !this.showAlphaPals;   this.setVisible(this.alphaPalMarkers, this.showAlphaPals);   savePref('mapAlphaPals', this.showAlphaPals); },
-        toggleFastTravel() { this.showFastTravel = !this.showFastTravel; this.setVisible(this.fastTravelMarkers, this.showFastTravel); savePref('mapFastTravel', this.showFastTravel); },
+        toggleLandmark(kind) {
+            const def = this.landmarkDefs.find(l => l.kind === kind), layer = this.landmarks[kind];
+            if (!def || !layer) return;
+            layer.show = !layer.show;
+            this.setVisible(layer.markers, layer.show);
+            savePref(def.pref, layer.show);
+        },
         toggleFilters()    { this.filtersCollapsed = !this.filtersCollapsed; savePref('mapFiltersCollapsed', this.filtersCollapsed); },
 
         zoomIn()  { if (this.map) this.map.zoomIn({ duration: 200 }); },

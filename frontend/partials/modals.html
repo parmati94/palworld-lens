@@ -665,6 +665,7 @@
                              x-transition:leave-end="opacity-0 transform scale-95"
                              class="bg-gray-900/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-700/50 p-2.5 space-y-1.5">
                             
+                            <div class="px-2.5 pt-0.5 eyebrow">Live</div>
                             <!-- Bases Toggle -->
                             <button 
                                 @click="toggleBases()"
@@ -701,39 +702,26 @@
                                 </div>
                             </button>
                             
-                            <!-- Alpha Pals Toggle -->
-                            <button 
-                                @click="toggleAlphaPals()"
-                                class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all hover:bg-gray-800/80 group"
-                                :class="showAlphaPals ? 'bg-gray-800/50' : 'bg-transparent'">
-                                <div class="w-7 h-7 bg-gray-800/80 rounded-lg flex items-center justify-center border border-gray-700/50 group-hover:border-gray-600 transition-all flex-shrink-0">
-                                    <img src="/img/alpha.webp" class="w-5 h-5 object-contain" :class="!showAlphaPals ? 'opacity-40' : 'opacity-100'" alt="Alpha Pals" />
-                                </div>
-                                <span class="text-xs text-gray-300 font-medium whitespace-nowrap flex-1 text-left" :class="!showAlphaPals ? 'opacity-40' : 'opacity-100'">Alpha Pals</span>
-                                <div class="flex-shrink-0 w-3 h-3 rounded-sm border-2 transition-all flex items-center justify-center"
-                                     :class="showAlphaPals ? 'bg-accent-500 border-accent-500' : 'bg-transparent border-gray-600'">
-                                    <svg x-show="showAlphaPals" class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                </div>
-                            </button>
-                            
-                            <!-- Fast Travel Toggle -->
-                            <button 
-                                @click="toggleFastTravel()"
-                                class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all hover:bg-gray-800/80 group"
-                                :class="showFastTravel ? 'bg-gray-800/50' : 'bg-transparent'">
-                                <div class="w-7 h-7 bg-gray-800/80 rounded-lg flex items-center justify-center border border-gray-700/50 group-hover:border-gray-600 transition-all flex-shrink-0">
-                                    <img src="/img/t_icon_compass_fttower_cyan.webp" class="w-4 h-4 object-contain" :class="!showFastTravel ? 'opacity-40' : 'opacity-100'" alt="Fast Travel" />
-                                </div>
-                                <span class="text-xs text-gray-300 font-medium whitespace-nowrap flex-1 text-left" :class="!showFastTravel ? 'opacity-40' : 'opacity-100'">Fast Travel</span>
-                                <div class="flex-shrink-0 w-3 h-3 rounded-sm border-2 transition-all flex items-center justify-center"
-                                     :class="showFastTravel ? 'bg-accent-500 border-accent-500' : 'bg-transparent border-gray-600'">
-                                    <svg x-show="showFastTravel" class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                </div>
-                            </button>
+                            <!-- Landmark layers: one toggle per kind in js/map-landmarks.js
+                                 (alphas, towers, watchtowers, fast travel, dungeons) -->
+                            <div class="px-2.5 pt-2 eyebrow">World</div>
+                            <template x-for="def in landmarkDefs" :key="def.kind">
+                                <button
+                                    @click="toggleLandmark(def.kind)"
+                                    class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all hover:bg-gray-800/80 group"
+                                    :class="landmarks[def.kind].show ? 'bg-gray-800/50' : 'bg-transparent'">
+                                    <div class="w-7 h-7 bg-gray-800/80 rounded-lg flex items-center justify-center border border-gray-700/50 group-hover:border-gray-600 transition-all flex-shrink-0">
+                                        <img :src="def.icon" class="object-contain" :class="[def.panelIcon || 'w-4 h-4', landmarks[def.kind].show ? 'opacity-100' : 'opacity-40']" :alt="def.label" />
+                                    </div>
+                                    <span class="text-xs text-gray-300 font-medium whitespace-nowrap flex-1 text-left" :class="landmarks[def.kind].show ? 'opacity-100' : 'opacity-40'" x-text="def.label"></span>
+                                    <div class="flex-shrink-0 w-3 h-3 rounded-sm border-2 transition-all flex items-center justify-center"
+                                         :class="landmarks[def.kind].show ? 'bg-accent-500 border-accent-500' : 'bg-transparent border-gray-600'">
+                                        <svg x-show="landmarks[def.kind].show" class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                </button>
+                            </template>
                         </div>
                     </div>
                     
