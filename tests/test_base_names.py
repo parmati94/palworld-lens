@@ -71,3 +71,9 @@ def test_set_drops_names_of_bases_that_no_longer_exist(tmp_path):
     assert BaseNameStore(str(tmp_path)).load() == {'b1': 'Home', 'b2': 'Ranch'}
     assert store.set('b1', '', keep=['b2']) is None
     assert store.names == {'b2': 'Ranch'}
+
+
+def test_a_watchtower_names_a_base_like_any_other_statue():
+    marks = LANDMARKS + [{'type': 'watchtower', 'localized_name': 'Loess Plains Watchtower', 'x': 100, 'y': 100, 'map': 'MainMap'},
+                         {'type': 'tower', 'localized_name': 'Rayne Syndicate Tower', 'x': 60, 'y': 60, 'map': 'MainMap'}]
+    assert nearest_landmark(90, 90, LAYERS, marks) == 'Loess Plains Watchtower'   # the syndicate tower is closer but not a statue

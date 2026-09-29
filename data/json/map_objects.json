@@ -1,5 +1,6 @@
 [
   {
+    "id": "01ACCA6E4BDAA68220821FB05AB54E4D",
     "x": -383183.16,
     "y": -210790.92,
     "type": "fast_travel",
@@ -7,6 +8,7 @@
     "map": "MainMap"
   },
   {
+    "id": "04CB216B487AD789C47E2DBA08B0B49F",
     "x": 69604.09,
     "y": 196989.27,
     "type": "fast_travel",
@@ -14,6 +16,7 @@
     "map": "MainMap"
   },
   {
+    "id": "0994C20A46B5522FE17090973C3C5452",
     "x": 192505.83,
     "y": -227006.47,
     "type": "fast_travel",
@@ -21,13 +24,15 @@
     "map": "MainMap"
   },
   {
+    "id": "0C0AF9F34C0491BCAD80B1BF355B9A98",
     "x": -194570.64,
     "y": 14375.1,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Deep Bamboo Thicket Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "0EBF6F3D441ACA707517B9B7BAA6590D",
     "x": -771309.94,
     "y": 8647.21,
     "type": "fast_travel",
@@ -35,6 +40,7 @@
     "map": "MainMap"
   },
   {
+    "id": "10F777FB4B9BFA0CAD790887D87DDBC2",
     "x": -503990.0,
     "y": -214380.0,
     "type": "fast_travel",
@@ -42,13 +48,15 @@
     "map": "MainMap"
   },
   {
+    "id": "11E3E3C44F040B34E3809CB69CD87435",
     "x": -348065.06,
     "y": 151660.97,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Windswept Island Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "15314BE94E2FB8D018D5749BE9A318F0",
     "x": -248770.11,
     "y": 126205.84,
     "type": "fast_travel",
@@ -56,6 +64,7 @@
     "map": "MainMap"
   },
   {
+    "id": "15BD61D9481EE7F63CB32BB4E10A05CA",
     "x": -131353.92,
     "y": 54481.74,
     "type": "fast_travel",
@@ -63,6 +72,7 @@
     "map": "MainMap"
   },
   {
+    "id": "16B14E084BBB4C71E9D07A9DC84B80BD",
     "x": 512111.75,
     "y": -510662.66,
     "type": "fast_travel",
@@ -70,6 +80,7 @@
     "map": "Tree"
   },
   {
+    "id": "16C7164C43E2B96BEDCC6696E2E592F7",
     "x": -257951.39,
     "y": 151247.84,
     "type": "fast_travel",
@@ -77,6 +88,7 @@
     "map": "MainMap"
   },
   {
+    "id": "1749FBB34126AB7711670481717C9FEC",
     "x": -25915.37,
     "y": -78926.16,
     "type": "fast_travel",
@@ -84,6 +96,7 @@
     "map": "MainMap"
   },
   {
+    "id": "1BDEABA240B1699541C17F83E59E61DF",
     "x": -103434.98,
     "y": 234761.17,
     "type": "fast_travel",
@@ -91,6 +104,7 @@
     "map": "MainMap"
   },
   {
+    "id": "20B16780488A8F23A80502BC608A0192",
     "x": -415272.22,
     "y": -162408.61,
     "type": "fast_travel",
@@ -98,6 +112,7 @@
     "map": "MainMap"
   },
   {
+    "id": "211BCB174B47C566C6F92E9CEB999F98",
     "x": 107940.74,
     "y": -28036.3,
     "type": "fast_travel",
@@ -105,6 +120,7 @@
     "map": "MainMap"
   },
   {
+    "id": "22095BFA48A46172F8D154B2EBEB7493",
     "x": 102159.82,
     "y": 48527.03,
     "type": "fast_travel",
@@ -112,6 +128,7 @@
     "map": "MainMap"
   },
   {
+    "id": "23B9E99C4A454B99220AF7B4A58FD8DE",
     "x": -326403.84,
     "y": 55136.73,
     "type": "fast_travel",
@@ -119,6 +136,7 @@
     "map": "MainMap"
   },
   {
+    "id": "23F4D1CB454D1E23F252C29447F5A384",
     "x": -572461.56,
     "y": -287224.06,
     "type": "fast_travel",
@@ -126,6 +144,7 @@
     "map": "MainMap"
   },
   {
+    "id": "26F321B44481BC01C5174D9D38409597",
     "x": -758105.0,
     "y": -61810.0,
     "type": "fast_travel",
@@ -133,6 +152,7 @@
     "map": "MainMap"
   },
   {
+    "id": "27508F284B175C5C2B9BFC85AD773E4F",
     "x": -209326.02,
     "y": -249227.56,
     "type": "fast_travel",
@@ -140,6 +160,7 @@
     "map": "MainMap"
   },
   {
+    "id": "28D514E74B51FD9EB078A891DB0787C2",
     "x": -167684.92,
     "y": 167519.23,
     "type": "fast_travel",
@@ -147,6 +168,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2913E38E4924F762AF9B129303898A31",
     "x": 178736.56,
     "y": 305772.44,
     "type": "fast_travel",
@@ -154,6 +176,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2A2B744B41AC79964DAE6B89CAC51FC3",
     "x": 8000.53,
     "y": 111770.55,
     "type": "fast_travel",
@@ -161,6 +184,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2BC5E46049E69D3549CFB58948BE3288",
     "x": -50300.98,
     "y": 287392.38,
     "type": "fast_travel",
@@ -168,6 +192,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2DE1702048A1D4A82126168C49BE51A9",
     "x": -177770.0,
     "y": 265010.0,
     "type": "fast_travel",
@@ -175,6 +200,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2EC07ACC4505CB726DE38A84246CA999",
     "x": -414446.72,
     "y": -24603.32,
     "type": "fast_travel",
@@ -182,6 +208,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2EE8ACF447C0CFC2C3C11E948E691448",
     "x": 168489.0,
     "y": 221797.6,
     "type": "fast_travel",
@@ -189,6 +216,7 @@
     "map": "MainMap"
   },
   {
+    "id": "2F3A56DA4022EB1E43D3439ECEE2AA2C",
     "x": 12156.85,
     "y": 249201.39,
     "type": "fast_travel",
@@ -196,6 +224,7 @@
     "map": "MainMap"
   },
   {
+    "id": "31078A16494A996F94DC13828638EAD4",
     "x": -153135.81,
     "y": 589409.5,
     "type": "fast_travel",
@@ -203,6 +232,7 @@
     "map": "MainMap"
   },
   {
+    "id": "321E111B4B7AA9D901864F87404A70F2",
     "x": 524166.12,
     "y": -567334.4,
     "type": "fast_travel",
@@ -210,13 +240,15 @@
     "map": "Tree"
   },
   {
+    "id": "328BCAC94E01988D944C4F85D49E457C",
     "x": -741294.8,
     "y": -283378.06,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Loess Plains Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "33A82FD24431633F5738F8AE02FFAC42",
     "x": -568698.6,
     "y": -603451.94,
     "type": "fast_travel",
@@ -224,6 +256,7 @@
     "map": "MainMap"
   },
   {
+    "id": "341551F747D44FA84DB87F8C8D2DCB48",
     "x": -43926.75,
     "y": -173600.95,
     "type": "fast_travel",
@@ -231,6 +264,7 @@
     "map": "MainMap"
   },
   {
+    "id": "3697999C458BF8A3C7973382969FBDF9",
     "x": 35588.66,
     "y": 321331.25,
     "type": "fast_travel",
@@ -238,6 +272,7 @@
     "map": "MainMap"
   },
   {
+    "id": "37878F614B4EB008307DBBBDC7B79505",
     "x": -311508.88,
     "y": 76832.29,
     "type": "fast_travel",
@@ -245,6 +280,7 @@
     "map": "MainMap"
   },
   {
+    "id": "3A0F123947BE045BC415C6B061A5285A",
     "x": -195236.17,
     "y": 36718.49,
     "type": "fast_travel",
@@ -252,6 +288,7 @@
     "map": "MainMap"
   },
   {
+    "id": "3A84A3DD43C34B936CE6F18842A6FE1D",
     "x": -671901.25,
     "y": -172407.56,
     "type": "fast_travel",
@@ -259,13 +296,15 @@
     "map": "MainMap"
   },
   {
+    "id": "3BF1495E406AD5F437DA5AA2134954A2",
     "x": -440660.47,
     "y": -159426.78,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Dry Sandy Beach Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "3E8E504B4A3975FD3862E1BC85A5D4F6",
     "x": -376750.0,
     "y": 124630.0,
     "type": "fast_travel",
@@ -273,6 +312,7 @@
     "map": "MainMap"
   },
   {
+    "id": "41727100495D21DC905D309C53989914",
     "x": -302825.0,
     "y": 241060.0,
     "type": "fast_travel",
@@ -280,6 +320,7 @@
     "map": "MainMap"
   },
   {
+    "id": "41E36D9A4B2BA79A3AD1B7B83B16F77D",
     "x": -137210.0,
     "y": -91340.0,
     "type": "fast_travel",
@@ -287,6 +328,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4618840B4FE6381FC6982AA5282F9614",
     "x": -810648.44,
     "y": -393963.72,
     "type": "fast_travel",
@@ -294,6 +336,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4667D69047622BF7A9FFD788D24B6131",
     "x": -119900.85,
     "y": 351109.22,
     "type": "fast_travel",
@@ -301,6 +344,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4669582D4081BF550AFB66A05D043A3D",
     "x": 117624.25,
     "y": 400134.78,
     "type": "fast_travel",
@@ -308,20 +352,23 @@
     "map": "MainMap"
   },
   {
+    "id": "479A228C4032AAF144B3808E753E1690",
     "x": -634614.8,
     "y": -310380.88,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Arid Wasteland Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "47E04FF245A4FB6F4E1E9C864ED8F2B0",
     "x": 564135.0,
     "y": -574054.25,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Dusty Ravine Watchtower",
     "map": "Tree"
   },
   {
+    "id": "49C3516D459F15C70ABEE88CD7F4D331",
     "x": -25522.21,
     "y": -118365.34,
     "type": "fast_travel",
@@ -329,6 +376,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4B2462954566096EB1EB74A0B48E5C5D",
     "x": 592964.0,
     "y": -625779.6,
     "type": "fast_travel",
@@ -336,6 +384,7 @@
     "map": "Tree"
   },
   {
+    "id": "4C1930B54689C3825400F6B3954FC07B",
     "x": -651722.9,
     "y": -373365.22,
     "type": "fast_travel",
@@ -343,13 +392,15 @@
     "map": "MainMap"
   },
   {
+    "id": "4C204C3842EAB210A7A9DA9D2CF9CBBE",
     "x": -428372.0,
     "y": 81104.96,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Sea Breeze Archipelago Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "4CCF456A440C6CD5F2347AAA3E163F21",
     "x": -117215.02,
     "y": 446689.97,
     "type": "fast_travel",
@@ -357,6 +408,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4CE584574E74956A7F94D68D846F931D",
     "x": -451245.0,
     "y": 363338.16,
     "type": "fast_travel",
@@ -364,6 +416,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4D2F204549AB656CA1EA4B8E39C484F3",
     "x": -125476.0,
     "y": 201720.0,
     "type": "fast_travel",
@@ -371,6 +424,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4DA12CD449AA1A3DB7C6CABF9D6EA90D",
     "x": -105662.5,
     "y": 400797.0,
     "type": "fast_travel",
@@ -378,6 +432,7 @@
     "map": "MainMap"
   },
   {
+    "id": "4DB2FF944B1E545F41FBC6AF86BEBEB5",
     "x": -259198.7,
     "y": -59353.41,
     "type": "fast_travel",
@@ -385,6 +440,7 @@
     "map": "MainMap"
   },
   {
+    "id": "513E166044565A0BD3360F94142577E8",
     "x": -282110.0,
     "y": 355570.0,
     "type": "fast_travel",
@@ -392,6 +448,7 @@
     "map": "MainMap"
   },
   {
+    "id": "52E1E065410F78AF13B18CB1136EC8D6",
     "x": -197915.22,
     "y": 438001.44,
     "type": "fast_travel",
@@ -399,6 +456,7 @@
     "map": "MainMap"
   },
   {
+    "id": "5543641F4C980A9863F64685A91FE619",
     "x": 621794.3,
     "y": -757914.56,
     "type": "fast_travel",
@@ -406,6 +464,7 @@
     "map": "Tree"
   },
   {
+    "id": "5669E36645C97EE9F38D308738ED30A7",
     "x": -558410.44,
     "y": 121112.1,
     "type": "fast_travel",
@@ -413,13 +472,15 @@
     "map": "MainMap"
   },
   {
+    "id": "58A29B814E069D61EC75B1A6E9658FC1",
     "x": -192413.88,
     "y": 393187.28,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Eastern Wild Island Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "596996B948716D3FD2283C8B5C6E829C",
     "x": -450320.0,
     "y": 112630.0,
     "type": "fast_travel",
@@ -427,6 +488,7 @@
     "map": "MainMap"
   },
   {
+    "id": "5970E8E648D2A83AFDFF7C9151D9BEF5",
     "x": -367707.78,
     "y": -114950.9,
     "type": "fast_travel",
@@ -434,6 +496,7 @@
     "map": "MainMap"
   },
   {
+    "id": "59AABD184966FE16E9BA8EA0BD0EFDED",
     "x": -509887.22,
     "y": -299269.03,
     "type": "fast_travel",
@@ -441,6 +504,7 @@
     "map": "MainMap"
   },
   {
+    "id": "59D857664636366A726EB39EF372B315",
     "x": 621850.0,
     "y": -742575.0,
     "type": "fast_travel",
@@ -448,6 +512,7 @@
     "map": "Tree"
   },
   {
+    "id": "5F426B49469368B0C131D3A6DB8F7831",
     "x": -465895.0,
     "y": -62137.75,
     "type": "fast_travel",
@@ -455,13 +520,15 @@
     "map": "MainMap"
   },
   {
+    "id": "5FA6EB494384E4134BAA589F02A580DC",
     "x": -784793.9,
     "y": -354726.72,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Frozen Coral Hill Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "603ED0CD4CFB9AFDC9E11F805594CCE5",
     "x": -317777.2,
     "y": 212103.31,
     "type": "fast_travel",
@@ -469,6 +536,7 @@
     "map": "MainMap"
   },
   {
+    "id": "618F02C546F191912D42398685A2BBA2",
     "x": -301681.94,
     "y": -5184.11,
     "type": "fast_travel",
@@ -476,6 +544,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6231802D40C81C00445379AE238D9F90",
     "x": -170718.69,
     "y": 409753.16,
     "type": "fast_travel",
@@ -483,6 +552,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6282FE1E4029EDCDB14135AA4C171E4C",
     "x": -314840.0,
     "y": 186850.0,
     "type": "fast_travel",
@@ -490,6 +560,7 @@
     "map": "MainMap"
   },
   {
+    "id": "630C0726466D28CDB94B368AD12BFE63",
     "x": 477460.0,
     "y": -724635.0,
     "type": "fast_travel",
@@ -497,6 +568,7 @@
     "map": "Tree"
   },
   {
+    "id": "65B10BB14ABDA9C2109167B21901D195",
     "x": 29780.53,
     "y": 406913.2,
     "type": "fast_travel",
@@ -504,13 +576,15 @@
     "map": "MainMap"
   },
   {
+    "id": "6948B7914C8D1701DB7F4081E4D970E5",
     "x": -627561.25,
     "y": -208730.97,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Burning Fault Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "69A3B9E64018BA4C158BDDA7CD713463",
     "x": -714540.9,
     "y": -458346.56,
     "type": "fast_travel",
@@ -518,6 +592,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6B05B93C445473B5A9597A90CEBFF27B",
     "x": -591120.0,
     "y": -484260.0,
     "type": "fast_travel",
@@ -525,6 +600,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6D227CD3475783FB16D797B206DD8C13",
     "x": -760285.44,
     "y": -354966.22,
     "type": "fast_travel",
@@ -532,6 +608,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6DB6B7B2431CA2EFFFC88EB45805BA6A",
     "x": -294830.0,
     "y": 152240.0,
     "type": "fast_travel",
@@ -539,6 +616,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6E03F8464BAD9E458B843AA30BE1CC8F",
     "x": -358785.0,
     "y": 267940.0,
     "type": "fast_travel",
@@ -546,6 +624,7 @@
     "map": "MainMap"
   },
   {
+    "id": "6FBBBA0F4CDDB97C81C58C917E8927BD",
     "x": 602911.06,
     "y": -680562.44,
     "type": "fast_travel",
@@ -553,6 +632,7 @@
     "map": "Tree"
   },
   {
+    "id": "714B5DDC402A89D7FC703C9B0B2BF274",
     "x": -829095.7,
     "y": -19262.85,
     "type": "fast_travel",
@@ -560,6 +640,7 @@
     "map": "MainMap"
   },
   {
+    "id": "7170881D44249E90902F728E240493AF",
     "x": -265980.0,
     "y": 268690.0,
     "type": "fast_travel",
@@ -567,6 +648,7 @@
     "map": "MainMap"
   },
   {
+    "id": "71C4B2B2407F2BBBD77572A20C7FF0F5",
     "x": -80506.16,
     "y": 141464.77,
     "type": "fast_travel",
@@ -574,6 +656,7 @@
     "map": "MainMap"
   },
   {
+    "id": "72626BD0492AD65E59BDB499C9BED99A",
     "x": -699510.0,
     "y": -389030.0,
     "type": "fast_travel",
@@ -581,6 +664,7 @@
     "map": "MainMap"
   },
   {
+    "id": "74270C2F45B8DCA66B6A1FAAA911D024",
     "x": -319000.0,
     "y": 127170.0,
     "type": "fast_travel",
@@ -588,6 +672,7 @@
     "map": "MainMap"
   },
   {
+    "id": "75BD9923489E2A4EBCED5A81175D5928",
     "x": 6.0,
     "y": -0.0,
     "type": "fast_travel",
@@ -595,6 +680,7 @@
     "map": "MainMap"
   },
   {
+    "id": "76B000914943BADDC56BCFBAE2BF051E",
     "x": -130060.38,
     "y": -53406.69,
     "type": "fast_travel",
@@ -602,6 +688,7 @@
     "map": "MainMap"
   },
   {
+    "id": "77699B11460416B57ADEDFB989B78E68",
     "x": -108666.75,
     "y": 79119.87,
     "type": "fast_travel",
@@ -609,6 +696,7 @@
     "map": "MainMap"
   },
   {
+    "id": "79C561B747335A7A0A8FBF9FAE280E62",
     "x": -283781.0,
     "y": 59352.68,
     "type": "fast_travel",
@@ -616,6 +704,7 @@
     "map": "MainMap"
   },
   {
+    "id": "7A803ABD4C208C8D5C7EE197C9D2AD65",
     "x": -426910.2,
     "y": -436850.9,
     "type": "fast_travel",
@@ -623,6 +712,7 @@
     "map": "MainMap"
   },
   {
+    "id": "80729706432E53B2A3D07C82D14C8749",
     "x": -771223.4,
     "y": -441798.28,
     "type": "fast_travel",
@@ -630,6 +720,7 @@
     "map": "MainMap"
   },
   {
+    "id": "825ED1AD422E5E0C94332C835B74D3B4",
     "x": -38212.0,
     "y": 406147.06,
     "type": "fast_travel",
@@ -637,6 +728,7 @@
     "map": "MainMap"
   },
   {
+    "id": "82C086DB44672C9D828F19B3A383BE70",
     "x": -725188.75,
     "y": -238441.89,
     "type": "fast_travel",
@@ -644,6 +736,7 @@
     "map": "MainMap"
   },
   {
+    "id": "837C6214424040FCEF9D48BA20E248BA",
     "x": -287201.44,
     "y": -217568.95,
     "type": "fast_travel",
@@ -651,6 +744,7 @@
     "map": "MainMap"
   },
   {
+    "id": "839048604D716A58A64781A9A342B717",
     "x": 518900.25,
     "y": -671976.2,
     "type": "fast_travel",
@@ -658,13 +752,15 @@
     "map": "Tree"
   },
   {
+    "id": "84D48EA34666191781868E809ACBCBCE",
     "x": 80120.2,
     "y": 21277.26,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Astral Mountains Garden Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "866881DB443444AA7F4E7C8E5DCDAA29",
     "x": -250506.48,
     "y": 341109.6,
     "type": "fast_travel",
@@ -672,13 +768,15 @@
     "map": "MainMap"
   },
   {
+    "id": "8A9AE3B44AD758EDD7FE44BA9B75000B",
     "x": 85482.98,
     "y": 306597.12,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Sandstone Plateau Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "8C1EE640439F980EA6BA3D9B256D4FAD",
     "x": -644486.0,
     "y": -276536.5,
     "type": "fast_travel",
@@ -686,6 +784,7 @@
     "map": "MainMap"
   },
   {
+    "id": "8CA5E9774FF1BBC1156ABCA09E616480",
     "x": -374180.0,
     "y": 63960.0,
     "type": "fast_travel",
@@ -693,6 +792,7 @@
     "map": "MainMap"
   },
   {
+    "id": "902C96F44BC84002E39B52ACBFC61452",
     "x": -798776.8,
     "y": -479574.8,
     "type": "fast_travel",
@@ -700,6 +800,7 @@
     "map": "MainMap"
   },
   {
+    "id": "916CC96142D38225BD3C9290D6321073",
     "x": -588140.0,
     "y": -253780.0,
     "type": "fast_travel",
@@ -707,6 +808,7 @@
     "map": "MainMap"
   },
   {
+    "id": "91DAC6F34D2A9FD7F01471B5166C6C02",
     "x": -170400.0,
     "y": -29240.0,
     "type": "fast_travel",
@@ -714,6 +816,7 @@
     "map": "MainMap"
   },
   {
+    "id": "923B781345D2AB7ECED6BABD6E97ECE8",
     "x": -237610.0,
     "y": 190610.0,
     "type": "fast_travel",
@@ -721,6 +824,7 @@
     "map": "MainMap"
   },
   {
+    "id": "9521FEBF4A6D0D02AE9F80AE9513B99C",
     "x": -888080.0,
     "y": -433080.0,
     "type": "fast_travel",
@@ -728,6 +832,7 @@
     "map": "MainMap"
   },
   {
+    "id": "979BF2044C8E8FE559B598A95A83EDE3",
     "x": -346617.56,
     "y": 191706.6,
     "type": "fast_travel",
@@ -735,6 +840,7 @@
     "map": "MainMap"
   },
   {
+    "id": "9FBB93D84811BE424A37C391DBFBB476",
     "x": -278468.03,
     "y": 212679.42,
     "type": "fast_travel",
@@ -742,6 +848,7 @@
     "map": "MainMap"
   },
   {
+    "id": "9FDF4C7C4CEB40E103E989A1C34A245D",
     "x": 600577.56,
     "y": -599143.06,
     "type": "fast_travel",
@@ -749,6 +856,7 @@
     "map": "Tree"
   },
   {
+    "id": "A136990F4E2C1C96C0384BA260CD0BC3",
     "x": -63520.73,
     "y": -55005.94,
     "type": "fast_travel",
@@ -756,6 +864,7 @@
     "map": "MainMap"
   },
   {
+    "id": "A166CA6F4C1D191AA59951AD1CA49A92",
     "x": -603491.1,
     "y": -338965.25,
     "type": "fast_travel",
@@ -763,6 +872,7 @@
     "map": "MainMap"
   },
   {
+    "id": "A1BC65AA445619EF338E0388BC010648",
     "x": -349535.5,
     "y": -4035.11,
     "type": "fast_travel",
@@ -770,6 +880,7 @@
     "map": "MainMap"
   },
   {
+    "id": "A277AE6341EF40D84D711EA52303353F",
     "x": -115430.0,
     "y": 289090.0,
     "type": "fast_travel",
@@ -777,6 +888,7 @@
     "map": "MainMap"
   },
   {
+    "id": "A51FC0C147435750046C48B254793A8B",
     "x": -265220.0,
     "y": 173530.0,
     "type": "fast_travel",
@@ -784,6 +896,7 @@
     "map": "MainMap"
   },
   {
+    "id": "A5664AB74E0D030D03BF2DAF87C67A0F",
     "x": 501010.0,
     "y": -748555.0,
     "type": "fast_travel",
@@ -791,13 +904,15 @@
     "map": "Tree"
   },
   {
+    "id": "A9213E6E425F2F696D8B3EB19AA547FE",
     "x": 508240.53,
     "y": -696869.5,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Gilded City Ruins Watchtower",
     "map": "Tree"
   },
   {
+    "id": "ACAE5FB04D48DE4197443E9C0993086B",
     "x": -151842.0,
     "y": 213101.45,
     "type": "fast_travel",
@@ -805,6 +920,7 @@
     "map": "MainMap"
   },
   {
+    "id": "AEBCC3FF41ACF9252B3499A89E0BAD55",
     "x": -777490.0,
     "y": -40589.0,
     "type": "fast_travel",
@@ -812,6 +928,7 @@
     "map": "MainMap"
   },
   {
+    "id": "AECFED0D41AFEE11F30B4F9687BC3243",
     "x": -327531.78,
     "y": -70410.55,
     "type": "fast_travel",
@@ -819,6 +936,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B001852C491FF5E70C4747BFF9972924",
     "x": -218636.78,
     "y": 58528.14,
     "type": "fast_travel",
@@ -826,6 +944,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B03880F34C398AEE56A024B8E510649D",
     "x": -266957.53,
     "y": 93228.6,
     "type": "fast_travel",
@@ -833,6 +952,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B0609E19416F6731E997F89CF9B66A14",
     "x": -421434.34,
     "y": 29307.67,
     "type": "fast_travel",
@@ -840,6 +960,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B34E33AD445D619D70AD6BBDBF7CDE4D",
     "x": -811466.56,
     "y": -85874.31,
     "type": "fast_travel",
@@ -847,6 +968,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B44AA24445864494E7569597ACCAEFC6",
     "x": -215388.52,
     "y": 8854.22,
     "type": "fast_travel",
@@ -854,6 +976,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B5A9156C4C3911FD3A4FFA8F807DD5A4",
     "x": -61819.01,
     "y": -246053.52,
     "type": "fast_travel",
@@ -861,6 +984,7 @@
     "map": "MainMap"
   },
   {
+    "id": "B795E2B14189A7D1EEAD6E97E89C91B7",
     "x": -886234.25,
     "y": -483745.94,
     "type": "fast_travel",
@@ -868,6 +992,7 @@
     "map": "MainMap"
   },
   {
+    "id": "BD9306974C7C85C4B76B318D2A397F4C",
     "x": 14388.18,
     "y": 476545.6,
     "type": "fast_travel",
@@ -875,6 +1000,7 @@
     "map": "MainMap"
   },
   {
+    "id": "BF8B123244ADB794A06EA8A10503FBDD",
     "x": -219172.86,
     "y": 226394.84,
     "type": "fast_travel",
@@ -882,6 +1008,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C1D34C6C424DD841005934936F590865",
     "x": 63442.54,
     "y": 507395.38,
     "type": "fast_travel",
@@ -889,6 +1016,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C2A21FB148CA559F4814029637CEF75F",
     "x": 125988.7,
     "y": 274597.84,
     "type": "fast_travel",
@@ -896,6 +1024,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C2EC8AFD4C5D84F814ED2E9E54E498FC",
     "x": -818013.06,
     "y": 59827.72,
     "type": "fast_travel",
@@ -903,6 +1032,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C4D494924DAB97D9E30AFB92B6029307",
     "x": 32787.1,
     "y": -81420.33,
     "type": "fast_travel",
@@ -910,6 +1040,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C5C2695D4EA3C55C419D7A8C8D184631",
     "x": -160345.17,
     "y": 98540.79,
     "type": "fast_travel",
@@ -917,13 +1048,15 @@
     "map": "MainMap"
   },
   {
+    "id": "C5E2ABA14A8F6D35EF4A81AD47EC19C9",
     "x": -629186.6,
     "y": -425621.62,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Scorched Plateau Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "C5F1A3CA46EAE25B999783B3ECC569ED",
     "x": 483205.0,
     "y": -672790.0,
     "type": "fast_travel",
@@ -931,6 +1064,7 @@
     "map": "Tree"
   },
   {
+    "id": "C6A854194E8AF1B5CEF381A1A276CB92",
     "x": -156482.23,
     "y": 317415.3,
     "type": "fast_travel",
@@ -938,6 +1072,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C808C5844EB34E9EDA773AA209CEBA01",
     "x": -2188.8,
     "y": -148545.86,
     "type": "fast_travel",
@@ -945,6 +1080,7 @@
     "map": "MainMap"
   },
   {
+    "id": "C94EC2744732C721BA6144802FD11EC2",
     "x": 191211.2,
     "y": 375334.7,
     "type": "fast_travel",
@@ -952,6 +1088,7 @@
     "map": "MainMap"
   },
   {
+    "id": "CAC914F54EE678E09CF8ECA4D81E60A0",
     "x": -506737.8,
     "y": -396063.44,
     "type": "fast_travel",
@@ -959,13 +1096,15 @@
     "map": "MainMap"
   },
   {
+    "id": "CCCD29E444CEB548D5B5E589DAF086F2",
     "x": -30426.69,
     "y": 364547.25,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Searing Dunes Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "CD9FE0D4490874187ED9919D0E4D2A09",
     "x": -237086.58,
     "y": -100489.86,
     "type": "fast_travel",
@@ -973,6 +1112,7 @@
     "map": "MainMap"
   },
   {
+    "id": "CE7CDCFA48F15174B4FCF49C03F240ED",
     "x": -984033.7,
     "y": -371189.75,
     "type": "fast_travel",
@@ -980,6 +1120,7 @@
     "map": "MainMap"
   },
   {
+    "id": "CF5FAE4A487231DDD8487C9B19453128",
     "x": -33882.15,
     "y": 564292.5,
     "type": "fast_travel",
@@ -987,6 +1128,7 @@
     "map": "MainMap"
   },
   {
+    "id": "D758455B40BC4D1A8ABB3EB62DD009D3",
     "x": 570652.3,
     "y": -558439.5,
     "type": "fast_travel",
@@ -994,6 +1136,7 @@
     "map": "Tree"
   },
   {
+    "id": "D786C6324A293AB1560774B15B998290",
     "x": 491660.0,
     "y": -593705.0,
     "type": "fast_travel",
@@ -1001,13 +1144,15 @@
     "map": "Tree"
   },
   {
+    "id": "D8C1A86541DACA78B1250AB9B85B7E67",
     "x": -197246.98,
     "y": 140509.75,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Crescent Moon Shore Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "DC0ECF9241B4410C59EE619F56D1106A",
     "x": -119037.29,
     "y": 138340.36,
     "type": "fast_travel",
@@ -1015,6 +1160,7 @@
     "map": "MainMap"
   },
   {
+    "id": "DC7376744AEDB97BBEB044AA3AACAB26",
     "x": -865524.3,
     "y": -352355.03,
     "type": "fast_travel",
@@ -1022,6 +1168,7 @@
     "map": "MainMap"
   },
   {
+    "id": "DD7137634D024A8FCFE6CB9F08887F86",
     "x": -38097.32,
     "y": 53412.52,
     "type": "fast_travel",
@@ -1029,6 +1176,7 @@
     "map": "MainMap"
   },
   {
+    "id": "DDBBFFAF43D9219AE68DF98744DF0831",
     "x": -342035.0,
     "y": 236885.0,
     "type": "fast_travel",
@@ -1036,6 +1184,7 @@
     "map": "MainMap"
   },
   {
+    "id": "DEAA0D38438D8CF02BC7CC82621B33B0",
     "x": -792350.0,
     "y": -251110.0,
     "type": "fast_travel",
@@ -1043,13 +1192,15 @@
     "map": "MainMap"
   },
   {
+    "id": "DEE0F8BB4609C83285CE6CA80B84B679",
     "x": -169159.0,
     "y": 251231.89,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Verdant Stream Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "DF9FB9CB41B43052A9C74FA79A826A50",
     "x": -338560.0,
     "y": 107660.0,
     "type": "fast_travel",
@@ -1057,6 +1208,7 @@
     "map": "MainMap"
   },
   {
+    "id": "E0819EFB41581AEAC3A029B0EE2FE195",
     "x": 89624.98,
     "y": 94363.32,
     "type": "fast_travel",
@@ -1064,6 +1216,7 @@
     "map": "MainMap"
   },
   {
+    "id": "E74D687D4CAAF5EA085E0B8A76F8B652",
     "x": -335853.84,
     "y": 335361.28,
     "type": "fast_travel",
@@ -1071,13 +1224,15 @@
     "map": "MainMap"
   },
   {
+    "id": "E8351DF348B268672F0A219840C6BE47",
     "x": -364381.7,
     "y": -55619.27,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Scorched Obsidian Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "E8A85FF544C205E1B04F7E93109B8197",
     "x": -71914.8,
     "y": 472172.2,
     "type": "fast_travel",
@@ -1085,13 +1240,15 @@
     "map": "MainMap"
   },
   {
+    "id": "E9FC08444BFE7E3EE6E06F84AC8688EC",
     "x": -26445.19,
     "y": 140098.22,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Icy Weasel Hill Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "EA56C74B459DAB2F5F596EA17049167A",
     "x": 405904.9,
     "y": -729214.1,
     "type": "fast_travel",
@@ -1099,6 +1256,7 @@
     "map": "Tree"
   },
   {
+    "id": "EC4896F44C4C9BD993DAE2B2C1F31BBA",
     "x": -74928.58,
     "y": 212787.06,
     "type": "fast_travel",
@@ -1106,6 +1264,7 @@
     "map": "MainMap"
   },
   {
+    "id": "EC94023A4CA571FF0FD19E90944F4231",
     "x": -39402.43,
     "y": 159611.86,
     "type": "fast_travel",
@@ -1113,13 +1272,15 @@
     "map": "MainMap"
   },
   {
+    "id": "EDE1AB2C44B1846879BB789C3951B2F7",
     "x": -291317.66,
     "y": 50195.65,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Bamboo Groves Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "F1A1AB834E138B2A938D0AA90E9A65E3",
     "x": -86709.57,
     "y": -140441.75,
     "type": "fast_travel",
@@ -1127,6 +1288,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F31B78014AD3954185416DA155E50CCD",
     "x": -698514.94,
     "y": -322880.4,
     "type": "fast_travel",
@@ -1134,6 +1296,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F34810714796CFCEB04D7C8F7B41493D",
     "x": -224958.11,
     "y": 285919.22,
     "type": "fast_travel",
@@ -1141,6 +1304,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F382ADAE4259150BF994FF873ECF242B",
     "x": -88645.85,
     "y": -3922.88,
     "type": "fast_travel",
@@ -1148,6 +1312,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F3C0FFDE41C2BF4EFD8A068986C6B02E",
     "x": -236840.52,
     "y": 34772.58,
     "type": "fast_travel",
@@ -1155,13 +1320,15 @@
     "map": "MainMap"
   },
   {
+    "id": "F46296FF4274FEDBF32DC5957835A18A",
     "x": -49811.68,
     "y": -104909.2,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Sakurajima Watchtower",
     "map": "MainMap"
   },
   {
+    "id": "F6AFBCDA4D7AF6C373407DBC8556FBAE",
     "x": -488718.2,
     "y": -35724.94,
     "type": "fast_travel",
@@ -1169,6 +1336,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F6C005A14B38FE0B57F1C7869FD899CB",
     "x": -221399.27,
     "y": 330684.53,
     "type": "fast_travel",
@@ -1176,6 +1344,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F88417694DF90381B2B21D9E039B2CCD",
     "x": -923275.1,
     "y": -385109.12,
     "type": "fast_travel",
@@ -1183,6 +1352,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F8DF603B4C750B37D943C9AF6A911946",
     "x": -221230.0,
     "y": 165130.0,
     "type": "fast_travel",
@@ -1190,6 +1360,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F8E5CB8143F4FA2F6213E6B454569F87",
     "x": -416557.53,
     "y": -90012.16,
     "type": "fast_travel",
@@ -1197,6 +1368,7 @@
     "map": "MainMap"
   },
   {
+    "id": "F94B3D32448028F24CE513B1302ACC94",
     "x": 628791.56,
     "y": -610720.44,
     "type": "fast_travel",
@@ -1204,6 +1376,7 @@
     "map": "Tree"
   },
   {
+    "id": "FC8F024D40741A133EB9DA88201AE7F0",
     "x": -578061.0,
     "y": -158216.08,
     "type": "fast_travel",
@@ -1211,11 +1384,84 @@
     "map": "MainMap"
   },
   {
+    "id": "FD235A5B4F02CD76312A459D77398CA6",
     "x": -809414.25,
     "y": 23955.22,
-    "type": "fast_travel",
+    "type": "watchtower",
     "localized_name": "Sunreach Watchtower",
     "map": "MainMap"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_DesertBoss",
+    "x": 29975.28,
+    "y": 413325.0,
+    "type": "tower",
+    "localized_name": "PIDF Tower",
+    "map": "MainMap",
+    "pal": "GYM_Horus"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_ElectricBoss",
+    "x": -361695.0,
+    "y": -112009.0,
+    "type": "tower",
+    "localized_name": "Brothers of the Eternal Pyre Tower",
+    "map": "MainMap",
+    "pal": "GYM_ThunderDragonMan"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_ForestBoss",
+    "x": -266563.16,
+    "y": 174506.3,
+    "type": "tower",
+    "localized_name": "Free Pal Alliance Tower",
+    "map": "MainMap",
+    "pal": "GYM_LilyQueen"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_GrassBoss",
+    "x": -321596.25,
+    "y": 209085.0,
+    "type": "tower",
+    "localized_name": "Rayne Syndicate Tower",
+    "map": "MainMap",
+    "pal": "GYM_ElecPanda"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_SakurajimaBoss",
+    "x": -29427.57,
+    "y": -115900.05,
+    "type": "tower",
+    "localized_name": "Moonflower Tower",
+    "map": "MainMap",
+    "pal": "GYM_MoonQueen"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_SnowBoss",
+    "x": 81363.0,
+    "y": 90183.0,
+    "type": "tower",
+    "localized_name": "PAL Genetic Research Unit Tower",
+    "map": "MainMap",
+    "pal": "GYM_BlackGriffon"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_SorajimaBoss",
+    "x": -778215.9,
+    "y": -36026.0,
+    "type": "tower",
+    "localized_name": "Azure Covenant Tower",
+    "map": "MainMap",
+    "pal": "GYM_BlueSkyDragon"
+  },
+  {
+    "id": "BOSS_BATTLE_NAME_VikingBoss",
+    "x": -889805.2,
+    "y": -435828.0,
+    "type": "tower",
+    "localized_name": "Feybreak Tower",
+    "map": "MainMap",
+    "pal": "GYM_SnowTigerBeastman"
   },
   {
     "type": "alpha_pal",
@@ -2141,1023 +2387,1363 @@
     "level": 66
   },
   {
+    "id": "0533892747FCA0E182EA558AFDA37F2C",
     "x": 936.83,
     "y": -128792.5,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "0682D0D748AFBEBAC824368C1C5E2930",
     "x": -585393.8,
     "y": -338144.72,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "09795AA74FDDAE29361E258A61F13041",
     "x": -36660.12,
     "y": 148978.95,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "0C75D6AF42EC7BCD7F30F989DD168267",
     "x": -265204.06,
     "y": 131385.12,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "0CDC85054296AA45E0094FBE34D42D23",
     "x": -346468.22,
     "y": 214850.02,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "118C58B344CED4088B9C5D9C199ADD29",
     "x": 136262.53,
     "y": 88305.4,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "11F9BC464E53B6610B71C5B08D33193F",
     "x": -250000.34,
     "y": 120261.4,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "1347209B47B7AA24A1B50B962571E4BB",
     "x": -287925.97,
     "y": -191141.92,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "15BB601E45F8330002CA14AD62099E2F",
     "x": -173408.44,
     "y": 166837.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "1639BB654514784AEA5B9DA3D8746B8A",
     "x": -15641.82,
     "y": -137406.38,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "19487CF247348A5941790E80EC7D54A4",
     "x": -485315.12,
     "y": -34972.19,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Yakushima"
   },
   {
+    "id": "1998F011415C656970302F9A19757495",
     "x": -22520.58,
     "y": 313714.28,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "1CBFAF7A47DC1E803B5AAAB4FDB88606",
     "x": -307418.28,
     "y": 225000.78,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "2014D69645D07FB0C1E4398CA174FD81",
     "x": -338708.5,
     "y": 161823.08,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "2090E9F9499690072F08EB9DBEAEA05E",
     "x": -155066.94,
     "y": 296284.66,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "20F0B8B54608D956F8A0D1AA6A374AAB",
     "x": -652504.44,
     "y": -439189.22,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "24F42B664697A2EE6810759E9F7C66F1",
     "x": -37363.29,
     "y": -152096.67,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "269285A74E26444FC94817817127E813",
     "x": -186504.7,
     "y": 268455.56,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "26CDE6944DD68E7FF2126EB5D2E10EBE",
     "x": -121016.87,
     "y": 212487.1,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "292B208C4470DB34080404B6DC17825E",
     "x": -110032.66,
     "y": -71996.59,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "2946E9B74399B8F9D01BBDAAB79D4F85",
     "x": 15729.53,
     "y": 267188.94,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "29A81D534234E3FED27627BE9E4FC881",
     "x": -125215.91,
     "y": 174427.38,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "2BEEDB0346F05A45E6EE94A9569901D9",
     "x": -211384.67,
     "y": 182474.86,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "2DC10859439B4D5C9C15E4BCD7A5D432",
     "x": -137086.11,
     "y": -50427.56,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "2E31E876471CB99E05D75ABB8A9E4F68",
     "x": -364797.3,
     "y": 181681.66,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "2FDEFF7B42951597CA6D70970E9F33BE",
     "x": -251818.6,
     "y": 164041.66,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "300DFC044CDD542683938980559B597F",
     "x": -671787.0,
     "y": -192539.98,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "307014684EF6611D278655A9347FCA5D",
     "x": 135090.5,
     "y": 64370.32,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "3658705147676022E9DDD29AD92B38EB",
     "x": 85201.23,
     "y": 312813.88,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "36BDC2774B02F81D62C6B2B4E84B3265",
     "x": -3297.48,
     "y": 53484.94,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "37FE82334549E800DA982E8C61DB5B33",
     "x": -315091.6,
     "y": -52063.6,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "3A1EAC4C4800B321537EE1A67C34DDF2",
     "x": -363251.12,
     "y": 167049.92,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "3AF2DE2B48ED73C698E875A016558051",
     "x": -219424.83,
     "y": 165811.12,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "3D9FA6E44A04ECADDEA3F092EF95B6DC",
     "x": -203748.6,
     "y": 90007.32,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "3DBFB80448413A72A00767934C750056",
     "x": -289138.2,
     "y": -209876.05,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "3E4B692E43074A964BE2AB8376ECD7B9",
     "x": -279321.47,
     "y": 101902.94,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "3F407F744B02FFEC50E7F3800A528BBB",
     "x": 61320.0,
     "y": 418400.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "435BA4224C28DBBF310A5680C134A56F",
     "x": 2547.95,
     "y": 172474.5,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "484705704C2421ED409F9A9C92B3CE5C",
     "x": -36843.14,
     "y": 454971.78,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "49DA06734EAA87807686589E83687703",
     "x": 41444.24,
     "y": 27335.72,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "49E119654A89F861B09B4CA196333225",
     "x": -340404.62,
     "y": 58438.68,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "4D74248A46DFAFA56257D5981682ECFA",
     "x": -221494.6,
     "y": 27971.86,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "4FE2F2FB48E2116712BAC7893C61228C",
     "x": -330139.03,
     "y": 200216.97,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "532F859248171F90B3552A9134E7716B",
     "x": -209589.38,
     "y": 163211.5,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "541016C84AF22B6E8FE59688683CEEEF",
     "x": -213940.0,
     "y": 398860.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "54101DFE447AA85174C687B2A7271504",
     "x": -84794.05,
     "y": 286150.22,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "54B0886848DE81883A5EC7BE44BF7AC5",
     "x": -315044.72,
     "y": 54365.9,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "57BCA4344D83D25E173594B6A4B3F6E9",
     "x": -588020.0,
     "y": -254710.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "57E74328480C0305748AE28E2B1855AA",
     "x": -877132.9,
     "y": -430141.72,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "58C4584F4F061F2B85065093DC06BDCB",
     "x": 101675.28,
     "y": 373450.72,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "59A19AF441B0A075BAB819B54049F5C9",
     "x": -61090.59,
     "y": -5748.06,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "5BE723544A04390E6B1EB4BD5F034337",
     "x": -837426.0,
     "y": -9351.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Skyland"
   },
   {
+    "id": "5EA7F36E40F9C8A86975E8AC993EB1B4",
     "x": -189599.53,
     "y": 372690.3,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "642B390047742C05AC82219614426A1B",
     "x": -4513.04,
     "y": 424323.72,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "64D0B12B4DB5E728F35DA49CFD893906",
     "x": -404448.4,
     "y": 64664.34,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "6620FD98497A17342476BBBEB4410C13",
     "x": -400575.6,
     "y": -35335.31,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "676129744D53EFA5CCC8D092EE9AD285",
     "x": -130866.33,
     "y": 230761.69,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "6799F7B54CE40B380886C18C078707B5",
     "x": -386508.1,
     "y": -12226.48,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "68064BB248FEE9AF044A778589672A10",
     "x": 143019.12,
     "y": 9658.51,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "6ABFFB724C641A3F4B7D42A70A300D9F",
     "x": -24131.92,
     "y": -110237.73,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "6BC50AC94E43E2B98D2D92A87886C8DF",
     "x": -322793.12,
     "y": 185433.95,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "6C82F0C5476BCFA3A2A5FD87911CEBFA",
     "x": -405155.94,
     "y": -176237.36,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "6D1350204CA0EB68CC4F0BAA60F53335",
     "x": -843324.4,
     "y": -404753.84,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "6DC3A97A4C6DD339D49FCA8CCE1E1815",
     "x": -798439.8,
     "y": -331101.8,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking"
   },
   {
+    "id": "6ECEEF8E4821EF653431A7ACD779302E",
     "x": -683335.7,
     "y": -279554.97,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking"
   },
   {
+    "id": "6ED1CB6144A7B8EA950AA4A6FC253A72",
     "x": -339127.47,
     "y": 193425.61,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "6F10A5BF4C3599C409639AA9A5214635",
     "x": -669586.3,
     "y": -394684.16,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "6FF6C3CB457EAB916074F3946C93D317",
     "x": -120225.01,
     "y": 25862.93,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "7075A490424377C1EFD806940DAFA602",
     "x": -296998.28,
     "y": 212680.78,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "7086D23B44D24EE61C6E57B7D6745D77",
     "x": -335586.6,
     "y": -104884.1,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "71B04C6E4EDEC41CCE0D50ABB1946A4D",
     "x": -733449.0,
     "y": -320729.53,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "7201E700488ADFFE20D845AA5318FBED",
     "x": -58507.24,
     "y": 157466.9,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "73A9D7D64B6F157F3157EBB1F36F9283",
     "x": -61859.88,
     "y": 204435.4,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "7579648B4FB5122CFAE30284CAA82B09",
     "x": -42658.46,
     "y": -122726.34,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "75F04E6D41384185529C75AA085EEF7A",
     "x": -267882.53,
     "y": 327448.2,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "77B4E5414D759142CAA0ACBECAD76EFD",
     "x": -597250.44,
     "y": -301345.4,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "77F9F5A84404E726D7F2D989C5370CDC",
     "x": -325692.12,
     "y": 83869.57,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "7A661AFD44438BD8B2DE55B72E5D610C",
     "x": -180769.03,
     "y": 163430.77,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "7AD1556142577DE281D4DFAC2C06F17F",
     "x": -702808.5,
     "y": -335070.7,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "7B2BEC1C45F99ECCE1A6BE8F57A56E11",
     "x": -176948.36,
     "y": 200393.8,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "7B3EF9344A76CC4D955036B371B5DA58",
     "x": -768983.8,
     "y": -257968.58,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking"
   },
   {
+    "id": "7C69FD564C553253123821964C76AE55",
     "x": -311425.0,
     "y": 151135.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "7DA91A864B5B1AD148373F9C9441860E",
     "x": 42530.34,
     "y": 203883.6,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "84838A364F35C648FB218AB89694D767",
     "x": -163447.64,
     "y": 229313.19,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "861A26834377971DCFF9518209C1E0B3",
     "x": -13807.57,
     "y": -152802.98,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "8A0ABF4443BEFD4E8A0550AB85A17A74",
     "x": -26780.0,
     "y": 354640.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "8AC175F740D95350ED75D99A5028D452",
     "x": -281167.4,
     "y": 88738.35,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "8DAB603B4AA64681AF640FB8B1860B82",
     "x": 20555.75,
     "y": 102617.6,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "8DCE893B4872615AC3CC51A3BB5E6C80",
     "x": -101785.07,
     "y": 205029.23,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "90DE27044E96E94C609AA19F19EAE9AB",
     "x": -164661.72,
     "y": 153125.2,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "9158500A4E4CEF6A09B9DEBCB2D35485",
     "x": -817170.0,
     "y": -461060.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "9293446A41363D2C3130CE927795F9B9",
     "x": -739658.9,
     "y": -310238.78,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "9340841548BE845AC96C0FBE61E46401",
     "x": -215213.8,
     "y": 265367.6,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "94906016412F1DF37A986591D8C06B47",
     "x": -17730.91,
     "y": -73667.05,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "95823EC343052E419C7F60AFD506329A",
     "x": -374132.75,
     "y": -89184.65,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "96E9E42D4D95809202086CADDC0A001E",
     "x": -2514.63,
     "y": -106358.34,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "978717F241C2798C60913CA11F527ED0",
     "x": 63496.1,
     "y": 333388.16,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "983027024A1BB568CCB88DA59B2D06BA",
     "x": -431538.06,
     "y": 82092.4,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "990C43BD40D22F010A8AAAAE08CF11C7",
     "x": -800228.8,
     "y": -286975.7,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking"
   },
   {
+    "id": "99AF7ED046FC64221ADA67902F9A96FC",
     "x": -624781.9,
     "y": -247472.5,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "9E50A6DA4332E0A8CA410393C1567EB8",
     "x": -74146.06,
     "y": -63473.69,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "A49F40B14775E8006A746C9F47F3C1AD",
     "x": 101576.62,
     "y": 18990.65,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "A4DE23624EAB5CD0EB4BA4B52E648430",
     "x": -245011.25,
     "y": 335769.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "A53DD2744479DA3DBC8E779FA9D169EF",
     "x": -554303.94,
     "y": -314140.56,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "A695AD354BB3EDFF59A7A1963E64E23A",
     "x": -337808.62,
     "y": 30763.02,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "A8BDD8BC4946238BD8992B963D2AEE16",
     "x": -320921.66,
     "y": -100230.68,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "AC2C19D042009C321E4599BCB11225F1",
     "x": 26498.53,
     "y": 75921.09,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "AE4D23C344AF419C1DD6ADB6C516223C",
     "x": -268094.03,
     "y": -53009.18,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "B0AF31CC4FBC64C79D97E5AE293A77B7",
     "x": -217124.6,
     "y": 138061.36,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "B167BE014E622F3FB65A22A38F917E52",
     "x": 14688.69,
     "y": 384880.8,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "B303AA1640DEA128B9C22F843C0DF0B8",
     "x": -333902.78,
     "y": -205767.4,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "B98B66CA403F34E8FA2087BCE200786E",
     "x": -372111.75,
     "y": 161187.75,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "BAE6786943A75BFB798362A6792D28EB",
     "x": 10312.33,
     "y": -115227.17,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "BB495FD946AE0137AE25BDBE89D6A386",
     "x": -194214.64,
     "y": 239238.69,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "BB6BF8C74B199850B353E8BB6A12E797",
     "x": -753200.0,
     "y": -274400.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking"
   },
   {
+    "id": "BBB7669844DB59C072E57FA2256BDC4B",
     "x": -107243.01,
     "y": 24363.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "BC8BB90149F24B50BAF9F7AD231FAB71",
     "x": -230933.7,
     "y": 152106.48,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "BCCD7DBE47E9068C5C0CCD9D3C5FD46F",
     "x": -372024.53,
     "y": 278564.66,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "C032C4FA480BBCB8417AE08FDD3D6A47",
     "x": -32453.78,
     "y": -106978.17,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "C1C0F1A34C1DFAACB69D67B354A6A7B1",
     "x": -181432.97,
     "y": 350147.84,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "C363463F4FFE9A8D373689AFA4F4A654",
     "x": 9258.16,
     "y": -142072.25,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "C3C4F0BA47A8140A89AAF29903A708D4",
     "x": -635848.56,
     "y": -271258.94,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "C49880DA416B7CDACD88AC939E962ED0",
     "x": -640033.75,
     "y": -344681.72,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "C54E3EB9496CE6C6A2440187D8B43C9B",
     "x": -225251.94,
     "y": -13333.92,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "C8D6EE6042D568BE735F0683E4193581",
     "x": -196751.97,
     "y": 176316.2,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "CA5DCDFF4AA32135DEED85A62A2A4EA5",
     "x": -74916.76,
     "y": 372458.47,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "CA69DB7B4CCF43F81A5BAB9461DF2D33",
     "x": -231307.81,
     "y": 73146.88,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "CB862CD545848331F7DC71BAC6113157",
     "x": -124929.0,
     "y": -79963.57,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "CC9B08EA4F1F16F62E2FB2AAD137EB72",
     "x": -256755.73,
     "y": 26900.88,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "CD39C156439A63751E3B5FB8C8B67082",
     "x": -389335.2,
     "y": 108597.55,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "CD443EA44307361593B4CEAAC4809BD3",
     "x": -302529.38,
     "y": 52391.46,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "D394C26B4993988CA83173B5FECF4201",
     "x": -202257.86,
     "y": 31403.27,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "D3C6680D413447587E341CBE22AB7B53",
     "x": -429603.38,
     "y": 94092.7,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "D55BAC814D05C7CEE30AEBAB556CEB32",
     "x": -320588.1,
     "y": 113800.28,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "D61627264473C8A8687A46AFD4F56846",
     "x": 47436.18,
     "y": -9661.42,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "D68B296A40D40AEFD62B689A37089706",
     "x": -368225.28,
     "y": -74478.06,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "D6D667B0415E195FA5D51DBA108EF6B2",
     "x": -220790.0,
     "y": 234113.03,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "D980E249450536EDF498E9A90EA0587E",
     "x": 21557.57,
     "y": 309214.78,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "DB23CA1A48CF2465C0FD9EADB7485725",
     "x": -62924.05,
     "y": 412516.97,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "DB2ABCB741CA87D9BD9B408EC3D579E2",
     "x": -57776.31,
     "y": 228600.25,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "E0801D7E4EB11B53069B79AC78CD1305",
     "x": -39021.6,
     "y": -39231.31,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "E11ABA864BBCA4EC85B4349356D4925E",
     "x": -301121.12,
     "y": 179718.17,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "E1EBFF614A938B44799B468F420B2548",
     "x": -259060.98,
     "y": 280351.5,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "E2666A754684F43F4B8E53A7449B8FAE",
     "x": -288304.3,
     "y": 227049.95,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "E2DC10B14FE879F5E576B3A45633F176",
     "x": -57139.16,
     "y": -86089.53,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Sakura"
   },
   {
+    "id": "E34E23924DD17FEEBC6EF4803D1139C1",
     "x": -376218.16,
     "y": 48671.66,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "E490CCD44FB0CD1FEA42B0A06EE88574",
     "x": -696510.0,
     "y": -309770.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking"
   },
   {
+    "id": "E4915A6148F2C6ADD801A3B1C4A8DE6C",
     "x": -502169.7,
     "y": -346285.5,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "E59CEB24469A32723EA8E688BD18D02B",
     "x": -250341.31,
     "y": 183436.67,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "E5A6640D425996748F376B847C7B24CA",
     "x": -238650.75,
     "y": -121688.11,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "E76CCB314FA1C1D087AA918F3B433905",
     "x": -383502.84,
     "y": 99617.95,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "E77C6D1D439BC16AB46C15966649D675",
     "x": -563204.8,
     "y": -229685.1,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "E7DA88E945E7A7C0760FC09DBBCE52E6",
     "x": -315807.78,
     "y": 107247.59,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "E80CCA3C446C1F32057D67ACD7A679E5",
     "x": -740400.0,
     "y": -345130.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "E8C1EE3545555106D27727A470605D11",
     "x": -265755.38,
     "y": -164168.52,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "E90570484D91FC41F3BB6EB87EC6D4BE",
     "x": -778536.75,
     "y": -381700.44,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "EA17F2E1424B9D6EC03F8FBFDFCE6E44",
     "x": -613348.6,
     "y": -320523.06,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "ED8258184FDE94279F7FA4AC07E07CC2",
     "x": -239159.88,
     "y": 205386.8,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "EFDEA9B449BBCEAA24814C998AA390C4",
     "x": -129471.89,
     "y": 253439.78,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "F0239AC840B0D5B25ACC25B1F0FB4FDF",
     "x": -257638.36,
     "y": 141158.6,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Forest"
   },
   {
+    "id": "F44756C44F86606D2B99BA8F58749EF5",
     "x": -512833.9,
     "y": -284233.53,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_C"
   },
   {
+    "id": "F5930C1E41005A5E27F244A42D0AD9B2",
     "x": -134629.19,
     "y": 6185.44,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "F7F572F6452AB3521A5631BD4FB35884",
     "x": -319255.0,
     "y": 213145.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Grass1"
   },
   {
+    "id": "FAB9065F4C85FCE7B903B29CB5B49ABE",
     "x": -796816.5,
     "y": -365816.16,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "FAD9959F448611EF6879F7A78476F677",
     "x": 139611.05,
     "y": 324306.53,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   },
   {
+    "id": "FBCCAAAE4AB222028715899C56FCD707",
     "x": -392681.62,
     "y": -208957.25,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Volcano"
   },
   {
+    "id": "FC64914E445F9E1F10D103A6FAA840C5",
     "x": -744310.0,
     "y": -372750.0,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Viking_B"
   },
   {
+    "id": "FED843AA4128E1937D10A393F5A0F00D",
     "x": 80038.95,
     "y": 6386.82,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "FEFA1C184CCE83261848D28149F474A9",
     "x": -25056.86,
     "y": 113597.3,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Snow"
   },
   {
+    "id": "FF23348346BCF659B1F0918EA9B35015",
     "x": -6205.63,
     "y": 255610.88,
     "type": "dungeon",
-    "map": "MainMap"
+    "map": "MainMap",
+    "biome": "Desert"
   }
 ]

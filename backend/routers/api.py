@@ -105,11 +105,13 @@ async def get_item(item_id: str):
 
 @router.get("/map-objects", dependencies=[Depends(require_auth)])
 async def get_map_objects():
-    """Static map markers (fast travel, alpha pals, predators, dungeons).
+    """Static map markers (fast travel, watchtowers, syndicate towers, alpha
+    pals, predators, dungeons).
 
-    Pal markers are enriched with the localized species name and the same
-    icon candidate list the pals tab uses (backend/common/pal_icons.py), so
-    the map never derives an icon name on its own.
+    Markers with a pal (alphas, predators, a tower's boss pair) are enriched
+    with the localized species name and the same icon candidate list the pals
+    tab uses (backend/common/pal_icons.py), so the map never derives an icon
+    name on its own.
     """
     objects = []
     for obj in parser.data.map_objects:

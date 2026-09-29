@@ -3,14 +3,22 @@
 Generate data/json/map_objects.json from a palworld-save-pal release.
 
 map_objects.json drives the static markers on the world map (fast-travel points,
-alpha pals, predators, dungeons). save-pal ships the source data; this script
-replaces the hand-curated file the app started with.
+watchtowers, syndicate towers, alpha pals, predators, dungeons). save-pal ships
+the source data; this script replaces the hand-curated file the app started with.
 
 Sources (all from save-pal's data/json):
   fast_travel_points.json + l10n/en/fast_travel_points.json -> type "fast_travel"
+      (class BP_LevelObject_UnlockMapPoint_C, the 1.0 map-revealing
+       watchtowers, become type "watchtower" instead)
+  towers.json + l10n/en/towers.json                         -> type "tower"
   bosses.json (spawn_type "alpha" or "boss")                -> type "alpha_pal"
   bosses.json (spawn_type "predator")                       -> type "predator_pal"
-  dungeons.json                                             -> type "dungeon"
+  dungeons.json                                             -> type "dungeon" (+ biome)
+
+Fast travel points, watchtowers, towers and dungeons keep save-pal's id: for the
+first two it is the GUID a player's RecordData.FastTravelPointUnlockFlag is keyed
+by, for towers the BOSS_BATTLE_NAME the TowerBossDefeatFlag uses -- so a player
+overlay can join on it later.
 
 Every object is tagged with the map layer it belongs to (data/json/map_layers.json);
 pal ids are resolved to pals.json keys with backend/common/pal_ids.py, the same
@@ -24,6 +32,7 @@ Usage:
 import argparse
 import collections
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -32,6 +41,22 @@ from backend.common.pal_ids import SpeciesIndex
 from backend.common.map_layers import load_map_layers, which_map
 
 OUT_PATH = DATA_JSON / 'map_objects.json'
+
+WATCHTOWER_CLASS = 'BP_LevelObject_UnlockMapPoint_C'
+DUNGEON_CLASS = re.compile(r'^BP_DungeonPortalMarker_(.+?)_C$')
+
+# Tower boss battle -> the boss pair as pals.json knows it (l10n gives "Zoe &
+# Grizzbolt"). save-pal's towers.json carries only the battle name.
+TOWER_BOSSES = {
+    'GrassBoss': 'GYM_ElecPanda',            # Rayne Syndicate Tower
+    'ForestBoss': 'GYM_LilyQueen',           # Free Pal Alliance Tower
+    'ElectricBoss': 'GYM_ThunderDragonMan',  # Brothers of the Eternal Pyre Tower
+    'DesertBoss': 'GYM_Horus',               # PIDF Tower
+    'SnowBoss': 'GYM_BlackGriffon',          # PAL Genetic Research Unit Tower
+    'SakurajimaBoss': 'GYM_MoonQueen',       # Moonflower Tower
+    'VikingBoss': 'GYM_SnowTigerBeastman',   # Feybreak Tower
+    'SorajimaBoss': 'GYM_BlueSkyDragon',     # Azure Covenant Tower
+}
 
 
 def load(src: Path, name: str):
@@ -48,17 +73,35 @@ def as_items(v):
 def build(src: Path, layers):
     objects = []
 
-    # --- fast travel -----------------------------------------------------
+    # --- fast travel + watchtowers ----------------------------------------
     ftp = load(src, 'fast_travel_points.json')
     ftp_names = load(src / 'l10n' / 'en', 'fast_travel_points.json')
     for key, p in as_items(ftp):
         name = (ftp_names.get(key) or {}).get('localized_name') if isinstance(ftp_names, dict) else None
         objects.append({
+            'id': str(key),
             'x': p['x'], 'y': p['y'],
-            'type': 'fast_travel',
+            'type': 'watchtower' if p.get('class') == WATCHTOWER_CLASS else 'fast_travel',
             'localized_name': name or p.get('id') or str(key),
             'map': which_map(layers, p['x'], p['y']),
         })
+
+    # --- syndicate towers -------------------------------------------------
+    towers = load(src, 'towers.json')
+    tower_names = load(src / 'l10n' / 'en', 'towers.json')
+    for key, t in as_items(towers):
+        name = (tower_names.get(key) or {}).get('localized_name') if isinstance(tower_names, dict) else None
+        entry = {
+            'id': str(key),
+            'x': t['x'], 'y': t['y'],
+            'type': 'tower',
+            'localized_name': name or t.get('boss_type') or str(key),
+            'map': which_map(layers, t['x'], t['y']),
+        }
+        boss = TOWER_BOSSES.get(t.get('boss_type') or '')
+        if boss:
+            entry['pal'] = boss
+        objects.append(entry)
 
     # --- bosses: alpha + predator ----------------------------------------
     species = SpeciesIndex(load(src, 'pals.json').keys())
@@ -89,9 +132,15 @@ def build(src: Path, layers):
         objects.append(entry)
 
     # --- dungeons ---------------------------------------------------------
-    for _, d in as_items(load(src, 'dungeons.json')):
-        objects.append({'x': d['x'], 'y': d['y'], 'type': 'dungeon',
-                        'map': which_map(layers, d['x'], d['y'])})
+    # The portal marker class names the biome the dungeon is dressed as
+    # (Grass1, Forest, Viking_B ...); save-pal has no names or levels for them.
+    for key, d in as_items(load(src, 'dungeons.json')):
+        m = DUNGEON_CLASS.match(d.get('class') or '')
+        entry = {'id': str(key), 'x': d['x'], 'y': d['y'], 'type': 'dungeon',
+                 'map': which_map(layers, d['x'], d['y'])}
+        if m:
+            entry['biome'] = m.group(1)
+        objects.append(entry)
 
     return objects, unresolved, skipped
 
