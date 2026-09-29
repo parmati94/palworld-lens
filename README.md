@@ -4,11 +4,16 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 <div align="center">
   <img src=".github/screenshots/overview.png" alt="Overview tab" width="32%"/>
-  <img src=".github/screenshots/pals.png" alt="Pals tab" width="32%"/>
-  <img src=".github/screenshots/bases.png" alt="Bases tab" width="32%"/>
-  <br/>
   <img src=".github/screenshots/players.png" alt="Players tab" width="32%"/>
+  <img src=".github/screenshots/pals.png" alt="Pals tab" width="32%"/>
+  <br/>
+  <img src=".github/screenshots/bases.png" alt="Bases tab" width="32%"/>
+  <img src=".github/screenshots/activity.png" alt="Base activity" width="32%"/>
   <img src=".github/screenshots/map.png" alt="Map tab" width="32%"/>
+  <br/>
+  <img src=".github/screenshots/paldeck.png" alt="Paldeck as a player's capture bonus tracker" width="32%"/>
+  <img src=".github/screenshots/breeding.png" alt="Breeding calculator" width="32%"/>
+  <img src=".github/screenshots/workers.png" alt="Best workers" width="32%"/>
 </div>
 
 ## ✨ Features
