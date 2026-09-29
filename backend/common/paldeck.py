@@ -19,6 +19,7 @@ from typing import Dict, Iterable, List, Optional, Set
 
 from backend.common import pal_icons
 from backend.common.exp_tables import BONUS_CAP, bonus_exp_at, catches_to_next_level, exp_to_next_level
+from backend.common.obtain import obtain_spawn
 from backend.common.spawns import is_variant_id
 
 CATCH_KINDS = {'field', 'field_boss'}                      # out in the world: go and catch one
@@ -180,6 +181,7 @@ def species_rows(data, pals: Iterable) -> List[Dict]:
     """One row per deck entry, in deck order."""
     numbers = deck_numbers(data.pals)
     spawns = spawn_summary(data.spawns)
+    obtain = getattr(data, 'obtain', None) or {}
     owned = owned_by_species(pals)
     tables = getattr(data, 'paldeck_tables', None) or {}
     rows = []
@@ -206,7 +208,8 @@ def species_rows(data, pals: Iterable) -> List[Dict]:
             'nocturnal': bool(row.get('nocturnal')),
             'male_probability': row.get('male_probability', 50),
             'breedable': data.breeding.is_breedable(sid),
-            'spawn': spawns.get(sid),
+            # the wild spawner summary, else how you get one otherwise (raid, meteor, World Tree...)
+            'spawn': spawns.get(sid) or obtain_spawn(obtain, sid),
             'owned': own['count'],
             'owners': len(own['owners']),
             'drops': drop_ids,                                             # item ids, base + high-level + alpha
@@ -389,7 +392,7 @@ def species_detail(data, sid: str, pals: Iterable, players: Iterable) -> Optiona
         'male_probability': row.get('male_probability', 50),
         'price': row.get('price'),
         'food_amount': row.get('food_amount'),
-        'spawn': spawn_summary(data.spawns).get(sid),
+        'spawn': spawn_summary(data.spawns).get(sid) or obtain_spawn(getattr(data, 'obtain', None) or {}, sid),
         'spawn_groups': groups,
         'breedable': bool(pairs),
         'breeding': {

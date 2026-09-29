@@ -31,7 +31,7 @@
                                     </div>
                                     <!-- Links out: the map, the breeding tool, the pals of it -->
                                     <div class="mt-3 flex items-center gap-2 flex-wrap text-xs">
-                                        <button x-show="sp.spawn" @click="closeSpeciesModal(); findOnMap(sp.id, sp.name, { label: 'Back to ' + sp.name, tab: currentTab, species: sp.id })"
+                                        <button x-show="sp.spawn && sp.spawn.groups" @click="closeSpeciesModal(); findOnMap(sp.id, sp.name, { label: 'Back to ' + sp.name, tab: currentTab, species: sp.id })"
                                                 class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-800/80 hover:bg-gray-700 border border-gray-700/60 hover:border-gray-600 text-gray-200 transition-colors"
                                                 data-tip="Light up every zone this species spawns in">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -108,11 +108,20 @@
                                     <div>
                                         <h3 class="text-sm font-semibold text-gray-200 mb-2.5">Where to find one</h3>
                                         <template x-if="!detail.spawn">
-                                            <p class="text-sm text-gray-400">Nothing spawns it in the wild. Breeding, raids, oil rigs or events.</p>
+                                            <p class="text-sm text-gray-400">Nothing spawns it in the wild. Breeding only.</p>
                                         </template>
                                         <template x-if="detail.spawn">
                                             <div>
                                                 <p class="text-sm text-gray-300"><span x-text="spawnLabel(detail.spawn)"></span><span class="text-gray-500"> · <span x-text="spawnTip(detail.spawn)"></span></span></p>
+                                                <!-- Meteor events: one chip per region with the level it lands at -->
+                                                <div x-show="detail.spawn.regions" class="mt-2 flex flex-wrap gap-1.5">
+                                                    <template x-for="[region, lv] in Object.entries(detail.spawn.regions || {}).sort((a, b) => a[1][0] - b[1][0])" :key="region">
+                                                        <span class="px-2 py-0.5 rounded-md text-[11px] border tabular-nums border-sky-500/30 bg-sky-500/10 text-sky-200"
+                                                              :data-tip="'Meteor events in ' + regionLabel(region)">
+                                                            <span x-text="regionLabel(region)"></span> · Lv <span x-text="lv[0] === lv[1] ? lv[0] : lv[0] + '–' + lv[1]"></span>
+                                                        </span>
+                                                    </template>
+                                                </div>
                                                 <div class="mt-2 flex flex-wrap gap-1.5">
                                                     <template x-for="g in detail.spawn_groups.slice(0, 12)" :key="g.name">
                                                         <span class="px-2 py-0.5 rounded-md text-[11px] border tabular-nums"

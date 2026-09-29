@@ -11,6 +11,7 @@ import pytest
 from backend.common.constants import WORK_ICON_MAPPING
 from backend.common.game_tables import TABLES, expected_files
 from backend.common.map_layers import load_map_layers, which_map
+from backend.common.obtain import SPECIES_OVERRIDES
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.spawns import MIN_SPAWN_SPECIES, plain_without_zones
 from backend.common.partner_skills import LEVELS, MIN_PARTNER_SKILL_SPECIES, has_foreign_markup
@@ -158,3 +159,14 @@ def test_partner_skills_cover_the_species_and_are_plain_text(pals):
                 and not any(t in sid for t in ('_Oilrig', '_Tower', '_Quest'))]
     gap = sorted(sid for sid in ordinary if sid not in table)
     assert len(gap) <= 3, gap
+
+
+def test_no_deck_pal_is_disabled_upstream_without_an_override(pals):
+    # save-pal marks Panthalus disabled; the pak makes it deck entry 203. Any new one must be
+    # decided on (backend/common/obtain.py SPECIES_OVERRIDES), not silently dropped from the Paldeck.
+    hidden = [sid for sid, row in pals.items()
+              if row.get('is_pal') and int(row.get('pal_deck_index') or 0) > 0 and row.get('disabled')
+              and not sid.startswith(('BOSS_', 'GYM_', 'RAID_', 'PREDATOR_', 'SUMMON_'))
+              and SPECIES_OVERRIDES.get(sid, {}).get('disabled', True)]
+    assert hidden == [], hidden
+    assert pals['KingWhale'].get('disabled') is True, 'save-pal fixed Panthalus upstream: the override can go'

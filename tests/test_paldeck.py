@@ -67,6 +67,11 @@ ACTIVE = {"EPalWazaID::IceMissile": {"localized_name": "Ice Missile", "element":
           "EPalWazaID::AirCanon": {"localized_name": "Air Cannon", "element": "Normal", "power": 25, "cool_time": 2.0}}
 
 
+# IceHorse has a wild alpha spawn, so its obtain row must lose; Kitsunebi_Ice keeps its dungeon.
+OBTAIN = {"species": {"IceHorse": {"how": "raid"}, "SheepBall": {"how": "meteor", "min_level": 13, "max_level": 51,
+                                                                  "alpha": True, "regions": {"Grass": [13, 15]}}}}
+
+
 class _Data:
     def __init__(self):
         self.pals = PALS
@@ -77,6 +82,7 @@ class _Data:
         self.exp = EXP
         self.paldeck_tables = PALDECK_TABLES
         self.active_skills = ACTIVE
+        self.obtain = OBTAIN
 
     def pal_name(self, sid):
         return (self.pals.get(sid) or {}).get("localized_name") or sid
@@ -212,3 +218,13 @@ def test_species_rows_carry_drop_and_skill_ids_and_filter_options_name_them():
     assert [(i["name"], i["count"]) for i in f["items"]][:3] == [("Blueprint_X", 1), ("Diamond", 1), ("Ice Organ", 1)]
     assert next(i for i in f["items"] if i["id"] == "Wool")["count"] == 1
     assert [(k["name"], k["element"], k["count"]) for k in f["skills"]] == [("Air Cannon", "Normal", 1), ("Ice Missile", "Ice", 1)]
+
+
+def test_species_rows_fall_back_to_obtain_when_nothing_spawns_one():
+    data = _Data()
+    data.spawns = {k: v for k, v in SPAWNS.items() if "SheepBall" not in (v.get("pals") or {})}
+    rows = {r["id"]: r for r in species_rows(data, [])}
+    assert rows["SheepBall"]["spawn"]["how"] == "meteor" and rows["SheepBall"]["spawn"]["regions"] == {"Grass": [13, 15]}
+    assert rows["IceHorse"]["spawn"]["how"] == "alpha"          # the spawner wins over the obtain row
+    detail = species_detail(data, "SheepBall", [], [])
+    assert detail["spawn"]["how"] == "meteor" and detail["spawn_groups"] == []

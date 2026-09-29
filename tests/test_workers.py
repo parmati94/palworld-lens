@@ -75,3 +75,15 @@ def test_breedable_workers_lists_unowned_reachable_species_best_first():
         ("Ragnahawk", 3, 2, True, 28),
     ]
     assert breedable_workers(SPECIES, {}, "EmitFlame") == []
+
+
+def test_catchable_workers_take_event_and_boss_catches_with_their_kind():
+    levels = {**CATCHABLE, "Mothman": 78, "DarkAlien": 13}
+    species = {**SPECIES, "Mothman": {"work_suitability": {"EmitFlame": 2}}, "DarkAlien": {"work_suitability": {"EmitFlame": 3}}}
+    rows = catchable_workers(species, levels, "EmitFlame", hows={"Mothman": "world_tree", "DarkAlien": "meteor"})
+    by = {r.species_id: r for r in rows}
+    assert by["Mothman"].how == "world_tree" and by["Mothman"].spawn_level == 78
+    assert by["DarkAlien"].how == "meteor" and by["DarkAlien"].spawn_level == 13
+    assert by["Kitsunebi"].how == "wild"
+    # level 3 work: the meteor pal at 13 sorts before the wild one at 22
+    assert [r.species_id for r in rows if r.work_level == 3] == ["DarkAlien", "Blazehowl", "Ragnahawk"]   # BOSS_ rows are skipped

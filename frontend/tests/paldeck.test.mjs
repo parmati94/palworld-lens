@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
     spawnLabel, spawnTip, bonusOf, bonusPips, deckMatches, filterDeck, sortDeck, bonusSummary, expBar,
+    regionLabel, catchHowLabel, SPAWN_HOW,
 } from '../js/paldeck.js';
 
 const row = (id, name, number, extra = {}) => ({ id, name, number, element_types: [], work_suitability: {}, owned: 0, spawn: null, ...extra });
@@ -78,4 +79,36 @@ test('bonusSummary shapes the strip and expBar the level bar', () => {
     assert.equal(bar.label, '512,406 to Lv 73');
     assert.match(bar.tip, /22,552,286 total/);
     assert.equal(expBar({ level: 100, exp: 1, exp_progress: null }), null);
+});
+
+
+test('obtain kinds label and explain themselves', () => {
+    const meteor = { how: 'meteor', min_level: 13, max_level: 51, alpha: true, night: false, groups: 0, regions: { Grass: [13, 15], DarkIsland: [50, 51] } };
+    assert.equal(spawnLabel(meteor), 'Meteor events · Lv 13–51');
+    assert.equal(spawnTip(meteor), 'Lands with meteor events, level by region');
+    assert.equal(spawnLabel({ how: 'raid', min_level: null, max_level: null }), 'Raid egg');
+    assert.match(spawnTip({ how: 'raid' }), /egg/);
+    assert.equal(spawnLabel({ how: 'world_tree', min_level: 78, max_level: 78, place: 'Shinespore Root' }), 'World Tree boss · Lv 78');
+    assert.equal(spawnTip({ how: 'world_tree', place: 'Shinespore Root' }), 'A placed boss in the World Tree, at Shinespore Root');
+    assert.equal(spawnLabel({ how: 'story', min_level: 70, max_level: 70 }), 'Story catch · Lv 70');
+    assert.equal(spawnLabel({ how: 'none' }), 'Not obtainable');
+    assert.equal(regionLabel('SkyIsland'), 'Sky island');
+    assert.equal(regionLabel('Any'), 'Any region');
+    assert.equal(catchHowLabel('meteor'), 'meteor events from');
+    assert.equal(catchHowLabel(undefined), 'wild from');
+});
+
+test('the how filter sorts events from the unobtainable and counts catches honestly', () => {
+    const rows = [
+        row('DarkAlien', 'Xenovader', '145', { spawn: { how: 'meteor', min_level: 13, max_level: 51 } }),
+        row('NightLady', 'Bellanoir', '195', { spawn: { how: 'raid' } }),
+        row('WorldTreeDragon', 'Astralym', '204', { spawn: { how: 'none' } }),
+        row('Pengullet_Lux', 'Pengullet Lux', '17B', { spawn: null }),
+        row('Sheepball', 'Lamball', '1', { spawn: wild(1, 3) }),
+    ];
+    const ids = (opts) => filterDeck(rows, opts).map(r => r.id);
+    assert.deepEqual(ids({ how: 'event' }), ['DarkAlien', 'NightLady']);
+    assert.deepEqual(ids({ how: 'none' }), ['WorldTreeDragon', 'Pengullet_Lux']);
+    assert.deepEqual(ids({ how: 'catchable' }), ['DarkAlien', 'Sheepball']);
+    assert.ok(SPAWN_HOW.some(o => o.value === 'event'));
 });

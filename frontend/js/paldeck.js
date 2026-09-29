@@ -13,12 +13,43 @@ export const BONUS_CAP = 5;
 
 /** The "how do I get one" filter, in the order the picker lists it. */
 export const SPAWN_HOW = [
-    { value: 'catchable', label: 'Catchable', tip: 'Spawns in the field, as a herd or an alpha' },
+    { value: 'catchable', label: 'Catchable', tip: 'You can go and catch one: field herds, alphas, meteor events, World Tree bosses, the story' },
     { value: 'wild', label: 'Wild herds', tip: 'Ordinary field spawns' },
     { value: 'alpha', label: 'Alpha only', tip: 'Only as a field boss' },
     { value: 'dungeon', label: 'Dungeons only', tip: 'Only inside instanced rooms' },
-    { value: 'none', label: 'No wild spawn', tip: 'Breeding, raids, oil rigs, events' },
+    { value: 'event', label: 'Events & bosses', tip: 'Meteor events, raid eggs, World Tree bosses, the story' },
+    { value: 'none', label: 'No wild spawn', tip: 'Breeding only, or not obtainable' },
 ];
+
+/** The kinds obtain.json adds behind the spawner tables (backend/common/obtain.py). */
+export const EVENT_HOWS = ['meteor', 'raid', 'world_tree', 'story'];
+/** Where a sphere works: the field, plus the events and bosses you catch rather than hatch. */
+export const CATCH_HOWS = ['wild', 'alpha', 'meteor', 'world_tree', 'story'];
+
+const HOW_LABELS = {
+    wild: 'Wild', alpha: 'Alpha', dungeon: 'Dungeons',
+    meteor: 'Meteor events', raid: 'Raid egg', world_tree: 'World Tree boss', story: 'Story catch', none: 'Not obtainable',
+};
+
+/** Meteor regions, from the pak's supply incident table names. */
+const REGION_LABELS = {
+    Any: 'Any region', Grass: 'Grassland', Forest: 'Forest', Desert: 'Desert', Volcano: 'Volcano', Snow: 'Snow',
+    Sakura: 'Sakurajima', DarkIsland: 'Feybreak', SkyIsland: 'Sky island',
+};
+
+export function regionLabel(region) {
+    return REGION_LABELS[region] || String(region || '').replace(/_/g, ' ');
+}
+
+/** The Best workers catch row: "<this> Lv N". */
+export function catchHowLabel(how) {
+    switch (how) {
+        case 'meteor': return 'meteor events from';
+        case 'world_tree': return 'World Tree boss,';
+        case 'story': return 'story catch,';
+        default: return 'wild from';
+    }
+}
 
 export const DECK_SORTS = [
     { value: 'number', label: 'Paldeck order' },
@@ -33,17 +64,28 @@ export function spawnLabel(spawn) {
     if (!spawn) return 'No wild spawn';
     const lo = spawn.min_level, hi = spawn.max_level;
     const lv = lo == null ? '' : hi != null && hi !== lo ? `Lv ${lo}–${hi}` : `Lv ${lo}`;
-    const how = spawn.how === 'wild' ? 'Wild' : spawn.how === 'alpha' ? 'Alpha' : 'Dungeons';
+    const how = HOW_LABELS[spawn.how] || 'Dungeons';
     return lv ? `${how} · ${lv}` : how;
 }
 
 /** The hover behind the spawn chip. */
 export function spawnTip(spawn) {
-    if (!spawn) return 'Nothing spawns it in the wild: breeding, raids, oil rigs or events';
+    if (!spawn) return 'Nothing spawns it in the wild: breeding only';
     const parts = [];
-    if (spawn.how === 'wild') parts.push(`Spawns in ${spawn.groups} field zone${spawn.groups === 1 ? '' : 's'}`);
-    else if (spawn.how === 'alpha') parts.push('Only spawns as a field boss');
-    else parts.push('Only spawns inside dungeons');
+    switch (spawn.how) {
+        case 'wild': parts.push(`Spawns in ${spawn.groups} field zone${spawn.groups === 1 ? '' : 's'}`); break;
+        case 'alpha': parts.push('Only spawns as a field boss'); break;
+        case 'meteor': {
+            const n = Object.keys(spawn.regions || {}).length;
+            parts.push(n > 1 ? 'Lands with meteor events, level by region' : 'Lands with meteor events');
+            break;
+        }
+        case 'raid': parts.push('Summon the raid from its slab; the kill drops an egg that hatches into it'); break;
+        case 'world_tree': parts.push(spawn.place ? `A placed boss in the World Tree, at ${spawn.place}` : 'A placed boss in the World Tree'); break;
+        case 'story': parts.push(spawn.place ? `Caught in the main quest: ${spawn.place}` : 'Caught in the main quest'); break;
+        case 'none': parts.push('Cannot be caught, bred or hatched'); break;
+        default: parts.push('Only spawns inside dungeons');
+    }
     if (spawn.night) parts.push('at night only');
     if (spawn.alpha && spawn.how === 'wild') parts.push('also roams as an alpha');
     return parts.join(', ');
@@ -73,8 +115,9 @@ function howMatches(row, how) {
     const s = row.spawn;
     switch (how) {
         case '': return true;
-        case 'catchable': return !!s && (s.how === 'wild' || s.how === 'alpha');
-        case 'none': return !s;
+        case 'catchable': return !!s && CATCH_HOWS.includes(s.how);
+        case 'event': return !!s && EVENT_HOWS.includes(s.how);
+        case 'none': return !s || s.how === 'none';
         default: return !!s && s.how === how;
     }
 }

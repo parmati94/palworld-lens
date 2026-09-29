@@ -23,6 +23,7 @@ from backend.common.game_tables import TABLES, Table
 from backend.common.logging_config import get_logger
 from backend.common.pal_ids import SpeciesIndex
 from backend.common.breeding import BreedingIndex
+from backend.common.obtain import SPECIES_OVERRIDES
 from backend.common import schematics as schematics_table
 from backend.common.constants import (
     CONDITION_DISPLAY_NAMES,
@@ -111,6 +112,11 @@ class DataLoader:
         for sid, extra in ((self.tables.get('pal_parameters') or {}).get('species') or {}).items():
             if sid in self.pals and isinstance(extra, dict):
                 self.pals[sid].update(extra)
+        # What save-pal gets wrong for the deck (backend/common/obtain.py): Panthalus is
+        # marked disabled upstream, the pak makes it deck entry 203.
+        for sid, fields in SPECIES_OVERRIDES.items():
+            if sid in self.pals:
+                self.pals[sid].update(fields)
         self.species = SpeciesIndex(self.pals.keys())
         # Per pak-row stat inputs (data/json/pal_parameters.json stat_rows), keyed by the save's
         # CharacterID: boss / lucky / variant rows carry their own hp scale and friendship values.
@@ -171,6 +177,9 @@ class DataLoader:
         # Species tables for the Paldeck modal (data/json/paldeck.json): drops per character id and the
         # active skills learned by level. Optional -- without it the modal hides both sections.
         self.paldeck_tables: Dict[str, Any] = self.tables.get('paldeck') or {}
+        # How you get the species with no wild spawner (data/json/obtain.json): raids, meteor
+        # events, World Tree bosses, the story catch. Optional -- without it they show "No wild spawn".
+        self.obtain: Dict[str, Any] = self.tables.get('obtain') or {}
 
         self._check_coverage()
         logger.info(f'game data loaded: {len(self.pals)} pals, {len(self.items)} items, '

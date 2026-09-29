@@ -38,6 +38,11 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   level threshold; BOSS_ rows are the alpha's own table) and the active skills a species learns by
   level (`DT_WazaMasterLevel`), for the species modal (`generate_paldeck_tables.py`; read by
   `backend/common/paldeck.py`).
+- **`data/json/obtain.json`** -- how you get the species nothing spawns in the wild: raid eggs
+  (`RAID_*` rows flagged IsRaidBoss in `DT_PalMonsterParameter_Common`), meteor events with the level
+  per region (`DT_SupplyIncident_Pal_*`), plus the hand-kept World Tree bosses, the Panthalus story
+  catch and the one species that is not obtainable (`generate_obtain.py`; read by
+  `backend/common/obtain.py` for the Paldeck's "how you get one" and the Best workers catch list).
 
 Output is committed to the repo, so end users never run this.
 

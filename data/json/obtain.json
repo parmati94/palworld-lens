@@ -1,0 +1,128 @@
+{
+  "species": {
+    "DarkAlien": {
+      "alpha": true,
+      "how": "meteor",
+      "max_level": 65,
+      "min_level": 13,
+      "regions": {
+        "Any": [
+          22,
+          22
+        ],
+        "DarkIsland": [
+          50,
+          52
+        ],
+        "Desert": [
+          29,
+          33
+        ],
+        "Forest": [
+          19,
+          23
+        ],
+        "Grass": [
+          13,
+          15
+        ],
+        "SkyIsland": [
+          63,
+          65
+        ],
+        "Snow": [
+          40,
+          42
+        ],
+        "Volcano": [
+          29,
+          33
+        ]
+      }
+    },
+    "DarkMechaDragon": {
+      "alpha": false,
+      "how": "raid"
+    },
+    "FlowerPrince": {
+      "alpha": true,
+      "how": "world_tree",
+      "max_level": 78,
+      "min_level": 78,
+      "place": "Rotmist Root"
+    },
+    "KingBahamut_Dragon": {
+      "alpha": false,
+      "how": "raid"
+    },
+    "KingWhale": {
+      "alpha": true,
+      "how": "story",
+      "max_level": 70,
+      "min_level": 70,
+      "place": "Panthalus quest, before the World Tree"
+    },
+    "LegendDeer": {
+      "alpha": false,
+      "how": "raid"
+    },
+    "MoonQueen": {
+      "alpha": true,
+      "how": "meteor",
+      "max_level": 52,
+      "min_level": 50,
+      "regions": {
+        "Sakura": [
+          50,
+          52
+        ]
+      }
+    },
+    "Mothman": {
+      "alpha": true,
+      "how": "world_tree",
+      "max_level": 78,
+      "min_level": 78,
+      "place": "Shinespore Root"
+    },
+    "NightLady": {
+      "alpha": false,
+      "how": "raid"
+    },
+    "NightLady_Dark": {
+      "alpha": false,
+      "how": "raid"
+    },
+    "WhiteAlienDragon": {
+      "alpha": true,
+      "how": "meteor",
+      "max_level": 66,
+      "min_level": 33,
+      "regions": {
+        "DarkIsland": [
+          50,
+          53
+        ],
+        "Desert": [
+          33,
+          35
+        ],
+        "SkyIsland": [
+          65,
+          66
+        ],
+        "Snow": [
+          40,
+          43
+        ],
+        "Volcano": [
+          33,
+          35
+        ]
+      }
+    },
+    "WorldTreeDragon": {
+      "how": "none"
+    }
+  }
+}

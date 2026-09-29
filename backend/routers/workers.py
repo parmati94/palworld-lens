@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from backend.common import pal_icons
 from backend.common.auth import require_auth
 from backend.common.breeding import generations_from, owned_genders
+from backend.common.obtain import obtain_hows, obtain_levels
 from backend.common.spawns import catchable_levels
 from backend.common.workers import (best_owned, breedable_workers, catchable_workers, max_work_level,
                                     owned_species_counts, work_types)
@@ -38,8 +39,13 @@ async def get_workers(
 
     pals = parser.get_pals()
     owned = best_owned(pals, type, limit=owned_limit)
-    levels = catchable_levels(data.spawns)
-    catchable = catchable_workers(data.pals, levels, type, owned_counts=owned_species_counts(pals))
+    # Wild field spawns first; species you meet at a meteor event, in the World Tree or in
+    # the story fill in behind them (a wild level wins when a species has both).
+    obtain = getattr(data, "obtain", None) or {}
+    wild = catchable_levels(data.spawns)
+    levels = {**obtain_levels(obtain), **wild}
+    hows = {sid: how for sid, how in obtain_hows(obtain).items() if sid not in wild}
+    catchable = catchable_workers(data.pals, levels, type, owned_counts=owned_species_counts(pals), hows=hows)
     breedable = breedable_workers(data.pals, generations_from(data.breeding, owned_genders(pals, owner)), type,
                                   catchable=levels)
 
@@ -56,7 +62,7 @@ async def get_workers(
                    "owner": o.owner, "level": o.level, "work_level": o.work_level,
                    "base_name": o.base_name, "count": o.count} for o in owned],
         "catchable": [{**species(c.species_id), "work_level": c.work_level,
-                       "spawn_level": c.spawn_level, "owned": c.owned} for c in catchable],
+                       "spawn_level": c.spawn_level, "owned": c.owned, "how": c.how} for c in catchable],
         "owner": owner,
         "breedable": [{**species(b.species_id), "work_level": b.work_level, "generations": b.generations,
                        "catchable": b.catchable, "spawn_level": b.spawn_level} for b in breedable],
