@@ -133,7 +133,12 @@ test('"Show on map" leaves the World Tree for the map the player is on', { skip 
     assert.equal(await page.evaluate(`(${MAP}).mapLayer`), 'Tree');
     await page.evaluate(`${APP}.currentTab = 'players'`);
     await sleep(400);
-    await page.locator('button[aria-label="Show on map"]').first().click();
+    // A player who is on Palpagos right now (someone may be inside the World Tree on the live save).
+    const name = await page.evaluate(`(() => { const a = ${APP}; const b = a.gameData.map_layers.MainMap;
+        const p = a.players.find(p => p.location && b.x[0] <= p.location.x && p.location.x <= b.x[1] && b.y[0] <= p.location.y && p.location.y <= b.y[1]);
+        return p && p.player_name; })()`);
+    assert.ok(name, 'no player on the main map');
+    await page.locator(`.card:has(h3:text-is("${name}")) button[aria-label="Show on map"]`).first().click();
     await sleep(1500);
     const s = await page.evaluate(`(() => { const m = ${MAP}; return { tab: ${APP}.currentTab, layer: m.mapLayer }; })()`);
     assert.equal(s.tab, 'map');

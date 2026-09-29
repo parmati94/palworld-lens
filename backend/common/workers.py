@@ -32,8 +32,9 @@ class OwnedWorker:
 class CatchWorker:
     species_id: str
     work_level: int        # base level from the species table
-    spawn_level: int       # lowest field spawn level
+    spawn_level: int       # lowest level you meet one at (field spawn, or the event / boss level)
     owned: int             # how many of this species anyone on the server owns
+    how: str = "wild"      # wild | meteor | world_tree | story (obtain.LEVEL_KINDS)
 
 
 def work_types(species: Dict[str, Dict]) -> List[str]:
@@ -85,14 +86,19 @@ def best_owned(pals: Iterable, work_type: str, limit: int = 5) -> List[OwnedWork
 
 
 def catchable_workers(species: Dict[str, Dict], catchable: Dict[str, int], work_type: str,
-                      owned_counts: Optional[Dict[str, int]] = None) -> List[CatchWorker]:
-    """Every wild species that can do `work_type`, best work level first, then lowest spawn level.
+                      owned_counts: Optional[Dict[str, int]] = None,
+                      hows: Optional[Dict[str, str]] = None) -> List[CatchWorker]:
+    """Every catchable species that can do `work_type`, best work level first, then lowest level.
 
-    Only species with a field spawn (`catchable`, from spawns.catchable_levels)
-    qualify. The whole list is returned; the UI trims it to "spawns at or
-    under the level I'm willing to go for", which is the reader's call.
+    `catchable` is {species: lowest level you meet it at} -- the wild field
+    spawns (spawns.catchable_levels) plus, from obtain.obtain_levels(), the
+    species you catch at a meteor event, in the World Tree or in the story;
+    `hows` names which for the ones that are not plain wild spawns. The whole
+    list is returned; the UI trims it to "at or under the level I'm willing
+    to go for", which is the reader's call.
     """
     owned_counts = owned_counts or {}
+    hows = hows or {}
     rows: List[CatchWorker] = []
     for sid, row in species.items():
         if sid.startswith(_SKIP_PREFIXES) or sid not in catchable:
@@ -101,7 +107,7 @@ def catchable_workers(species: Dict[str, Dict], catchable: Dict[str, int], work_
         if wl <= 0:
             continue
         rows.append(CatchWorker(species_id=sid, work_level=wl, spawn_level=int(catchable[sid]),
-                                owned=int(owned_counts.get(sid, 0))))
+                                owned=int(owned_counts.get(sid, 0)), how=hows.get(sid, "wild")))
     rows.sort(key=lambda r: (-r.work_level, r.spawn_level, r.species_id))
     return rows
 
