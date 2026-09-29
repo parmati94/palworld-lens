@@ -4,242 +4,109 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 <div align="center">
   <img src=".github/screenshots/overview.png" alt="Overview tab" width="32%"/>
-  <img src=".github/screenshots/pals.png" alt="Pals tab" width="32%"/>
-  <img src=".github/screenshots/bases.png" alt="Bases tab" width="32%"/>
-  <br/>
   <img src=".github/screenshots/players.png" alt="Players tab" width="32%"/>
+  <img src=".github/screenshots/pals.png" alt="Pals tab" width="32%"/>
+  <br/>
+  <img src=".github/screenshots/bases.png" alt="Bases tab" width="32%"/>
+  <img src=".github/screenshots/activity.png" alt="Base activity" width="32%"/>
   <img src=".github/screenshots/map.png" alt="Map tab" width="32%"/>
+  <br/>
+  <img src=".github/screenshots/paldeck.png" alt="Paldeck as a player's capture bonus tracker" width="32%"/>
+  <img src=".github/screenshots/breeding.png" alt="Breeding calculator" width="32%"/>
+  <img src=".github/screenshots/workers.png" alt="Best workers" width="32%"/>
 </div>
 
 ## ✨ Features
 
-- 📱 **Mobile-First Design** - Responsive UI built with Tailwind CSS
-- 🔄 **Auto-Load & Reload** - Automatically loads saves on startup with manual reload button
-- 👁️ **Real-Time Updates** - Auto-watch save files for live updates (toggleable)
-- 🌐 **Remote Save Loading** - Download saves from remote SFTP/FTP servers with automatic polling
-- 👥 **Player Viewer** - View all players with stats, hunger, and SAN levels
-- 🦄 **Pal Viewer** - Browse all pals with detailed stats
-- 📖 **Paldeck** - Every species the game numbers, as reference: elements, work levels, partner skill, where it spawns (and a jump to the map), how to breed it, and who on the server has one. Pick a player and their capture bonus overlays the deck: which species still pay bonus EXP, what the next catch is worth, and how many catches to their next level
-- 🏠 **Base Pal Monitor** - Track pals at your bases with hunger/SAN warnings
-- 🏛️ **Guild Information** - View guilds and their members
-- ⚙️ **Base Activity** - What each base is doing as of the last save: machines with their order, materials and progress, crops growing, eggs incubating (or hatched and waiting for pickup), stations and ranches with who is on them, expeditions with time left and the haul waiting, and the guild's lab research
-- 🧰 **Tools** - Helpers over the save, grouped under one tab:
-  - 🧬 **Breeding Calculator** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want). Can't breed it yet? The route planner draws the shortest chain from what you own, and which wild pal to catch instead
-  - ⭐ **Best Workers** - The best pal for a job: who on the server already has it, what you could catch at your level, and what you could breed from your own pals (with the route to it). A look at the map from any tool offers the way back.
-- 🖥️ **Server Info (RCON)** - View real-time server status, online players, metrics, and settings (optional)
-- 🐳 **Containerized** - Single Docker container with nginx + FastAPI
-- 🚫 **Read-Only** - No editing functionality, just viewing
+- 👥 **Players** - Every player with level, HP, hunger, SAN, guild, party and last login; open one for their inventory, stats and records
+- 🦄 **Pals** - Every pal on the server with stats, skills, work suitabilities and owner. One search box; element, work, passive and owner filters are added as chips
+- 📖 **Paldeck** - Every species the game numbers: elements, work levels, partner skill, where it spawns (with a jump to the map), how you get the ones nothing spawns (meteor events, raid eggs, the World Tree bosses), what it drops, what it learns, how to breed it, and who on the server has one. Pick a player and the deck becomes their capture bonus tracker: what the next catch pays and which species are still worth catching
+- 🏠 **Bases** - Guilds and their bases with every pal's status, hunger and SAN, the food bowls and storage chests (searchable across a guild), and what the base is doing as of the last save: machines with their order and progress, crops, eggs, stations and ranches with who is on them, expeditions and lab research
+- 🗺️ **Map** - The world map with bases and players live from the save, plus the game's landmarks as toggleable layers: syndicate towers, watchtowers, fast travel statues, dungeons and alpha pals. Search a species and every wild spawner that rolls it lights up, sized to its real radius, with level range and night-only zones
+- 🧬 **Breeding** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want). Can't breed it yet? The route planner draws the shortest chain from what you own
+- ⭐ **Best workers** - The best pal for a job: who on the server already has it, what you could catch at your level, and what you could breed from your own pals
+- 🔄 **Live** - Loads on startup, reloads on demand, and can watch the save directory and push updates to the browser as the game autosaves
+- 🌐 **Remote saves** - Poll a remote SFTP/FTP server for the save instead of mounting it
+- 🖥️ **Server Info** - Online players, uptime, performance and settings over RCON (optional)
+- 🐳 **Containerized** - Single Docker container with nginx + FastAPI. Read-only: it never writes to your save
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Docker & Docker Compose
-- Palworld save files
-
-### Option 1: Using Pre-built Image (Recommended)
-
-1. **Download the docker-compose.yml:**
+1. Download the compose file:
    ```bash
    wget https://raw.githubusercontent.com/parmati94/palworld-lens/main/docker-compose.yml
    ```
 
-2. **Configure your save path in `docker-compose.yml`:**
+2. Point it at your world's save directory (the folder holding `Level.sav` and `Players/`):
    ```yaml
    volumes:
      - /path/to/your/SaveGames/0/WORLD-ID:/app/saves:ro
    ```
-   
-   Example:
-   ```yaml
-   volumes:
-     - /home/<user>/.gamedata/palworld/Pal/Saved/SaveGames/0/E78D2AA4834049EF90A165AE9CBB433D:/app/saves:ro
-   ```
 
-3. **Start the application:**
-   ```bash
-   docker-compose up -d
-   ```
-   The image will be automatically pulled from Docker Hub on first run.
-
-4. **Access the application:**
-   Open your browser to `http://localhost:5175`
-
-### Option 2: Building from Source
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/parmati94/palworld-lens.git
-   cd palworld-lens
-   ```
-
-2. **Build the Docker image:**
-   ```bash
-   docker build -t palworld-lens:local .
-   ```
-
-3. **Configure your save path in `docker-compose.yml`:**
-   ```yaml
-   volumes:
-     - /path/to/your/SaveGames/0/WORLD-ID:/app/saves:ro
-   ```
-   
-   And update the image line to use your local build:
-   ```yaml
-   image: palworld-lens:local
-   ```
-
-4. **Start the application:**
+3. Start it, then open `http://localhost:5175`:
    ```bash
    docker-compose up -d
    ```
 
-5. **Access the application:**
-   Open your browser to `http://localhost:5175`
-
-## 📂 Directory Structure Expected
-
-Your mounted save directory should contain:
-```
-/app/saves/
-├── Level.sav          (required)
-├── LevelMeta.sav      (optional)
-└── Players/           (required)
-    ├── {player-uuid}.sav
-    └── ...
-```
+To build from source instead, clone the repo, `docker build -t palworld-lens:local .`, and set `image: palworld-lens:local` in the compose file.
 
 ## 🔧 Configuration
 
-Edit `docker-compose.yml` environment variables:
+Everything is an environment variable in `docker-compose.yml`:
 
 ```yaml
 environment:
   - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves (local mode only)
   - APP_STATE_PATH=/app/state         # Writable dir for app-owned state (custom base names); mount a volume there or renaming stays off
-  - ENABLE_AUTO_WATCH=true             # Enable automatic file watching for live updates on backend.  Can still be toggled on/off on UI as long as this is set to true.
-  - LOG_LEVEL=INFO                     # Logging level: DEBUG, INFO, WARNING, ERROR
-  - TZ=America/New_York                # Your local timezone (e.g., America/Los_Angeles, Europe/London, Asia/Tokyo, etc.)
-  
+  - ENABLE_AUTO_WATCH=true             # Watch the save directory and push updates to the browser; can still be toggled off in the UI
+  - LOG_LEVEL=INFO                     # DEBUG, INFO, WARNING, ERROR
+  - TZ=America/New_York                # Your local timezone
+
   # Authentication (optional - default is disabled)
-  - ENABLE_LOGIN=false                 # Set to true to require login
-  - USERNAME=admin                     # Login username (only used if ENABLE_LOGIN=true)
-  - PASSWORD=changeme                  # Login password (only used if ENABLE_LOGIN=true)
+  - ENABLE_LOGIN=false                 # Set to true to require login (single user, sessions last 7 days)
+  - USERNAME=admin
+  - PASSWORD=changeme
   - SESSION_SECRET=your-secret-here    # Secret key for session tokens (generate a random string)
-  
-  # RCON Server Info (optional - for real-time server status)
-  - RCON_HOST=your-palworld-server-ip  # IP/hostname of your Palworld server
-  - RCON_PORT=8212                     # RCON port (default: 8212)
-  - RCON_PASSWORD=your_admin_password  # RCON admin password
-  
-  # Remote Save Loading (optional - for SFTP/FTP servers)
-  - REMOTE_SAVE_ENABLED=false          # Set to true to enable remote save loading (Overrides ENABLE_AUTO_WATCH)
-  - REMOTE_HOST=your-server-ip         # Remote server IP/hostname
-  - REMOTE_PORT=22                     # Port: 22 for SFTP, 21 for FTP (auto-detected)
-  - REMOTE_USER=username               # Remote server username
-  - REMOTE_PASSWORD=password           # Remote server password (optional if using SSH key)
-  - REMOTE_KEY_PATH=/app/.ssh/id_rsa   # Path to SSH private key (default: /app/.ssh/id_rsa)
-  - REMOTE_KEY_PASSPHRASE=             # Passphrase for encrypted SSH keys (optional)
-  - REMOTE_PATH=/path/to/saves         # Remote path to save directory
-  - REMOTE_POLL_INTERVAL=60            # Polling interval in seconds (default: 60, set to 0 to disable toggling)
-```
 
-**Auto-Watch**: When enabled, the viewer automatically detects save file changes and pushes updates to the browser in real-time via Server-Sent Events (SSE). The toggle can be controlled from the frontend UI.
+  # Server Info over RCON (optional)
+  - RCON_HOST=your-palworld-server-ip
+  - RCON_PORT=8212
+  - RCON_PASSWORD=your_admin_password
 
-**Authentication**: When `ENABLE_LOGIN=true`, users must login before accessing the application. This is a simple single-user authentication system. Sessions last 7 days.
-
-**RCON Server Info**: When configured, adds a server info button to view real-time server status including:
-- Server name, version, and uptime
-- Online players with ping/latency
-- Server performance metrics (FPS, frame time)
-- All server configuration settings
-
-Requires your Palworld server to have RCON enabled and accessible.
-
-**Remote Save Loading**: When `REMOTE_SAVE_ENABLED=true`, downloads saves from remote SFTP/FTP servers with automatic polling instead of using local file mounts.
-
-- Protocol auto-detected by port (22=SFTP, 21=FTP)
-- SFTP supports SSH key or password auth (key tried first)
-- FTP uses password auth only
-- Polling interval configurable via `REMOTE_POLL_INTERVAL`
-
-**SFTP with SSH Key**:
-```yaml
-volumes:
-  - ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro
-environment:
-  - REMOTE_SAVE_ENABLED=true
-  - REMOTE_HOST=your-server.com
-  - REMOTE_PORT=22
+  # Remote save loading (optional - replaces the local mount and ENABLE_AUTO_WATCH)
+  - REMOTE_SAVE_ENABLED=false
+  - REMOTE_HOST=your-server-ip
+  - REMOTE_PORT=22                     # 22 for SFTP, 21 for FTP (protocol follows the port)
   - REMOTE_USER=username
+  - REMOTE_PASSWORD=password           # Optional if using an SSH key
+  - REMOTE_KEY_PATH=/app/.ssh/id_rsa   # SFTP: mount your key here (tried before the password)
+  - REMOTE_KEY_PASSPHRASE=             # For encrypted keys
   - REMOTE_PATH=/path/to/saves
-  # - REMOTE_KEY_PASSPHRASE=passphrase  # If key is encrypted
-  # - REMOTE_PASSWORD=fallback_pass  # Optional fallback
+  - REMOTE_POLL_INTERVAL=60            # Seconds between polls (0 disables toggling)
 ```
 
-**SFTP/FTP with Password**:
-```yaml
-environment:
-  - REMOTE_SAVE_ENABLED=true
-  - REMOTE_HOST=your-server.com
-  - REMOTE_PORT=22  # or 21 for FTP
-  - REMOTE_USER=username
-  - REMOTE_PASSWORD=password
-  - REMOTE_PATH=/path/to/saves
-```
+For SFTP with a key, also mount it: `- ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro`.
 
-## 📊 Viewing Options
+## 📜 API
 
-### Overview
-World info, player/pal/guild counts, save file metadata
+Everything the UI shows comes from `/api/*`, served from a snapshot built once per save load. The main ones:
 
-### Players
-Player stats with HP, hunger, SAN levels, and guild membership
-
-### Guilds
-Guild roster, admin info, and base locations with coordinates
-
-### Pals
-Every pal on the server with stats, skills, work suitabilities and owner. One search box; filters (element, work, passive, owner) are added as chips from a **+ Filter** menu, so the bar stays a single line until you ask for more.
-
-### Paldeck
-The species list, not the owned list: one card per Paldeck entry (subspecies share the base's number with a letter, like the game). Filter chips for element, work, how you get one (wild herds, alpha only, dungeons only, events and bosses: meteor events by region, raid eggs, the World Tree bosses, the Panthalus story catch), what it drops and which skill it learns -- the last two are searchable pickers over every item and skill in the deck. A species opens in its own modal: description, base work levels, partner skill, spawn zones with **Show on map**, breeding (special combos, or "only from two of them"), what it drops (and what its alpha drops), the skills it learns by level, and the pals of it on this server.
-
-Pick a player and the deck becomes their capture bonus tracker. The game pays bonus EXP for the first 5 catches of every species (1.0) from one climbing table read at a shared discovery chain (catches, new areas, bosses, relics, notes, pickups and fast travel points all advance it), so the strip shows what the **next catch is worth**, how many catches would reach the next level, and how many species are maxed; **Missing** keeps only the species still worth catching, sorted fewest catches first. A player's card in the Players tab has the same bar the game draws (EXP to next level), and the player modal's Records pane opens the Paldeck on their missing list.
-
-### Bases
-Base assignments showing pals at each guild base with status/hunger/SAN monitoring
-
-### Base Containers
-Food bowls and storage chests by base with item inventories
-
-### Map
-Interactive world map with guild bases and players live from the save, and the world's landmarks from the game data: syndicate towers (with the boss pair on hover), the 1.0 watchtowers, fast travel statues, dungeon entrances and alpha pal spawns, each its own layer in the panel (towers, watchtowers and alphas on by default; statues and the 170 dungeons off until you ask). Type a pal into the search box on the map (or hit **Where to find** in a pal's details) and every wild spawner that rolls that species lights up, sized to its real spawn radius, with level range, share of the spawner's rolls and night-only zones on hover. Spawn zones come from the game's own spawner tables (`data/json/spawns.json`), not the save, so they show where a species *can* appear rather than where one is right now.
-
-
+- `GET /api/players`, `/api/guilds`, `/api/pals`, `/api/base-containers`, `/api/activity` - the save as the tabs show it
+- `GET /api/paldeck`, `/api/paldeck/{species_id}` - every species, and one in full
+- `GET /api/map-objects`, `/api/spawns` - landmarks and wild spawn zones for the map
+- `GET /api/breeding/child|parents|partners|route`, `/api/workers` - the Tools tab
+- `GET /api/watch` - Server-Sent Events stream of save changes
+- `GET /api/health`, `/api/info`, `POST /api/reload`
 
 ## 🛠️ Development
 
-For development, use the provided `docker-compose.dev.yml` which builds with `DEV_MODE=true` for hot-reloading:
+`docker-compose.dev.yml` builds with `DEV_MODE=true`, which gives the backend uvicorn's `--reload` and turns auto-watch off (SSE connections keep uvicorn from reloading quickly):
 
 ```bash
-# Start development environment
 docker-compose -f docker-compose.dev.yml up --build
-
-# View logs
-docker-compose -f docker-compose.dev.yml logs -f
-
-# Stop
-docker-compose -f docker-compose.dev.yml down
 ```
 
-**How it works:**
-- **Build arg `DEV_MODE=true`**: Enables uvicorn's `--reload` flag for backend hot-reloading
-- **Image tags**: Dev builds tag as `palworld-lens:dev`, production as `palworld-lens:latest`
-- **Auto-watch disabled**: Set to `false` in dev to allow instant uvicorn reloads (SSE connections prevent fast reloads)
-- **Frontend changes**: After making changes, run `npm run build` in the `frontend/` folder to rebuild the Vite bundle, then refresh your browser
-- **Backend changes**: Auto-reloaded by uvicorn within 1-2 seconds
-- **Game data changes**: `data/` is bind-mounted read-only, so edits to `data/json` are picked up on the next backend reload
+Backend changes reload within a couple of seconds. Frontend changes need `npm run build` in `frontend/` and a browser refresh. `data/` is bind-mounted read-only, so game data edits show on the next backend reload.
 
 ### Tests
 
@@ -247,143 +114,20 @@ docker-compose -f docker-compose.dev.yml down
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest                       # backend: id resolution, stats, schemas, shipped data
 python scripts/datagen/validate.py --skip-tiles  # shipped data ↔ icons ↔ map objects coverage
-cd frontend && node --test 'tests/*.test.mjs'               # projection, reference-data lookups, paging
+cd frontend && node --test 'tests/*.test.mjs'    # projection, reference-data lookups, paging
+cd frontend && npm run test:e2e                  # smoke tests against a running dev instance
 ```
 
-The same three run in CI on every pull request (`.github/workflows/ci.yml`).
+The first three run in CI on every pull request (`.github/workflows/ci.yml`).
 
 ### Game data
 
-`data/json` is synced from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal);
-icons and map tiles are derived from the game files. The list of tables the app ships is
-`backend/common/game_tables.py`, and the app refuses to start if a required one is missing.
-See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command ingest.
-
-## 📜 API Endpoints
-
-### Core Endpoints
-- `GET /api/health` - Health check for container monitoring
-- `GET /api/info` - Save file information and metadata
-- `POST /api/reload` - Manually reload save files
-- `GET /api/reload` - Same as POST (for convenience)
-
-### Data Endpoints
-- `GET /api/players` - List all players with stats
-- `GET /api/guilds` - List all guilds (with base locations and the admin player's name)
-- `GET /api/pals` - List all pals (non-player characters)
-- `GET /api/base-containers` - Food boxes and storage per base, with contents
-- `GET /api/game-data` - Reference data the UI keys ids on: elements, work types, conditions, map layers
-- `GET /api/map-objects` - Static map markers (fast travel, watchtowers, towers, alpha pals, predators, dungeons)
-- `GET /api/spawns` - Wild spawner groups (points, radius, pals with share/level/night) plus the searchable species list
-- `GET /api/paldeck` - Every Paldeck species (number, elements, work levels, partner skill, spawn summary, owned count) plus each player's capture bonus progress: per-species bonus counts, the chain index, what the next catch pays, catches to the next level
-- `GET /api/paldeck/{species_id}` - One species in full: description, spawn groups, breeding, drops (base, high-level extras, alpha), learned skills by level, the pals of it on the server, who has caught it
-- `GET /api/breeding/species` - Breedable species with name, icon, elements and gender odds
-- `GET /api/breeding/child?a=&b=` - What two species produce (two results only for the gender-gated pairs)
-- `GET /api/breeding/parents?child=` - Every pair that produces a species, special combos first
-- `GET /api/breeding/partners?a=&child=` - Pairs producing a species that include parent A
-- `GET /api/breeding/route?target=&owner=` - Fewest breeds from the pals a player (or everyone) owns to a species: up to five complete plans (steps in breeding order, gender to hatch per step), whether the minimum is proven, and wild-catchable shortcuts that cut the plan down
-
-Everything above is served from a snapshot built once per save load; a reload swaps it atomically.
-
-### Auto-Watch Endpoints
-- `GET /api/watch` - Server-Sent Events stream for real-time updates
-- `GET /api/watch/status` - Check if auto-watch is currently active
-- `POST /api/watch/start` - Start automatic file watcher
-- `POST /api/watch/stop` - Stop automatic file watcher
-
-### Authentication Endpoints
-- `GET /api/auth/status` - Check if authentication is enabled and if user is logged in
-- `POST /api/auth/login` - Login with username and password
-- `POST /api/auth/logout` - Logout and clear session
-
-### Server Info Endpoints (RCON)
-- `GET /api/rcon/status` - Aggregated server information from RCON API (requires RCON configuration)
+`data/json` is synced from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal); icons, map tiles, spawn zones and the other pak-derived tables come from the game files. The list of tables the app ships is `backend/common/game_tables.py`, and the app refuses to start if a required one is missing. See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command update.
 
 ## 🙏 Credits
 
-This application uses the [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-tools) library for parsing save files.
-
-Based on concepts from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal) but streamlined for read-only viewing.
+Save parsing by [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-tools); game data and many ideas from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal).
 
 ## 📝 License
 
-MIT License - Feel free to use and modify!
-
-**Note:** This is a read-only viewer. It does not modify your save files in any way.
-
----
-
-## 📁 Project Structure
-
-```
-palworld-lens/
-│
-├── backend/                        # Python FastAPI backend
-│   ├── main.py                    # FastAPI app, API endpoints, SSE handling
-│   │
-│   ├── common/                    # Shared configuration and utilities
-│   │   ├── config.py             # Environment configuration
-│   │   ├── constants.py          # Condition names, work-icon slots
-│   │   ├── game_tables.py        # THE list of data/json tables (loader, sync, validate, tests)
-│   │   ├── pal_ids.py            # character_id -> species resolution (one rule, everywhere)
-│   │   ├── pal_icons.py          # character_id -> icon candidates (one rule, everywhere)
-│   │   ├── map_layers.py         # map textures + world bounds (from data/json/map_layers.json)
-│   │   └── logging_config.py     # Colored logging setup
-│   │
-│   ├── models/                    # Pydantic data models
-│   │   └── models.py             # PalInfo, PlayerInfo, GuildInfo schemas
-│   │
-│   ├── parser/                    # Save file parsing module
-│   │   ├── __init__.py           # SaveFileParser: loads a save, builds the Snapshot the API serves
-│   │   │
-│   │   ├── builders/             # Build model objects from raw data
-│   │   │   ├── pals.py          # Build PalInfo from character data
-│   │   │   ├── players.py       # Build PlayerInfo from player data
-│   │   │   ├── guilds.py        # Build GuildInfo from guild data + base metadata
-│   │   │   └── base_containers.py # Food boxes / storage per base
-│   │   │
-│   │   ├── extractors/          # Extract raw data from save structures
-│   │   │   ├── characters.py    # Character save parameter map
-│   │   │   ├── guilds.py        # Guild and base-camp collections
-│   │   │   ├── bases.py         # BaseMeta (guild, name, container, coords) + pal assignments
-│   │   │   ├── structures.py    # Food bowls, storage, item-container index
-│   │   │   └── relationships.py # Player <-> container <-> pal ownership
-│   │   │
-│   │   ├── loaders/             # Load game data and save files
-│   │   │   ├── data_loader.py   # Load the registered tables (fails fast), reference() for the UI
-│   │   │   ├── schema_loader.py # YAML schema parser and field extractor
-│   │   │   └── gvas_handler.py  # GVAS file decompression and parsing
-│   │   │
-│   │   ├── schemas/             # YAML field extraction schemas
-│   │   │   ├── pals.yaml        # Pal character field definitions
-│   │   │   ├── players.yaml     # Player character field definitions
-│   │   │   └── guilds.yaml      # Guild field definitions
-│   │   │
-│   │   └── utils/               # Parser utility functions
-│   │       ├── helpers.py       # Basic value extraction helpers
-│   │       ├── mappers.py       # Skill / building id -> display
-│   │       └── stats.py         # Calculate pal/player stats
-│   │
-│   └── utils/                    # Backend utilities
-│       └── watcher.py            # File system watcher for auto-reload
-│
-├── data/                          # Game data and localization
-│
-├── frontend/                      # Static web frontend
-│   ├── index.html                # Main SPA page
-│   ├── js/
-│   │   ├── app.js               # Main app logic, API calls, rendering
-│   │   └── utils.js             # Utility functions (formatting, etc.)
-│   └── img/
-│       └── favicon/             # App icons
-│
-├── supervisor/                    # Supervisor config for multi-process container
-│   ├── supervisord.conf          # Production config (backend + nginx)
-│   └── supervisord.dev.conf      # Dev config (hot-reload enabled)
-│
-├── docker-compose.yml             # Production compose file
-├── docker-compose.dev.yml         # Development compose file (hot-reload)
-├── Dockerfile                     # Multi-stage container build
-├── nginx.conf                     # Nginx reverse proxy config (internal container routing)
-├── requirements.txt               # Python dependencies
-```
+MIT
