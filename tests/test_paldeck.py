@@ -4,8 +4,8 @@ from types import SimpleNamespace
 from backend.common.breeding import BreedingIndex
 from backend.common.exp_tables import build_exp_tables
 from backend.common.pal_ids import SpeciesIndex
-from backend.common.paldeck import (build_paldeck_tables, deck_ids, deck_numbers, drops_for, filter_options, learnset_for, player_progress,
-                                    resolve_counts, spawn_summary, species_detail, species_rows)
+from backend.common.paldeck import (build_paldeck_tables, deck_aliases, deck_ids, deck_numbers, drops_for, filter_options, learnset_for,
+                                    owned_by_species, player_progress, resolve_counts, spawn_summary, species_detail, species_rows)
 
 PALS = {
     "SheepBall": {"is_pal": True, "pal_deck_index": 1, "localized_name": "Lamball", "description": "Fluffy.",
@@ -14,7 +14,10 @@ PALS = {
     "Kitsunebi": {"is_pal": True, "pal_deck_index": 5, "localized_name": "Foxparks", "element_types": ["Fire"],
                   "work_suitability": {"EmitFlame": 1}, "rarity": 1},
     "Kitsunebi_Ice": {"is_pal": True, "pal_deck_index": 5, "localized_name": "Foxcicle", "element_types": ["Ice"],
-                      "work_suitability": {"Cool": 1}, "rarity": 2, "nocturnal": True},
+                      "work_suitability": {"Cool": 1}, "rarity": 2, "nocturnal": True, "deck_suffix": "B"},
+    "PlantSlime": {"is_pal": True, "pal_deck_index": 12, "localized_name": "Gumoss", "element_types": ["Grass"]},
+    "PlantSlime_Flower": {"is_pal": True, "pal_deck_index": 12, "localized_name": "Gumoss", "element_types": ["Grass"],
+                          "deck_entry_of": "PlantSlime"},                                  # the flower Gumoss: entry 12, not 12B
     "IceHorse": {"is_pal": True, "pal_deck_index": 200, "localized_name": "Frostallion", "element_types": ["Ice"],
                  "work_suitability": {"Cool": 4}, "rarity": 20},
     "BOSS_IceHorse": {"is_pal": True, "pal_deck_index": 200, "is_boss": True},          # boss form: not a deck row
@@ -31,6 +34,8 @@ SPAWNS = {
               "pals": {"IceHorse": {"share": 1.0, "level": [50, 50], "boss": True}}},
     "room": {"kind": "dungeon", "points": {"MainMap": [[7, 7]]},
              "pals": {"Kitsunebi_Ice": {"share": 1.0, "level": [20, 25]}}},
+    "flowers": {"kind": "field", "points": {"MainMap": [[2, 2]]},
+                "pals": {"PlantSlime_Flower": {"share": 1.0, "level": [2, 4]}}},
 }
 BREEDING = {"pal_info": {k: {"combi_rank": 100 + i, "ignore_combi": k == "IceHorse"} for i, k in enumerate(("SheepBall", "Kitsunebi", "Kitsunebi_Ice", "IceHorse"))},
             "unique_combos": [{"parent_a": "Kitsunebi", "parent_b": "IceHorse", "child": "Kitsunebi_Ice"}],
@@ -103,8 +108,33 @@ def _player(name, level, exp, counts, bonus, index, chain=None):
 
 
 def test_deck_numbers_give_subspecies_the_base_number_with_a_letter():
-    assert deck_numbers(PALS) == {"SheepBall": "1", "Kitsunebi": "5", "Kitsunebi_Ice": "5B", "IceHorse": "200"}
-    assert deck_ids(PALS) == ["SheepBall", "Kitsunebi", "Kitsunebi_Ice", "IceHorse"]
+    assert deck_numbers(PALS) == {"SheepBall": "1", "Kitsunebi": "5", "Kitsunebi_Ice": "5B", "PlantSlime": "12", "IceHorse": "200"}
+    assert deck_ids(PALS) == ["SheepBall", "Kitsunebi", "Kitsunebi_Ice", "PlantSlime", "IceHorse"]
+
+
+def test_the_pak_suffix_places_a_subspecies_even_when_its_id_sorts_first():
+    pals = {"Zed_Fire": {"is_pal": True, "pal_deck_index": 9},                       # would be the base by id shape...
+            "Zed": {"is_pal": True, "pal_deck_index": 9, "deck_suffix": "B"}}         # ...but the pak says B
+    assert deck_numbers(pals) == {"Zed_Fire": "9", "Zed": "9B"}
+    no_pak = {"Zed_Fire": {"is_pal": True, "pal_deck_index": 9}, "Zed": {"is_pal": True, "pal_deck_index": 9}}
+    assert deck_numbers(no_pak) == {"Zed": "9", "Zed_Fire": "9B"}                     # the old shape rule as fallback
+
+
+def test_a_form_that_shares_an_entry_is_no_row_and_counts_for_its_entry():
+    assert deck_aliases(PALS) == {"PlantSlime_Flower": "PlantSlime"}
+    deck = set(deck_ids(PALS))
+    raw = {"PlantSlime": 3, "PlantSlime_Flower": 2, "BOSS_PlantSlime_Flower": 1}
+    assert resolve_counts(raw, SpeciesIndex(PALS.keys()), deck) == {"PlantSlime": 3}                     # without the aliases it is lost
+    assert resolve_counts(raw, SpeciesIndex(PALS.keys()), deck, aliases=deck_aliases(PALS)) == {"PlantSlime": 6}
+    owned = owned_by_species([_pal("a", "PlantSlime", 3), _pal("b", "PlantSlime_Flower", 4, owner="Ricky")], deck_aliases(PALS))
+    assert owned["PlantSlime"]["count"] == 2 and owned["PlantSlime"]["owners"] == {"Envy", "Ricky"} and "PlantSlime_Flower" not in owned
+    rows = species_rows(_Data(), [_pal("b", "PlantSlime_Flower", 4)])
+    gum = next(r for r in rows if r["id"] == "PlantSlime")
+    assert gum["owned"] == 1 and not any(r["id"] == "PlantSlime_Flower" for r in rows)
+    detail = species_detail(_Data(), "PlantSlime", [], [_player("Envy", 2, 120, {"PlantSlime_Flower": 2}, {"PlantSlime_Flower": 2}, 2)])
+    assert [g["name"] for g in detail["spawn_groups"]] == ["flowers"]                  # the flower spawner shows on Gumoss's card
+    assert detail["caught_by"] == [{"name": "Envy", "caught": 2, "bonus": 2}]
+    assert species_detail(_Data(), "PlantSlime_Flower", [], []) is None
 
 
 def test_spawn_summary_says_how_you_get_one():
@@ -118,12 +148,12 @@ def test_spawn_summary_says_how_you_get_one():
 def test_species_rows_are_the_deck_in_order_with_server_counts():
     pals = [_pal("a", "SheepBall", 3), _pal("b", "SheepBall", 7, owner="Ricky"), _pal("c", "IceHorse", 50), _pal("d", "SheepBall", 1)]
     rows = species_rows(_Data(), pals)
-    assert [r["number"] for r in rows] == ["1", "5", "5B", "200"]
+    assert [r["number"] for r in rows] == ["1", "5", "5B", "12", "200"]
     lam = rows[0]
     assert lam["name"] == "Lamball" and lam["owned"] == 3 and lam["owners"] == 2
     assert lam["work_suitability"] == {"Handcraft": 1, "Transport": 1}     # zero levels dropped
     assert lam["best_work"] == "Handcraft" and lam["breedable"] is True and lam["spawn"]["how"] == "wild"
-    frost = rows[3]
+    frost = rows[4]
     assert frost["partner_skill"] == "Ice Steed" and frost["owned"] == 1 and frost["spawn"]["how"] == "alpha"
     assert rows[2]["spawn"]["how"] == "dungeon" and rows[2]["owned"] == 0 and rows[2]["nocturnal"] is True
 
@@ -149,12 +179,12 @@ def test_player_progress_reads_the_chain_and_the_ladder():
     assert envy["exp_to_next_level"] == 80                                     # level 3 at 200 total
     assert envy["catches_to_next_level"] == 1                                  # 80 covers it
     assert envy["species_done"] == 1 and envy["species_started"] == 2
-    assert envy["bonus_left"] == 0 + 3 + 5 + 5                                 # 4 deck species, 20 slots
+    assert envy["bonus_left"] == 0 + 3 + 5 + 5 + 5                             # 5 deck species, 25 slots
     assert envy["bonus"] == {"SheepBall": 5, "Kitsunebi": 2} and envy["caught"]["SheepBall"] == 9
     # the server's ExpRate scales what a catch pays, so fewer catches are needed
     doubled = player_progress(players[:1], SpeciesIndex(PALS.keys()), deck, EXP, rate=2.0)[0]
     assert doubled["next_bonus_exp"] == 160 and doubled["catches_to_next_level"] == 1
-    assert got[1]["bonus_left"] == 20 and got[1]["catches_to_next_level"] == 3   # 10 + 20 + 30 >= 50
+    assert got[1]["bonus_left"] == 25 and got[1]["catches_to_next_level"] == 3   # 10 + 20 + 30 >= 50
     # the table is read at the shared discovery chain, which runs ahead of the capture counter
     ahead = player_progress([_player("Envy", 2, 120, {}, {"SheepBall": 2}, 2, chain=9)], SpeciesIndex(PALS.keys()), deck, EXP, rate=None)[0]
     assert ahead["bonus_index"] == 2 and ahead["chain_index"] == 9 and ahead["next_bonus_exp"] == 100

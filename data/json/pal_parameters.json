@@ -7,7 +7,8 @@
    "best_work_suitability": "EmitFlame"
   },
   "AmaterasuWolf_Dark": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "AmaterasuWolf_Dark_Quest_Enemy": {
    "best_work_suitability": "EmitFlame"
@@ -25,28 +26,33 @@
    "best_work_suitability": "EmitFlame"
   },
   "Baphomet_Dark": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "Baphomet_Dark_Oilrig": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "Bastet": {
    "best_work_suitability": "MonsterFarm"
   },
   "Bastet_Ice": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_suffix": "B"
   },
   "BerryGoat": {
    "best_work_suitability": "MonsterFarm"
   },
   "BerryGoat_Dark": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_suffix": "B"
   },
   "BirdDragon": {
    "best_work_suitability": "Transport"
   },
   "BirdDragon_Ice": {
-   "best_work_suitability": "Transport"
+   "best_work_suitability": "Transport",
+   "deck_suffix": "B"
   },
   "BlackCentaur": {
    "best_work_suitability": "Deforest"
@@ -61,19 +67,22 @@
    "best_work_suitability": "Collection"
   },
   "BlackPuppy_Ice": {
-   "best_work_suitability": "Collection"
+   "best_work_suitability": "Collection",
+   "deck_suffix": "B"
   },
   "BlueDragon": {
    "best_work_suitability": "Watering"
   },
   "BlueDragon_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "BluePlatypus": {
    "best_work_suitability": "Watering"
   },
   "BluePlatypus_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "BlueSkyDragon": {
    "best_work_suitability": "Watering"
@@ -94,7 +103,8 @@
    "best_work_suitability": "Seeding"
   },
   "CactusDoll_Dark": {
-   "best_work_suitability": "Seeding"
+   "best_work_suitability": "Seeding",
+   "deck_suffix": "B"
   },
   "CandleGhost": {
    "best_work_suitability": "MonsterFarm"
@@ -103,7 +113,8 @@
    "best_work_suitability": "Mining"
   },
   "CaptainPenguin_Black": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "Carbunclo": {
    "best_work_suitability": "Seeding"
@@ -115,7 +126,8 @@
    "best_work_suitability": "Handcraft"
   },
   "CatMage_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "CatVampire": {
    "best_work_suitability": "ProductMedicine"
@@ -142,7 +154,8 @@
    "best_work_suitability": "Mining"
   },
   "CubeTurtle_Neutral": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "CuteButterfly": {
    "best_work_suitability": "Seeding"
@@ -160,7 +173,8 @@
    "best_work_suitability": "Deforest"
   },
   "DarkAlien_Oilrig": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_entry_of": "DarkAlien"
   },
   "DarkCrow": {
    "best_work_suitability": "MonsterFarm"
@@ -175,13 +189,15 @@
    "best_work_suitability": "Mining"
   },
   "DarkScorpion_Ground": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "Deer": {
    "best_work_suitability": "Deforest"
   },
   "Deer_Ground": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "DomeArmorDragon": {
    "best_work_suitability": "Mining"
@@ -211,13 +227,15 @@
    "best_work_suitability": "GenerateElectricity"
   },
   "ElecSnail_Ground": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "FairyDragon": {
    "best_work_suitability": "Deforest"
   },
   "FairyDragon_Water": {
-   "best_work_suitability": "Watering"
+   "best_work_suitability": "Watering",
+   "deck_suffix": "B"
   },
   "FeatherOstrich": {
    "best_work_suitability": "Collection"
@@ -226,13 +244,15 @@
    "best_work_suitability": "Deforest"
   },
   "FengyunDeeper_Electric": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "FireKirin": {
    "best_work_suitability": "EmitFlame"
   },
   "FireKirin_Dark": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "FlameBambi": {
    "best_work_suitability": "MonsterFarm"
@@ -244,13 +264,15 @@
    "best_work_suitability": "Seeding"
   },
   "FlowerDinosaur_Electric": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "FlowerDoll": {
    "best_work_suitability": "Seeding"
   },
   "FlowerDoll_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "FlowerPrince": {
    "best_work_suitability": "Seeding"
@@ -265,7 +287,8 @@
    "best_work_suitability": "Watering"
   },
   "FlyingManta_Thunder": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "FoxExorcist": {
    "best_work_suitability": "EmitFlame"
@@ -274,7 +297,8 @@
    "best_work_suitability": "EmitFlame"
   },
   "FoxMage_Dark": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "GYM_BlackGriffon": {
    "best_work_suitability": "Collection"
@@ -343,7 +367,8 @@
    "best_work_suitability": "Watering"
   },
   "GhostAnglerfish_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "GhostBeast": {
    "best_work_suitability": "Collection"
@@ -355,13 +380,15 @@
    "best_work_suitability": "Transport"
   },
   "GhostDragon_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "GhostRabbit": {
    "best_work_suitability": "Handcraft"
   },
   "GhostRabbit_Grass": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_suffix": "B"
   },
   "GoldenHorse": {
    "best_work_suitability": "Collection"
@@ -370,34 +397,40 @@
    "best_work_suitability": "Deforest"
   },
   "Gorilla_Ground": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "GrassGolem": {
    "best_work_suitability": "Mining"
   },
   "GrassGolem_Dark": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "GrassMammoth": {
    "best_work_suitability": "Seeding"
   },
   "GrassMammoth_Ice": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "GrassMinotaur": {
    "best_work_suitability": "Seeding"
   },
   "GrassMinotaur_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "GrassPanda": {
    "best_work_suitability": "Deforest"
   },
   "GrassPanda_Electric": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "GrassPanda_Electric_Tower": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "GrassRabbitMan": {
    "best_work_suitability": "Handcraft"
@@ -412,10 +445,12 @@
    "best_work_suitability": "Transport"
   },
   "HadesBird_Electric": {
-   "best_work_suitability": "Transport"
+   "best_work_suitability": "Transport",
+   "deck_suffix": "B"
   },
   "HadesBird_Oilrig": {
-   "best_work_suitability": "Transport"
+   "best_work_suitability": "Transport",
+   "deck_entry_of": "HadesBird"
   },
   "HawkBird": {
    "best_work_suitability": "Collection"
@@ -424,13 +459,15 @@
    "best_work_suitability": "GenerateElectricity"
   },
   "Hedgehog_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "HerculesBeetle": {
    "best_work_suitability": "Transport"
   },
   "HerculesBeetle_Ground": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "HoodGhost": {
    "best_work_suitability": "Handcraft"
@@ -439,10 +476,12 @@
    "best_work_suitability": "EmitFlame"
   },
   "Horus_Oilrig": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_entry_of": "Horus"
   },
   "Horus_Water": {
-   "best_work_suitability": "Watering"
+   "best_work_suitability": "Watering",
+   "deck_suffix": "B"
   },
   "IceCrocodile": {
    "best_work_suitability": "Cool"
@@ -457,19 +496,22 @@
    "best_work_suitability": "Cool"
   },
   "IceHorse_Dark": {
-   "best_work_suitability": "Collection"
+   "best_work_suitability": "Collection",
+   "deck_suffix": "B"
   },
   "IceNarwhal": {
    "best_work_suitability": "Cool"
   },
   "IceNarwhal_Fire": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "IceSeal": {
    "best_work_suitability": "Cool"
   },
   "IceSeal_Ground": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "IceWitch": {
    "best_work_suitability": "Handcraft"
@@ -490,43 +532,50 @@
    "best_work_suitability": "MonsterFarm"
   },
   "Kelpie_Fire": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_suffix": "B"
   },
   "KendoFrog": {
    "best_work_suitability": "Watering"
   },
   "KendoFrog_Dark": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_suffix": "B"
   },
   "KingAlpaca": {
    "best_work_suitability": "Collection"
   },
   "KingAlpaca_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "KingBahamut": {
    "best_work_suitability": "Mining"
   },
   "KingBahamut_Dragon": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "KingSunfish": {
    "best_work_suitability": "Watering"
   },
   "KingSunfish_Thunder": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "Kirin": {
    "best_work_suitability": "GenerateElectricity"
   },
   "Kirin_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "Kitsunebi": {
    "best_work_suitability": "EmitFlame"
   },
   "Kitsunebi_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "LanternButler": {
    "best_work_suitability": "EmitFlame"
@@ -538,16 +587,19 @@
    "best_work_suitability": "MonsterFarm"
   },
   "LazyCatfish_Gold": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_suffix": "B"
   },
   "LazyDragon": {
    "best_work_suitability": "Watering"
   },
   "LazyDragon_Electric": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "LazyDragon_Electric_Tower": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "LeafMomonga": {
    "best_work_suitability": "Seeding"
@@ -562,7 +614,8 @@
    "best_work_suitability": "Seeding"
   },
   "LilyQueen_Dark": {
-   "best_work_suitability": "ProductMedicine"
+   "best_work_suitability": "ProductMedicine",
+   "deck_suffix": "B"
   },
   "LittleBriarRose": {
    "best_work_suitability": "Seeding"
@@ -571,10 +624,12 @@
    "best_work_suitability": "Handcraft"
   },
   "LizardMan_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "LizardMan_Oilrig": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_entry_of": "LizardMan"
   },
   "LongCat": {
    "best_work_suitability": "Collection"
@@ -586,7 +641,8 @@
    "best_work_suitability": "EmitFlame"
   },
   "Manticore_Dark": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "MimicDog": {
    "best_work_suitability": "Transport"
@@ -595,7 +651,8 @@
    "best_work_suitability": "Seeding"
   },
   "Monkey_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "MonochromeQueen": {
    "best_work_suitability": "Handcraft"
@@ -622,7 +679,8 @@
    "best_work_suitability": "MonsterFarm"
   },
   "MushroomDragon_Dark": {
-   "best_work_suitability": "Seeding"
+   "best_work_suitability": "Seeding",
+   "deck_suffix": "B"
   },
   "MushroomLady": {
    "best_work_suitability": "Seeding"
@@ -643,13 +701,15 @@
    "best_work_suitability": "Transport"
   },
   "NegativeOctopus_Neutral": {
-   "best_work_suitability": "Transport"
+   "best_work_suitability": "Transport",
+   "deck_suffix": "B"
   },
   "NightBlueHorse": {
    "best_work_suitability": "Collection"
   },
   "NightBlueHorse_Neutral": {
-   "best_work_suitability": "Collection"
+   "best_work_suitability": "Collection",
+   "deck_suffix": "B"
   },
   "NightFox": {
    "best_work_suitability": "Collection"
@@ -658,13 +718,15 @@
    "best_work_suitability": "Handcraft"
   },
   "NightLady_Dark": {
-   "best_work_suitability": "ProductMedicine"
+   "best_work_suitability": "ProductMedicine",
+   "deck_suffix": "B"
   },
   "OctopusGirl": {
    "best_work_suitability": "Watering"
   },
   "OctopusGirl_Neutral": {
-   "best_work_suitability": "Watering"
+   "best_work_suitability": "Watering",
+   "deck_suffix": "B"
   },
   "OniGhostGirl": {
    "best_work_suitability": "ProductMedicine"
@@ -823,7 +885,8 @@
    "best_work_suitability": "Watering"
   },
   "Penguin_Electric": {
-   "best_work_suitability": "GenerateElectricity"
+   "best_work_suitability": "GenerateElectricity",
+   "deck_suffix": "B"
   },
   "PinkCat": {
    "best_work_suitability": "Handcraft"
@@ -835,13 +898,15 @@
    "best_work_suitability": "Handcraft"
   },
   "PinkRabbit_Grass": {
-   "best_work_suitability": "Seeding"
+   "best_work_suitability": "Seeding",
+   "deck_suffix": "B"
   },
   "PlantSlime": {
    "best_work_suitability": "Seeding"
   },
   "PlantSlime_Flower": {
-   "best_work_suitability": "Seeding"
+   "best_work_suitability": "Seeding",
+   "deck_entry_of": "PlantSlime"
   },
   "Plesiosaur": {
    "best_work_suitability": "Seeding"
@@ -856,10 +921,12 @@
    "best_work_suitability": "Seeding"
   },
   "Quest_Farmer03_PinkCat": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_entry_of": "PinkCat"
   },
   "Quest_Farmer03_SheepBall": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_entry_of": "Sheepball"
   },
   "RAID_DarkMechaDragon": {
    "best_work_suitability": "Collection"
@@ -886,7 +953,8 @@
    "best_work_suitability": "GenerateElectricity"
   },
   "RaijinDaughter_Water": {
-   "best_work_suitability": "Transport"
+   "best_work_suitability": "Transport",
+   "deck_suffix": "B"
   },
   "RedArmorBird": {
    "best_work_suitability": "Transport"
@@ -898,31 +966,38 @@
    "best_work_suitability": "Handcraft"
   },
   "RobinHood_Ground": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_suffix": "B"
   },
   "RockBeast": {
    "best_work_suitability": "Mining"
   },
   "RockBeast_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "Ronin": {
    "best_work_suitability": "Deforest"
   },
   "Ronin_Dark": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "SUMMON_DarkAlien": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_entry_of": "DarkAlien"
   },
   "SUMMON_DarkAlien_MAX": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_entry_of": "DarkAlien"
   },
   "SUMMON_WhiteAlienDragon": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_entry_of": "WhiteAlienDragon"
   },
   "SUMMON_WhiteAlienDragon_MAX": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_entry_of": "WhiteAlienDragon"
   },
   "SaintCentaur": {
    "best_work_suitability": "Deforest"
@@ -931,7 +1006,8 @@
    "best_work_suitability": "Seeding"
   },
   "SakuraSaurus_Water": {
-   "best_work_suitability": "Watering"
+   "best_work_suitability": "Watering",
+   "deck_suffix": "B"
   },
   "SamuraiDog": {
    "best_work_suitability": "Collection"
@@ -940,7 +1016,8 @@
    "best_work_suitability": "Deforest"
   },
   "ScorpionMan_Electric": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "Sekhmet": {
    "best_work_suitability": "Handcraft"
@@ -949,13 +1026,15 @@
    "best_work_suitability": "MonsterFarm"
   },
   "Serpent_Ground": {
-   "best_work_suitability": "Collection"
+   "best_work_suitability": "Collection",
+   "deck_suffix": "B"
   },
   "SharkKid": {
    "best_work_suitability": "Watering"
   },
   "SharkKid_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "Sheepball": {
    "best_work_suitability": "MonsterFarm"
@@ -967,7 +1046,8 @@
    "best_work_suitability": "Transport"
   },
   "SkyDragon_Grass": {
-   "best_work_suitability": "Seeding"
+   "best_work_suitability": "Seeding",
+   "deck_suffix": "B"
   },
   "SleeveRabbit": {
    "best_work_suitability": "Handcraft"
@@ -994,7 +1074,8 @@
    "best_work_suitability": "Watering"
   },
   "StuffedShark_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "SumoDog": {
    "best_work_suitability": "Mining"
@@ -1003,25 +1084,29 @@
    "best_work_suitability": "EmitFlame"
   },
   "Suzaku_Water": {
-   "best_work_suitability": "Watering"
+   "best_work_suitability": "Watering",
+   "deck_suffix": "B"
   },
   "SweetsSheep": {
    "best_work_suitability": "MonsterFarm"
   },
   "SweetsSheep_Ground": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_suffix": "B"
   },
   "SwordCutlassfish": {
    "best_work_suitability": "Watering"
   },
   "SwordCutlassfish_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "TentacleTurtle": {
    "best_work_suitability": "Watering"
   },
   "TentacleTurtle_Ground": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "ThiefBird": {
    "best_work_suitability": "Collection"
@@ -1030,13 +1115,15 @@
    "best_work_suitability": "Transport"
   },
   "ThunderBird_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "ThunderDog": {
    "best_work_suitability": "GenerateElectricity"
   },
   "ThunderDog_Ice": {
-   "best_work_suitability": "Cool"
+   "best_work_suitability": "Cool",
+   "deck_suffix": "B"
   },
   "ThunderDragonMan": {
    "best_work_suitability": "GenerateElectricity"
@@ -1051,7 +1138,8 @@
    "best_work_suitability": "Watering"
   },
   "Umihebi_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "VenusFlytrap": {
    "best_work_suitability": "Seeding"
@@ -1063,25 +1151,29 @@
    "best_work_suitability": "EmitFlame"
   },
   "VolcanicMonster_Ice": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "VolcanoDragon": {
    "best_work_suitability": "EmitFlame"
   },
   "VolcanoDragon_Ice": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "WeaselDragon": {
    "best_work_suitability": "Cool"
   },
   "WeaselDragon_Fire": {
-   "best_work_suitability": "EmitFlame"
+   "best_work_suitability": "EmitFlame",
+   "deck_suffix": "B"
   },
   "Werewolf": {
    "best_work_suitability": "Handcraft"
   },
   "Werewolf_Ice": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_suffix": "B"
   },
   "WhiteAlienDragon": {
    "best_work_suitability": "Mining"
@@ -1090,13 +1182,15 @@
    "best_work_suitability": "Deforest"
   },
   "WhiteDeer_Dark": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "WhiteMoth": {
    "best_work_suitability": "MonsterFarm"
   },
   "WhiteMoth_Neutral": {
-   "best_work_suitability": "MonsterFarm"
+   "best_work_suitability": "MonsterFarm",
+   "deck_suffix": "B"
   },
   "WhiteShieldDragon": {
    "best_work_suitability": "Deforest"
@@ -1105,22 +1199,26 @@
    "best_work_suitability": "Deforest"
   },
   "WhiteTiger_Ground": {
-   "best_work_suitability": "Deforest"
+   "best_work_suitability": "Deforest",
+   "deck_suffix": "B"
   },
   "WindChimes": {
    "best_work_suitability": "Transport"
   },
   "WindChimes_Ice": {
-   "best_work_suitability": "Handcraft"
+   "best_work_suitability": "Handcraft",
+   "deck_suffix": "B"
   },
   "WingGolem": {
    "best_work_suitability": "Mining"
   },
   "WingGolem_Fire": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_suffix": "B"
   },
   "WingGolem_Oilrig": {
-   "best_work_suitability": "Mining"
+   "best_work_suitability": "Mining",
+   "deck_entry_of": "WingGolem"
   },
   "WizardOwl": {
    "best_work_suitability": "Collection"
@@ -1165,7 +1263,8 @@
    "best_work_suitability": "Transport"
   },
   "Yeti_Grass": {
-   "best_work_suitability": "Transport"
+   "best_work_suitability": "Transport",
+   "deck_suffix": "B"
   }
  },
  "stat_rows": {
