@@ -16,6 +16,7 @@ Docker image). Non-zero exit on a real problem.
 """
 
 import argparse
+from collections import defaultdict
 import json
 import sys
 
@@ -327,6 +328,24 @@ def check_deck_disabled(pals):
         notes.append('deck overrides in force: ' + ', '.join(overridden))
 
 
+def check_deck_numbers(pals):
+    """Two deck rows with one number = a same-entry form drawn as a subspecies (the flower Gumoss was
+    12B until 2026-09-29). The pak decides: pal_parameters.json deck_suffix / deck_entry_of."""
+    from backend.common.obtain import SPECIES_OVERRIDES
+    from backend.common.paldeck import deck_aliases, deck_numbers
+    params = (_json(DATA_JSON / 'pal_parameters.json') or {}).get('species') or {}
+    merged = {sid: {**row, **(params.get(sid) or {}), **SPECIES_OVERRIDES.get(sid, {})}
+              for sid, row in pals.items() if isinstance(row, dict)}
+    numbers = deck_numbers(merged)
+    seen = defaultdict(list)
+    for sid, n in numbers.items():
+        seen[n].append(sid)
+    dupes = {n: ids for n, ids in seen.items() if len(ids) > 1}
+    if dupes:
+        problems.append('deck numbers shared by more than one row: ' + '; '.join(f'{n}: {", ".join(ids)}' for n, ids in sorted(dupes.items())))
+    notes.append(f'{len(numbers)} Paldeck entries; {len(deck_aliases(merged))} forms share another entry')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--skip-tiles', action='store_true', help='do not require sliced tiles (CI)')
@@ -349,6 +368,7 @@ def main():
     check_partner_skills(pals)
     check_pal_parameters(pals)
     check_deck_disabled(pals)
+    check_deck_numbers(pals)
     check_schematics()
     check_activity_tables()
     check_breeding(pals, species)

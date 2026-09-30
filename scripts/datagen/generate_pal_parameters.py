@@ -11,6 +11,13 @@ Two sections:
                             star raises this job (see backend/parser/utils/stats.py);
                             it is NOT always the highest-level job -- ranch pals
                             such as Serpent (Watering 3, Ranch 2) point at Ranch.
+    deck_suffix             ZukanIndexSuffix: "B" on a subspecies that shares its
+                            base's Paldeck number (Kitsunebi_Ice = 5B).
+    deck_entry_of           the species whose Paldeck entry this id shares: same
+                            ZukanIndex, no suffix, and the row borrows that species'
+                            name (OverrideNameTextID). PlantSlime_Flower, the rare
+                            flower Gumoss, is #12 like plain Gumoss -- not 12B -- and
+                            so are the Oilrig / Quest / SUMMON copies. Not a deck row.
 
   stat_rows keyed by the pak row id, i.e. the save's CharacterID (BOSS_IceHorse,
             WingGolem_Oilrig, ...), one per pal row: the stat inputs of
@@ -75,16 +82,32 @@ def build(src: Path, species: SpeciesIndex):
             'f_hp': r.get('Friendship_HP', 0.0), 'f_shot': r.get('Friendship_ShotAttack', 0.0),
             'f_defense': r.get('Friendship_Defense', 0.0), 'f_craft': r.get('Friendship_CraftSpeed', 0.0),
         }
-        best = str(r.get('BestWorkSuitability') or NONE).split('::')[-1]
-        # A few raid / quest rows flag a job the species does not have; skip those.
-        if best == NONE or not r.get(f'WorkSuitability_{best}', 0):
-            continue
         sid = species.resolve(pak_id, trim_variants=False)
         if sid is None:
             unresolved.append(pak_id)
             continue
-        out.setdefault(sid, {})['best_work_suitability'] = best
+        best = str(r.get('BestWorkSuitability') or NONE).split('::')[-1]
+        # A few raid / quest rows flag a job the species does not have; skip those.
+        if best != NONE and r.get(f'WorkSuitability_{best}', 0):
+            out.setdefault(sid, {})['best_work_suitability'] = best
+        if int(r.get('ZukanIndex') or 0) > 0:
+            suffix = str(r.get('ZukanIndexSuffix') or '').strip()
+            if suffix:
+                out.setdefault(sid, {})['deck_suffix'] = suffix
+            else:
+                entry = deck_entry_of(r, sid, species)
+                if entry:
+                    out.setdefault(sid, {})['deck_entry_of'] = entry
     return dict(sorted(out.items())), unresolved, dict(sorted(stat_rows.items()))
+
+
+def deck_entry_of(row, sid, species: SpeciesIndex):
+    """The species whose Paldeck entry an unsuffixed row shares, read off the name it borrows."""
+    name_id = str(row.get('OverrideNameTextID') or NONE)
+    if not name_id.startswith('PAL_NAME_'):
+        return None
+    base = species.resolve(name_id[len('PAL_NAME_'):], trim_variants=False)
+    return base if base and base != sid else None
 
 
 def main():
@@ -98,7 +121,12 @@ def main():
     with open(DATA_JSON / 'pals.json', encoding='utf-8') as f:
         pals = json.load(f)
     out, unresolved, stat_rows = build(src, SpeciesIndex(pals.keys()))
-    print(f'\n{len(out)} species with a best job; {len(unresolved)} pak ids not in pals.json; {len(stat_rows)} stat rows')
+    shared = {k: v['deck_entry_of'] for k, v in out.items() if v.get('deck_entry_of')}
+    print(f'\n{len(out)} species; {len(unresolved)} pak ids not in pals.json; {len(stat_rows)} stat rows; '
+          f'{sum(1 for v in out.values() if v.get("deck_suffix"))} B subspecies; {len(shared)} ids sharing another entry')
+    plain = {k: v for k, v in shared.items() if not k.startswith(('Quest_', 'SUMMON_')) and not k.endswith('_Oilrig')}
+    if plain:
+        print('  same-entry forms that are not scripted copies: ' + ', '.join(f'{k} -> {v}' for k, v in sorted(plain.items())))
     gap = [k for k, v in pals.items() if v.get('is_pal') and any((v.get('work_suitability') or {}).values()) and k not in out]
     if gap:
         print(f'  WARNING {len(gap)} working species without a best job: ' + ', '.join(gap[:8]))

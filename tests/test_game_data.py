@@ -170,3 +170,17 @@ def test_no_deck_pal_is_disabled_upstream_without_an_override(pals):
               and SPECIES_OVERRIDES.get(sid, {}).get('disabled', True)]
     assert hidden == [], hidden
     assert pals['KingWhale'].get('disabled') is True, 'save-pal fixed Panthalus upstream: the override can go'
+
+
+def test_deck_numbers_are_unique_and_the_flower_gumoss_shares_entry_12(pals):
+    # The pak places every id (pal_parameters.json deck_suffix / deck_entry_of); two deck rows with one
+    # number means a same-entry form is being shown as a subspecies again (PlantSlime_Flower, 2026-09-29).
+    from backend.common.paldeck import deck_aliases, deck_numbers
+    params = (_json(DATA / 'pal_parameters.json').get('species') or {})
+    merged = {sid: {**row, **(params.get(sid) or {}), **SPECIES_OVERRIDES.get(sid, {})} for sid, row in pals.items()}
+    numbers = deck_numbers(merged)
+    dupes = sorted({n for n in numbers.values() if list(numbers.values()).count(n) > 1})
+    assert dupes == [], dupes
+    assert 'PlantSlime_Flower' not in numbers and deck_aliases(merged)['PlantSlime_Flower'] == 'PlantSlime'
+    assert numbers['PlantSlime'] == '12' and sum(1 for n in numbers.values() if n.endswith('B')) >= 80   # the pak's suffix, not our guess
+    assert len(numbers) == 288, len(numbers)      # 1.0's Paldeck

@@ -4,7 +4,11 @@ Two views over the same species table (data/json/pals.json):
 
   * the deck itself -- one row per Paldeck entry (288 on 1.0: the numbered species plus
     their "B" subspecies, which share the base's number), with the reference data the
-    UI shows on a card: elements, work levels, partner skill name, where it spawns;
+    UI shows on a card: elements, work levels, partner skill name, where it spawns.
+    The pak places every id (pal_parameters.json deck_suffix / deck_entry_of): a form
+    that shares an entry outright -- the flower Gumoss is #12 like plain Gumoss, the
+    Oilrig and Quest copies likewise -- is no row of its own, and whatever the save
+    keys under it counts for the entry it shares;
   * a player's capture-bonus progress -- their RecordData maps (backend/common/
     exp_tables.py explains the chain) resolved onto deck ids, plus what the next bonus
     catch pays (read at the shared discovery chain: catches, areas, bosses, relics, notes,
@@ -106,21 +110,34 @@ def is_deck_species(sid: str, row: Dict) -> bool:
         return False
     if row.get('is_boss') or row.get('is_tower_boss') or row.get('is_raid_boss'):
         return False
+    if row.get('deck_entry_of'):
+        return False
     return not is_variant_id(sid)
 
 
+def deck_aliases(pals: Dict[str, Dict]) -> Dict[str, str]:
+    """{species id: the deck id whose entry it shares} for the same-entry forms (pak deck_entry_of)."""
+    return {sid: row['deck_entry_of'] for sid, row in pals.items()
+            if isinstance(row, dict) and row.get('deck_entry_of') and row['deck_entry_of'] in pals}
+
+
 def deck_numbers(pals: Dict[str, Dict]) -> Dict[str, str]:
-    """{species id: "200" | "200B"}: subspecies share the base's number and take a letter, like the game."""
+    """{species id: "200" | "200B"}: subspecies share the base's number and take a letter, like the game.
+
+    The pak's ZukanIndexSuffix (pal_parameters.json deck_suffix) is the letter when present;
+    without it the base form is the id without a variant suffix and the rest take letters in turn.
+    """
     by_index: Dict[int, List[str]] = defaultdict(list)
     for sid, row in pals.items():
         if is_deck_species(sid, row):
             by_index[int(row['pal_deck_index'])].append(sid)
     out: Dict[str, str] = {}
     for index, ids in by_index.items():
-        # the base form is the id without a variant suffix (shortest wins when both carry one)
-        ids.sort(key=lambda s: (s.count('_'), len(s), s))
+        # suffixed forms after the base; among the unsuffixed the shortest id is the base
+        ids.sort(key=lambda s: (str(pals[s].get('deck_suffix') or ''), s.count('_'), len(s), s))
         for i, sid in enumerate(ids):
-            out[sid] = str(index) if i == 0 else f'{index}{chr(ord("A") + i)}'
+            suffix = str(pals[sid].get('deck_suffix') or '') or ('' if i == 0 else chr(ord('A') + i))
+            out[sid] = f'{index}{suffix}'
     return out
 
 
@@ -163,13 +180,14 @@ def spawn_summary(groups: Dict[str, Dict]) -> Dict[str, Dict]:
     return out
 
 
-def owned_by_species(pals: Iterable) -> Dict[str, Dict]:
-    """{species id: {count, owners}} over the server's pals."""
+def owned_by_species(pals: Iterable, aliases: Optional[Dict[str, str]] = None) -> Dict[str, Dict]:
+    """{species id: {count, owners}} over the server's pals; a same-entry form counts for its entry."""
     out: Dict[str, Dict] = {}
     for p in pals:
         sid = getattr(p, 'species_id', None)
         if not sid:
             continue
+        sid = (aliases or {}).get(sid, sid)
         s = out.setdefault(sid, {'count': 0, 'owners': set()})
         s['count'] += 1
         if getattr(p, 'owner_uid', None):
@@ -182,7 +200,7 @@ def species_rows(data, pals: Iterable) -> List[Dict]:
     numbers = deck_numbers(data.pals)
     spawns = spawn_summary(data.spawns)
     obtain = getattr(data, 'obtain', None) or {}
-    owned = owned_by_species(pals)
+    owned = owned_by_species(pals, deck_aliases(data.pals))
     tables = getattr(data, 'paldeck_tables', None) or {}
     rows = []
     for sid in deck_ids(data.pals):
@@ -245,11 +263,14 @@ def filter_options(data, rows: List[Dict]) -> Dict[str, List[Dict]]:
 # A player's progress
 # ---------------------------------------------------------------------------
 
-def resolve_counts(raw: Dict[str, int], species, deck: Set[str], cap: Optional[int] = None) -> Dict[str, int]:
-    """A save map {character id: n} onto deck ids (summed when two ids resolve to one species)."""
+def resolve_counts(raw: Dict[str, int], species, deck: Set[str], cap: Optional[int] = None,
+                   aliases: Optional[Dict[str, str]] = None) -> Dict[str, int]:
+    """A save map {character id: n} onto deck ids (summed when two ids resolve to one species,
+    or share one entry)."""
     out: Dict[str, int] = defaultdict(int)
     for cid, n in (raw or {}).items():
         sid = species.resolve(cid)
+        sid = (aliases or {}).get(sid, sid)
         if sid in deck and n:
             out[sid] += int(n)
     if cap is not None:
@@ -261,7 +282,8 @@ def player_name(p) -> str:
     return getattr(p, 'nickname', None) or getattr(p, 'player_name', None) or ''
 
 
-def player_progress(players: Iterable, species, deck: Set[str], exp_table: Dict, rate: Optional[float]) -> List[Dict]:
+def player_progress(players: Iterable, species, deck: Set[str], exp_table: Dict, rate: Optional[float],
+                    aliases: Optional[Dict[str, str]] = None) -> List[Dict]:
     """Each player's place in the capture bonus chain, level-first."""
     out = []
     r = rate or 1.0
@@ -269,8 +291,8 @@ def player_progress(players: Iterable, species, deck: Set[str], exp_table: Dict,
         rec = getattr(p, 'records', None)
         if rec is None:
             continue
-        bonus = resolve_counts(rec.capture_bonus, species, deck, cap=BONUS_CAP)
-        caught = resolve_counts(rec.capture_counts, species, deck)
+        bonus = resolve_counts(rec.capture_bonus, species, deck, cap=BONUS_CAP, aliases=aliases)
+        caught = resolve_counts(rec.capture_counts, species, deck, aliases=aliases)
         index = int(rec.bonus_index or 0)
         # the table is read at the shared discovery chain, not the capture count alone (older
         # records without the chain fall back to the captures)
@@ -305,9 +327,11 @@ def species_detail(data, sid: str, pals: Iterable, players: Iterable) -> Optiona
         return None
     row = data.pals[sid]
     l10n = row  # localized_name / description are merged into the species row by the loader
+    aliases = deck_aliases(data.pals)
+    forms = {sid} | {a for a, entry in aliases.items() if entry == sid}    # the entry and the forms that share it
     groups = []
     for name, g in data.spawns.items():
-        e = (g.get('pals') or {}).get(sid)
+        e = next((v for f in forms if (v := (g.get('pals') or {}).get(f))), None)
         if not e:
             continue
         pts = g.get('points') or {}
@@ -325,7 +349,7 @@ def species_detail(data, sid: str, pals: Iterable, players: Iterable) -> Optiona
 
     owned = []
     for p in pals:
-        if getattr(p, 'species_id', None) != sid:
+        if getattr(p, 'species_id', None) not in forms:
             continue
         owned.append({
             'instance_id': p.instance_id,
@@ -370,8 +394,8 @@ def species_detail(data, sid: str, pals: Iterable, players: Iterable) -> Optiona
         rec = getattr(p, 'records', None)
         if rec is None:
             continue
-        n = resolve_counts(rec.capture_counts, data.species, deck).get(sid, 0)
-        b = resolve_counts(rec.capture_bonus, data.species, deck, cap=BONUS_CAP).get(sid, 0)
+        n = resolve_counts(rec.capture_counts, data.species, deck, aliases=aliases).get(sid, 0)
+        b = resolve_counts(rec.capture_bonus, data.species, deck, cap=BONUS_CAP, aliases=aliases).get(sid, 0)
         if n or b:
             caught_by.append({'name': player_name(p), 'caught': n, 'bonus': b})
     caught_by.sort(key=lambda c: (-c['bonus'], -c['caught']))

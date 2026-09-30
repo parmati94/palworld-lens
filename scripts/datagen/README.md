@@ -12,8 +12,10 @@ Regenerates the game-data assets palworld-lens ships when Palworld updates:
   pass a full pak path such as `Pal/Content/L10N/en/Pal/DataTable/Text/DT_SkillNameText_Common`
   to pin one localisation, a bare name takes the first match; `pal-extract obj <asset> out.json`
   dumps any other asset's exports, e.g. a blueprint's default values).
-- **`data/json/pal_parameters.json`** -- per-species pak fields save-pal lacks, today the
-  designated best job that the first condensing star raises (`generate_pal_parameters.py`).
+- **`data/json/pal_parameters.json`** -- per-species pak fields save-pal lacks: the
+  designated best job that the first condensing star raises, and where the pak places
+  each id in the Paldeck (`deck_suffix` for a B subspecies, `deck_entry_of` for a form that
+  shares another entry outright, like the flower Gumoss) (`generate_pal_parameters.py`).
 - **`data/json/partner_skills.json`** -- every species' partner skill name and description
   rendered per condensing level, from the pak's skill text + parameter tables
   (`generate_partner_skills.py`; see `backend/common/partner_skills.py` for the table map).
