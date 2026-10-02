@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {
     MAP_LAYERS, layerForCoords, saveToLngLat, elementInfo, elementBackdrop, hexAlpha, shadeHex,
     workSuitabilityDisplay, buildPageList, palIconSrc, partnerSkillFor, partnerSkillHtml, mountLabel, baseLabel,
-    sessionLength,
+    sessionLength, lastActive,
  slotFill, slotFillClass } from '../js/utils.js';
 
 const gameData = {
@@ -376,3 +376,14 @@ test('slotFill and slotFillClass', () => {
     assert.equal(slotFillClass(3, null), 'bg-gray-700/70 text-gray-400');
 });
 
+
+test('lastActive picks the later of last seen and last login', () => {
+    const seen = '2026-10-01T21:00:00+00:00', login = '2026-10-01T18:00:00+00:00';
+    assert.deepEqual(lastActive({ last_seen: seen, last_online: login }), { at: seen, kind: 'seen' });
+    // joined and left between two checks: the login is newer than our stamp
+    assert.deepEqual(lastActive({ last_seen: login, last_online: seen }), { at: seen, kind: 'login' });
+    assert.deepEqual(lastActive({ last_online: login }), { at: login, kind: 'login' });   // no REST: the save's login
+    assert.deepEqual(lastActive({ last_seen: seen }), { at: seen, kind: 'seen' });
+    assert.equal(lastActive({}), null);
+    assert.equal(lastActive(null), null);
+});

@@ -18,7 +18,7 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
 
 ## ✨ Features
 
-- 👥 **Players** - Every player with level, HP, hunger, SAN, guild, party and last login; open one for their inventory, stats and records
+- 👥 **Players** - Every player with level, HP, hunger, SAN, guild, party, and who is online or when they were last seen; open one for their inventory, stats and records
 - 🦄 **Pals** - Every pal on the server with stats, skills, work suitabilities and owner. One search box; element, work, passive and owner filters are added as chips
 - 📖 **Paldeck** - Every species the game numbers: elements, work levels, partner skill, where it spawns (with a jump to the map), how you get the ones nothing spawns (meteor events, raid eggs, the World Tree bosses), what it drops, what it learns, how to breed it, and who on the server has one. Pick a player and the deck becomes their capture bonus tracker: what the next catch pays and which species are still worth catching
 - 🏠 **Bases** - Guilds and their bases with every pal's status, hunger and SAN, the food bowls and storage chests (searchable across a guild), and what the base is doing as of the last save: machines with their order and progress, crops, eggs, stations and ranches with who is on them, expeditions and lab research
@@ -57,7 +57,7 @@ Everything is an environment variable in `docker-compose.yml`:
 ```yaml
 environment:
   - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves (local mode only)
-  - APP_STATE_PATH=/app/state         # Writable dir for app-owned state (custom base names); mount a volume there or renaming stays off
+  - APP_STATE_PATH=/app/state         # Writable dir for app-owned state (custom base names, last seen); mount a volume there or renaming stays off
   - ENABLE_AUTO_WATCH=true             # Watch the save directory and push updates to the browser; can still be toggled off in the UI
   - LOG_LEVEL=INFO                     # DEBUG, INFO, WARNING, ERROR
   - TZ=America/New_York                # Your local timezone
@@ -68,7 +68,9 @@ environment:
   - PASSWORD=changeme
   - SESSION_SECRET=your-secret-here    # Secret key for session tokens (generate a random string)
 
-  # Server Info over RCON (optional)
+  # Server Info over RCON (optional). Also turns on online status and "last seen": the backend
+  # asks the server's REST API for the player list once a minute and keeps one time per player
+  # in APP_STATE_PATH/presence.json
   - RCON_HOST=your-palworld-server-ip
   - RCON_PORT=8212
   - RCON_PASSWORD=your_admin_password

@@ -945,6 +945,18 @@ export function sessionLength(ms) {
     return `${Math.max(1, mm)}m`;
 }
 
+/**
+ * When a player was last on the server, as { at, kind }: our own last-seen stamp ('seen')
+ * or the save's last login ('login'), whichever is later -- someone who joined and left
+ * between two checks has a login newer than any stamp. Null when neither is known.
+ */
+export function lastActive(player) {
+    const seen = player?.last_seen, login = player?.last_online;
+    const ts = v => (v ? Date.parse(v) || 0 : 0);
+    if (!seen && !login) return null;
+    return ts(seen) >= ts(login) ? { at: seen, kind: 'seen' } : { at: login, kind: 'login' };
+}
+
 export function formatRelativeTime(dateStr, now = Date.now()) {
     if (!dateStr) return 'N/A';
     const t = new Date(dateStr).getTime();

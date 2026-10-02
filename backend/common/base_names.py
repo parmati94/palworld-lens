@@ -18,15 +18,13 @@ Pure python except for the file store; the parser and the router import it.
 """
 from __future__ import annotations
 
-import json
 import math
-import os
 import re
-import tempfile
 from pathlib import Path
 from typing import Dict, Iterable, Optional
 
 from backend.common.map_layers import which_map
+from backend.common.state_files import read_json, write_json_atomic, writable_dir
 
 MAX_NAME_LENGTH = 40
 # Watchtowers are fast travel points too (they split out of that type for the
@@ -74,24 +72,12 @@ class BaseNameStore:
 
     @property
     def writable(self) -> bool:
-        if not self.dir:
-            return False
-        try:
-            self.dir.mkdir(parents=True, exist_ok=True)
-        except OSError:
-            return False
-        return os.access(self.dir, os.W_OK)
+        return writable_dir(self.dir)
 
     def load(self) -> Dict[str, str]:
-        self.names = {}
-        if self.path and self.path.exists():
-            try:
-                with open(self.path, encoding='utf-8') as f:
-                    raw = json.load(f)
-                if isinstance(raw, dict):
-                    self.names = {str(k): clean_name(v) for k, v in raw.items() if clean_name(v)}
-            except (OSError, ValueError):
-                self.names = {}
+        raw = read_json(self.path)
+        self.names = ({str(k): clean_name(v) for k, v in raw.items() if clean_name(v)}
+                      if isinstance(raw, dict) else {})
         return self.names
 
     def set(self, base_id: str, name: Optional[str], keep: Optional[Iterable[str]] = None) -> Optional[str]:
@@ -116,18 +102,4 @@ class BaseNameStore:
 
     def _save(self) -> None:
         assert self.path is not None
-        fd, tmp = tempfile.mkstemp(dir=self.dir, prefix='.base_names.', suffix='.tmp')
-        try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
-                json.dump(dict(sorted(self.names.items())), f, ensure_ascii=False, indent=1)
-                f.write('\n')
-            # mkstemp creates 0600; the container runs as root, so leave the file
-            # readable for whoever owns the mounted directory on the host.
-            os.chmod(tmp, 0o644)
-            os.replace(tmp, self.path)
-        except BaseException:
-            try:
-                os.unlink(tmp)
-            except OSError:
-                pass
-            raise
+        write_json_atomic(self.path, dict(sorted(self.names.items())))

@@ -35,3 +35,11 @@ def test_stamp_online_sets_true_false_or_unknown():
     assert [p.online for p in on] == [True, False, False]
     assert [p.online for p in stamp_online(players, None)] == [None, None, None]     # server did not answer
     assert players[0].online is None                                                  # the cached models are untouched
+
+
+def test_stamp_online_carries_last_seen_from_the_store():
+    players = [_Player(player_uid="0c8e09b3-0000-0000-0000-000000000000", online=None),
+               _Player(player_uid=None, online=None)]
+    seen = {"0c8e09b3000000000000000000000000": "2026-10-01T20:00:00+00:00"}.get
+    on = stamp_online(players, None, seen)
+    assert on[0].last_seen == "2026-10-01T20:00:00+00:00" and on[1].last_seen is None
