@@ -1,7 +1,8 @@
-{{!-- "online for 2h 13m" or "last login 3h ago" after a player's level. `who` = the Alpine
-     expression for the player (online, last_online); scope needs `now`. Leads with its own "·".
+{{!-- "online for 2h 13m", "last seen 20m ago" or "last login 3h ago" after a player's level. `who` = the
+     Alpine expression for the player (online, last_seen, last_online); scope needs `now`. Offline shows
+     whichever of last seen / last login is later (lastActive). Leads with its own "·".
      `brief=true` drops the session length (narrow rows: the Overview list); the hover still has the login time. --}}
-<template x-if="{{who}}.online || {{who}}.last_online">
+<template x-if="{{who}}.online || lastActive({{who}})">
     <span class="inline-flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap">
         <span class="text-gray-600">·</span>
         <template x-if="{{who}}.online">
@@ -11,7 +12,7 @@
             </span>
         </template>
         <template x-if="!{{who}}.online">
-            <span :data-tip="'Last login ' + formatDate({{who}}.last_online)">last login <span x-text="formatRelativeTime({{who}}.last_online, now)"></span></span>
+            <span :data-tip="(lastActive({{who}}).kind === 'seen' ? 'Last seen on the server ' + formatDate(lastActive({{who}}).at) + ({{who}}.last_online ? ', logged in ' + formatDate({{who}}.last_online) : '') : 'Last login ' + formatDate({{who}}.last_online))"><span x-text="lastActive({{who}}).kind === 'seen' ? 'last seen' : 'last login'"></span> <span x-text="formatRelativeTime(lastActive({{who}}).at, now)"></span></span>
         </template>
     </span>
 </template>

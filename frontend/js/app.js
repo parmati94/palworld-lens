@@ -19,6 +19,7 @@ import {
     formatUptime,
     buildPageList,
     formatRelativeTime,
+    lastActive,
     WORK_LEVEL_COLORS, searchContainers, sumItemCounts, searchElsewhere, activityGroups } from './utils.js';
 import { api } from './services/api.js';
 import { WatchService } from './services/watch.js';
@@ -465,13 +466,12 @@ export function app() {
                 .sort((a, b) => (a.base_name || '').localeCompare(b.base_name || '') || (a.level || 0) - (b.level || 0));
         },
 
-        /** Players ordered by most recent activity: on the server now first, then by last login. */
+        /** Players ordered by most recent activity: on the server now first, then by last seen (or login). */
         get playersByActivity() {
+            const t = p => Date.parse(lastActive(p)?.at || '') || 0;
             return [...this.players].sort((a, b) => {
                 if (!!a.online !== !!b.online) return a.online ? -1 : 1;
-                const ta = a.last_online ? Date.parse(a.last_online) : 0;
-                const tb = b.last_online ? Date.parse(b.last_online) : 0;
-                return tb - ta;
+                return t(b) - t(a);
             });
         },
         
@@ -1207,6 +1207,7 @@ export function app() {
         
         // Expose utility functions for use in HTML
         formatUptime,
-        formatRelativeTime
+        formatRelativeTime,
+        lastActive
     }
 }

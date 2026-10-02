@@ -14,6 +14,7 @@ from typing import Iterable, List, Optional, Set
 
 import httpx
 
+from backend.common import presence
 from backend.common.config import config
 from backend.common.logging_config import get_logger
 
@@ -64,20 +65,34 @@ async def fetch_online_ids() -> Optional[Set[str]]:
             logger.warning(f"online check: {type(e).__name__}: {e}")
             return None
         _cache.update(at=now, ids=ids)
+        presence.store().record(ids)
         return ids
 
 
-def stamp_online(players: Iterable, online_ids: Optional[Set[str]]) -> List:
-    """Copies of the player models with `online` set: True/False against the listing, None when unknown."""
+def stamp_online(players: Iterable, online_ids: Optional[Set[str]], seen=None) -> List:
+    """Copies of the player models with `online` set (True/False against the listing, None when
+    unknown) and `last_seen` from the presence store (`seen`: key -> ISO, or None)."""
     out = []
     for p in players:
-        online = None if online_ids is None else presence_key(getattr(p, "player_uid", None)) in online_ids
-        out.append(p.model_copy(update={"online": online}) if hasattr(p, "model_copy") else p)
+        key = presence_key(getattr(p, "player_uid", None))
+        online = None if online_ids is None else key in online_ids
+        update = {"online": online, "last_seen": seen(key) if seen and key else None}
+        out.append(p.model_copy(update=update) if hasattr(p, "model_copy") else p)
     return out
 
 
 async def with_online(players: Iterable) -> List:
-    return stamp_online(players, await fetch_online_ids())
+    return stamp_online(players, await fetch_online_ids(), presence.store().get)
+
+
+PRESENCE_INTERVAL = 60.0   # seconds; how often last-seen is refreshed when nobody is using the app
+
+
+async def presence_loop() -> None:
+    """Ask who is online once a minute so last-seen keeps up without a reload or an open tab."""
+    while True:
+        await fetch_online_ids()
+        await asyncio.sleep(PRESENCE_INTERVAL)
 
 
 async def fetch_exp_rate() -> Optional[float]:

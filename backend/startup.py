@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 
 from backend.common.logging_config import get_logger
 from backend.common.config import config, Config
+from backend.common import online
 from backend.parser import parser
 from backend.utils.watcher import SaveWatcher
 from backend.utils.remote_loader import RemoteSaveLoader, RemoteSavePoller
@@ -154,9 +155,16 @@ async def lifespan(app):
         else:
             logger.info("⏸️  Auto-watch disabled (ENABLE_AUTO_WATCH=false)")
     
+    presence_task = None
+    if online.configured():
+        presence_task = asyncio.create_task(online.presence_loop())
+        logger.info("👀 Last-seen tracking on (REST player list once a minute)")
+
     yield
     
     # Cleanup
+    if presence_task:
+        presence_task.cancel()
     if watcher:
         watcher.stop()
     

@@ -21,7 +21,7 @@
                                                 <span class="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-gray-900/90 to-transparent pointer-events-none"></span>
                                                 <span class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between gap-2 text-[11px] pointer-events-none">
                                                     <span class="text-gray-100 font-medium truncate" x-text="selectedPlayer.place ? 'Near ' + selectedPlayer.place : (mm ? mm.label : '')"></span>
-                                                    <span class="text-gray-400 whitespace-nowrap" x-show="selectedPlayer.last_online" x-text="formatRelativeTime(selectedPlayer.last_online, now)"></span>
+                                                    <span class="text-gray-400 whitespace-nowrap" x-show="selectedPlayer.online || lastActive(selectedPlayer)" x-text="selectedPlayer.online ? 'now' : formatRelativeTime(lastActive(selectedPlayer)?.at, now)"></span>
                                                 </span>
                                             </button>
                                             <div x-show="!mm" class="absolute inset-0 flex items-center justify-center text-3xl font-bold text-white/10 leading-none truncate px-2" x-text="selectedPlayer.player_name"></div>
