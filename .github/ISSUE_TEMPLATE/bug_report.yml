@@ -1,0 +1,54 @@
+name: Bug report
+description: Something shows wrong, or the app fails to load a save
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead. Screenshots help.
+    validations:
+      required: true
+  - type: input
+    id: game-version
+    attributes:
+      label: Palworld version
+      placeholder: e.g. v1.0.1
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Palworld Lens image
+      description: The tag you run, or the commit if you built it yourself.
+      placeholder: e.g. parmati/palworld-lens:latest, pulled 2026-10-03
+  - type: dropdown
+    id: world
+    attributes:
+      label: Where the save comes from
+      options:
+        - Dedicated server
+        - Co-op / single-player world
+        - Other (say below)
+    validations:
+      required: true
+  - type: dropdown
+    id: loading
+    attributes:
+      label: How the app reads it
+      options:
+        - Mounted folder
+        - Remote (SFTP/FTP)
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Where the container runs
+      placeholder: e.g. Docker on Ubuntu, Unraid, Docker Desktop on Windows
+  - type: textarea
+    id: logs
+    attributes:
+      label: Container log
+      description: The output of `docker logs palworld-lens` around the problem. Check it for passwords or IPs before posting.
+      render: text
