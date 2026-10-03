@@ -2,6 +2,8 @@
 
 A lightweight, read-only viewer for Palworld save files. Built to be mobile-friendly and containerized.
 
+*Unofficial fan project, not affiliated with or endorsed by Pocketpair.*
+
 <div align="center">
   <img src=".github/screenshots/overview.png" alt="Overview tab" width="32%"/>
   <img src=".github/screenshots/players.png" alt="Players tab" width="32%"/>
@@ -89,6 +91,10 @@ environment:
 
 For SFTP with a key, also mount it: `- ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro`.
 
+### 🔒 Security
+
+The login is a single user set by environment variables, meant for a home network. Keep the app on your LAN, or put it behind a VPN or a reverse proxy with its own authentication, rather than forwarding the port to the internet. Even with login off it never writes to your save, but it does show every player's position, inventory and base.
+
 ## 📜 API
 
 Everything the UI shows comes from `/api/*`, served from a snapshot built once per save load. The main ones:
@@ -132,4 +138,6 @@ Save parsing by [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-
 
 ## 📝 License
 
-MIT
+The code is [MIT](LICENSE). The game data tables synced from palworld-save-pal are GPL v3, as that project is; [`data/json/NOTICE.md`](data/json/NOTICE.md) lists which files those are.
+
+Palworld and its names, images, icons and map art are © Pocketpair, Inc. This project is free and shared under Pocketpair's [guidelines for derivative works](https://www.pocketpair.jp/guidelines-derivativework).
