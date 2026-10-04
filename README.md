@@ -22,15 +22,15 @@ It only reads the save. It never writes to it.
 
 ## What's in it
 
-- **Bases.** Every guild and base, each pal's hunger, sanity and status, food bowls, and storage you can search across a whole guild. The Activity view shows what the base was doing at the last save: machines and their orders, crops, eggs, ranches, expeditions and lab research.
-- **Pals.** Every pal on the server with stats, skills, work levels and owner. Filter by element, job, passive or owner.
-- **Players.** Level, health, hunger, guild and party, who's online and when everyone was last seen. Click a player for their inventory and stats.
-- **Map.** Bases and players on the world map, plus towers, dungeons, fast travel points and alpha pals. Search a pal and every place it spawns lights up, with level ranges and night-only spots.
-- **Paldeck.** Every species: work levels, partner skill, drops, moves, where it spawns, how to breed it, and who on the server has one. Pick a player and it becomes their capture tracker, showing which catches still pay out.
-- **Breeding.** What two pals make, every pair that makes a given pal, and which of your own pals fit. If you can't breed something yet, it plans the shortest chain from what you already have.
-- **Best workers.** The best pal for a job, split into ones you already own, ones you could catch, and ones you could breed.
+- **Bases** - every pal's hunger and status, storage, and what each base is working on
+- **Pals** - every pal on the server, filterable by element, job, passive or owner
+- **Players** - who's online, when they were last seen, and their inventory
+- **Map** - bases, players and landmarks, and search a pal to see where it spawns
+- **Paldeck** - every species, plus a per-player tracker of what's still worth catching
+- **Breeding** - what two pals make, and the shortest route to one you don't have
+- **Best workers** - the best pal for a job, from what you own, can catch or can breed
 
-It can also keep itself up to date as the game autosaves, pull the save from a remote host over SFTP or FTP, and show server info (players, uptime, settings) if you give it RCON access.
+It can also update live as the game saves, pull the save over SFTP/FTP, and show server info over RCON.
 
 ## Getting started
 
@@ -58,25 +58,23 @@ To build it yourself instead, clone the repo, run `docker build -t palworld-lens
 
 ## Settings
 
-Everything is set with environment variables in `docker-compose.yml`. Only the save folder is required; the rest is optional.
-
-The basics:
+Everything is an environment variable in `docker-compose.yml`. Only the save folder is required.
 
 ```yaml
 environment:
   - SAVE_MOUNT_PATH=/app/saves   # where the save folder is mounted
-  - ENABLE_AUTO_WATCH=true       # refresh the page when the game saves (can be switched off in the app)
+  - ENABLE_AUTO_WATCH=true       # update the page when the game saves
   - TZ=America/New_York          # your timezone
   - LOG_LEVEL=INFO
 ```
 
-**Somewhere to keep its own data.** Custom base names and "last seen" times are stored in `APP_STATE_PATH`. Mount a folder there to keep them; without it, base renaming is turned off.
+**App data.** Mount a folder here to keep custom base names and last-seen times.
 
 ```yaml
   - APP_STATE_PATH=/app/state
 ```
 
-**Login.** Off by default. One username and password, sessions last a week.
+**Login.** Off by default.
 
 ```yaml
   - ENABLE_LOGIN=true
@@ -85,7 +83,7 @@ environment:
   - SESSION_SECRET=some-long-random-string
 ```
 
-**Server info and online status.** Give it your server's admin password and it shows server info, who's online, and when each player was last seen. To track "last seen", it asks the server for the player list once a minute.
+**Server info and online status.** Checks the player list once a minute for who's online and last seen.
 
 ```yaml
   - RCON_HOST=your-server-ip
@@ -93,7 +91,7 @@ environment:
   - RCON_PASSWORD=your-admin-password
 ```
 
-**Loading the save from another machine.** If the server runs on a host or a game server provider, Palworld Lens can download the save over SFTP or FTP on a timer instead of reading a mounted folder. Port 22 means SFTP, port 21 means FTP.
+**Loading the save from another machine.** For hosted servers: downloads the save over SFTP (port 22) or FTP (port 21) instead of reading a mounted folder.
 
 ```yaml
   - REMOTE_SAVE_ENABLED=true
@@ -111,7 +109,7 @@ To use an SSH key, mount it too: `- ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro`.
 
 ### A note on security
 
-The login is meant for a home network. Keep the app on your LAN, or put it behind a VPN or a reverse proxy with its own login, rather than opening the port to the internet. It can't change your save, but it does show everyone's location, inventory and bases.
+The login is meant for a home network. Keep it on your LAN or behind a VPN or reverse proxy rather than opening the port to the internet; it shows everyone's location, inventory and bases.
 
 ## Development
 
