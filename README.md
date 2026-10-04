@@ -1,6 +1,8 @@
 # Palworld Lens
 
-A lightweight, read-only viewer for Palworld save files. Built to be mobile-friendly and containerized.
+Palworld Lens reads your Palworld world save and shows what's going on in it from a browser, phone included: what every pal at every base is doing, who's online, where things spawn, what you can breed. I built it for my own server so I could check on our bases without logging in, and it grew from there.
+
+It only reads the save. It never writes to it.
 
 *Unofficial fan project, not affiliated with or endorsed by Pocketpair.*
 
@@ -18,126 +20,133 @@ A lightweight, read-only viewer for Palworld save files. Built to be mobile-frie
   <img src=".github/screenshots/workers.png" alt="Best workers" width="32%"/>
 </div>
 
-## ✨ Features
+## What's in it
 
-- 👥 **Players** - Every player with level, HP, hunger, SAN, guild, party, and who is online or when they were last seen; open one for their inventory, stats and records
-- 🦄 **Pals** - Every pal on the server with stats, skills, work suitabilities and owner. One search box; element, work, passive and owner filters are added as chips
-- 📖 **Paldeck** - Every species the game numbers: elements, work levels, partner skill, where it spawns (with a jump to the map), how you get the ones nothing spawns (meteor events, raid eggs, the World Tree bosses), what it drops, what it learns, how to breed it, and who on the server has one. Pick a player and the deck becomes their capture bonus tracker: what the next catch pays and which species are still worth catching
-- 🏠 **Bases** - Guilds and their bases with every pal's status, hunger and SAN, the food bowls and storage chests (searchable across a guild), and what the base is doing as of the last save: machines with their order and progress, crops, eggs, stations and ranches with who is on them, expeditions and lab research
-- 🗺️ **Map** - The world map with bases and players live from the save, plus the game's landmarks as toggleable layers: syndicate towers, watchtowers, fast travel statues, dungeons and alpha pals. Search a species and every wild spawner that rolls it lights up, sized to its real radius, with level range and night-only zones
-- 🧬 **Breeding** - What two pals make, every pair that makes a pal, and which of *your* pals fit (with the passives you want). Can't breed it yet? The route planner draws the shortest chain from what you own
-- ⭐ **Best workers** - The best pal for a job: who on the server already has it, what you could catch at your level, and what you could breed from your own pals
-- 🔄 **Live** - Loads on startup, reloads on demand, and can watch the save directory and push updates to the browser as the game autosaves
-- 🌐 **Remote saves** - Poll a remote SFTP/FTP server for the save instead of mounting it
-- 🖥️ **Server Info** - Online players, uptime, performance and settings over RCON (optional)
-- 🐳 **Containerized** - Single Docker container with nginx + FastAPI. Read-only: it never writes to your save
+- **Bases** - every pal's hunger and status, storage, and what each base is working on
+- **Pals** - every pal on the server, filterable by element, job, passive or owner
+- **Players** - who's online, when they were last seen, and their inventory
+- **Map** - bases, players and landmarks, and search a pal to see where it spawns
+- **Paldeck** - every species, plus a per-player tracker of what's still worth catching
+- **Breeding** - what two pals make, and the shortest route to one you don't have
+- **Best workers** - the best pal for a job, from what you own, can catch or can breed
 
-## 🚀 Quick Start
+It can also update live as the game saves, pull the save over SFTP/FTP, and show server info over RCON.
+
+## Getting started
+
+You need Docker and access to your world's save folder: the one with `Level.sav` and a `Players/` folder in it.
 
 1. Download the compose file:
    ```bash
    wget https://raw.githubusercontent.com/parmati94/palworld-lens/main/docker-compose.yml
    ```
 
-2. Point it at your world's save directory (the folder holding `Level.sav` and `Players/`):
+2. Point it at your save folder:
    ```yaml
    volumes:
      - /path/to/your/SaveGames/0/WORLD-ID:/app/saves:ro
    ```
 
-3. Start it, then open `http://localhost:5175`:
+3. Start it and open `http://localhost:5175`:
    ```bash
    docker-compose up -d
    ```
 
-To build from source instead, clone the repo, `docker build -t palworld-lens:local .`, and set `image: palworld-lens:local` in the compose file.
+If your server is hosted somewhere you can't mount a folder from, see "Loading the save from another machine" below.
 
-## 🔧 Configuration
+To build it yourself instead, clone the repo, run `docker build -t palworld-lens:local .`, and set `image: palworld-lens:local` in the compose file.
 
-Everything is an environment variable in `docker-compose.yml`:
+## Settings
+
+Everything is an environment variable in `docker-compose.yml`. Only the save folder is required.
 
 ```yaml
 environment:
-  - SAVE_MOUNT_PATH=/app/saves        # Path to mounted saves (local mode only)
-  - APP_STATE_PATH=/app/state         # Writable dir for app-owned state (custom base names, last seen); mount a volume there or renaming stays off
-  - ENABLE_AUTO_WATCH=true             # Watch the save directory and push updates to the browser; can still be toggled off in the UI
-  - LOG_LEVEL=INFO                     # DEBUG, INFO, WARNING, ERROR
-  - TZ=America/New_York                # Your local timezone
-
-  # Authentication (optional - default is disabled)
-  - ENABLE_LOGIN=false                 # Set to true to require login (single user, sessions last 7 days)
-  - USERNAME=admin
-  - PASSWORD=changeme
-  - SESSION_SECRET=your-secret-here    # Secret key for session tokens (generate a random string)
-
-  # Server Info over RCON (optional). Also turns on online status and "last seen": the backend
-  # asks the server's REST API for the player list once a minute and keeps one time per player
-  # in APP_STATE_PATH/presence.json
-  - RCON_HOST=your-palworld-server-ip
-  - RCON_PORT=8212
-  - RCON_PASSWORD=your_admin_password
-
-  # Remote save loading (optional - replaces the local mount and ENABLE_AUTO_WATCH)
-  - REMOTE_SAVE_ENABLED=false
-  - REMOTE_HOST=your-server-ip
-  - REMOTE_PORT=22                     # 22 for SFTP, 21 for FTP (protocol follows the port)
-  - REMOTE_USER=username
-  - REMOTE_PASSWORD=password           # Optional if using an SSH key
-  - REMOTE_KEY_PATH=/app/.ssh/id_rsa   # SFTP: mount your key here (tried before the password)
-  - REMOTE_KEY_PASSPHRASE=             # For encrypted keys
-  - REMOTE_PATH=/path/to/saves
-  - REMOTE_POLL_INTERVAL=60            # Seconds between polls (0 disables toggling)
+  - SAVE_MOUNT_PATH=/app/saves   # where the save folder is mounted
+  - ENABLE_AUTO_WATCH=true       # update the page when the game saves
+  - TZ=America/New_York          # your timezone
+  - LOG_LEVEL=INFO
 ```
 
-For SFTP with a key, also mount it: `- ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro`.
+**App data.** Mount a folder here to keep custom base names and last-seen times.
 
-### 🔒 Security
+```yaml
+  - APP_STATE_PATH=/app/state
+```
 
-The login is a single user set by environment variables, meant for a home network. Keep the app on your LAN, or put it behind a VPN or a reverse proxy with its own authentication, rather than forwarding the port to the internet. Even with login off it never writes to your save, but it does show every player's position, inventory and base.
+**Login.** Off by default.
 
-## 📜 API
+```yaml
+  - ENABLE_LOGIN=true
+  - USERNAME=admin
+  - PASSWORD=changeme
+  - SESSION_SECRET=some-long-random-string
+```
 
-Everything the UI shows comes from `/api/*`, served from a snapshot built once per save load. The main ones:
+**Server info and online status.** Checks the player list once a minute for who's online and last seen.
 
-- `GET /api/players`, `/api/guilds`, `/api/pals`, `/api/base-containers`, `/api/activity` - the save as the tabs show it
-- `GET /api/paldeck`, `/api/paldeck/{species_id}` - every species, and one in full
-- `GET /api/map-objects`, `/api/spawns` - landmarks and wild spawn zones for the map
-- `GET /api/breeding/child|parents|partners|route`, `/api/workers` - the Tools tab
-- `GET /api/watch` - Server-Sent Events stream of save changes
-- `GET /api/health`, `/api/info`, `POST /api/reload`
+```yaml
+  - RCON_HOST=your-server-ip
+  - RCON_PORT=8212
+  - RCON_PASSWORD=your-admin-password
+```
 
-## 🛠️ Development
+**Loading the save from another machine.** For hosted servers: downloads the save over SFTP (port 22) or FTP (port 21) instead of reading a mounted folder.
 
-`docker-compose.dev.yml` builds with `DEV_MODE=true`, which gives the backend uvicorn's `--reload` and turns auto-watch off (SSE connections keep uvicorn from reloading quickly):
+```yaml
+  - REMOTE_SAVE_ENABLED=true
+  - REMOTE_HOST=your-server-ip
+  - REMOTE_PORT=22
+  - REMOTE_USER=username
+  - REMOTE_PASSWORD=password            # not needed if you use a key
+  - REMOTE_KEY_PATH=/app/.ssh/id_rsa    # SFTP key, tried before the password
+  - REMOTE_KEY_PASSPHRASE=              # if the key has one
+  - REMOTE_PATH=/path/to/saves
+  - REMOTE_POLL_INTERVAL=60             # seconds between checks
+```
+
+To use an SSH key, mount it too: `- ~/.ssh/id_rsa:/app/.ssh/id_rsa:ro`.
+
+### A note on security
+
+The login is meant for a home network. Keep it on your LAN or behind a VPN or reverse proxy rather than opening the port to the internet; it shows everyone's location, inventory and bases.
+
+## Development
+
+`docker-compose.dev.yml` runs the backend with auto-reload:
 
 ```bash
 docker-compose -f docker-compose.dev.yml up --build
 ```
 
-Backend changes reload within a couple of seconds. Frontend changes need `npm run build` in `frontend/` and a browser refresh. `data/` is bind-mounted read-only, so game data edits show on the next backend reload.
+Backend changes reload within a couple of seconds. For frontend changes, run `npm run build` in `frontend/` and refresh. Auto-watch is off in dev mode, because open live-update connections slow down the reloader.
 
 ### Tests
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest                       # backend: id resolution, stats, schemas, shipped data
-python scripts/datagen/validate.py --skip-tiles  # shipped data ↔ icons ↔ map objects coverage
-cd frontend && node --test 'tests/*.test.mjs'    # projection, reference-data lookups, paging
+.venv/bin/python -m pytest                       # backend
+python scripts/datagen/validate.py --skip-tiles  # game data, icons and map objects line up
+cd frontend && node --test 'tests/*.test.mjs'    # frontend logic
 cd frontend && npm run test:e2e                  # smoke tests against a running dev instance
 ```
 
-The first three run in CI on every pull request (`.github/workflows/ci.yml`).
+The first three run in CI on every pull request.
+
+### API
+
+The UI is built entirely on a JSON API under `/api/`, so you can use it for your own scripts too. The main endpoints are `/api/players`, `/api/guilds`, `/api/pals`, `/api/base-containers`, `/api/activity`, `/api/paldeck`, `/api/map-objects` and `/api/spawns`. `/api/watch` is a live stream of save changes.
 
 ### Game data
 
-`data/json` is synced from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal); icons, map tiles, spawn zones and the other pak-derived tables come from the game files. The list of tables the app ships is `backend/common/game_tables.py`, and the app refuses to start if a required one is missing. See [`scripts/datagen/README.md`](scripts/datagen/README.md) for the one-command update.
+The tables in `data/json` come from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal). Icons, map tiles, spawn zones and the rest are pulled from the game files. [`scripts/datagen/README.md`](scripts/datagen/README.md) explains how to update them after a patch.
 
-## 🙏 Credits
+## Thanks
 
-Save parsing by [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-tools); game data and many ideas from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal).
+Save parsing comes from [palworld-save-tools](https://github.com/oMaN-Rod/palworld-save-tools). Game data and plenty of ideas come from [palworld-save-pal](https://github.com/oMaN-Rod/palworld-save-pal).
 
-## 📝 License
+## License
 
-The code is [MIT](LICENSE). The game data tables synced from palworld-save-pal are GPL v3, as that project is; [`data/json/NOTICE.md`](data/json/NOTICE.md) lists which files those are.
+The code is [MIT](LICENSE). The game data tables from palworld-save-pal are GPL v3, like that project; [`data/json/NOTICE.md`](data/json/NOTICE.md) lists which files those are.
 
-Palworld and its names, images, icons and map art are © Pocketpair, Inc. This project is free and shared under Pocketpair's [guidelines for derivative works](https://www.pocketpair.jp/guidelines-derivativework).
+Palworld and its names, images, icons and map art are © Pocketpair, Inc. This project is free and follows Pocketpair's [guidelines for derivative works](https://www.pocketpair.jp/guidelines-derivativework).
