@@ -97,6 +97,7 @@ class PalInfo(BaseModel):
     # Condition/status fields
     condition: Optional[str] = None  # WorkerSick condition (e.g., "Sick", "Sprain", "Bulimia", etc.)
     hunger_type: Optional[str] = None  # HungerType status (e.g., "Hunger")
+    physical_health: Optional[str] = None  # PhysicalHealth: "Dying" when knocked out
     
     # Calculated stats fields (computed from base stats + level + IVs + ranks)
     calculated_attack: Optional[int] = None
@@ -114,7 +115,15 @@ class PalInfo(BaseModel):
         Type is 'sickness', 'injury', or 'hunger' for UI styling.
         """
         conditions = []
-        
+
+        # Knocked out (HP 0) - RED badge, worst first
+        if self.hp <= 0 or self.physical_health == "Dying":
+            conditions.append({
+                "type": "injury",
+                "name": "Incapacitated",
+                "description": "Knocked out at 0 HP. Put it in the Palbox to recover."
+            })
+
         # Check for sickness (WorkerSick) - PURPLE badge
         if self.condition:
             conditions.append({
@@ -122,15 +131,7 @@ class PalInfo(BaseModel):
                 "name": CONDITION_DISPLAY_NAMES.get(self.condition, self.condition),
                 "description": CONDITION_DESCRIPTIONS.get(self.condition, self.condition)
             })
-        
-        # Check for Major Injury (HP = 0) - RED badge
-        if self.hp <= 0:
-            conditions.append({
-                "type": "injury",
-                "name": "Major Injury",
-                "description": "Pal is incapacitated. Place in Palbox to recover over 10 minutes."
-            })
-        
+
         # Check for Starvation - RED badge
         if self.hunger_type == "Starvation":
             conditions.append({
@@ -145,7 +146,7 @@ class PalInfo(BaseModel):
     def condition_display(self) -> Optional[str]:
         """Get highest priority condition for table display
         
-        Priority: Sickness > Major Injury > Starvation
+        Priority: Incapacitated > Sickness > Starvation
         Returns only the name of the highest priority condition.
         """
         conditions = self.all_conditions

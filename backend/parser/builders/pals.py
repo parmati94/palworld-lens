@@ -142,6 +142,7 @@ def build_pals(char_data: Dict, base_assignments: Dict, data: DataLoader, pal_to
             base_name=assignment.get("base_name"),
             base_place=assignment.get("base_place"),
             condition=pal_schema.extract_field(char_info, "WorkerSick"),
+            physical_health=pal_schema.extract_field(char_info, "PhysicalHealth"),
             hunger_type=pal_schema.extract_field(char_info, "HungerType"),
             calculated_attack=calculated_stats["attack"],
             calculated_defense=calculated_stats["defense"],

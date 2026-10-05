@@ -81,7 +81,7 @@ fields:
     root_key: "Hp"
     path: ["value", "Value", "value"]
     transform: divide_by_1000
-    default: 100
+    default: 0
   
   # MP/Stamina
   MP:
@@ -182,6 +182,13 @@ fields:
     strip_prefix: "EPalBaseCampWorkerSickType::"
     default: null
   
+  PhysicalHealth:
+    description: "Dying = knocked out at 0 HP (the game's Incapacitated); Severe rides along with some sicknesses"
+    root_key: "PhysicalHealth"
+    path: ["value", "value"]
+    strip_prefix: "EPalStatusPhysicalHealthType::"
+    default: null
+
   HungerType:
     description: "Hunger severity level (Default, Hunger, Starvation)"
     root_key: "HungerType"

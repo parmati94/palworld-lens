@@ -29,7 +29,7 @@ fields:
     root_key: "Hp"
     path: ["value", "Value", "value"]
     transform: divide_by_1000
-    default: 100
+    default: 0
   
   # MP/Stamina
   MP:
