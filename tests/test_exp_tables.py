@@ -1,5 +1,6 @@
 """backend/common/exp_tables.py -- the capture bonus chain and the level ladder."""
-from backend.common.exp_tables import (bonus_exp_at, build_exp_tables, catches_to_next_level, exp_to_next_level,
+from backend.common.exp_tables import (bonus_exp_at, build_exp_tables, catches_to_next_level, character_max_level,
+                                       exp_to_next_level,
                                        level_progress)
 
 BONUS = {"0": {"BonusExp": 3}, "1": {"BonusExp": 22}, "2": {"BonusExp": 24}, "3": {"BonusExp": 27}}
@@ -43,3 +44,20 @@ def test_catches_to_next_level_walks_the_chain_from_the_index():
     assert catches_to_next_level(TABLE, 1, 0) == 0
     assert catches_to_next_level(TABLE, 1, None) is None
     assert catches_to_next_level({}, 1, 50) is None
+
+
+def test_the_cap_comes_from_max_level_not_the_end_of_the_ladder():
+    # the pak's ladder runs past the cap (100 rows, cap 80 on 1.0)
+    capped = build_exp_tables(BONUS, LEVELS, max_level=3)
+    assert capped["max_level"] == 3
+    assert level_progress(capped, 2, 120) == {"into": 70, "span": 150, "to_next": 80}
+    assert level_progress(capped, 3, 300) is None
+    assert exp_to_next_level(capped, 3, 300) is None
+    assert "max_level" not in TABLE
+
+
+def test_character_max_level_reads_the_settings_default_object():
+    exports = [{"Type": "BlueprintGeneratedClass", "Properties": {}},
+               {"Type": "BP_PalGameSetting_C", "Properties": {"CharacterMaxLevel": 80, "GuildCharacterMaxLevel": 80}}]
+    assert character_max_level(exports) == 80
+    assert character_max_level([]) is None
