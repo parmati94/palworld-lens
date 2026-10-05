@@ -424,31 +424,7 @@
                         </div>
                     </div>
                 </template>
-              </div>
-            </div>
-            
-            <!-- Floating Base Navigation (shown when base is selected) -->
-            <div x-show="currentTab === 'bases' && selectedGuildId && selectedBaseId && (hasPrevBase || hasNextBase)" class="floating-nav">
-                <button 
-                    @click="navigateToPrevBase()"
-                    x-show="hasPrevBase"
-                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
-                    data-tip="Previous Base">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <button 
-                    @click="navigateToNextBase()"
-                    x-show="hasNextBase"
-                    class="p-3 md:p-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/30 transition-all transform hover:scale-110 active:scale-95"
-                    data-tip="Next Base">
-                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+        {{/modal-shell}}
 
         <!-- Map Tab (MapLibre GL) -->
         <div x-show="currentTab === 'map' && saveInfo.loaded" class="tab-content">
@@ -807,7 +783,9 @@
                             </svg>
                         </button>
                     </div>
-        {{/modal-shell}}
+                </div>
+            </div>
+        </div>
 
     </main>
 

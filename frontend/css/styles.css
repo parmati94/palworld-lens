@@ -270,22 +270,6 @@ button, a, tr, input, select, .stat-card { transition: background-color 0.2s, co
 }
 
 /* Floating navigation arrows */
-.floating-nav {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 20;
-    display: flex;
-    gap: 8px;
-}
-
-@media (max-width: 767px) {
-    .floating-nav {
-        bottom: calc(76px + env(safe-area-inset-bottom));
-        right: 16px;
-    }
-}
-
 
 /* Pal modal header: the element glows drift slowly across the dark surface.
    The backdrop is sized to 120% so a full position sweep moves it by a fifth

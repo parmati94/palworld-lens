@@ -419,32 +419,6 @@ export function app() {
             }
         },
 
-        get currentBaseIndex() {
-            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
-            return guild ? guild.bases.findIndex(b => b.base_id === this.selectedBaseId) : -1;
-        },
-        get hasPrevBase() {
-            return this.currentBaseIndex > 0;
-        },
-        get hasNextBase() {
-            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
-            return !!guild && this.currentBaseIndex >= 0 && this.currentBaseIndex < guild.bases.length - 1;
-        },
-        navigateToPrevBase() {
-            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
-            if (guild && this.hasPrevBase) {
-                this.selectedBaseId = guild.bases[this.currentBaseIndex - 1].base_id;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        },
-        navigateToNextBase() {
-            const guild = this.basePals.find(g => g.guild_id === this.selectedGuildId);
-            if (guild && this.hasNextBase) {
-                this.selectedBaseId = guild.bases[this.currentBaseIndex + 1].base_id;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        },
-
         /** Keep guild/base selection valid; pick the first of each when nothing is chosen. */
         ensureBaseSelection() {
             const guilds = this.basePals;
