@@ -20,6 +20,9 @@ between rows 72 and 73).
 build_exp_tables turns the two pak dumps into data/json/exp.json (scripts/datagen/
 generate_exp.py); the helpers below read it. Bonus values are at the server's default
 EXP rate; the caller scales by ExpRate when it knows it.
+
+The ladder runs past the level cap (100 rows while the cap is 80 on 1.0), so the cap
+comes from BP_PalGameSetting's CharacterMaxLevel, stored as exp.json's max_level.
 """
 from typing import Dict, List, Optional
 
@@ -28,8 +31,18 @@ MIN_BONUS_ROWS = 1000     # the 1.0 table has 4999 rows
 MIN_LEVELS = 60           # 100 rows on 1.0
 
 
-def build_exp_tables(bonus_rows: Dict[str, Dict], level_rows: Dict[str, Dict]) -> Dict:
-    """{capture_bonus: [exp per running index, from 0], levels: {level: {total, next}}}."""
+def character_max_level(exports: List[Dict]) -> Optional[int]:
+    """CharacterMaxLevel from a BP_PalGameSetting dump (its class default object), or None."""
+    for export in exports or []:
+        value = (export.get('Properties') or {}).get('CharacterMaxLevel')
+        if value:
+            return int(value)
+    return None
+
+
+def build_exp_tables(bonus_rows: Dict[str, Dict], level_rows: Dict[str, Dict],
+                     max_level: Optional[int] = None) -> Dict:
+    """{capture_bonus: [exp per running index, from 0], levels: {level: {total, next}}, max_level}."""
     bonus: List[int] = []
     for key in sorted(bonus_rows, key=lambda k: int(k)):
         bonus.append(int((bonus_rows[key] or {}).get('BonusExp') or 0))
@@ -37,7 +50,18 @@ def build_exp_tables(bonus_rows: Dict[str, Dict], level_rows: Dict[str, Dict]) -
     for key, row in level_rows.items():
         row = row or {}
         levels[str(int(key))] = {'total': int(row.get('TotalEXP') or 0), 'next': int(row.get('NextEXP') or 0)}
-    return {'capture_bonus': bonus, 'levels': levels}
+    doc = {'capture_bonus': bonus, 'levels': levels}
+    if max_level:
+        doc['max_level'] = int(max_level)
+    return doc
+
+
+def _next_row(table: Dict, level: int) -> Optional[Dict[str, int]]:
+    """The ladder row for `level + 1`, or None at the cap (max_level, or the end of the ladder)."""
+    cap = (table or {}).get('max_level')
+    if cap and int(level or 0) >= int(cap):
+        return None
+    return ((table or {}).get('levels') or {}).get(str(int(level or 0) + 1))
 
 
 def bonus_exp_at(table: Dict, index: int) -> int:
@@ -50,8 +74,7 @@ def bonus_exp_at(table: Dict, index: int) -> int:
 
 def exp_to_next_level(table: Dict, level: int, exp: int) -> Optional[int]:
     """EXP still needed for `level + 1`, or None past the table (the level cap)."""
-    levels = (table or {}).get('levels') or {}
-    row = levels.get(str(int(level or 0) + 1))
+    row = _next_row(table, level)
     if not row:
         return None
     return max(int(row['total']) - int(exp or 0), 0)
@@ -60,7 +83,7 @@ def exp_to_next_level(table: Dict, level: int, exp: int) -> Optional[int]:
 def level_progress(table: Dict, level: int, exp: int) -> Optional[Dict[str, int]]:
     """The status screen's EXP bar: {into, span, to_next} for this level, or None at the cap / no table."""
     levels = (table or {}).get('levels') or {}
-    here, nxt = levels.get(str(int(level or 0))), levels.get(str(int(level or 0) + 1))
+    here, nxt = levels.get(str(int(level or 0))), _next_row(table, level)
     if not here or not nxt:
         return None
     span = int(nxt['total']) - int(here['total'])

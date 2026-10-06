@@ -8,13 +8,14 @@ Two pak tables, read with the CUE4Parse extractor (scripts/datagen/extractor):
                                the save's RecordData.PalCaptureBonusExpTableIndex is the
                                player's position in it
   DT_PalExpTable               per level: TotalEXP (cumulative to reach it), NextEXP
+  BP_PalGameSetting            CharacterMaxLevel, the level cap (the ladder runs past it)
 
 See backend/common/exp_tables.py for how the app reads them (the Paldeck tab's
 "what is the next catch worth" figures).
 
 Usage:
   python3 scripts/datagen/generate_exp.py            # extract from the pak
-  python3 scripts/datagen/generate_exp.py --src DIR  # DIR has bonus.json + levels.json (skips the extractor)
+  python3 scripts/datagen/generate_exp.py --src DIR  # DIR has bonus.json + levels.json + settings.json (skips the extractor)
   python3 scripts/datagen/generate_exp.py --dry-run
 """
 
@@ -25,7 +26,7 @@ import subprocess
 from pathlib import Path
 
 from savepal import ROOT as REPO, DATA_JSON
-from backend.common.exp_tables import MIN_BONUS_ROWS, MIN_LEVELS, build_exp_tables
+from backend.common.exp_tables import MIN_BONUS_ROWS, MIN_LEVELS, build_exp_tables, character_max_level
 
 OUT_PATH = DATA_JSON / 'exp.json'
 EXTRACTOR = REPO / 'scripts' / 'datagen' / 'extractor' / 'bin' / 'Release' / 'net8.0' / 'pal-extract'
@@ -36,6 +37,7 @@ TABLES = {
     'bonus.json': 'Pal/Content/Pal/DataTable/Exp/DT_PalCaptureBonusExpTable',
     'levels.json': 'Pal/Content/Pal/DataTable/Exp/DT_PalExpTable',
 }
+SETTINGS = ('settings.json', 'Pal/Content/Pal/Blueprint/System/BP_PalGameSetting')
 
 
 def extract(src: Path) -> None:
@@ -50,6 +52,11 @@ def extract(src: Path) -> None:
         r = subprocess.run([str(EXTRACTOR), 'dt', table, str(src / fname)], env=env, stdout=subprocess.DEVNULL)
         if r.returncode != 0:
             raise SystemExit(f'error: extractor failed on {table}')
+    fname, asset = SETTINGS
+    print(f'extracting {asset.rsplit("/", 1)[-1]} ...')
+    r = subprocess.run([str(EXTRACTOR), 'obj', asset, str(src / fname)], env=env, stdout=subprocess.DEVNULL)
+    if r.returncode != 0:
+        raise SystemExit(f'error: extractor failed on {asset}')
 
 
 def load_rows(src: Path, fname: str) -> dict:
@@ -71,16 +78,20 @@ def main():
     if not args.src:
         extract(src)
 
-    doc = build_exp_tables(load_rows(src, 'bonus.json'), load_rows(src, 'levels.json'))
+    with open(src / SETTINGS[0], encoding='utf-8') as f:
+        max_level = character_max_level(json.load(f))
+    if not max_level:
+        raise SystemExit(f'error: no CharacterMaxLevel in {src / SETTINGS[0]}')
+    doc = build_exp_tables(load_rows(src, 'bonus.json'), load_rows(src, 'levels.json'), max_level)
     chain, levels = doc['capture_bonus'], doc['levels']
-    print(f'\n{len(chain)} bonus rows (first {chain[:3]}, last {chain[-1]}), {len(levels)} levels')
+    print(f'\n{len(chain)} bonus rows (first {chain[:3]}, last {chain[-1]}), {len(levels)} levels, cap {max_level}')
     if len(chain) < MIN_BONUS_ROWS or len(levels) < MIN_LEVELS:
         print(f'WARNING: fewer rows than expected (bonus >= {MIN_BONUS_ROWS}, levels >= {MIN_LEVELS}) -- stale usmap?')
     if OUT_PATH.exists():
         with open(OUT_PATH, encoding='utf-8') as f:
             old = json.load(f)
         print(f'vs committed: bonus rows {len(old.get("capture_bonus") or [])} -> {len(chain)}, '
-              f'levels {len(old.get("levels") or {})} -> {len(levels)}')
+              f'levels {len(old.get("levels") or {})} -> {len(levels)}, cap {old.get("max_level")} -> {max_level}')
 
     if args.dry_run:
         print('\n--dry-run: not written')
